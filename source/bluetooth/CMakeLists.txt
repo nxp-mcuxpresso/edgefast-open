@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: Apache-2.0
+
+zephyr_add_library(subsys__bluetooth INTERFACE)
+
+zephyr_target_include_directories(subsys__bluetooth INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
+edgefast_open_add_subdirectory(common)
+edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI host)
+edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI controller)
+edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CONN services)
+edgefast_open_add_subdirectory_ifdef(CONFIG_BT_MESH mesh)
+edgefast_open_add_subdirectory_ifdef(CONFIG_BT_AUDIO audio)
+edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CRYPTO crypto)
+
+zephyr_include_directories(.)
+
+edgefast_open_add_subdirectory(lib)

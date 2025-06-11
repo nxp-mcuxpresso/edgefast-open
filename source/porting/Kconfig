@@ -1,0 +1,104 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+rsource "Kconfig.dt"
+
+rsource "./*/Kconfig"
+
+config LITTLE_ENDIAN
+	bool
+	default y if MCUX_HW_DEVICE_MIMXRT1042 || \
+			MCUX_HW_DEVICE_MIMXRT1062 || \
+			MCUX_HW_DEVICE_MIMXRT685S || \
+			MCUX_HW_DEVICE_MIMXRT1176 || \
+			MCUX_HW_DEVICE_MIMXRT595S || \
+			MCUX_HW_DEVICE_MIMXRT1052 || \
+			MCUX_HW_DEVICE_MIMXRT1189 || \
+			MCUX_HW_DEVICE_MIMXRT1187 || \
+			MCUX_HW_DEVICE_MIMXRT1166 || \
+			MCUX_HW_DEVICE_MCXN547    || \
+			MCUX_HW_DEVICE_MCXN947    || \
+			MCUX_HW_DEVICE_RW612
+
+config BIG_ENDIAN
+	bool
+	default y if !LITTLE_ENDIAN
+
+
+config BT_LOGGING
+	bool "Bluetooth Debug Configuration"
+	default n
+	help
+	  Enable debug features and logging for Bluetooth stack
+
+config BT_DEFAULT_LOG_LEVEL
+	int "Bluetooth Default Log Level"
+	depends on BT_LOGGING
+	default 0
+	range 0 6
+	help
+	  Configure logging verbosity for Bluetooth stack initialization and core configuration
+
+config BT_HCI_DRIVER_LOG_LEVEL
+	int "Bluetooth HCI Driver Log Level"
+	depends on BT_LOGGING
+	default 0
+	range 0 6
+	help
+	  Configure logging verbosity for Bluetooth HCI driver functionality
+
+config BT_HCI_CORE_LOG_LEVEL
+	int "Bluetooth HCI Core Log Level"
+	depends on BT_LOGGING
+	default 0
+	range 0 6
+	help
+	  Configure logging verbosity for Bluetooth HCI core functionality
+
+config BT_CONN_LOG_LEVEL
+	int "Bluetooth Connection Log Level"
+	depends on BT_LOGGING
+	default 0
+	range 0 6
+	help
+	  Configure logging verbosity for Bluetooth Connection functionality
+
+config NET_BUF_LOG_LEVEL
+	int "Network Buffer Log Level"
+	depends on BT_LOGGING
+	default 0
+	range 0 6
+	help
+	  Configure logging verbosity for network buffer management
+
+config BT_LOG_LEVEL
+	int "Bluetooth Network Buffer Log Level"
+	depends on BT_LOGGING
+	default 0
+	range 0 6
+	help
+	  Configure logging verbosity for Bluetooth network buffer management
+
+config BT_L2CAP_LOG_LEVEL
+	int "Bluetooth L2CAP Log Level"
+	depends on BT_LOGGING
+	default 0
+	range 0 6
+	help
+	  Configure logging verbosity for Bluetooth L2CAP layer protocol functionality
+
+config BT_SMP_LOG_LEVEL
+	int "Bluetooth SMP Log Level"
+	depends on BT_LOGGING
+	default 0
+	range 0 6
+	help
+	  Configure logging verbosity for Bluetooth SMP layer protocol functionality
+
+config NUM_PREEMPT_PRIORITIES
+	int "Number of Preemption Priorities"
+	default 10
+	range 2 16
+	help
+	  Configure the number of preemption priority levels for Bluetooth stack scheduling

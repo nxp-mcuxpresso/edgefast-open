@@ -1,0 +1,36 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+menu "Edgefast Open Bluetooth Configurations(edgefast_open_config.h)"
+
+menuconfig MCUX_COMPONENT_middleware.edgefast_open
+	bool "Edgefast Open Bluetooth Host Stack"
+	imply MCUX_COMPONENT_middleware.freertos-kernel
+	imply MCUX_COMPONENT_component.osa
+	imply FSL_OSA_TASK_ENABLE
+	imply MCUX_COMPONENT_utility.assert
+	imply MCUX_COMPONENT_component.log
+	select MCUX_PRJSEG_utility.debug_console_transfer_non_blocking
+	select BT
+	select MCUX_COMPONENT_middleware.mbedtls if MCUX_HW_DEVICE_MIMXRT1042 || \
+						MCUX_HW_DEVICE_MIMXRT1062 || \
+						MCUX_HW_DEVICE_MIMXRT685S || \
+						MCUX_HW_DEVICE_MIMXRT1176 || \
+						MCUX_HW_DEVICE_MIMXRT595S || \
+						MCUX_HW_DEVICE_MIMXRT1052 || \
+						MCUX_HW_DEVICE_MIMXRT1189 || \
+						MCUX_HW_DEVICE_MIMXRT1187 || \
+						MCUX_HW_DEVICE_MIMXRT1166 || \
+						MCUX_HW_DEVICE_MCXN547    || \
+						MCUX_HW_DEVICE_MCXN947    || \
+						MCUX_HW_DEVICE_RW612
+	select MCUX_COMPONENT_middleware.mbedtls3x if MCUX_HW_DEVICE_MIMXRT798S
+
+if MCUX_COMPONENT_middleware.edgefast_open
+
+rsource "./*/Kconfig"
+
+endif # MCUX_COMPONENT_middleware.edgefast_open
+
+endmenu

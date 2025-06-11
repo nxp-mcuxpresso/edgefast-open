@@ -1,0 +1,7 @@
+# Bluetooth GATT Time Service
+
+# Copyright 2025 NXP
+# SPDX-License-Identifier: Apache-2.0
+
+config BT_TIP
+	bool "GATT Time service"

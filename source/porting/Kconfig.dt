@@ -1,0 +1,170 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+config DT_HAS_ZEPHYR_BT_HCI_UART_ENABLED
+	bool
+
+config DT_HAS_NXP_BT_HCI_UART_ENABLED
+	bool
+	select DT_HAS_ZEPHYR_BT_HCI_UART_ENABLED
+
+if DT_HAS_NXP_BT_HCI_UART_ENABLED
+config DT_CHOSEN_zephyr_bt_hci_EXISTS
+	bool
+	default y
+	help
+	  No prefix in generated macro
+
+if DT_CHOSEN_zephyr_bt_hci_EXISTS
+config DT_N_INST_0_hci_uart_P_instance
+	int "UART instance"
+	default 2 if MCUX_HW_DEVICE_MIMXRT1176
+	default 0
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_hci_uart_P_current_speed
+	int "UART Current Speed"
+	default 115200
+	help
+	  Configure the default UART communication speed for Bluetooth HCI UART interface.
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_primary_speed
+	int "UART Primary Download Speed for firmware downloading"
+	default 115200
+	help
+	  Configure the default UART communication speed for firmware downloading during the
+	  primary stage.
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_primary_speed_EXISTS
+	bool
+	default y
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_secondary_speed
+	int "UART Secondary Download Speed for firmware downloading"
+	default 3000000
+	help
+	  Configure the default UART communication speed for firmware downloading during the
+	  secondary stage.
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_secondary_speed_EXISTS
+	bool
+	default y
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_hci_operation_speed
+	int "UART HCI Operation Speed"
+	default 3000000
+	help
+	  Configure the default UART communication speed for HCI operation.
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_hci_operation_speed_EXISTS
+	bool
+	default y
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_hw_flow_control
+	bool "UART Hardware Flow Control"
+	default y
+	help
+	  Enable UART Hardware Flow Control for Bluetooth HCI UART interface.
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_hw_flow_control_EXISTS
+	bool
+	default y if DT_N_INST_0_nxp_bt_hci_uart_P_hw_flow_control
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_primary_flowcontrol
+	bool "UART Primary Download Flow Control for firmware downloading"
+	help
+	  Configure the flow control settings for firmware downloading during the primary stage.
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_primary_flowcontrol_EXISTS
+	bool
+	default y if DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_primary_flowcontrol
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_secondary_flowcontrol
+	bool "UART Secondary Download Flow Control for firmware downloading"
+	default y
+	help
+	  Configure the flow control settings for firmware downloading during the secondary stage.
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_secondary_flowcontrol_EXISTS
+	bool
+	default y if DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_secondary_flowcontrol
+	help
+	  No prefix in generated macro
+
+# sdio_reset_gpios
+config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_EXISTS
+	bool "SDIO reset GPIO"
+	default y
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_port
+	int "SDIO reset GPIO port"
+	default 9 if MCUX_HW_DEVICE_MIMXRT1176
+	default 0
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_pin
+	int "SDIO reset GPIO pin"
+	default 15 if MCUX_HW_DEVICE_MIMXRT1176
+	default 0
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_flags
+	int "SDIO reset GPIO flags"
+	default 1 if MCUX_HW_DEVICE_MIMXRT1176
+	default 1
+	help
+	  No prefix in generated macro
+
+# w_disable_gpios
+config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_EXISTS
+	bool "WIFI disable GPIO"
+	default y
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_port
+	int "WIFI disable GPIO port"
+	default 9 if MCUX_HW_DEVICE_MIMXRT1176
+	default 0
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_pin
+	int "WIFI disable GPIO pin"
+	default 30 if MCUX_HW_DEVICE_MIMXRT1176
+	default 0
+	help
+	  No prefix in generated macro
+
+config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_flags
+	int "WIFI disable GPIO flags"
+	default 1 if MCUX_HW_DEVICE_MIMXRT1176
+	default 1
+	help
+	  No prefix in generated macro
+
+endif # DT_CHOSEN_zephyr_bt_hci_EXISTS
+endif # DT_HAS_NXP_BT_HCI_UART_ENABLED

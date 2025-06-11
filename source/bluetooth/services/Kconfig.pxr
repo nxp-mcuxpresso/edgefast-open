@@ -1,0 +1,7 @@
+# Bluetooth GATT Proximity Service
+
+# Copyright 2025 NXP
+# SPDX-License-Identifier: Apache-2.0
+
+config BT_PXR
+	bool "GATT Proximity service"

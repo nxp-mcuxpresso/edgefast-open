@@ -1,0 +1,7 @@
+# Bluetooth GATT HTTP Proxy Service
+
+# Copyright 2025 NXP
+# SPDX-License-Identifier: Apache-2.0
+
+config BT_HPS
+	bool "GATT HTTP Proxy Service"

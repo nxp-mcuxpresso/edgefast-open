@@ -1,0 +1,63 @@
+# Copyright 2025 NXP
+# Copyright (c) 2018 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig PORT_SETTINGS
+	bool "Settings"
+	help
+	  The settings subsystem allows its users to serialize and
+	  deserialize state in memory into and from non-volatile memory.
+	  It supports several back-ends to store and load serialized data from
+	  and it can do so atomically for all involved modules.
+
+if PORT_SETTINGS
+
+choice SETTINGS_BACKEND
+	prompt "Storage back-end"
+	default SETTINGS_LITTLEFS
+	help
+	  Storage back-end to be used by the settings subsystem.
+
+config SETTINGS_LITTLEFS
+	bool "Little FS"
+	select MCUX_COMPONENT_middleware.littlefs
+	help
+	  Use LiitleFS as settings storage backend.
+
+if SETTINGS_LITTLEFS
+
+choice SETTINGS_LITTLEFS_FLASH
+    prompt "Local storage selection"
+    default SETTINGS_LITTLEFS_FLASH_MFLASH_OFF_CHIP if MCUX_HW_BOARD_evkbimxrt1050 || \
+                 MCUX_HW_BOARD_evkcmimxrt1060 || MCUX_HW_BOARD_evkmimxrt1040 || \
+                 MCUX_HW_BOARD_evkmimxrt1180 || MCUX_HW_BOARD_mimxrt685audevk || \
+                 MCUX_HW_BOARD_rdrw612bga || MCUX_HW_BOARD_frdmrw612 || \
+				 MCUX_HW_BOARD_mimxrt700evk || MCUX_HW_BOARD_evkbmimxrt1170 || \
+                 MCUX_HW_BOARD_evkmimxrt595 || MCUX_HW_BOARD_evkmimxrt685
+    default SETTINGS_LITTLEFS_FLASH_MFLASH_ON_CHIP_FMU if MCUX_HW_BOARD_mcxn5xxevk || \
+                 MCUX_HW_BOARD_mcxn9xxevk || MCUX_HW_BOARD_frdmmcxn947
+    help
+      The Flash driver will be automatically selected based on board.
+      It is also possible to select the flash driver manually.
+
+config SETTINGS_LITTLEFS_FLASH_MFLASH_OFF_CHIP
+    bool "off chip mflash"
+    select MCUX_COMPONENT_component.mflash_offchip
+
+config SETTINGS_LITTLEFS_FLASH_ADAPTER_RT685EVK
+    bool "rt685evk flash adapter"
+    select MCUX_COMPONENT_component.flexspi_nor_flash_adapter_rt685evk
+    depends on MCUX_HW_BOARD_evkmimxrt685
+
+config SETTINGS_LITTLEFS_FLASH_MFLASH_ON_CHIP_FMU
+    bool "on chip mflash via FMU controller"
+    select MCUX_COMPONENT_component.mflash_onchip_fmu
+    depends on MCUX_HW_BOARD_mcxn5xxevk || MCUX_HW_BOARD_mcxn9xxevk || MCUX_HW_BOARD_frdmmcxn947
+
+endchoice # SETTINGS_LITTLEFS_FLASH
+
+endif # SETTINGS_LITTLEFS
+
+endchoice # SETTINGS_BACKEND
+
+endif # PORT_SETTINGS
