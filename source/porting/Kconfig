@@ -110,3 +110,17 @@ config NUM_PREEMPT_PRIORITIES
 	range 2 16
 	help
 	  Configure the number of preemption priority levels for Bluetooth stack scheduling
+
+config SYSTEM_WORKQUEUE_STACK_SIZE
+	int "System Workqueue Stack Size"
+	default 4096 if BT_SMP || BT_CLASSIC
+	default 2048
+	help
+	  Configure the stack size for the system workqueue used in Bluetooth stack processing
+
+config SYSTEM_WORKQUEUE_PRIORITY
+	int "System Workqueue Priority"
+	default 8
+	range 0 NUM_PREEMPT_PRIORITIES
+	help
+	  Configure the priority level for the system workqueue used in Bluetooth stack processing

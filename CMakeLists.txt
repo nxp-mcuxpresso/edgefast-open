@@ -128,6 +128,37 @@ function(zephyr_include_directories)
     endforeach()
 endfunction()
 
+function(zephyr_include_directories_ifdef config_option)
+    if(${config_option})
+        set(includes_list "")
+        set(toolchains_list "")
+        set(parsing_toolchains FALSE)
+
+        foreach(arg ${ARGN})
+            if(arg STREQUAL "TOOLCHAINS")
+                set(parsing_toolchains TRUE)
+            elseif(parsing_toolchains)
+                list(APPEND toolchains_list ${arg})
+            else()
+                list(APPEND includes_list ${arg})
+            endif()
+        endforeach()
+
+        foreach(include_path ${includes_list})
+            if(toolchains_list)
+                mcux_add_include(
+                    INCLUDES ${include_path}
+                    TOOLCHAINS ${toolchains_list}
+                )
+            else()
+                mcux_add_include(
+                    INCLUDES ${include_path}
+                )
+            endif()
+        endforeach()
+    endif()
+endfunction()
+
 function(zephyr_library_link_libraries_ifdef)
 endfunction()
 

@@ -1,0 +1,26 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+config PORT_SHELL
+	bool
+	select MCUX_COMPONENT_component.lists
+	select MCUX_COMPONENT_component.common_task
+
+if PORT_SHELL
+config SHELL_ADVANCE
+	bool "Enable Advanced Shell Features"
+	default y
+	help
+	  Enable advanced shell features for enhanced command-line interaction
+	  and extended functionality in the EdgeFast shell environment.
+	  No prefix in generated macro
+
+config SHELL_USE_COMMON_TASK
+	int "Shell Common Task Configuration"
+	default 0
+	help
+	  Configure the common task usage for shell operations.
+	  No prefix in generated macro
+
+endif # PORT_SHELL

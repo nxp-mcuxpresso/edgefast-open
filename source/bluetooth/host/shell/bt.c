@@ -53,7 +53,7 @@
 #include "controller/ll_sw/shell/ll.h"
 #endif /* CONFIG_BT_LL_SW_SPLIT */
 #include "host/shell/bt.h"
-#include "mesh/shell/hci.h"
+//#include "mesh/shell/hci.h"
 
 static bool no_settings_load;
 

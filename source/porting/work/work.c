@@ -9,17 +9,17 @@
 
 /*! @brief Work queue task priority.
  */
-#ifndef CONFIG_WORK_QUEUE_TASK_PRIORITY
-    #define CONFIG_WORK_QUEUE_TASK_PRIORITY (configMAX_PRIORITIES - 2)
+#ifndef CONFIG_SYSTEM_WORKQUEUE_PRIORITY
+    #define CONFIG_SYSTEM_WORKQUEUE_PRIORITY (configMAX_PRIORITIES - 2)
 #endif
 
 /*! @brief Work queue task stack size.
  */
-#ifndef CONFIG_WORK_QUEUE_TASK_STACK_SIZE
+#ifndef CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE
 #if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
-    #define CONFIG_WORK_QUEUE_TASK_STACK_SIZE 4096
+    #define CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE 4096
 #else
-    #define CONFIG_WORK_QUEUE_TASK_STACK_SIZE 2048
+    #define CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE 2048
 #endif /* CONFIG_BT_SMP */
 #endif
 
@@ -54,7 +54,7 @@ static struct k_spinlock lock;
 
 static bool k_sys_work_q_init = false;
 struct k_work_q k_sys_work_q;
-static K_KERNEL_STACK_DEFINE(k_sys_work_q_thread_stack, CONFIG_WORK_QUEUE_TASK_STACK_SIZE);
+static K_KERNEL_STACK_DEFINE(k_sys_work_q_thread_stack, CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE);
 
 struct k_work_delay_q k_sys_work_delay_q;
 
@@ -79,8 +79,8 @@ static void _sys_work_queue_init(void)
 		/* SYS work queue init */
 		k_work_queue_init(&k_sys_work_q);
 		k_work_queue_start(&k_sys_work_q, k_sys_work_q_thread_stack,
-			CONFIG_WORK_QUEUE_TASK_STACK_SIZE,
-			K_PRIO_COOP(CONFIG_WORK_QUEUE_TASK_PRIORITY), NULL);
+			CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE,
+			K_PRIO_COOP(CONFIG_SYSTEM_WORKQUEUE_PRIORITY), NULL);
 		k_thread_name_set(&k_sys_work_q.thread, "SYS WORK QUEUE");
 	}
 }

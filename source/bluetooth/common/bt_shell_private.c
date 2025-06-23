@@ -14,6 +14,7 @@
 #include <zephyr/shell/shell_backend.h>
 #include "bt_shell_private.h"
 
+#if 0
 static void wall_vfprintf(enum shell_vt100_color color, const char *fmt, va_list args)
 {
 	int count;
@@ -87,3 +88,4 @@ void bt_shell_fprintf_error(const char *fmt, ...)
 	wall_vfprintf(SHELL_ERROR, fmt, args);
 	va_end(args);
 }
+#endif

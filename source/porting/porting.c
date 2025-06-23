@@ -24,6 +24,10 @@ static mbedtls_ctr_drbg_context rng_ctx;
 #endif
 #endif /* CONFIG_BT_SMP */
 
+#ifdef CONFIG_BT_SHELL
+#include "fsl_shell.h"
+#endif /* CONFIG_BT_SHELL */
+
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION))
 #ifndef porting_errno
 int errno = 0;
@@ -55,6 +59,25 @@ static OSA_TASK_HANDLE_DEFINE(porting_log_task_data);
 OSA_TASK_DEFINE( porting_log_task, CONFIG_PORTING_LOG_PRIO, 1, CONFIG_PORTING_LOG_STACK_SIZE, 0);
 
 #endif
+
+#if defined(CONFIG_BT_SHELL)
+STRUCT_SECTION_DEFINE(_shell_command);
+
+shell_status_t SHELL_InitPost(shell_handle_t shellHandle)
+{
+	struct _shell_command *cmd;
+	shell_status_t status;
+
+	STRUCT_SECTION_FOREACH(_shell_command, cmd) {
+		status = SHELL_RegisterCommand(shellHandle, cmd);
+		if (status != kStatus_SHELL_Success) {
+			return status;
+		}
+	}
+
+	return kStatus_SHELL_Success;
+}
+#endif /* CONFIG_BT_SHELL */
 
 /* Declear the section */
 STRUCT_SECTION_DEFINE_ALTERNATE(init_post, init_entry);

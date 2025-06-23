@@ -536,6 +536,19 @@ SHELL_STATIC_SUBCMD_SET_CREATE(allowlist_cmds,
 	SHELL_SUBCMD_SET_END
 );
 
+static int cmd_l2cap_allowlist(const struct shell *sh, size_t argc, char **argv)
+{
+	if (argc == 1) {
+		shell_help(sh);
+		/* shell returns 1 when help is printed */
+		return 1;
+	}
+
+	shell_error(sh, "%s unknown parameter: %s", argv[0], argv[1]);
+
+	return -ENOEXEC;
+}
+
 SHELL_STATIC_SUBCMD_SET_CREATE(l2cap_cmds,
 	SHELL_CMD_ARG(connect, NULL, "<psm> [sec_level]", cmd_connect, 2, 1),
 	SHELL_CMD_ARG(disconnect, NULL, HELP_NONE, cmd_disconnect, 1, 0),
@@ -545,7 +558,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(l2cap_cmds,
 		      "[policy: allowlist, 16byte_key]", cmd_register, 2, 2),
 	SHELL_CMD_ARG(send, NULL, "[number of packets] [length of packet(s)]",
 		      cmd_send, 1, 2),
-	SHELL_CMD_ARG(allowlist, &allowlist_cmds, HELP_NONE, NULL, 1, 0),
+	SHELL_CMD_ARG(allowlist, &allowlist_cmds, HELP_NONE, cmd_l2cap_allowlist, 1, 0),
 #if defined(CONFIG_BT_L2CAP_ECRED)
 	SHELL_CMD_ARG(ecred-connect, NULL, "<psm (hex)> [sec_level (dec)]",
 		cmd_ecred_connect, 2, 1),
