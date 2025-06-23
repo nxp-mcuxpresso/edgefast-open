@@ -11,3 +11,9 @@ config BT_CRYPTO
 	imply MBEDTLS_AES_ROM_TABLES if MBEDTLS_PSA_CRYPTO_C
 	help
 	  This option enables the Bluetooth Cryptographic Toolbox.
+
+config BT_CRYPTO_PSA
+	bool "PSA Crypto Support for Bluetooth"
+	depends on BT_CRYPTO
+	help
+	  This option enables PSA Crypto API support for Bluetooth cryptographic operations.
