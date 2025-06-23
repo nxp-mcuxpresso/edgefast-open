@@ -4341,10 +4341,6 @@ int bt_enable(bt_ready_cb_t cb)
 
 	bt_sys_init();
 
-	if (IS_ENABLED(CONFIG_BT_LOGGING)) {
-		bt_logging_init();
-	}
-
 	if (!device_is_ready(bt_dev.hci)) {
 		LOG_ERR("HCI driver is not ready");
 		return -ENODEV;
@@ -4495,10 +4491,6 @@ int bt_disable(void)
 	 * completed.
 	 */
 	atomic_clear_bit(bt_dev.flags, BT_DEV_ENABLE);
-
-	if (IS_ENABLED(CONFIG_BT_LOGGING)) {
-		bt_logging_deinit();
-	}
 
 	return 0;
 }

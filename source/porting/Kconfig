@@ -32,6 +32,14 @@ config BT_LOGGING
 	help
 	  Enable debug features and logging for Bluetooth stack
 
+config BT_LOGGING_INIT_PRIORITY
+	int "Bluetooth Logging Initialization Priority"
+	depends on BT_LOGGING
+	default 50
+	range 0 255
+	help
+	  Configure Bluetooth logging initialization priority
+
 config BT_DEFAULT_LOG_LEVEL
 	int "Bluetooth Default Log Level"
 	depends on BT_LOGGING

@@ -293,10 +293,19 @@ static void porting_log_task(void* param)
 }
 #endif
 
+
+static bool logging_initialized;
+
 void bt_logging_init(void)
 {
 #if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 	osa_status_t ret;
+
+	if (logging_initialized) {
+		return;
+	}
+
+	logging_initialized = true;
 
 	(void)LOG_Init();
 #if LOG_ENABLE_TIMESTAMP
@@ -315,11 +324,26 @@ void bt_logging_deinit(void)
 #if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 	osa_status_t ret;
 
+	if (logging_initialized == false) {
+		return;
+	}
+
 	ret = OSA_TaskDestroy((osa_task_handle_t)porting_log_task_data);
 	assert(KOSA_StatusSuccess == ret);
 	(void)ret;
+
+	logging_initialized = false;
 #endif
 }
+
+static int logging_init(void)
+{
+	bt_logging_init();
+
+	return 0;
+}
+
+SYS_INIT(logging_init, POST_KERNEL, CONFIG_BT_LOGGING_INIT_PRIORITY);
 
 static uint32_t crc32_ieee_update(uint32_t crc, const uint8_t *data, size_t len)
 {
