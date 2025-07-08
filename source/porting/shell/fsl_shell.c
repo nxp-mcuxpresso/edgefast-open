@@ -149,7 +149,7 @@ static shell_status_t SHELL_EchoCommand(shell_handle_t shellHandle, int32_t argc
 #endif
 #endif
 
-static int32_t SHELL_ParseLine(const char *cmd, uint32_t len, char *argv[]); /*!< parse line command */
+static int32_t SHELL_ParseLine(shell_context_handle_t *shellContextHandle, char *cmd, uint32_t len, shell_command_t *tmpCommand, char *argv[]); /*!< parse line command */
 
 static int32_t SHELL_StringCompare(const char *str1, const char *str2, int32_t count); /*!< compare string command */
 
@@ -783,161 +783,201 @@ static shell_status_t SHELL_EchoCommand(shell_handle_t shellHandle, int32_t argc
 #endif
 #endif
 
-static void SHELL_ProcessCommand(shell_context_handle_t *shellContextHandle, const char *cmd)
+static void SHELL_CmdLineFormat(const char *cmdLine)
+{
+    uint32_t len = strlen(cmdLine);
+    uint32_t index = 0;
+    char *p = &s_paramBuffer[0];
+
+    while (index < len)
+    {
+        while ((cmdLine[index] == ' ') && (index < len))
+        {
+            index++;
+        }
+
+        if (index >= len) {
+            break;
+        }
+
+        if (p != &s_paramBuffer[0]) {
+            *p = ' ';
+            p++;
+        }
+        while ((cmdLine[index] != ' ') && (index < len))
+        {
+            *p = cmdLine[index];
+            p++;
+            index++;
+        }
+    }
+    *p = '\0';
+}
+
+static int32_t SHELL_StartFindCmd(shell_context_handle_t *shellContextHandle, const char *cmdLine, shell_command_t **cmdOutput, char *argv[])
 {
     shell_command_t *tmpCommand = NULL;
-    const char *tmpCommandString;
-    int32_t argc;
-    char *argv[SHELL_MAX_ARGS] = {NULL};
     list_element_handle_t p;
-    uint8_t flag = 1;
+    const char *tmpCommandString;
     uint16_t tmpCommandLen;
-    uint16_t tmpLen;
-    uint16_t i = 0;
+    int32_t argc;
 
-    tmpLen = (uint16_t)strlen(cmd);
-    argc   = SHELL_ParseLine(cmd, tmpLen, argv);
+    SHELL_CmdLineFormat(cmdLine);
 
-    if ((argc > 0))
+    p = LIST_GetHead(&shellContextHandle->commandContextListHead);
+
+    while (p != NULL)
     {
-        p = LIST_GetHead(&shellContextHandle->commandContextListHead);
-        while (p != NULL)
-        {
-            tmpCommand       = SHEEL_COMMAND_POINTER(p);
-            tmpCommandString = tmpCommand->pcCommand;
-            tmpCommandLen    = (uint16_t)strlen(tmpCommandString);
-            /* Compare with space or end of string */
-            if ((cmd[tmpCommandLen] == '\n') || (cmd[tmpCommandLen] == (char)0x00)
+        tmpCommand       = SHEEL_COMMAND_POINTER(p);
+        tmpCommandString = tmpCommand->pcCommand;
+        tmpCommandLen    = (uint16_t)strlen(tmpCommandString);
+
+        /* Compare with space or end of string */
+        if ((s_paramBuffer[tmpCommandLen] == '\n') || (s_paramBuffer[tmpCommandLen] == (char)0x00)
 #if (defined(SHELL_ADVANCE) && (SHELL_ADVANCE > 0))
-                || (SHELL_COMMAND_CONNECTOR == cmd[tmpCommandLen])
+                || (SHELL_COMMAND_CONNECTOR == s_paramBuffer[tmpCommandLen])
 #endif /* SHELL_ADVANCE */
-                  )
+           )
+        {
+            if (SHELL_StringCompare(tmpCommandString, s_paramBuffer, (uint32_t)tmpCommandLen) == 0)
             {
-                if (SHELL_StringCompare(tmpCommandString, argv[0], (uint32_t)tmpCommandLen) == 0)
-                {
 #if (defined(SHELL_ADVANCE) && (SHELL_ADVANCE > 0))
-                    if (kStatus_SHELL_Success != SHELL_FindCommand(shellContextHandle, tmpCommand, argv[0], &tmpCommand))
+                    if (kStatus_SHELL_Success != SHELL_FindCommand(shellContextHandle, tmpCommand, s_paramBuffer, &tmpCommand))
                     {
                         p = LIST_GetNext(p);
                         continue;
                     }
-                    /* support commands with optional number of parameters */
-                    if (tmpCommand->parameter.cExpectedNumberOfParameters >=
-                        (uint32_t)(((uint32_t)SHELL_IGNORE_PARAMETER_COUNT) | (((uint32_t)SHELL_IGNORE_PARAMETER_COUNT) << 16)))
-                    {
-                        flag = 0;
-                    }
-                    else if (((tmpCommand->parameter.range.min + 1) <= argc) && ((tmpCommand->parameter.range.max + 1) >= argc))
-                    {
-                        flag = 0;
-                    }
-                    else
-#else
-                    /* support commands with optional number of parameters */
-                    if (tmpCommand->cExpectedNumberOfParameters == (uint8_t)SHELL_IGNORE_PARAMETER_COUNT)
-                    {
-                        flag = 0;
-                    }
-                    else if ((tmpCommand->cExpectedNumberOfParameters == 0U) && (argc == 1))
-                    {
-                        flag = 0;
-                    }
-                    else if (tmpCommand->cExpectedNumberOfParameters > 0U)
-                    {
-                        if ((argc - 1U) == tmpCommand->cExpectedNumberOfParameters)
-                        {
-                            flag = 0;
-                        }
-                    }
-                    else
 #endif /* SHELL_ADVANCE */
-                    {
-                        flag = 1;
-                    }
                     break;
-                }
             }
-            p = LIST_GetNext(p);
         }
-        if (NULL == p)
-        {
-            tmpCommand = NULL;
-        }
+        p = LIST_GetNext(p);
+    }
+    if (NULL == p)
+    {
+        tmpCommand = NULL;
     }
 
-    if ((tmpCommand != NULL) && (flag == 1U))
-    {
-        (void)SHELL_Write(
-            shellContextHandle,
-            (char *)"\r\nIncorrect command parameter(s).  Enter \"help\" to view a list of available commands.\r\n\r\n",
-            strlen(
-                "\r\nIncorrect command parameter(s).  Enter \"help\" to view a list of available commands.\r\n\r\n"));
-        tmpCommand = NULL;
-    }
-    else if (tmpCommand != NULL)
-    {
-        shell_status_t ret;
-        tmpLen = (uint16_t)strlen(cmd);
-        /* Compare with last command. Push back to history buffer if different */
-        if (tmpLen != (uint16_t)SHELL_StringCompare(cmd, shellContextHandle->hist_buf[0], (int32_t)strlen(cmd)))
-        {
-            for (i = SHELL_HISTORY_COUNT - 1U; i > 0U; i--)
-            {
-                (void)memset(shellContextHandle->hist_buf[i], '\0', SHELL_BUFFER_SIZE);
-                tmpLen = (uint16_t)strlen(shellContextHandle->hist_buf[i - 1U]);
-                (void)memcpy(shellContextHandle->hist_buf[i], shellContextHandle->hist_buf[i - 1U], tmpLen);
-            }
-            (void)memset(shellContextHandle->hist_buf[0], '\0', SHELL_BUFFER_SIZE);
-            tmpLen = (uint16_t)strlen(cmd);
-            (void)memcpy(shellContextHandle->hist_buf[0], cmd, tmpLen);
-            if (shellContextHandle->hist_count < SHELL_HISTORY_COUNT)
-            {
-                shellContextHandle->hist_count++;
-            }
-        }
-#if (defined(SHELL_ADVANCE) && (SHELL_ADVANCE > 0))
-        memcpy(argv[0], tmpCommand->pcCommand, strlen(tmpCommand->pcCommand) + 1);
-#endif /* SHELL_ADVANCE */
-        if (NULL !=  tmpCommand->pFuncCallBack)
-        {
-            ret = tmpCommand->pFuncCallBack(shellContextHandle, argc, argv);
-        }
-        else
-        {
-            ret = kStatus_SHELL_PrintCmdHelp;
-        }
-        if (kStatus_SHELL_Success == ret)
-        {
-            /* Command executed successfully */
-        }
-        else
-        {
-            /* error is occurred */
-#if (defined(SHELL_ADVANCE) && (SHELL_ADVANCE > 0))
-            if (kStatus_SHELL_PrintCmdHelp == ret)
-            {
-                SHELL_PrintCmdHelp(shellContextHandle, tmpCommand, 0);
-            }
-            else if (kStatus_SHELL_PrintAllHelp == ret)
-            {
-                SHELL_PrintAllCmdHelp(shellContextHandle);
-            }
-            else
-            {
-                /* Other errors */
-            }
-            (void)SHELL_Printf(shellContextHandle, "Command executed failure\r\n");
-#endif /* SHELL_ADVANCE */
-        }
-        tmpCommand = NULL;
-    }
-    else
+    *cmdOutput = NULL;
+    if (tmpCommand == NULL)
     {
         (void)SHELL_Write(
             shellContextHandle,
             (char *)"\r\nCommand not recognized.  Enter 'help' to view a list of available commands.\r\n\r\n",
             strlen("\r\nCommand not recognized.  Enter 'help' to view a list of available commands.\r\n\r\n"));
-        tmpCommand = NULL;
+        return 0;
+    }
+
+    argc = SHELL_ParseLine(shellContextHandle, s_paramBuffer, strlen(s_paramBuffer), tmpCommand, argv);
+
+#if (defined(SHELL_ADVANCE) && (SHELL_ADVANCE > 0))
+    /* support commands with optional number of parameters */
+    if (tmpCommand->parameter.cExpectedNumberOfParameters >=
+        (uint32_t)(((uint32_t)SHELL_IGNORE_PARAMETER_COUNT) | (((uint32_t)SHELL_IGNORE_PARAMETER_COUNT) << 16)))
+    {
+        *cmdOutput = tmpCommand;
+    }
+    else if (((tmpCommand->parameter.range.min + 1) <= argc) && ((tmpCommand->parameter.range.max + 1) >= argc))
+    {
+        *cmdOutput = tmpCommand;
+    }
+    else
+#else
+    /* support commands with optional number of parameters */
+    if (tmpCommand->cExpectedNumberOfParameters == (uint8_t)SHELL_IGNORE_PARAMETER_COUNT)
+    {
+        *cmdOutput = tmpCommand;
+    }
+    else if ((tmpCommand->cExpectedNumberOfParameters == 0U) && (argc == 1))
+    {
+        *cmdOutput = tmpCommand;
+    }
+    else if (tmpCommand->cExpectedNumberOfParameters > 0U)
+    {
+        if ((argc - 1U) == tmpCommand->cExpectedNumberOfParameters)
+        {
+            *cmdOutput = tmpCommand;
+        }
+    }
+    else
+#endif /* SHELL_ADVANCE */
+    {
+        /* Invalid */
+        (void)SHELL_Write(
+            shellContextHandle,
+            (char *)"\r\nIncorrect command parameter(s).  Enter \"help\" to view a list of available commands.\r\n\r\n",
+            strlen(
+                "\r\nIncorrect command parameter(s).  Enter \"help\" to view a list of available commands.\r\n\r\n"));
+        return 0;
+    }
+
+    return argc;
+}
+
+static void SHELL_ProcessCommand(shell_context_handle_t *shellContextHandle, const char *cmd)
+{
+    shell_command_t *tmpCommand = NULL;
+    int32_t argc;
+    char *argv[SHELL_MAX_ARGS] = {NULL};
+    uint16_t tmpLen;
+    uint16_t i = 0;
+    shell_status_t ret;
+
+    argc = SHELL_StartFindCmd(shellContextHandle, cmd, &tmpCommand, argv);
+    if ((argc == 0) || (tmpCommand == NULL))
+    {
+        return;
+    }
+
+    tmpLen = (uint16_t)strlen(cmd);
+    /* Compare with last command. Push back to history buffer if different */
+    if (tmpLen != (uint16_t)SHELL_StringCompare(cmd, shellContextHandle->hist_buf[0], (int32_t)strlen(cmd)))
+    {
+        for (i = SHELL_HISTORY_COUNT - 1U; i > 0U; i--)
+        {
+            (void)memset(shellContextHandle->hist_buf[i], '\0', SHELL_BUFFER_SIZE);
+            tmpLen = (uint16_t)strlen(shellContextHandle->hist_buf[i - 1U]);
+            (void)memcpy(shellContextHandle->hist_buf[i], shellContextHandle->hist_buf[i - 1U], tmpLen);
+        }
+        (void)memset(shellContextHandle->hist_buf[0], '\0', SHELL_BUFFER_SIZE);
+        tmpLen = (uint16_t)strlen(cmd);
+        (void)memcpy(shellContextHandle->hist_buf[0], cmd, tmpLen);
+        if (shellContextHandle->hist_count < SHELL_HISTORY_COUNT)
+        {
+            shellContextHandle->hist_count++;
+        }
+    }
+
+    if (NULL !=  tmpCommand->pFuncCallBack)
+    {
+        ret = tmpCommand->pFuncCallBack(shellContextHandle, argc, argv);
+    }
+    else
+    {
+        ret = kStatus_SHELL_PrintCmdHelp;
+    }
+    if (kStatus_SHELL_Success == ret)
+    {
+        /* Command executed successfully */
+    }
+    else
+    {
+        /* error is occurred */
+#if (defined(SHELL_ADVANCE) && (SHELL_ADVANCE > 0))
+        if (kStatus_SHELL_PrintCmdHelp == ret)
+        {
+            SHELL_PrintCmdHelp(shellContextHandle, tmpCommand, 0);
+        }
+        else if (kStatus_SHELL_PrintAllHelp == ret)
+        {
+            SHELL_PrintAllCmdHelp(shellContextHandle);
+        }
+        else
+        {
+            /* Other errors */
+        }
+        (void)SHELL_Printf(shellContextHandle, "Command executed failure\r\n");
+#endif /* SHELL_ADVANCE */
     }
 }
 
@@ -1040,7 +1080,7 @@ static shell_status_t SHELL_PrintCommandPath(shell_context_handle_t *shellContex
         if (kStatus_SHELL_Success == SHELL_PrintCommandPathRecursion(shellContextHandle, cmdTemp, cmd, path, pathLength))
         {
             uint32_t length = strlen(path);
-            if((length + strlen(cmdTemp->pcCommand)) < pathLength)
+            if ((length + strlen(cmdTemp->pcCommand)) < pathLength)
             {
                 for (uint32_t index = 0;index < length;index++)
                 {
@@ -1207,19 +1247,22 @@ static int32_t SHELL_StringCompare(const char *str1, const char *str2, int32_t c
     return kStatus_SHELL_Success;
 }
 
-static int32_t SHELL_ParseLine(const char *cmd, uint32_t len, char *argv[])
+static int32_t SHELL_ParseLine(shell_context_handle_t *shellContextHandle, char *cmd, uint32_t len, shell_command_t *tmpCommand, char *argv[])
 {
     uint32_t argc;
     char *p;
     uint32_t position;
 
-    /* Init params */
-    (void)memset(s_paramBuffer, '\0', len + 1U);
-    (void)memcpy(s_paramBuffer, cmd, len);
+    memset(s_cmdLineBuffer, 0U, sizeof(s_cmdLineBuffer));
+    if (kStatus_SHELL_Success != SHELL_PrintCommandPath(shellContextHandle, tmpCommand, s_cmdLineBuffer, sizeof(s_cmdLineBuffer)))
+    {
+        return 0;
+    }
 
-    p        = s_paramBuffer;
-    position = 0;
-    argc     = 0;
+    position = strlen(s_cmdLineBuffer);
+    argc     = 1;
+    argv[0]  = cmd;
+    p        = &cmd[position];
 
     while (position < len)
     {
@@ -1258,7 +1301,7 @@ static int32_t SHELL_ParseLine(const char *cmd, uint32_t len, char *argv[])
         {
             argv[argc] = p;
             argc++;
-            while (((char)*p != '\n') && (position < len))
+            while (((char)*p != ' ') && (position < len))
             {
                 p++;
                 position++;
