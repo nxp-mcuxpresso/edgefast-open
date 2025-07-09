@@ -51,7 +51,7 @@ config BT_DEFAULT_LOG_LEVEL
 config BT_HCI_DRIVER_LOG_LEVEL
 	int "Bluetooth HCI Driver Log Level"
 	depends on BT_LOGGING
-	default 0
+	default BT_DEFAULT_LOG_LEVEL
 	range 0 6
 	help
 	  Configure logging verbosity for Bluetooth HCI driver functionality
@@ -59,7 +59,7 @@ config BT_HCI_DRIVER_LOG_LEVEL
 config BT_HCI_CORE_LOG_LEVEL
 	int "Bluetooth HCI Core Log Level"
 	depends on BT_LOGGING
-	default 0
+	default BT_DEFAULT_LOG_LEVEL
 	range 0 6
 	help
 	  Configure logging verbosity for Bluetooth HCI core functionality
@@ -67,7 +67,7 @@ config BT_HCI_CORE_LOG_LEVEL
 config BT_CONN_LOG_LEVEL
 	int "Bluetooth Connection Log Level"
 	depends on BT_LOGGING
-	default 0
+	default BT_DEFAULT_LOG_LEVEL
 	range 0 6
 	help
 	  Configure logging verbosity for Bluetooth Connection functionality
@@ -75,7 +75,7 @@ config BT_CONN_LOG_LEVEL
 config NET_BUF_LOG_LEVEL
 	int "Network Buffer Log Level"
 	depends on BT_LOGGING
-	default 0
+	default BT_DEFAULT_LOG_LEVEL
 	range 0 6
 	help
 	  Configure logging verbosity for network buffer management
@@ -83,7 +83,7 @@ config NET_BUF_LOG_LEVEL
 config BT_LOG_LEVEL
 	int "Bluetooth Network Buffer Log Level"
 	depends on BT_LOGGING
-	default 0
+	default BT_DEFAULT_LOG_LEVEL
 	range 0 6
 	help
 	  Configure logging verbosity for Bluetooth network buffer management
@@ -91,7 +91,7 @@ config BT_LOG_LEVEL
 config BT_L2CAP_LOG_LEVEL
 	int "Bluetooth L2CAP Log Level"
 	depends on BT_LOGGING
-	default 0
+	default BT_DEFAULT_LOG_LEVEL
 	range 0 6
 	help
 	  Configure logging verbosity for Bluetooth L2CAP layer protocol functionality
@@ -99,7 +99,7 @@ config BT_L2CAP_LOG_LEVEL
 config BT_SMP_LOG_LEVEL
 	int "Bluetooth SMP Log Level"
 	depends on BT_LOGGING
-	default 0
+	default BT_DEFAULT_LOG_LEVEL
 	range 0 6
 	help
 	  Configure logging verbosity for Bluetooth SMP layer protocol functionality
