@@ -173,11 +173,11 @@ static void SHELL_Task(void *param); /*!<  Shell task*/
  * Variables
  ******************************************************************************/
 
-static SHELL_COMMAND_DEFINE(help, "\"help\": List all the registered commands\r\n", SHELL_HelpCommand, 0);
-static SHELL_COMMAND_DEFINE(exit, "\"exit\": Exit program\r\n", SHELL_ExitCommand, 0);
+static SHELL_COMMAND_DEFINE(help, "List all the registered commands", SHELL_HelpCommand, 0);
+static SHELL_COMMAND_DEFINE(exit, "Exit program", SHELL_ExitCommand, 0);
 #if (defined(SHELL_ADVANCE) && (SHELL_ADVANCE > 0))
 #if (SHELL_ECHO > 0)
-static SHELL_COMMAND_DEFINE(echo, "\"echo\": Set echo(0 - disable, 1 - enable)\r\n", SHELL_EchoCommand, 1);
+static SHELL_COMMAND_DEFINE(echo, "Set echo(0 - disable, 1 - enable)", SHELL_EchoCommand, 1);
 #endif
 #endif
 
@@ -608,14 +608,21 @@ static shell_status_t SHELL_PrintCmdHelp(shell_context_handle_t *shellContextHan
         return kStatus_SHELL_Success;
     }
 
-    if ((cmd->pcHelpString != NULL) && (bool)strlen(cmd->pcHelpString))
-    {
 #if (defined(SHELL_ADVANCE) && (SHELL_ADVANCE > 0))
-        SHELL_PrintPrefixBlank(shellContextHandle, (char *)"    ", level);
-        SHELL_Write(shellContextHandle, (char *)"+---", 4);
+    SHELL_PrintPrefixBlank(shellContextHandle, (char *)"    ", level);
+    SHELL_Write(shellContextHandle, (char *)"+---", 4);
 #endif /* SHELL_ADVANCE */
+    (void)SHELL_Write(shellContextHandle, (char *)cmd->pcCommand, strlen(cmd->pcCommand));
+    (void)SHELL_Write(shellContextHandle, ": ", strlen(": "));
+    if (cmd->pcHelpString != NULL)
+    {
         (void)SHELL_Write(shellContextHandle, cmd->pcHelpString, strlen(cmd->pcHelpString));
     }
+    else
+    {
+        (void)SHELL_Write(shellContextHandle, "[none]", strlen("[none]"));
+    }
+    (void)SHELL_Write(shellContextHandle, "\r\n", strlen("\r\n"));
 
 #if (defined(SHELL_ADVANCE) && (SHELL_ADVANCE > 0))
     if (NULL != cmd->commandList)
