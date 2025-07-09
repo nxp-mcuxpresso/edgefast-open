@@ -16,11 +16,6 @@
 #include "system_c.h"
 
 #include <zephyr/linker/section_tags.h>
-#include <zephyr/bluetooth/bluetooth.h>
-#include <zephyr/bluetooth/addr.h>
-#include <zephyr/bluetooth/uuid.h>
-#include <zephyr/bluetooth/conn.h>
-#include <zephyr/bluetooth/hci.h>
 
 #include <zephyr/settings/settings.h>
 
@@ -79,18 +74,8 @@ do                                                                  \
     }                                                               \
 } while (0);
 
-int char2hex(char c, uint8_t *x);
-int hex2char(uint8_t x, char *c);
-size_t bin2hex(const uint8_t *buf, size_t buflen, char *hex, size_t hexlen);
-size_t hex2bin(const char *hex, size_t hexlen, uint8_t *buf, size_t buflen);
-
 void bt_logging_init(void);
 void bt_logging_deinit(void);
-
-const char *bt_addr_le_str(const bt_addr_le_t *addr);
-const char *bt_hex(const void *buf, size_t len);
-const char *bt_addr_str(const bt_addr_t *addr);
-const char *bt_uuid_str(const struct bt_uuid *uuid);
 
 size_t strnlen(const char *s, size_t maxlen);
 
