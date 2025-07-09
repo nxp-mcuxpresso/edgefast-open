@@ -105,6 +105,7 @@ typedef int (*shell_cmd_handler_t)(const struct shell *sh, size_t argc, char *ar
 #define __SHELL_FUNC_DEF(arg) SHELL_FUNC_DEF_##arg
 #define _SHELL_FUNC_DEF(arg) __SHELL_FUNC_DEF(arg)
 #define SHELL_FUNC_DEF(index, arg) _SHELL_FUNC_DEF(_CONCAT(index, arg))
+#define SHELL_FUNC_DEF_2(...)
 
 #define SHELL_CMD_DESC(command, descriptor) descriptor
 
@@ -138,6 +139,7 @@ typedef int (*shell_cmd_handler_t)(const struct shell *sh, size_t argc, char *ar
 #define __SHELL_CMD_DEF(arg) SHELL_CMD_DEF_##arg
 #define _SHELL_CMD_DEF(arg) __SHELL_CMD_DEF(arg)
 #define SHELL_CMD_DEF(index, arg) _SHELL_CMD_DEF(_CONCAT(index, arg))
+#define SHELL_CMD_DEF_2(...) ((struct _shell_command *)NULL)
 
 #define SHELL_SUBCMD_SET_END NULL
 #define SHELL_STATIC_SUBCMD_SET_CREATE(cmds, ...)			\
