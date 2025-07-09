@@ -63,9 +63,6 @@
 #define LOG_LEVEL CONFIG_BT_CONN_LOG_LEVEL
 LOG_MODULE_REGISTER(bt_conn);
 
-/* Declear the section */
-STRUCT_SECTION_DEFINE(bt_conn_cb);
-
 K_FIFO_DEFINE(free_tx);
 
 #if defined(CONFIG_BT_CONN_TX_NOTIFY_WQ)

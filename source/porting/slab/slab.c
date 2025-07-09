@@ -7,14 +7,6 @@
 
 #include <porting.h>
 
-/* Declear the section */
-STRUCT_RW_SECTION_DEFINE(k_mem_slab);
-
-#if 0
-STRUCT_SECTION_START_EXTERN(k_mem_slab);
-STRUCT_SECTION_END_EXTERN(k_mem_slab);
-#endif
-
 /**
  * @brief Initialize a memory slab.
  *

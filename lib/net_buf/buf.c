@@ -44,8 +44,6 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
 /* Linker-defined symbol bound to the static pool structs */
 STRUCT_SECTION_START_EXTERN(net_buf_pool);
-/* Declear the section */
-STRUCT_RW_SECTION_DEFINE(net_buf_pool);
 
 struct net_buf_pool *net_buf_pool_get(int id)
 {

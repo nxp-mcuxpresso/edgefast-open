@@ -61,8 +61,6 @@ OSA_TASK_DEFINE( porting_log_task, CONFIG_PORTING_LOG_PRIO, 1, CONFIG_PORTING_LO
 #endif
 
 #if defined(CONFIG_BT_SHELL)
-STRUCT_SECTION_DEFINE(_shell_command);
-
 shell_status_t SHELL_InitPost(shell_handle_t shellHandle)
 {
 	struct _shell_command *cmd;

@@ -60,9 +60,6 @@
 #define LOG_LEVEL CONFIG_BT_GATT_LOG_LEVEL
 LOG_MODULE_REGISTER(bt_gatt);
 
-/* Declear the section */
-STRUCT_SECTION_DEFINE(bt_gatt_service_static);
-
 #define SC_TIMEOUT	K_MSEC(10)
 #define DB_HASH_TIMEOUT	K_MSEC(10)
 

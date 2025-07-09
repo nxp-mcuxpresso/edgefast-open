@@ -75,12 +75,9 @@ extern "C" {
  * @param[in]  type data type of section
  * @param[in]  secname name of output section
  */
-#if 0
+
 #define TYPE_SECTION_START_EXTERN(type, secname) \
 	extern type TYPE_SECTION_START(secname)[]
-#else
-#define TYPE_SECTION_START_EXTERN(type, secname)
-#endif
 
 /**
  * @brief iterable section extern for end symbol for a generic type
@@ -93,12 +90,9 @@ extern "C" {
  * @param[in]  type data type of section
  * @param[in]  secname name of output section
  */
-#if 0
+
 #define TYPE_SECTION_END_EXTERN(type, secname) \
 	extern type TYPE_SECTION_END(secname)[]
-#else
-#define TYPE_SECTION_END_EXTERN(type, secname)
-#endif
 
 /*
  * Iterator for structure instances gathered by STRUCT_RW_SECTION_ITERABLE().

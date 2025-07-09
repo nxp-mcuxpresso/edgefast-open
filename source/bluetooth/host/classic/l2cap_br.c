@@ -36,9 +36,6 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(bt_l2cap_br, CONFIG_BT_L2CAP_LOG_LEVEL);
 
-/* Declear the section */
-STRUCT_SECTION_DEFINE(bt_l2cap_br_fixed_chan);
-
 #define BR_CHAN_RTX(_w) CONTAINER_OF(k_work_delayable_from_work(_w), \
 				     struct bt_l2cap_br_chan, rtx_work)
 

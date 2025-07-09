@@ -22,9 +22,6 @@
 #define LOG_LEVEL CONFIG_BT_IAS_LOG_LEVEL
 LOG_MODULE_REGISTER(ias);
 
-/* Declear the section */
-STRUCT_SECTION_DEFINE(bt_ias_cb);
-
 #define BT_IAS_ALERT_LVL_LEN 1
 
 #if defined(CONFIG_BT_IAS_SEC_AUTH)

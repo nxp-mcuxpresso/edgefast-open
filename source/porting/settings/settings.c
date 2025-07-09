@@ -13,14 +13,6 @@
 
 #include <zephyr/settings/settings.h>
 
-/* Declear the section */
-STRUCT_SECTION_DEFINE(settings_handler_static);
-
-#if 0
-STRUCT_SECTION_START_EXTERN(settings_handler_static);
-STRUCT_SECTION_END_EXTERN(settings_handler_static);
-#endif
-
 static lfs_t * lfs;
 
 /* Initialize the settings */
