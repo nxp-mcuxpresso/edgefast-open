@@ -79,22 +79,26 @@ shell_status_t SHELL_InitPost(shell_handle_t shellHandle)
 }
 #endif /* CONFIG_BT_SHELL */
 
-/* Declear the section */
-STRUCT_SECTION_DEFINE_ALTERNATE(init_post, init_entry);
-STRUCT_SECTION_DEFINE_ALTERNATE(init_appl, init_entry);
+extern const struct init_entry __init_PRE_KERNEL_1_start[];
+extern const struct init_entry __init_PRE_KERNEL_2_start[];
+extern const struct init_entry __init_POST_KERNEL_start[];
+extern const struct init_entry __init_APPLICATION_start[];
+extern const struct init_entry __init_end[];
 
 void bt_sys_init(void)
 {
-	struct init_entry *entry;
+	static const struct init_entry *levels[] = {
+		__init_PRE_KERNEL_1_start,
+		__init_PRE_KERNEL_2_start,
+		__init_POST_KERNEL_start,
+		__init_APPLICATION_start,
+		/* End marker */
+		__init_end,
+	};
+	const struct init_entry *entry;
 
-	STRUCT_SECTION_FOREACH_ALTERNATE(init_post, init_entry, entry) {
-		if ((entry != NULL) && (entry->init_fn != NULL)) {
-			entry->init_fn();
-		}
-	}
-
-	STRUCT_SECTION_FOREACH_ALTERNATE(init_appl, init_entry, entry) {
-		if ((entry != NULL) && (entry->init_fn != NULL)) {
+	for (entry = levels[0]; entry < levels[ARRAY_SIZE(levels) - 1]; entry++) {
+		if (entry->init_fn != NULL) {
 			entry->init_fn();
 		}
 	}
@@ -246,6 +250,7 @@ void bt_logging_deinit(void)
 #endif
 }
 
+#if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 static int logging_init(void)
 {
 	bt_logging_init();
@@ -254,6 +259,7 @@ static int logging_init(void)
 }
 
 SYS_INIT(logging_init, POST_KERNEL, CONFIG_BT_LOGGING_INIT_PRIORITY);
+#endif
 
 static uint32_t crc32_ieee_update(uint32_t crc, const uint8_t *data, size_t len)
 {
