@@ -33,11 +33,20 @@ struct shell {
 #define SHELL_CMD_HELP_PRINTED 1
 #endif /* SHELL_CMD_HELP_PRINTED */
 
+typedef int (*shell_cmd_handler_t)(const struct shell *sh, size_t argc, char *argv[]);
+
 #define SHELL_FUNC_DEF_SHELL_CMD(index, command, cmdList, descriptor, func) \
-	static shell_status_t _CONCAT(func, index)(shell_handle_t sh, int32_t argc, char **argv) \
+	static shell_status_t _CONCAT(_CONCAT(shell_cmd_handler_, __LINE__), index)(shell_handle_t sh, int32_t argc, char **argv) \
 	{								\
 		__ASSERT(ctx_shell->sh == sh, "Invalid Shell");		\
-		int err = func(ctx_shell, argc, argv);			\
+		int err;						\
+		shell_cmd_handler_t handler = (shell_cmd_handler_t)func;\
+									\
+		if (handler == NULL) {					\
+			return kStatus_SHELL_Error;			\
+		}							\
+									\
+		err = handler(ctx_shell, argc, argv);			\
 		if (err < 0) {						\
 			return kStatus_SHELL_Error;			\
 		} else if (err == SHELL_CMD_HELP_PRINTED) {		\
@@ -48,10 +57,17 @@ struct shell {
 	}
 
 #define SHELL_FUNC_DEF_SHELL_CMD_ARG(index, command, cmdList, descriptor, func, minarg, additonarg) \
-	static shell_status_t _CONCAT(func, index)(shell_handle_t sh, int32_t argc, char **argv) \
+	static shell_status_t _CONCAT(_CONCAT(shell_cmd_handler_, __LINE__), index)(shell_handle_t sh, int32_t argc, char **argv) \
 	{								\
 		__ASSERT(ctx_shell->sh == sh, "Invalid Shell");		\
-		int err = func(ctx_shell, argc, argv);			\
+		int err;						\
+		shell_cmd_handler_t handler = (shell_cmd_handler_t)func;\
+									\
+		if (handler == NULL) {					\
+			return kStatus_SHELL_Error;			\
+		}							\
+									\
+		err = handler(ctx_shell, argc, argv);			\
 		if (err < 0) {						\
 			return kStatus_SHELL_Error;			\
 		} else if (err == SHELL_CMD_HELP_PRINTED) {		\
@@ -62,11 +78,18 @@ struct shell {
 	}
 
 #define SHELL_FUNC_DEF_SHELL_COND_CMD_ARG(index, cond, command, cmdList, descriptor, func, minarg, additonarg) \
-	static shell_status_t _CONCAT(func, index)(shell_handle_t sh, int32_t argc, char **argv) \
+	static shell_status_t _CONCAT(_CONCAT(shell_cmd_handler_, __LINE__), index)(shell_handle_t sh, int32_t argc, char **argv) \
 	{									\
 		__ASSERT(ctx_shell->sh == sh, "Invalid Shell");			\
+		int err;							\
+		shell_cmd_handler_t handler = (shell_cmd_handler_t)func;	\
+										\
+		if (handler == NULL) {						\
+			return kStatus_SHELL_Error;				\
+		}								\
+										\
 		if ((cond) && (ctx_shell != NULL)) {				\
-			int err = func(ctx_shell, argc, argv);			\
+			err = handler(ctx_shell, argc, argv);			\
 			if (err < 0) {						\
 				return kStatus_SHELL_Error;			\
 			} else if (err == SHELL_CMD_HELP_PRINTED) {		\
@@ -89,7 +112,7 @@ struct shell {
 	SHELL_COMMAND_EXDEFINE_ANONYMOUS(command,						\
 					 (struct _shell_command **)cmdList,			\
 					 SHELL_CMD_DESC(command, descriptor),			\
-					 _CONCAT(func, index),					\
+					 _CONCAT(_CONCAT(shell_cmd_handler_, __LINE__), index),	\
 					 0,							\
 					 0							\
 					)
@@ -98,7 +121,7 @@ struct shell {
 	SHELL_COMMAND_EXDEFINE_ANONYMOUS(command,							\
 					 (struct _shell_command **)cmdList,				\
 					 SHELL_CMD_DESC(command, descriptor),				\
-					 _CONCAT(func, index),						\
+					 _CONCAT(_CONCAT(shell_cmd_handler_, __LINE__), index),		\
 					 ((minarg == 0) ? 0 : (minarg - 1)),				\
 					 ((minarg == 0) ? additonarg : (additonarg + minarg - 1))	\
 					)
@@ -107,7 +130,7 @@ struct shell {
 	SHELL_COMMAND_EXDEFINE_ANONYMOUS(command,							\
 					 (struct _shell_command **)cmdList,				\
 					 IS_ENABLED(cond) ? SHELL_CMD_DESC(command, descriptor) : NULL, \
-					 _CONCAT(func, index),						\
+					 _CONCAT(_CONCAT(shell_cmd_handler_, __LINE__), index),		\
 					 ((minarg == 0) ? 0 : (minarg - 1)),				\
 					 ((minarg == 0) ? additonarg : (additonarg + minarg - 1))	\
 					)
