@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-edgefast_open_add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
+add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 
 zephyr_library()
 zephyr_library_link_libraries(subsys__bluetooth)

@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <zephyr/sys/atomic.h>
 #include <zephyr/sys/byteorder.h>
+#include <zephyr/sys/check.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/sys/printk.h>
 
@@ -400,9 +401,6 @@ static int bt_a2dp_set_config_cb(struct bt_avdtp_req *req, struct net_buf *buf)
 	struct bt_a2dp_stream_ops *ops;
 
 	ep = CONTAINER_OF(a2dp->set_config_param.sep, struct bt_a2dp_ep, sep);
-	if (ep->stream == NULL) {
-		return -EINVAL;
-	}
 
 	if ((ep->stream == NULL) || (SET_CONF_REQ(req) != &a2dp->set_config_param)) {
 		return -EINVAL;
@@ -1013,6 +1011,19 @@ int bt_a2dp_register_ep(struct bt_a2dp_ep *ep, uint8_t media_type, uint8_t sep_t
 	}
 
 	return 0;
+}
+
+struct bt_conn *bt_a2dp_get_conn(struct bt_a2dp *a2dp)
+{
+	CHECKIF(a2dp == NULL) {
+		return NULL;
+	}
+
+	if (!a2dp->session.br_chan.chan.conn) {
+		return NULL;
+	}
+
+	return bt_conn_ref(a2dp->session.br_chan.chan.conn);
 }
 
 int bt_a2dp_register_cb(struct bt_a2dp_cb *cb)

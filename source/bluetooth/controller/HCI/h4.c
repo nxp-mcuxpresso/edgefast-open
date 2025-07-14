@@ -701,7 +701,7 @@ static int bt_hci_deinit(const struct device *dev)
 	return 0;
 }
 
-static int bt_hci_reinit(const struct device *dev, bool default_speed, bool flow_control)
+int bt_hci_reinit(const struct device *dev, bool default_speed, bool flow_control)
 {
 	int err;
 

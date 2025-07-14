@@ -3,8 +3,8 @@
 zephyr_library()
 zephyr_library_link_libraries(subsys__bluetooth)
 
-edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CLASSIC classic)
-edgefast_open_add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
+add_subdirectory_ifdef(CONFIG_BT_CLASSIC classic)
+add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 
 zephyr_library_sources_ifdef(CONFIG_BT_HCI_RAW          hci_raw.c hci_common.c)
 zephyr_library_sources_ifdef(CONFIG_BT_MONITOR          monitor.c)
