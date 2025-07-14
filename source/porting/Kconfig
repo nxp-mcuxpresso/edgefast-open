@@ -124,3 +124,9 @@ config SYSTEM_WORKQUEUE_PRIORITY
 	range 0 NUM_PREEMPT_PRIORITIES
 	help
 	  Configure the priority level for the system workqueue used in Bluetooth stack processing
+
+config PRINTK
+	bool "Bluetooth Printing Configuration"
+	default y
+	help
+	  Enable printing functionality
