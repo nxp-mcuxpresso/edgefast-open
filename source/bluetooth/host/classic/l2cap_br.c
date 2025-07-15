@@ -584,7 +584,7 @@ static void l2cap_br_sdu_is_done(struct bt_l2cap_br_chan *br_chan, struct net_bu
 		LOG_WRN("SDU %p is not found", sdu);
 	}
 
-	cb = (bt_conn_tx_cb_t)closure_cb(sdu->user_data);
+	cb = closure_cb(sdu->user_data);
 	if (cb) {
 		cb(br_chan->chan.conn, closure_data(sdu->user_data), err);
 	}
@@ -919,7 +919,7 @@ int bt_l2cap_br_send_cb(struct bt_conn *conn, uint16_t cid, struct net_buf *buf,
 
 	LOG_DBG("push PDU: cb %p userdata %p", cb, user_data);
 
-	make_closure(buf->user_data, (void *)cb, (void *)user_data);
+	make_closure(buf->user_data, cb, user_data);
 	sys_slist_append(&br_chan->_pdu_tx_queue, &buf->node);
 	raise_data_ready(br_chan);
 

@@ -993,7 +993,7 @@ static void acl_get_and_clear_cb(struct bt_conn *conn, struct net_buf *buf,
 {
 	__ASSERT_NO_MSG(is_acl_conn(conn));
 
-	*cb = (bt_conn_tx_cb_t)closure_cb(buf->user_data);
+	*cb = closure_cb(buf->user_data);
 	*ud = closure_data(buf->user_data);
 	memset(buf->user_data, 0, buf->user_data_size);
 }

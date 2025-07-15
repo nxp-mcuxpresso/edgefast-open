@@ -747,7 +747,7 @@ int bt_l2cap_send_pdu(struct bt_l2cap_le_chan *le_chan, struct net_buf *pdu,
 		return -EINVAL;
 	}
 
-	make_closure(pdu->user_data, (void *)cb, user_data);
+	make_closure(pdu->user_data, cb, user_data);
 	LOG_DBG("push: pdu %p len %d cb %p userdata %p", pdu, pdu->len, cb, user_data);
 
 	k_fifo_put(&le_chan->tx_queue, pdu);
@@ -986,7 +986,7 @@ struct net_buf *l2cap_data_pull(struct bt_conn *conn,
 		LOG_DBG("adding %s callback", sdu_end ? "`sdu_sent`" : "NULL");
 		/* No user callbacks for SDUs */
 		make_closure(pdu->user_data,
-			     sdu_end ? (void *)l2cap_chan_sdu_sent : NULL,
+			     sdu_end ? l2cap_chan_sdu_sent : NULL,
 			     sdu_end ? UINT_TO_POINTER(lechan->tx.cid) : NULL);
 	}
 

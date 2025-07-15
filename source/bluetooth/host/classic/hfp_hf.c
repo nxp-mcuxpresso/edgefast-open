@@ -260,7 +260,7 @@ int hfp_hf_send_cmd(struct bt_hfp_hf *hf, at_resp_cb_t resp,
 		return -ENOMEM;
 	}
 
-	make_at_callback_set(buf->user_data, (void *)resp, (void *)finish);
+	make_at_callback_set(buf->user_data, resp, finish);
 
 	va_start(vargs, format);
 	ret = vsnprintk(buf->data, (net_buf_tailroom(buf) - 1), format, vargs);
