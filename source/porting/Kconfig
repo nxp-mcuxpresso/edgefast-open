@@ -3,28 +3,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 rsource "Kconfig.dt"
+rsource "Kconfig.arch"
+rsource "Kconfig.toolchain"
 
 rsource "./*/Kconfig"
-
-config LITTLE_ENDIAN
-	bool
-	default y if MCUX_HW_DEVICE_MIMXRT1042 || \
-			MCUX_HW_DEVICE_MIMXRT1062 || \
-			MCUX_HW_DEVICE_MIMXRT685S || \
-			MCUX_HW_DEVICE_MIMXRT1176 || \
-			MCUX_HW_DEVICE_MIMXRT595S || \
-			MCUX_HW_DEVICE_MIMXRT1052 || \
-			MCUX_HW_DEVICE_MIMXRT1189 || \
-			MCUX_HW_DEVICE_MIMXRT1187 || \
-			MCUX_HW_DEVICE_MIMXRT1166 || \
-			MCUX_HW_DEVICE_MCXN547    || \
-			MCUX_HW_DEVICE_MCXN947    || \
-			MCUX_HW_DEVICE_RW612
-
-config BIG_ENDIAN
-	bool
-	default y if !LITTLE_ENDIAN
-
 
 config BT_LOGGING
 	bool "Bluetooth Debug Configuration"
