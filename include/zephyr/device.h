@@ -31,8 +31,11 @@ struct device {
 	void *config;
 };
 
+extern void bt_sys_init(void);
+
 static inline bool device_is_ready(const struct device * dev)
 {
+	bt_sys_init();
 	return true;
 }
 

@@ -93,13 +93,20 @@ void bt_sys_init(void)
 		/* End marker */
 		__init_end,
 	};
+	static bool initialized = false;
 	const struct init_entry *entry;
+
+	if (initialized) {
+		return;
+	}
 
 	for (entry = levels[0]; entry < levels[ARRAY_SIZE(levels) - 1]; entry++) {
 		if (entry->init_fn != NULL) {
 			entry->init_fn();
 		}
 	}
+
+	initialized = true;
 }
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION))
