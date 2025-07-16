@@ -142,6 +142,13 @@ k_tid_t k_thread_create(struct k_thread *new_thread,
     char buffer[configMAX_TASK_NAME_LEN + 1] = "INVALID";
     size_t ret;
 
+    if (sys_slist_find(&threads, &new_thread->node, NULL))
+    {
+        /* Thread already exists, handle error */
+        __ASSERT(false, "Thread already exists");
+        return NULL;
+    }
+
     ret = bin2hex((const uint8_t *)&add, sizeof(add), buffer, sizeof(buffer) - 1);
     assert(ret > 0);
     (void)ret;
@@ -149,6 +156,7 @@ k_tid_t k_thread_create(struct k_thread *new_thread,
     {
         /* TODO: */
     }
+
     new_thread->p1 = p1;
     new_thread->p2 = p2;
     new_thread->p3 = p3;
@@ -296,17 +304,17 @@ int k_thread_join(struct k_thread *thread, k_timeout_t timeout)
             ret = -EDEADLK;
             break;
         }
-        else if (eBlocked == state)
+        else if ((eBlocked == state) || (eReady == state) || (eSuspended == state))
         {
-            vTaskDelete((NULL == thread) ? NULL : thread->handle);
-        }
-        else if (eReady == state)
-        {
-            vTaskDelete((NULL == thread) ? NULL : thread->handle);
-        }
-        else if (eSuspended == state)
-        {
-            vTaskDelete((NULL == thread) ? NULL : thread->handle);
+            if (thread == NULL)
+            {
+                thread = k_sched_current_thread_query();
+                break;
+            }
+            k_sched_lock();
+            sys_slist_find_and_remove(&threads, &thread->node);
+            k_sched_unlock();
+            vTaskDelete(thread->handle);
         }
         else if (eDeleted == state)
         {
@@ -480,6 +488,7 @@ k_tid_t k_sched_current_thread_query(void)
             return t;
         }
     }
+
     return NULL;
 }
 
@@ -513,6 +522,9 @@ void k_thread_abort(k_tid_t thread)
 			return;
 		}
 	}
+	k_sched_lock();
+	sys_slist_find_and_remove(&threads, &thread->node);
+	k_sched_unlock();
 	vTaskDelete((NULL == thread) ? NULL : thread->handle);
 	if (thread != NULL) {
     		thread->handle = NULL;
