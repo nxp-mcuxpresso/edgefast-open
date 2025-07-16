@@ -351,3 +351,16 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
     *puxTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
 }
 #endif /* (configSUPPORT_STATIC_ALLOCATION == 1) && (configKERNEL_PROVIDED_STATIC_MEMORY == 0) */
+
+#ifdef CONFIG_ASSERT_NO_FILE_INFO
+void assert_post_action(void)
+#else  /* CONFIG_ASSERT_NO_FILE_INFO */
+void assert_post_action(const char *file, unsigned int line)
+#endif /* CONFIG_ASSERT_NO_FILE_INFO */
+{
+	assert(false);
+}
+
+void assert_print(const char *fmt, ...)
+{
+}
