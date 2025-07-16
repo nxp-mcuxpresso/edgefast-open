@@ -1,0 +1,11 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+config BT_RX_STACK_SIZE
+	default 4096
+
+if BT_LONG_WQ
+config BT_LONG_WQ_STACK_SIZE
+	default 3072
+endif # BT_LONG_WQ
