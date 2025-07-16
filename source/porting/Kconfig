@@ -5,6 +5,8 @@
 rsource "Kconfig.dt"
 rsource "Kconfig.arch"
 rsource "Kconfig.toolchain"
+rsource "Kconfig.assert"
+rsource "Kconfig.freertos"
 
 rsource "./*/Kconfig"
 
@@ -85,13 +87,6 @@ config BT_SMP_LOG_LEVEL
 	range 0 6
 	help
 	  Configure logging verbosity for Bluetooth SMP layer protocol functionality
-
-config NUM_PREEMPT_PRIORITIES
-	int "Number of Preemption Priorities"
-	default 10
-	range 2 16
-	help
-	  Configure the number of preemption priority levels for Bluetooth stack scheduling
 
 config SYSTEM_WORKQUEUE_STACK_SIZE
 	int "System Workqueue Stack Size"

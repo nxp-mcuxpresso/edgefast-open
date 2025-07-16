@@ -1,0 +1,15 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+config NUM_PREEMPT_PRIORITIES
+	int "Number of Preemption Priorities"
+	default 12
+	range 2 16
+	help
+	  Configure the number of preemption priority levels for Bluetooth stack scheduling
+
+config USE_STATS_FORMATTING_FUNCTIONS
+	bool "Enable Statistics Formatting Functions"
+	help
+	  Enable Statistics Formatting Functions
