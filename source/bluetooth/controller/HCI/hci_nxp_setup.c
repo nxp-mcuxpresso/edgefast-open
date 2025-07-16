@@ -1172,6 +1172,11 @@ static int bt_nxp_ctlr_init(void)
 	uart_dev_data.secondary_flowcontrol =
 		(bool)DT_PROP_OR(DT_DRV_INST(0), fw_download_secondary_flowcontrol, false);
 
+	if (!IS_ENABLED(CONFIG_BT_IND_DNLD)) {
+		(void)fw_upload_uart_reconfig(speed, flowcontrol_of_hci);
+		return 0;
+	}
+
 #if DT_NODE_HAS_PROP(DT_DRV_INST(0), sdio_reset_gpios) ||                                          \
 	DT_NODE_HAS_PROP(DT_DRV_INST(0), w_disable_gpios)
 #if DT_NODE_HAS_PROP(DT_DRV_INST(0), sdio_reset_gpios)
@@ -1502,7 +1507,7 @@ int bt_h4_vnd_setup(const struct device *dev)
 		return err;
 	}
 
-	/* To avoid bt_hci_cmd_send_sync cannot send issue */ 
+	/* To avoid bt_hci_cmd_send_sync cannot send issue */
 	err = bt_hci_reinit(dev, false, flowcontrol_of_hci);
 	if (err) {
 		LOG_ERR("Fail to reinit uart bandrate");

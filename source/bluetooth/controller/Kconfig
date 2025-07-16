@@ -43,8 +43,8 @@ config MCUX_COMPONENT_middleware.edgefast_open.hci.transport.h4
 	select MCUX_COMPONENT_middleware.sdmmc.sdio
 	select MCUX_COMPONENT_middleware.edgefast_open.controller.lwip.config if !MCUX_COMPONENT_middleware.lwip
 	select MCUX_COMPONENT_middleware.edgefast_open.controller.wifi.config if !MCUX_COMPONENT_middleware.wifi
-	select BT_IND_DNLD
-	select BT_ONLY_DNLD
+	select BT_IND_DNLD if !BT_BYPASS_DOWNLOAD
+	select BT_ONLY_DNLD if !BT_BYPASS_DOWNLOAD
 
 config MCUX_COMPONENT_middleware.edgefast_open.hci.transport.platform
 	bool "Platform Transport"
@@ -58,6 +58,10 @@ config BT_IND_DNLD
 
 config BT_ONLY_DNLD
 	bool "Bluetooth Independent Firmware Download (Bluetooth Firmware Only)"
+	default n
+
+config BT_BYPASS_DOWNLOAD
+	bool "Bypass Bluetooth Firmware Download"
 	default n
 
 # choice BT_CONTROLLER
