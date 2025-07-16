@@ -85,4 +85,6 @@ uint32_t crc32_ieee(const uint8_t *data, size_t len);
 
 void bt_sys_init(void);
 
+struct arch_esf;
+
 #endif /* __EDGEFAST_BT_BLE_PORTING_H__ */
