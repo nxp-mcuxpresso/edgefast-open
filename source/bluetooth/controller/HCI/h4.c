@@ -45,7 +45,7 @@ struct h4_data {
 	struct
 	{
 		struct net_buf     *buf;
-		struct k_fifo       fifo;
+		/* struct k_fifo       fifo; */
 
 		struct k_sem        ready;
 
