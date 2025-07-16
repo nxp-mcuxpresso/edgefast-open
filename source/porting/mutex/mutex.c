@@ -30,7 +30,7 @@ int k_mutex_init(struct k_mutex *mutex)
 
 	SYS_PORT_TRACING_OBJ_FUNC(k_mutex, init, mutex, 0);
 	mutex->mutex = xSemaphoreCreateRecursiveMutexStatic(&mutex->mutex_buffer);
-	if (mutex->mutex == (QueueHandle_t)&mutex->mutex_buffer) {
+	if (mutex->mutex != (QueueHandle_t)&mutex->mutex_buffer) {
 		return -EINVAL;
 	}
 
@@ -71,6 +71,10 @@ int k_mutex_lock(struct k_mutex *mutex, k_timeout_t timeout)
 		if (err < 0) {
 			return err;
 		}
+	}
+
+	if (xTaskGetSchedulerState() != taskSCHEDULER_RUNNING) {
+		return 0;
 	}
 
 	if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreTakeRecursive(mutex->mutex, (TickType_t)timeout)) {
@@ -115,6 +119,10 @@ int k_mutex_unlock(struct k_mutex *mutex)
 		if (err < 0) {
 			return err;
 		}
+	}
+
+	if (xTaskGetSchedulerState() != taskSCHEDULER_RUNNING) {
+		return 0;
 	}
 
 	if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreGiveRecursive(mutex->mutex)) {
