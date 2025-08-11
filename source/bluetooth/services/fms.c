@@ -10,7 +10,6 @@
 #include <stddef.h>
 #include <string.h>
 #include <errno.h>
-#include <porting.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/uuid.h>

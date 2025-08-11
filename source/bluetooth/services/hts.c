@@ -11,9 +11,8 @@
 #include <stddef.h>
 #include <errno.h>
 #include <zephyr/toolchain.h>
-#include <porting.h>
 #include <fsl_debug_console.h>
-#include <sys/byteorder.h>
+#include <zephyr/sys/byteorder.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/uuid.h>

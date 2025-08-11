@@ -11,9 +11,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <zephyr/types.h>
-#include <sys/atomic.h>
-
-#include <porting.h>
+#include <zephyr/sys/atomic.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>
