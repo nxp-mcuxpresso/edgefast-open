@@ -17,5 +17,6 @@
 #define snprintk(...) snprintf(__VA_ARGS__)
 #define vsnprintk(str, size, fmt, ap) vsnprintf(str, size, fmt, ap)
 #define printk(...) PRINTF(__VA_ARGS__)
+#define vprintk(fmt, ap) vprintf(fmt, ap)
 
 #endif /* __EDGEFAST_BT_BLE_TYPES_H__ */

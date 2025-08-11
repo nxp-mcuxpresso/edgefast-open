@@ -82,6 +82,7 @@ size_t strnlen(const char *s, size_t maxlen);
 uint32_t crc32_ieee(const uint8_t *data, size_t len);
 
 #define k_oops() configASSERT(false)
+#define k_panic() configASSERT(false)
 
 void bt_sys_init(void);
 

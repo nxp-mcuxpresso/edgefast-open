@@ -358,9 +358,17 @@ void assert_post_action(void)
 void assert_post_action(const char *file, unsigned int line)
 #endif /* CONFIG_ASSERT_NO_FILE_INFO */
 {
+#ifndef CONFIG_ASSERT_NO_FILE_INFO
+	printk("%s#%d: Assertion failed\n", file, line);
+#endif /* CONFIG_ASSERT_NO_FILE_INFO */
 	assert(false);
 }
 
 void assert_print(const char *fmt, ...)
 {
+	va_list ap;
+
+	va_start(ap, fmt);
+	vprintk(fmt, ap);
+	va_end(ap);
 }
