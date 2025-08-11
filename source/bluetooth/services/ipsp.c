@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <errno.h>
-#include <toolchain.h>
+#include <zephyr/toolchain.h>
 #include <porting.h>
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/l2cap.h>

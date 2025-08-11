@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <errno.h>
-#include <toolchain.h>
+#include <zephyr/toolchain.h>
 #include <porting.h>
 #include <fsl_debug_console.h>
 #include <sys/byteorder.h>
