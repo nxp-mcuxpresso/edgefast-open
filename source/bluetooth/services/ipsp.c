@@ -13,7 +13,6 @@
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/l2cap.h>
 #include <zephyr/bluetooth/services/ipsp.h>
-#include <BT_assigned_numbers.h>
 
 
 /*******************************************************************************
@@ -34,9 +33,11 @@ static BT_GATT_SERVICE_DEFINE(ipss_svc,
 	BT_GATT_PRIMARY_SERVICE(BT_UUID_IPSS)
 );
 
+#define BT_LE_IPSP_L2CAP_PSM 0x0023
+
 /** Server structure */
 static struct bt_l2cap_server ipsp_l2cap = {
-    .psm = IPSP_LE_PSM,
+    .psm = BT_LE_IPSP_L2CAP_PSM,
     .sec_level = BT_SECURITY_L1,
     .accept = ipsp_accept
 };
@@ -99,7 +100,7 @@ int ipsp_connect(struct bt_conn *conn)
         l2cap_chan.chan.ops = &l2cap_ops;
         l2cap_chan.rx.mtu = IPSP_MTU;
 
-        result = bt_l2cap_chan_connect(conn, &l2cap_chan.chan, IPSP_LE_PSM);
+        result = bt_l2cap_chan_connect(conn, &l2cap_chan.chan, BT_LE_IPSP_L2CAP_PSM);
     }
     return result;
 }
