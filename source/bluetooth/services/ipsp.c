@@ -7,12 +7,12 @@
 
 #include <stdio.h>
 #include <stddef.h>
-#include <errno/errno.h>
+#include <errno.h>
 #include <toolchain.h>
 #include <porting.h>
-#include <bluetooth/gatt.h>
-#include <bluetooth/l2cap.h>
-#include <bluetooth/services/ipsp.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/bluetooth/l2cap.h>
+#include <zephyr/bluetooth/services/ipsp.h>
 #include <BT_assigned_numbers.h>
 
 
@@ -118,7 +118,7 @@ int ipsp_listen(void)
 int ipsp_send(struct net_buf *buf)
 {
     int err = -ENOTCONN;
-    
+
     if (l2cap_chan.state == BT_L2CAP_CONNECTED)
     {
         err = bt_l2cap_chan_send(&l2cap_chan.chan, buf);

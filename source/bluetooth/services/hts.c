@@ -9,16 +9,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
-#include <errno/errno.h>
+#include <errno.h>
 #include <toolchain.h>
 #include <porting.h>
 #include <fsl_debug_console.h>
 #include <sys/byteorder.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/uuid.h>
-#include <bluetooth/gatt.h>
-#include <bluetooth/services/hts.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/bluetooth/services/hts.h>
 
 #define BT_DIS_MANUF     "NXP"
 #define BT_DIS_NAME      "HTS Demo"

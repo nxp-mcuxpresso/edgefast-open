@@ -9,13 +9,13 @@
 
 #include <stddef.h>
 #include <string.h>
-#include <errno/errno.h>
+#include <errno.h>
 #include <porting.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/uuid.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/uuid.h>
 
-#include <bluetooth/services/pxr.h>
+#include <zephyr/bluetooth/services/pxr.h>
 
 /*******************************************************************************
  * Variables
@@ -74,7 +74,7 @@ ssize_t read_lls_alert_level(struct bt_conn *conn, const struct bt_gatt_attr *at
     uint8_t lvl8 = lls_alert_level;
     return bt_gatt_attr_read(conn, attr, buf, len, offset, &lvl8, sizeof(lvl8));
 }
-                             
+
 ssize_t write_lls_alert_level(struct bt_conn *conn, const struct bt_gatt_attr *attr, const void *buf, uint16_t len, uint16_t offset, uint8_t flags)
 {
     const uint8_t* data = buf;
@@ -109,7 +109,7 @@ ssize_t write_lls_alert_level(struct bt_conn *conn, const struct bt_gatt_attr *a
             break;
     }
 
-    return len;    
+    return len;
 }
 
 ssize_t read_tps_power_level_desc(struct bt_conn *conn, const struct bt_gatt_attr *attr, void *buf, uint16_t len, uint16_t offset)
@@ -130,12 +130,12 @@ uint8_t pxr_lls_get_alert_level(void)
 {
     return lls_alert_level;
 }
-                             
+
 uint8_t pxr_ias_get_alert_level(void)
 {
     return ias_alert_level;
 }
-                             
+
 int8_t pxr_tps_get_power_level(void)
 {
     return tps_power_level;

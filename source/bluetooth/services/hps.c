@@ -8,15 +8,14 @@
 #include <zephyr/types.h>
 #include <stddef.h>
 #include <string.h>
-#include <errno/errno.h>
-#include <porting.h>
+#include <errno.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/conn.h>
-#include <bluetooth/uuid.h>
-#include <bluetooth/gatt.h>
-#include <bluetooth/services/hps.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/hci.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/bluetooth/services/hps.h>
 
 #define LOG_LEVEL CONFIG_BT_HPS_LOG_LEVEL
 #if 0

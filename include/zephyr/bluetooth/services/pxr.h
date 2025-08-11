@@ -9,8 +9,8 @@
 #define ZEPHYR_INCLUDE_BLUETOOTH_SERVICES_PXR_H_
 
 #include <zephyr/types.h>
-#include <bluetooth/conn.h>
-#include <bluetooth/gatt.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/gatt.h>
 
 /**
  * @brief Proximity Reporter (PXR)

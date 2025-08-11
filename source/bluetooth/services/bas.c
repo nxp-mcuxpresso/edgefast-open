@@ -10,18 +10,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <errno/errno.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <zephyr/types.h>
 #include <sys/atomic.h>
 
 #include <porting.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
-#include <bluetooth/gatt.h>
-#include <bluetooth/uuid.h>
-#include <bluetooth/services/bas.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/bluetooth/services/bas.h>
 
 #define LOG_ENABLE IS_ENABLED(CONFIG_BT_DEBUG_SERVICE)
 #define LOG_MODULE_NAME bt_bas
