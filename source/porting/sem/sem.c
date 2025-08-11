@@ -7,26 +7,9 @@
 
 #include <porting.h>
 
-/**
- * @brief Initialize a semaphore.
- *
- * This routine initializes a semaphore object, prior to its first use.
- *
- * @param sem Address of the semaphore.
- * @param initial_count Initial semaphore count.
- * @param limit Maximum permitted semaphore count.
- *
- * @see K_SEM_MAX_LIMIT
- *
- * @retval 0 Semaphore created successfully
- * @retval -EINVAL Invalid values
- *
- */
-int k_sem_init(struct k_sem *sem, unsigned int initial_count,
-			  unsigned int limit)
+static int _k_sem_init(struct k_sem *sem, unsigned int initial_count, unsigned int limit);
+static int _k_sem_init(struct k_sem *sem, unsigned int initial_count, unsigned int limit)
 {
-	__ASSERT((sem != NULL) || (limit > initial_count) || (limit > 0U), "Invalid parameter!");
-
 	if (!((sem != NULL) || (limit > initial_count) || (limit > 0U)))
 	{
 		SYS_PORT_TRACING_OBJ_FUNC(k_sem, init, sem, -EINVAL);
@@ -58,6 +41,31 @@ int k_sem_init(struct k_sem *sem, unsigned int initial_count,
 	}
 
 	return 0;
+}
+
+/**
+ * @brief Initialize a semaphore.
+ *
+ * This routine initializes a semaphore object, prior to its first use.
+ *
+ * @param sem Address of the semaphore.
+ * @param initial_count Initial semaphore count.
+ * @param limit Maximum permitted semaphore count.
+ *
+ * @see K_SEM_MAX_LIMIT
+ *
+ * @retval 0 Semaphore created successfully
+ * @retval -EINVAL Invalid values
+ *
+ */
+int k_sem_init(struct k_sem *sem, unsigned int initial_count, unsigned int limit)
+{
+	__ASSERT((sem != NULL) || (limit > initial_count) || (limit > 0U), "Invalid parameter!");
+
+	/* Clear sem to ensure clean initialization */
+	memset(sem, 0, sizeof(struct k_sem));
+
+	return _k_sem_init(sem, initial_count, limit);
 }
 
 /**
@@ -94,7 +102,7 @@ int k_sem_take(struct k_sem *sem, k_timeout_t timeout)
 			return -EINVAL;
 		}
 
-		err = k_sem_init(sem, sem->count, sem->limit);
+		err = _k_sem_init(sem, sem->count, sem->limit);
 		if (err < 0)
 		{
 			return err;
@@ -130,6 +138,21 @@ int k_sem_take(struct k_sem *sem, k_timeout_t timeout)
 	return err;
 }
 
+static void k_sem_poll_event_update(struct k_sem *sem);
+static void k_sem_poll_event_update(struct k_sem *sem)
+{
+	struct k_poll_event *poll_event, *next;
+
+	SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&sem->poll_events, poll_event, next, _node) {
+		if ((NULL == poll_event->poller) || (NULL == poll_event->poller->event_update))
+		{
+			continue;
+		}
+
+		poll_event->poller->event_update(poll_event);
+	}
+}
+
 /**
  * @brief Give a semaphore.
  *
@@ -154,7 +177,7 @@ void k_sem_give(struct k_sem *sem)
 			return;
 		}
 
-		int err = k_sem_init(sem, sem->count, sem->limit);
+		int err = _k_sem_init(sem, sem->count, sem->limit);
 		if (err < 0)
 		{
 			return;
@@ -167,7 +190,8 @@ void k_sem_give(struct k_sem *sem)
 
 		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreGiveFromISR(sem->sem, &taskToWake))
 		{
-		portYIELD_FROM_ISR(((bool)(taskToWake)));
+			portYIELD_FROM_ISR(((bool)(taskToWake)));
+			k_sem_poll_event_update(sem);
 		}
 		else
 		{
@@ -177,6 +201,7 @@ void k_sem_give(struct k_sem *sem)
 	{
 		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreGive(sem->sem))
 		{
+			k_sem_poll_event_update(sem);
 		}
 		else
 		{
@@ -207,7 +232,7 @@ void k_sem_reset(struct k_sem *sem)
 			return;
 		}
 
-		int err = k_sem_init(sem, sem->count, sem->limit);
+		int err = _k_sem_init(sem, sem->count, sem->limit);
 		if (err < 0)
 		{
 			return;
@@ -218,7 +243,7 @@ void k_sem_reset(struct k_sem *sem)
 		vSemaphoreDelete(sem->sem);
 		sem->sem = NULL;
 
-		(void)k_sem_init(sem, sem->count, sem->limit);
+		(void)_k_sem_init(sem, sem->count, sem->limit);
 	}
 }
 
@@ -247,7 +272,7 @@ unsigned int k_sem_count_get(struct k_sem *sem)
 			return (unsigned int)-EINVAL;
 		}
 
-		err = k_sem_init(sem, sem->count, sem->limit);
+		err = _k_sem_init(sem, sem->count, sem->limit);
 		if (err < 0)
 		{
 			return err;
