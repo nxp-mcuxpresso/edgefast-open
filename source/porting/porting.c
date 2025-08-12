@@ -28,12 +28,6 @@ static mbedtls_ctr_drbg_context rng_ctx;
 #include "fsl_shell.h"
 #endif /* CONFIG_BT_SHELL */
 
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION))
-#ifndef porting_errno
-int errno = 0;
-#endif
-#endif
-
 /* Weak function. */
 #if defined(__CC_ARM) || defined(__ARMCC_VERSION)
 #define __WEAK_FUNC __attribute__((weak))
