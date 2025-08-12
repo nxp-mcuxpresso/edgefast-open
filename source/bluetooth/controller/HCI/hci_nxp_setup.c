@@ -282,7 +282,7 @@ static int fw_upload_wait_for_hdr_sig(void)
 	fw_upload.hdr_sig = 0xFF;
 
 	while (k_uptime_get() < end) {
-		err = fw_upload_read_data(&c, 1);
+		err = fw_upload_read_data((uint8_t *)&c, 1);
 		if (err < 0) {
 			k_msleep(1);
 			continue;
