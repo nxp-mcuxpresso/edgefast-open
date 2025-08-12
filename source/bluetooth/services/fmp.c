@@ -14,7 +14,7 @@
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/uuid.h>
 
-#include <zephyr/bluetooth/services/fms.h>
+#include <zephyr/bluetooth/services/fmp.h>
 
 /*******************************************************************************
  * Variables

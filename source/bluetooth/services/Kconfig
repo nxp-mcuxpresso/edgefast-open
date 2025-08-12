@@ -16,7 +16,7 @@ rsource "Kconfig.tps"
 
 rsource "Kconfig.wus"
 
-rsource "Kconfig.fms"
+rsource "Kconfig.fmp"
 
 rsource "Kconfig.hps"
 

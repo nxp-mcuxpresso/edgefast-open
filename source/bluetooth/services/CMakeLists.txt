@@ -11,7 +11,7 @@ zephyr_sources_ifdef(CONFIG_BT_TPS tps.c)
 
 zephyr_sources_ifdef(CONFIG_BT_WUS wus.c)
 
-zephyr_sources_ifdef(CONFIG_BT_FMS fms.c)
+zephyr_sources_ifdef(CONFIG_BT_FMP fmp.c)
 
 zephyr_sources_ifdef(CONFIG_BT_HPS hps.c)
 
