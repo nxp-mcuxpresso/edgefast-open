@@ -88,4 +88,46 @@ void bt_sys_init(void);
 
 struct arch_esf;
 
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION))
+#define _bt_conn_cb_list_start  Load$$ER_bt_conn_cb$$Base
+#define _bt_conn_cb_list_end  Load$$ER_bt_conn_cb$$Limit
+
+#define _bt_sco_conn_cb_list_start  Load$$ER_bt_sco_conn_cb$$Base
+#define _bt_sco_conn_cb_list_end  Load$$ER_bt_sco_conn_cb$$Limit
+
+#define _bt_ias_cb_list_start  Load$$ER_bt_ias_cb$$Base
+#define _bt_ias_cb_list_end  Load$$ER_bt_ias_cb$$Limit
+
+#define _bt_gatt_service_static_list_start  Load$$ER_bt_gatt_service_static$$Base
+#define _bt_gatt_service_static_list_end  Load$$ER_bt_gatt_service_static$$Limit
+
+#define _bt_settings_static_list_start  Load$$ER_bt_settings_static$$Base
+#define _bt_settings_static_list_end  Load$$ER_bt_settings_static$$Limit
+
+#define _settings_handler_static_list_start  Load$$ER_settings_handler_static$$Base
+#define _settings_handler_static_list_end  Load$$ER_settings_handler_static$$Limit
+
+#define _bt_l2cap_fixed_chan_list_start  Load$$ER_bt_l2cap_fixed_chan$$Base
+#define _bt_l2cap_fixed_chan_list_end  Load$$ER_bt_l2cap_fixed_chan$$Limit
+
+#define _bt_l2cap_br_fixed_chan_list_start  Load$$ER_bt_l2cap_br_fixed_chan$$Base
+#define _bt_l2cap_br_fixed_chan_list_end  Load$$ER_bt_l2cap_br_fixed_chan$$Limit
+
+#define _net_buf_pool_list_start  Image$$RW_net_buf_pool$$Base
+#define _net_buf_pool_list_end  Image$$RW_net_buf_pool$$Limit
+
+#define _k_mem_slab_list_start  Image$$RW_k_mem_slab$$Base
+#define _k_mem_slab_list_end  Image$$RW_k_mem_slab$$Limit
+
+#define __shell_command_list_start  Image$$RW__shell_command$$Base
+#define __shell_command_list_end  Image$$RW__shell_command$$Limit
+
+#define __init_PRE_KERNEL_1_start  Load$$ER_z_init_PRE_KERNEL_1$$Base
+#define __init_PRE_KERNEL_2_start  Load$$ER_z_init_PRE_KERNEL_2$$Base
+#define __init_POST_KERNEL_start  Load$$ER_z_init_POST_KERNEL$$Base
+#define __init_APPLICATION_start  Load$$ER_z_init_APPLICATION$$Base
+#define __init_start  Load$$ER_z_init_PRE_KERNEL_1$$Base
+#define __init_end  Load$$ER_z_init_APPLICATION$$Limit
+#endif /* defined(__CC_ARM) || (defined(__ARMCC_VERSION)) */
+
 #endif /* __EDGEFAST_BT_BLE_PORTING_H__ */
