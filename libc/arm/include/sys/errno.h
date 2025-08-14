@@ -80,6 +80,8 @@ extern _ARMABI_PURE volatile int *__aeabi_errno_addr(void);
 #define EROFS           30  /**< Read-only file system */
 #define EMLINK          31  /**< Too many links */
 #define EPIPE           32  /**< Broken pipe */
+#define EDOM            33  /**< Argument too large */
+#define ERANGE          34  /**< Result too large */
 #define ENOMSG          35  /**< Unexpected message type */
 #define EDEADLK         45  /**< Resource deadlock avoided */
 #define ENOLCK          46  /**< No locks available */
