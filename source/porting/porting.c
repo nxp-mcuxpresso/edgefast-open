@@ -57,7 +57,7 @@ OSA_TASK_DEFINE( porting_log_task, CONFIG_PORTING_LOG_PRIO, 1, CONFIG_PORTING_LO
 #if defined(CONFIG_BT_SHELL)
 shell_status_t SHELL_InitPost(shell_handle_t shellHandle)
 {
-	struct _shell_command *cmd;
+	__maybe_unused struct _shell_command *cmd;
 	shell_status_t status;
 
 	STRUCT_SECTION_FOREACH(_shell_command, cmd) {
@@ -206,12 +206,11 @@ static void porting_log_task(void* param)
 }
 #endif
 
-
+#if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 static bool logging_initialized;
 
 void bt_logging_init(void)
 {
-#if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 	osa_status_t ret;
 
 	if (logging_initialized) {
@@ -229,12 +228,10 @@ void bt_logging_init(void)
 	assert(KOSA_StatusSuccess == ret);
 
 	(void)ret;
-#endif
 }
 
 void bt_logging_deinit(void)
 {
-#if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 	osa_status_t ret;
 
 	if (logging_initialized == false) {
@@ -246,10 +243,8 @@ void bt_logging_deinit(void)
 	(void)ret;
 
 	logging_initialized = false;
-#endif
 }
 
-#if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 static int logging_init(void)
 {
 	bt_logging_init();

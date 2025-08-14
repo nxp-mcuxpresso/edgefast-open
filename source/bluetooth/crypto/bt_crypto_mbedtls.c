@@ -33,7 +33,6 @@ static struct k_mutex lock;
 static int bt_aes_128_encrypt(const uint8_t in[16], const uint8_t key[16], uint8_t out[16])
 {
 	mbedtls_aes_context ctx;
-	osa_status_t ret;
 
 	LOG_DBG("AES 128 ECB");
 

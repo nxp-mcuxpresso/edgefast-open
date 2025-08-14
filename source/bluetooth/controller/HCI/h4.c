@@ -45,7 +45,9 @@ struct h4_data {
 	struct
 	{
 		struct net_buf     *buf;
-		/* struct k_fifo       fifo; */
+#if 0
+		struct k_fifo       fifo;
+#endif
 
 		struct k_sem        ready;
 
@@ -95,8 +97,6 @@ struct h4_config {
 
 static int h4_starting_recv(const struct device *dev, uint8_t *buffer, uint16_t length)
 {
-	struct h4_data *h4 = dev->data;
-
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
     hal_uart_dma_status_t ret_dma = HAL_UartDMATransferReceive
     		(
@@ -192,7 +192,6 @@ static struct net_buf *get_rx(struct h4_data *h4, k_timeout_t timeout)
 
 static inline void h4_get_type(const struct device *dev)
 {
-	const struct h4_config *cfg = dev->config;
 	struct h4_data *h4 = dev->data;
 
 	switch (h4->rx.type) {
@@ -333,9 +332,12 @@ static inline void rx_payload_done(const struct device *dev)
 
 	h4_reset_rx(dev);
 
-	// LOG_DBG("Putting buf %p to rx fifo", buf);
-	// k_fifo_put(&h4->rx.fifo, buf);
-	// k_sem_give(&h4->rx.ready);
+#if 0
+	LOG_DBG("Putting buf %p to rx fifo", buf);
+	k_fifo_put(&h4->rx.fifo, buf);
+	k_sem_give(&h4->rx.ready);
+#endif
+
 	LOG_INF("Calling bt_recv(%p) with length %d", buf, buf->len);
 	h4->recv(dev, buf);
 }
@@ -343,7 +345,6 @@ static inline void rx_payload_done(const struct device *dev)
 static inline void read_payload(const struct device *dev)
 {
 	struct h4_data *h4 = dev->data;
-	k_spinlock_key_t key;
 
 	if ((h4->rx.type == BT_HCI_H4_EVT) &&
 		(h4->rx.evt.evt == BT_HCI_EVT_LE_META_EVENT) &&
@@ -358,7 +359,6 @@ static inline void read_payload(const struct device *dev)
 static inline void read_header(const struct device *dev)
 {
 	struct h4_data *h4 = dev->data;
-	const struct h4_config *cfg = dev->config;
 	int err;
 
 	LOG_DBG("");
@@ -415,8 +415,6 @@ static inline void read_header(const struct device *dev)
 static void process_rx(const struct device *dev, uint8_t *buffer, uint16_t rx_len)
 {
 	struct h4_data *h4 = dev->data;
-	const struct h4_config *cfg = dev->config;
-	int err;
 
 	LOG_DBG("RX ISR buffer %p len %u", buffer, rx_len);
 
@@ -483,9 +481,9 @@ static void rx_thread(void *p1, void *p2, void *p3)
 {
 	const struct device *dev = p1;
 	struct h4_data *h4 = dev->data;
-	const struct h4_config *cfg = dev->config;
+#if 0
 	struct net_buf *buf;
-	int err;
+#endif
 
 	ARG_UNUSED(p1);
 	ARG_UNUSED(p2);
@@ -560,7 +558,6 @@ static void tx_thread(void *p1, void *p2, void *p3)
 
 static int h4_send(const struct device *dev, struct net_buf *buf)
 {
-	const struct h4_config *cfg = dev->config;
 	struct h4_data *h4 = dev->data;
 
 	LOG_DBG("TX buf %p type %u len %u", buf, buf->data[0], buf->len);
@@ -703,8 +700,6 @@ static int bt_hci_deinit(const struct device *dev)
 
 int bt_hci_reinit(const struct device *dev, bool default_speed, bool flow_control)
 {
-	int err;
-
 	bt_hci_deinit(dev);
 	return hci_init(dev, default_speed, flow_control);
 }

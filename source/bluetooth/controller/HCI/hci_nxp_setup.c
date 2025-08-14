@@ -750,7 +750,6 @@ static void hci_uart_transmit_cb(hal_uart_handle_t handle, hal_uart_status_t sta
 {
 	if ((hal_uart_status_t)kStatus_HAL_UartRxIdle == status)
 	{
-		int err = 0;
 		int count = 0;
 
 		fw_upload.rx.buffer[fw_upload.rx.head] = rx_buffer;
