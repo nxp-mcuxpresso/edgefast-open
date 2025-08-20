@@ -26,6 +26,13 @@ mcux_add_iar_configuration(
     CX "--vla"
 )
 
+mcux_add_iar_configuration(
+    CC "--diag_suppress=Pe1717"  # array of elements containing a flexible
+                                 # array member is nonstandard
+    CX "--diag_suppress=Pe1717"  # array of elements containing a flexible
+                                 # array member is nonstandard
+)
+
 if(CONFIG_SUPPRESSED_WARNINGS)
     # Pe223: function "xxx" declared implicitly
     # Pe054: too few arguments in invocation of macro
@@ -63,15 +70,16 @@ if(CONFIG_SUPPRESSED_WARNINGS)
     endif()
 
     if(NOT W MATCHES "1" AND NOT W MATCHES "2" AND NOT W MATCHES "3")
-        # Pe1097: unknown attribute
-        # Pa082: undefined behavior: the order of volatile accesses is undefined
-        # Pa084: pointless integer comparison, the result is always false
-        # Pe185: dynamic initialization in unreachable code
-        # Pe167: argument of type "onoff_notify_fn" is incompatible with...
-        # Pe144: a value of type "void *" cannot be used to initialize...
-        # Pe177: function "xxx" was declared but never referenced
-        # Pe513: a value of type "void *" cannot be assigned to an
-        #        entity of type "int (*)(int)"
+        # Pe188: enumerated type mixed with another type
+        # Pe128: loop is not reachable
+        # Pe550: variable "res" was set but never used
+        # Pe546: transfer of control bypasses initialization
+        # Pe186: pointless comparison of unsigned integer with zero
+        # Pe054: too few arguments in invocation of macro xxx
+        # Pe144: a value of type "void *" cannot be used to initialize an
+        #        entity of type [...] "void (*)(struct onoff_manager *, int)"
+        # Pe167: argument of type "void *" is incompatible with [...]
+        #        "void (*)(void *, void *, void *)"
         mcux_add_iar_configuration(
             CC "--diag_suppress=Pe054,Pe186,Pe546,Pe550,Pe128,Pe188,Pe144,Pe167"
             CX "--diag_suppress=Pe054,Pe186,Pe546,Pe550,Pe128,Pe188,Pe144,Pe167"
