@@ -8,7 +8,7 @@ menu "Bluetooth buffer configuration"
 
 config BT_BUF_ACL_TX_SIZE
 	int "Maximum supported ACL size for outgoing data"
-	range 27 65535 # $(UINT16_MAX)
+	range 27 65535
 	default 37 if BT_MESH_GATT
 	default 27
 	help
@@ -36,7 +36,7 @@ config BT_BUF_ACL_TX_COUNT
 	default 7 if BT_HCI_RAW
 	default 4 if BT_MESH_GATT
 	default 3
-	range 1 255 # $(UINT8_MAX)
+	range 1 255
 	help
 	  Number of outgoing ACL data buffers sent from the Host to the
 	  Controller. This determines the maximum amount of data packets the
@@ -50,14 +50,20 @@ config BT_BUF_ACL_TX_COUNT
 
 config BT_BUF_ACL_RX_SIZE
 	int "Maximum supported ACL size for incoming data"
+	# For GOEP over RFCOMM, including,
+	# 255 bytes - the minimum MTU of GOEP,
+	# 4 bytes - L2CAP Header,
+	# 5 bytes - 4 bytes for RFCOMM header with extended length, 1 byte for FCS.
+	default 264 if BT_CLASSIC && BT_GOEP
 	default 200 if BT_CLASSIC
 	default 70 if BT_EATT
 	default 69 if BT_SMP
 	default 37 if BT_MESH_GATT
 	default 27
-	range 70 65535 if BT_EATT # $(UINT16_MAX)
-	range 69 65535 if BT_SMP # $(UINT16_MAX)
-	range 27 65535 # $(UINT16_MAX)
+	range 264 65535 if BT_CLASSIC && BT_GOEP
+	range 70 65535 if BT_EATT
+	range 69 65535 if BT_SMP
+	range 27 65535
 	help
 	  Maximum support ACL size of data packets sent from the Controller to
 	  the Host. This value does not include the HCI ACL header.
@@ -119,11 +125,11 @@ config BT_BUF_ACL_RX_COUNT
 
 config BT_BUF_EVT_RX_SIZE
 	int "Maximum supported HCI Event buffer length"
-	default 255 # $(UINT8_MAX) if (BT_EXT_ADV && BT_OBSERVER) || BT_PER_ADV_SYNC || BT_DF_CONNECTION_CTE_RX || BT_CLASSIC || BT_CHANNEL_SOUNDING
+	default 255  if (BT_EXT_ADV && BT_OBSERVER) || BT_PER_ADV_SYNC || BT_DF_CONNECTION_CTE_RX || BT_CLASSIC || BT_CHANNEL_SOUNDING
 	# LE Read Supported Commands command complete event.
 	default 68
-	range 68 255 # $(UINT8_MAX)
-	range 78 255 # $(UINT8_MAX) if BT_CHANNEL_SOUNDING
+	range 68 255
+	range 78 255  if BT_CHANNEL_SOUNDING
 	help
 	  Maximum supported HCI event buffer size. This value does not include
 	  the HCI Event header.
@@ -137,17 +143,17 @@ config BT_BUF_EVT_RX_COUNT
 	int "Number of HCI Event buffers"
 	default 20 if (BT_MESH && !(BT_BUF_EVT_DISCARDABLE_COUNT > 0))
 	default 10
-	range 2 255 # $(UINT8_MAX)
+	range 2 255
 	help
 	  Number of buffers available for incoming HCI events from the
 	  Controller.
 
 config BT_BUF_EVT_DISCARDABLE_SIZE
 	int "Maximum supported discardable HCI Event buffer length"
-	range 43 255 # $(UINT8_MAX) if !BT_EXT_ADV
-	range 58 255 # $(UINT8_MAX) if BT_EXT_ADV
+	range 43 255  if !BT_EXT_ADV
+	range 58 255  if BT_EXT_ADV
 	# LE Extended Advertising Report event
-	default 255 # $(UINT8_MAX) if BT_CLASSIC
+	default 255  if BT_CLASSIC
 	# Le Advertising Report event
 	default 43 if !BT_EXT_ADV
 	default 58 if BT_EXT_ADV
@@ -160,7 +166,7 @@ config BT_BUF_EVT_DISCARDABLE_SIZE
 
 config BT_BUF_EVT_DISCARDABLE_COUNT
 	int "Number of discardable HCI Event buffers"
-	range 1 255 # $(UINT8_MAX)
+	range 1 255
 	default 20 if BT_MESH
 	default 3
 	depends on !BT_HCI_RAW
@@ -174,13 +180,13 @@ config BT_BUF_EVT_DISCARDABLE_COUNT
 
 config BT_BUF_CMD_TX_SIZE
 	int "Maximum support HCI Command buffer length"
-	default 255 # $(UINT8_MAX) if (BT_EXT_ADV || BT_CLASSIC || BT_ISO_CENTRAL || BT_CHANNEL_SOUNDING)
+	default 255  if (BT_EXT_ADV || BT_CLASSIC || BT_ISO_CENTRAL || BT_CHANNEL_SOUNDING)
 	# LE Set Connection CTE Receive Parameters. Value required to store max allowed number
 	# of antenna ids for platforms other than Nordic.
 	default 83 if (!BT_EXT_ADV && !BT_CLASSIC && BT_CTLR_DF && BT_CTLR_DF_CONN_CTE_REQ && !SOC_COMPATIBLE_NRF)
 	# LE Generate DHKey v2 command
 	default 65
-	range 65 255 # $(UINT8_MAX)
+	range 65 255
 	help
 	  Maximum data size for each HCI Command buffer. This value does not
 	  include the HCI Command header.

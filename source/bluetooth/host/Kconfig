@@ -166,7 +166,7 @@ menu "Bluetooth Host"
 
 if BT_HCI_HOST
 
-# rsource "../mesh/Kconfig"
+rsource "../mesh/Kconfig"
 rsource "../audio/Kconfig"
 
 config BT_HOST_CRYPTO
@@ -327,7 +327,7 @@ if BT_CONN
 config BT_CONN_TX_MAX
 	int "Maximum number of pending TX buffers with a callback [DEPRECATED]"
 	default BT_BUF_ACL_TX_COUNT
-	range BT_BUF_ACL_TX_COUNT 255 # $(UINT8_MAX)
+	range BT_BUF_ACL_TX_COUNT 255
 	help
 	  Maximum number of pending TX buffers that have an associated
 	  callback. Normally this can be left to the default value, which
@@ -508,7 +508,7 @@ config BT_RPA_TIMEOUT
 	int "Resolvable Private Address timeout"
 	depends on BT_PRIVACY
 	default 900
-	range 1 65535 # $(UINT16_MAX)
+	range 1 65535
 	help
 	  This option defines how often resolvable private address is rotated.
 	  Value is provided in seconds and defaults to 900 seconds (15 minutes).
@@ -760,7 +760,7 @@ config BT_MAX_PAIRED
 	int "Maximum number of paired devices"
 	default 0 if !BT_SMP
 	default 1
-	range 0 128
+	range 0 250
 	help
 	  Maximum number of paired Bluetooth devices. The minimum (and
 	  default) number is 1.
@@ -773,7 +773,7 @@ config BT_CREATE_CONN_TIMEOUT
 config BT_CONN_PARAM_UPDATE_TIMEOUT
 	int "Peripheral connection parameter update timeout in milliseconds"
 	default 5000
-	range 0 65535 # $(UINT16_MAX)
+	range 0 65535
 	help
 	  The value is a timeout used by peripheral device to wait until it
 	  starts the first connection parameters update procedure after a
@@ -789,7 +789,7 @@ config BT_CONN_PARAM_UPDATE_TIMEOUT
 config BT_CONN_PARAM_RETRY_COUNT
 	int "Peripheral connection parameter update retry attempts"
 	default 3
-	range 0 255 # $(UINT8_MAX)
+	range 0 255
 	help
 	  This value corresponds to number of times to retry connection
 	  parameter update to attain the preferred value set in GATT
@@ -798,7 +798,7 @@ config BT_CONN_PARAM_RETRY_COUNT
 config BT_CONN_PARAM_RETRY_TIMEOUT
 	int "Peripheral connection parameter update retry timeout in milliseconds"
 	default 5000
-	range 0 65535 # $(UINT16_MAX)
+	range 0 65535
 	help
 	  The value is a timeout used by peripheral device to wait until retry
 	  to attempt requesting again the preferred connection parameters.
@@ -886,7 +886,7 @@ config BT_DEVICE_APPEARANCE_DYNAMIC
 
 config BT_DEVICE_APPEARANCE
 	int "Bluetooth device appearance"
-	range 0 65535 # $(UINT16_MAX)
+	range 0 65535
 	default 0
 	help
 	  Bluetooth device appearance. For the list of possible values please

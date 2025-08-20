@@ -44,6 +44,12 @@ config BT_MAX_SCO_CONN
 	  Maximum number of simultaneous Bluetooth synchronous connections
 	  supported. The minimum (and default) number is 1.
 
+config BT_L2CAP_CONNLESS
+	bool "Bluetooth L2CAP connectionless data reception [EXPERIMENTAL]"
+	select EXPERIMENTAL
+	help
+	  This option enables Bluetooth L2CAP connectionless data reception
+
 config BT_L2CAP_RET
 	bool "Bluetooth L2CAP retransmission mode [EXPERIMENTAL]"
 	select EXPERIMENTAL
@@ -133,7 +139,7 @@ config BT_RFCOMM_L2CAP_MTU
 	int "L2CAP MTU for RFCOMM frames"
 	depends on BT_RFCOMM
 	default BT_BUF_ACL_RX_SIZE
-	range 23 32767 # $(INT16_MAX)
+	range 23 32768
 	help
 	  Maximum size of L2CAP PDU for RFCOMM frames.
 	  RX MTU will be truncated to account for the L2CAP PDU header.
@@ -141,22 +147,11 @@ config BT_RFCOMM_L2CAP_MTU
 config BT_RFCOMM_TX_MAX
 	int "Maximum number of pending TX buffers for RFCOMM"
 	default BT_BUF_ACL_TX_COUNT
-	range BT_BUF_ACL_TX_COUNT 255 # $(UINT8_MAX)
+	range BT_BUF_ACL_TX_COUNT 255
 	help
 	  Maximum number of pending TX buffers that have an associated
 	  sending buf. Normally this can be left to the default value, which
 	  is equal to the number of session in the stack-internal pool.
-
-config BT_RFCOMM_DLC_STACK_SIZE
-	int "Stack size of DLC for RFCOMM"
-	default 512
-	help
-	  Stack size of DLC for RFCOMM. This is the context from which
-	  all data of upper layer are sent and disconnect
-	  callback to the upper layer. The default value is sufficient
-	  for basic operation, but if the application needs to do
-	  advanced things in its callbacks that require extra stack
-	  space, this value can be increased to accommodate for that.
 
 config BT_HFP_HF
 	bool "Bluetooth Handsfree profile HF Role support [EXPERIMENTAL]"
@@ -315,7 +310,7 @@ config BT_HFP_AG_ECC
 config BT_HFP_AG_TX_BUF_COUNT
 	int "Maximum number of TX buffers for HFP AG [EXPERIMENTAL]"
 	default BT_RFCOMM_TX_MAX
-	range BT_RFCOMM_TX_MAX 255 # $(UINT8_MAX)
+	range BT_RFCOMM_TX_MAX 255
 	help
 	  Maximum number of pending TX buffers that have an associated
 	  sending buf. Normally this can be left to the default value, which
@@ -362,7 +357,7 @@ config BT_HFP_AG_ALERTING_TIMEOUT
 config BT_HFP_AG_PHONE_NUMBER_MAX_LEN
 	int "Supported max length of phone number for HFP AG [EXPERIMENTAL]"
 	default 32
-	range 1 255 # $(UINT8_MAX)
+	range 1 255
 	help
 	  Supported max length of phone number for HFP AG.
 
@@ -507,6 +502,55 @@ config BT_COD
 	  This option sets the class of device.For the list of possible values please
 	  consult the following link:
 	  https://www.bluetooth.com/specifications/assigned-numbers
+
+config BT_DEFAULT_ROLE_SWITCH_ENABLE
+	bool "Default Bluetooth Role Switch Enable/Disable State"
+	help
+	  This option sets the controller's default link policy to
+	  enable/disable the role switch.
+
+config BT_GOEP
+	bool "Bluetooth GOEP Profile [EXPERIMENTAL]"
+	select BT_RFCOMM
+	select BT_L2CAP_ENH_RET
+	select EXPERIMENTAL
+	help
+	  This option enables the GOEP profile
+
+if BT_GOEP
+config BT_GOEP_RFCOMM_MTU
+	int "RFCOMM MTU for GOEP"
+	default BT_RFCOMM_L2CAP_MTU
+	# For GOEP over RFCOMM, including,
+	# 255 bytes - the minimum MTU of GOEP,
+	# 4 bytes - L2CAP Header,
+	# 5 bytes - 4 bytes for RFCOMM header with extended length, 1 byte for FCS.
+	range 264 BT_RFCOMM_L2CAP_MTU
+	help
+	  Maximum size of RFCOMM MTU for GOEP.
+	  RX MTU will be truncated to account for ACL data and type overhead, the L2CAP PDU header,
+	  and the RFCOMM header.
+
+config BT_GOEP_L2CAP_MTU
+	int "L2CAP MTU for GOEP"
+	default BT_BUF_ACL_RX_SIZE
+	# For GOEP over L2CAP, including,
+	# 255 bytes - the minimum MTU of GOEP,
+	# 4 bytes - L2CAP Header,
+	range 259 BT_BUF_ACL_RX_SIZE
+	help
+	  Maximum size of L2CAP MTU for GOEP.
+	  RX MTU will be truncated to account for ACL data and type overhead, and the L2CAP PDU
+	  header.
+
+config BT_OEBX_RSP_CODE_TO_STR
+	bool "Print OBEX response code as strings"
+	help
+	  This configuration enables printing of OBEX response
+	  codes represented as strings.
+	  See bt_obex_rsp_code_to_str() for more details.
+
+endif # BT_GOEP
 
 endif # BT_CLASSIC
 

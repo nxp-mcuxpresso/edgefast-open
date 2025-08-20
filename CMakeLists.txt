@@ -170,5 +170,4 @@ endfunction()
 
 edgefast_open_add_subdirectory(source)
 edgefast_open_add_subdirectory(include)
-edgefast_open_add_subdirectory(libc)
 edgefast_open_add_subdirectory(lib)

@@ -691,7 +691,7 @@ static uint8_t discover_func(struct bt_conn *conn,
 	struct bt_gatt_chrc *chrc;
 	struct bt_csip_set_coordinator_inst *client = &client_insts[bt_conn_index(conn)];
 	struct bt_gatt_subscribe_params *sub_params = NULL;
-	bt_gatt_notify_func_t notify_handler = NULL;
+	void *notify_handler = NULL;
 
 	if (attr == NULL) {
 		LOG_DBG("Setup complete for %u / %u", client->cur_inst->idx + 1,
@@ -775,7 +775,7 @@ static uint8_t discover_func(struct bt_conn *conn,
 				sub_params->ccc_handle = BT_GATT_AUTO_DISCOVER_CCC_HANDLE;
 				sub_params->end_handle = client->cur_inst->end_handle;
 				sub_params->value_handle = chrc->value_handle;
-				sub_params->notify = (bt_gatt_notify_func_t)notify_handler;
+				sub_params->notify = notify_handler;
 				atomic_set_bit(sub_params->flags, BT_GATT_SUBSCRIBE_FLAG_VOLATILE);
 
 				err = bt_gatt_subscribe(conn, sub_params);

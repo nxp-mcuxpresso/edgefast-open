@@ -16,7 +16,7 @@ if BT_ASCS
 config BT_ASCS_MAX_ASE_SNK_COUNT
 	int "Maximum number of Audio Stream Endpoint Sink Characteristics"
 	default 2
-	range 0 255 # $(UINT8_MAX)
+	range 0 255
 	help
 	  An ASE Sink characteristic represents the state of an ASE, which is
 	  coupled to a single direction of a unicast Audio Stream.
@@ -24,7 +24,7 @@ config BT_ASCS_MAX_ASE_SNK_COUNT
 config BT_ASCS_MAX_ASE_SRC_COUNT
 	int "Maximum number of Audio Stream Endpoint Source Characteristics"
 	default 2
-	range 0 255 # $(UINT8_MAX)
+	range 0 255
 	help
 	  An ASE Source characteristic represents the state of an ASE, which is
 	  coupled to a single direction of a unicast Audio Stream.
@@ -38,7 +38,7 @@ config BT_ASCS_ASE_SRC
 config BT_ASCS_MAX_ACTIVE_ASES
 	int "Number of simultaneously supported ASE sessions"
 	default BT_ISO_MAX_CHAN
-	range 1 65535 # $(UINT16_MAX)
+	range 1 65535
 	help
 	  The number of simultaneously supported active ASEs, in particular
 	  meaning the number of ASEs that are allowed to be in a non-idle state at

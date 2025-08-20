@@ -75,7 +75,6 @@ extern "C" {
  * @param[in]  type data type of section
  * @param[in]  secname name of output section
  */
-
 #define TYPE_SECTION_START_EXTERN(type, secname) \
 	extern type TYPE_SECTION_START(secname)[]
 
@@ -90,42 +89,8 @@ extern "C" {
  * @param[in]  type data type of section
  * @param[in]  secname name of output section
  */
-
 #define TYPE_SECTION_END_EXTERN(type, secname) \
 	extern type TYPE_SECTION_END(secname)[]
-
-/*
- * Iterator for structure instances gathered by STRUCT_RW_SECTION_ITERABLE().
- * The linker must provide a _<struct_type>_list_start symbol and a
- * _<struct_type>_list_end symbol to mark the start and the end of the
- * list of struct objects to iterate over.
- */
-#define STRUCT_SECTION_DEFINE_ALTERNATE(secname, struct_type)  \
-	__get_section_start(_##secname, struct struct_type,    \
-			       TYPE_SECTION_START(secname));   \
-	__get_section_end(_##secname, struct struct_type,      \
-			     TYPE_SECTION_END(secname));
-
-/*
- * Iterator for structure instances gathered by STRUCT_RW_SECTION_ITERABLE().
- * The linker must provide a _<struct_type>_list_start symbol and a
- * _<struct_type>_list_end symbol to mark the start and the end of the
- * list of struct objects to iterate over.
- */
-#define STRUCT_SECTION_DEFINE(struct_type)                         \
-	STRUCT_SECTION_DEFINE_ALTERNATE(struct_type, struct_type)
-
-/*
- * Iterator for structure instances gathered by STRUCT_RW_SECTION_ITERABLE().
- * The linker must provide a _<struct_type>_list_start symbol and a
- * _<struct_type>_list_end symbol to mark the start and the end of the
- * list of struct objects to iterate over.
- */
-#define STRUCT_RW_SECTION_DEFINE(struct_type)                      \
-	__get_rw_section_start(_##struct_type, struct struct_type, \
-			       TYPE_SECTION_START(struct_type));   \
-	__get_rw_section_end(_##struct_type, struct struct_type,   \
-			     TYPE_SECTION_END(struct_type));
 
 /**
  * @brief Iterate over a specified iterable section for a generic type

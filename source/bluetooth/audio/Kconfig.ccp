@@ -21,14 +21,14 @@ if BT_CCP_CALL_CONTROL_CLIENT
 config BT_CCP_CALL_CONTROL_CLIENT_BEARER_COUNT
 	int "Telephone bearer count"
 	default 1
-	range 1 255 # $(UINT8_MAX) if BT_TBS_CLIENT_TBS
+	range 1 255 if BT_TBS_CLIENT_TBS
 	range 1 1
 	help
 	  The number of supported telephone bearers on the CCP Call Control Client
 
 module = BT_CCP_CALL_CONTROL_CLIENT
 module-str = "Call Control Profile Client"
-# # source "subsys/logging/Kconfig.template.log_config"
+# source "subsys/logging/Kconfig.template.log_config"
 
 endif # BT_CCP_CALL_CONTROL_CLIENT
 
@@ -46,13 +46,13 @@ if BT_CCP_CALL_CONTROL_SERVER
 config BT_CCP_CALL_CONTROL_SERVER_BEARER_COUNT
 	int "Telephone bearer count"
 	default 1
-	range 1 255 # $(UINT8_MAX)
+	range 1 255
 	help
 	  The number of supported telephone bearers on the CCP Call Control Server
 
 module = BT_CCP_CALL_CONTROL_SERVER
 module-str = "Call Control Profile Call Control Server"
-# # source "subsys/logging/Kconfig.template.log_config"
+# source "subsys/logging/Kconfig.template.log_config"
 
 endif # BT_CCP_CALL_CONTROL_SERVER
 

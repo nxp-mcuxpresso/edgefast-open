@@ -52,7 +52,7 @@ config BT_DIS_MANUF_NAME
 	default y
 
 config BT_DIS_MANUF_NAME_STR
-	default "NXP"
+	default "\"NXP\""
 
 config BT_HCI_ACL_FLOW_CONTROL
 	default n

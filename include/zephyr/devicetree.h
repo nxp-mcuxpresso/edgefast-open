@@ -687,7 +687,7 @@
  *         refer to the same node, and evaluates to 0 otherwise
  */
 #define DT_SAME_NODE(node_id1, node_id2) \
-	(DT_DEP_ORD(node_id1) == (DT_DEP_ORD(node_id2)))
+	IS_EQ(DT_DEP_ORD(node_id1), DT_DEP_ORD(node_id2))
 
 /**
  * @brief Get a devicetree node's node labels as an array of strings
@@ -1042,14 +1042,14 @@
 	IS_ENABLED(DT_CAT8(node_id, _P_, prop, _IDX_, idx, _ENUM_VAL_, value, _EXISTS))
 
 /**
- * @brief Equivalent to DT_ENUM_HAS_VALUE_BY_IDX(node_id, prop, 0, value).
+ * @brief Does a node enumeration property have a given value?
  * @param node_id node identifier
  * @param prop lowercase-and-underscores property name
  * @param value lowercase-and-underscores enumeration value
  * @return 1 if the node property has the value @a value, 0 otherwise.
  */
 #define DT_ENUM_HAS_VALUE(node_id, prop, value) \
-	DT_ENUM_HAS_VALUE_BY_IDX(node_id, prop, 0, value)
+	IS_ENABLED(DT_CAT6(node_id, _P_, prop, _ENUM_VAL_, value, _EXISTS))
 
 /**
  * @brief Get a string property's value as a token.

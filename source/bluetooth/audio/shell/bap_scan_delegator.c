@@ -1028,7 +1028,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(bap_scan_delegator_cmds,
 	SHELL_CMD_ARG(synced, NULL,
 		      "Set server scan state <src_id> <bis_syncs>",
 		      cmd_bap_scan_delegator_bis_synced, 3, 0),
-	SHELL_SUBCMD_SET_END
+	SHELL_SUBCMD_SET_END,
 );
 
 SHELL_CMD_ARG_REGISTER(bap_scan_delegator, &bap_scan_delegator_cmds,
