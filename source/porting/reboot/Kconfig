@@ -1,0 +1,8 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+config BT_REBOOT_WDOG
+	bool "reboot wdog support"
+	imply MCUX_COMPONENT_driver.wdog01
+	default y if MCUX_HW_DEVICE_MIMXRT1176
