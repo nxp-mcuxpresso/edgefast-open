@@ -1,0 +1,29 @@
+central_tip:
+  section-type: application
+  contents:
+    meta_path: middleware/edgefast_open/examples/central_tip
+    project-root-path: boards/${board}/edgefast_open_examples/central_tip/${multicore_foldername}
+    document:
+      name: central_tip${core_id_suffix_name}
+      category: edgefast_open_examples/
+      brief: The Edgefast Bluetooth tip example with simplified application.
+      example_readme:
+      - middleware/edgefast_open/examples/central_tip/readme.md
+      - middleware/edgefast_open/examples/_boards/${board}/central_tip/example_board_readme.md
+      - ${board_root}/${board}/examples_shared_readme.md
+  boards:
+    # frdmrw612:
+    # - -armgcc@debug
+    # - -armgcc@release
+    # - -iar@debug
+    # - -iar@release
+    # - -mdk@debug
+    # - -mdk@release
+    # rdrw612bga:
+    # - -armgcc@debug
+    # - -armgcc@release
+    # - -iar@debug
+    # - -iar@release
+    # - -mdk@debug
+    # - -mdk@release
+    # frdmmcxn947@cm33_core0: []
