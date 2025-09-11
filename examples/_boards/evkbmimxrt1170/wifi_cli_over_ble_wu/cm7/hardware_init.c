@@ -59,9 +59,9 @@ void BOARD_InitHardware(void)
     EDMA_Init(dmaBases[0], &config);
 #endif
 
-#if (((defined(CONFIG_BT_SMP)) && (CONFIG_BT_SMP)))
+#if (((defined(CONFIG_BT_HOST_CRYPTO)) && (CONFIG_BT_HOST_CRYPTO)))
     CRYPTO_InitHardware();
-#endif /* CONFIG_BT_SMP */
+#endif /* CONFIG_BT_HOST_CRYPTO */
     (void)memset(&timerConfig, 0, sizeof(timer_config_t));
     timerConfig.instance    = 1;
     timerConfig.srcClock_Hz = CLOCK_GetRootClockFreq(kCLOCK_Root_Bus);
