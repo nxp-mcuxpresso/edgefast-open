@@ -123,7 +123,7 @@ edgefast_open_shell:
     # - -mdk@debug
     # - -mdk@release
 
-edgefast_bluetooth_shell@classic:
+edgefast_open_shell@classic:
   section-type: custom_application
   contents:
     document:
@@ -144,7 +144,7 @@ edgefast_bluetooth_shell@classic:
     - -mdk@sdram_debug
     - -mdk@sdram_release
 
-edgefast_bluetooth_shell@multiple_conns:
+edgefast_open_shell@multiple_conns:
   section-type: custom_application
   contents:
     document:
@@ -165,7 +165,7 @@ edgefast_bluetooth_shell@multiple_conns:
     - -mdk@sdram_debug
     - -mdk@sdram_release
 
-edgefast_bluetooth_shell@le_audio:
+edgefast_open_shell@le_audio:
   section-type: custom_application
   contents:
     document:
