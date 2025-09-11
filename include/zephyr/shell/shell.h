@@ -19,6 +19,10 @@
 #include <zephyr/shell/shell_types.h>
 #include <zephyr/shell/shell_string_conv.h>
 
+#if defined(CONFIG_BT_SETTINGS) && (CONFIG_BT_SETTINGS > 0)
+#define CONFIG_SETTINGS CONFIG_BT_SETTINGS
+#endif /* CONFIG_BT_SETTINGS */
+
 struct shell {
 	shell_handle_t sh;
 	struct {
@@ -149,16 +153,8 @@ typedef int (*shell_cmd_handler_t)(const struct shell *sh, size_t argc, char *ar
 		(struct _shell_command *)NULL,				\
 	};
 
-/**
- * @brief Shell CMD Set Entry
- *
- * Each shell cmd set entry is placed in a section with a name crafted.
- */
-#define SHELL_CMD_SET_ENTRY_SECTION(secname) __attribute__((__section__("._" #secname)))
-
 #define SHELL_COMMAND_SET_DEFINE(command, cmdList, descriptor, callback, miniArg, addtionArg) \
-    static struct _shell_command SHELL_CMD_SET_ENTRY_SECTION(_shell_command)  __used __noasan \
-    g_shellCommand##command = {                                                               \
+    STRUCT_SECTION_ITERABLE(_shell_command, command) = {                                      \
         .pcCommand           = (#command),                                                    \
         .pcHelpString        = (char *)(descriptor),                                          \
         .pFuncCallBack       = (callback),                                                    \
