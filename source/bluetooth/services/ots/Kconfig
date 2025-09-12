@@ -23,7 +23,7 @@ config BT_OTS_DIR_LIST_OBJ
 
 config BT_OTS_DIR_LIST_OBJ_NAME
 	string "The object name of the Directory Listing Object"
-	default "\"Directory\""
+	default "Directory"
 	depends on BT_OTS_DIR_LIST_OBJ
 	help
 	  The name of the Directory Listing Object when it is read by a client.

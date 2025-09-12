@@ -19,7 +19,7 @@ if BT_MPL
 
 config BT_MPL_MEDIA_PLAYER_NAME
 	string "Media Player Name"
-	default "\"Player0\""
+	default "Player0"
 	help
 	  Use this option to set the name of the media player.
 
@@ -33,7 +33,7 @@ config BT_MPL_MEDIA_PLAYER_NAME_MAX
 
 config BT_MPL_ICON_URL
 	string "Media player Icon URL"
-	default "\"http://server.some.where/path/icon.png\""
+	default "http://server.some.where/path/icon.png"
 	help
 	  Use this option to set the URL of the Media Player Icon.
 

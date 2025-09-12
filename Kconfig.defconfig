@@ -12,3 +12,79 @@ endif # BT_LONG_WQ
 
 config SYSTEM_WORKQUEUE_PRIORITY
 	range 0 NUM_PREEMPT_PRIORITIES
+
+config BT_MPL_MEDIA_PLAYER_NAME
+	help
+	  Macro value is in quotes
+
+config BT_MPL_ICON_URL
+	help
+	  Macro value is in quotes
+
+config BT_DEBUG_MONITOR_RTT_BUFFER_NAME
+	help
+	  Macro value is in quotes
+
+config BT_DEVICE_NAME
+	help
+	  Macro value is in quotes
+
+config BT_OTS_DIR_LIST_OBJ_NAME
+	help
+	  Macro value is in quotes
+
+config BT_DIS_MODEL_NUMBER_STR
+	help
+	  Macro value is in quotes
+
+config BT_DIS_MODEL
+	help
+	  Macro value is in quotes
+
+config BT_DIS_MANUF_NAME_STR
+	help
+	  Macro value is in quotes
+
+config BT_DIS_MANUF
+	help
+	  Macro value is in quotes
+
+config BT_DIS_SERIAL_NUMBER_STR
+	help
+	  Macro value is in quotes
+
+config BT_DIS_FW_REV_STR
+	help
+	  Macro value is in quotes
+
+config BT_DIS_HW_REV_STR
+	help
+	  Macro value is in quotes
+
+config BT_DIS_SW_REV_STR
+	help
+	  Macro value is in quotes
+
+config BT_DIS_UDI_LABEL_STR
+	help
+	  Macro value is in quotes
+
+config BT_DIS_UDI_DI_STR
+	help
+	  Macro value is in quotes
+
+config BT_DIS_UDI_ISSUER_STR
+	help
+	  Macro value is in quotes
+
+config BT_DIS_UDI_AUTHORITY_STR
+	help
+	  Macro value is in quotes
+
+config BT_DIS_IEEE_RCDL_STR
+	help
+	  Macro value is in quotes
+
+config BT_OTS_DIR_LIST_OBJ_NAME
+	help
+	  Macro value is in quotes

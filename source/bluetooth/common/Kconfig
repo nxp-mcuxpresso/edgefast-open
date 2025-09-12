@@ -387,7 +387,7 @@ config BT_DEBUG_MONITOR_RTT_BUFFER
 
 config BT_DEBUG_MONITOR_RTT_BUFFER_NAME
 	string "Buffer name used for custom logger output."
-	default "\"btmonitor\""
+	default "btmonitor"
 	help
 	  Select index of up-buffer used for logger output.
 
