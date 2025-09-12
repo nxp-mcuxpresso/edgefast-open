@@ -17,9 +17,9 @@
 #include "fsl_component_button.h"
 #endif
 #include "fsl_component_timer_manager.h"
-#if (((defined(CONFIG_BT_SMP)) && (CONFIG_BT_SMP)))
+#if (((defined(CONFIG_BT_HOST_CRYPTO)) && (CONFIG_BT_HOST_CRYPTO)))
 #include "ksdk_mbedtls.h"
-#endif /* CONFIG_BT_SMP */
+#endif /* CONFIG_BT_HOST_CRYPTO */
 #include <zephyr/drivers/bluetooth.h>
 /*${header:end}*/
 
