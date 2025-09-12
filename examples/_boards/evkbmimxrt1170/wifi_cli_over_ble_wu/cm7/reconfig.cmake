@@ -62,6 +62,10 @@ mcux_add_macro(
 )
 
 mcux_add_macro(
+  CC "-DMBEDTLS_USER_CONFIG_FILE=\\\"mbedtls_user_config.h\\\""
+)
+
+mcux_add_macro(
   CC "-DLFS_NO_ASSERT"
   TARGETS flexspi_nor_release
   TOOLCHAINS armgcc

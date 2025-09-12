@@ -17,9 +17,9 @@
 #include "fsl_component_button.h"
 #endif
 #include "fsl_component_timer_manager.h"
-#if (((defined(CONFIG_BT_HOST_CRYPTO)) && (CONFIG_BT_HOST_CRYPTO)))
+#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
 #include "ksdk_mbedtls.h"
-#endif /* CONFIG_BT_HOST_CRYPTO */
+#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 #include <zephyr/drivers/bluetooth.h>
 /*${header:end}*/
 
@@ -35,7 +35,6 @@
 
 /*${variable:start}*/
 
-extern void app_audio_streamer_task_signal(void);
 
 /*${variable:end}*/
 
@@ -58,9 +57,9 @@ void BOARD_InitHardware(void)
     EDMA_Init(dmaBases[0], &config);
 #endif
 
-#if (((defined(CONFIG_BT_HOST_CRYPTO)) && (CONFIG_BT_HOST_CRYPTO)))
+#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
     CRYPTO_InitHardware();
-#endif /* CONFIG_BT_HOST_CRYPTO */
+#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
     (void)memset(&timerConfig, 0, sizeof(timer_config_t));
     timerConfig.instance    = 1;
     timerConfig.srcClock_Hz = CLOCK_GetRootClockFreq(kCLOCK_Root_Bus);
