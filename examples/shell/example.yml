@@ -127,6 +127,7 @@ edgefast_open_shell@classic:
   section-type: custom_application
   contents:
     document:
+      category: edgefast_open_examples/
       extra_build_args:
       - -DCONF_FILE=middleware/edgefast_open/examples/shell/prj_br.conf
   boards:
@@ -148,6 +149,7 @@ edgefast_open_shell@multiple_conns:
   section-type: custom_application
   contents:
     document:
+      category: edgefast_open_examples/
       extra_build_args:
       - -DCONF_FILE=middleware/edgefast_open/examples/shell/prj-br-ble-conns.conf
   boards:
@@ -169,6 +171,7 @@ edgefast_open_shell@le_audio:
   section-type: custom_application
   contents:
     document:
+      category: edgefast_open_examples/
       extra_build_args:
       - -DCONF_FILE=middleware/edgefast_open/examples/shell/audio.conf
   boards:
