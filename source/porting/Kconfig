@@ -107,3 +107,7 @@ config PRINTK
 	default y
 	help
 	  Enable printing functionality
+
+config KERNEL_INIT_PRIORITY_DEVICE
+	int
+	default 50

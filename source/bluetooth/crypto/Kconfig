@@ -17,3 +17,9 @@ config BT_CRYPTO_PSA
 	depends on BT_CRYPTO
 	help
 	  This option enables PSA Crypto API support for Bluetooth cryptographic operations.
+
+config PSA_CRYPTO_CLIENT
+	bool
+	default y
+	help
+	  Enable support for PSA (Platform Security Architecture) Crypto Client
