@@ -20,6 +20,8 @@
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/drivers/bluetooth.h>
 
+#include "common/bt_str.h"
+
 #include "fsl_debug_console.h"
 
 #define H4_RING_BUFFER_LENGTH 1024
