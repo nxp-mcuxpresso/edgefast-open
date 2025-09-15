@@ -23,4 +23,18 @@ config SHELL_USE_COMMON_TASK
 	  Configure the common task usage for shell operations.
 	  No prefix in generated macro
 
+config SHELL_PROMPT
+	string "Shell prompt"
+	default SHELL_PROMPT_UART
+	help
+	  Configure the prompt string for shell operations.
+	  Macro value is in quotes
+
+config SHELL_PROMPT_UART
+	string
+	default "uart:~$ "
+	help
+	  Configure the prompt UART string for shell operations.
+	  Macro value is in quotes
+
 endif # PORT_SHELL

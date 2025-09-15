@@ -40,7 +40,7 @@ void shell_task(void *pvParameters)
     shell_handle = (shell_handle_t)&shell_handle_buffer[0];
     ctx_shell->sh = shell_handle;
 
-    if (kStatus_SHELL_Success != SHELL_Init(shell_handle, g_serialHandle, "bt>"))
+    if (kStatus_SHELL_Success != SHELL_Init(shell_handle, g_serialHandle, CONFIG_SHELL_PROMPT))
     {
         printk("Shell initialization failed!\r\n");
         return;
