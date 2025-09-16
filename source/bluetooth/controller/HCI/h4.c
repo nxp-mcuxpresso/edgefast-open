@@ -213,7 +213,7 @@ static inline void h4_get_type(const struct device *dev)
 		}
 		__fallthrough;
 	default:
-		LOG_ERR("Unknown H:4 type 0x%02x", h4->rx.type);
+		LOG_DBG("Unknown H:4 type 0x%02x", h4->rx.type);
 		h4_reset_rx(dev);
 	}
 
