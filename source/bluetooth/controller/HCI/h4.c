@@ -340,7 +340,7 @@ static inline void rx_payload_done(const struct device *dev)
 	k_sem_give(&h4->rx.ready);
 #endif
 
-	LOG_INF("Calling bt_recv(%p) with length %d", buf, buf->len);
+	LOG_DBG("Calling bt_recv(%p) with length %d", buf, buf->len);
 	h4->recv(dev, buf);
 }
 
