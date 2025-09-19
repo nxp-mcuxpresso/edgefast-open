@@ -10,6 +10,8 @@
 #include "fsl_component_log.h"
 #include "fsl_debug_console.h"
 
+#include "fsl_component_log_backend_debugconsole.h"
+
 #include <zephyr/init.h>
 
 #if ((defined(CONFIG_BT_SMP)) && (CONFIG_BT_SMP))
@@ -47,10 +49,12 @@ static mbedtls_ctr_drbg_context rng_ctx;
 #define CONFIG_PORTING_LOG_STACK_SIZE (2048)
 #endif
 
+#if (defined(CONFIG_BT_LOGGING_ASYNC) && (CONFIG_BT_LOGGING_ASYNC > 0))
 static void porting_log_task(void *param);
 
 static OSA_TASK_HANDLE_DEFINE(porting_log_task_data);
 OSA_TASK_DEFINE( porting_log_task, CONFIG_PORTING_LOG_PRIO, 1, CONFIG_PORTING_LOG_STACK_SIZE, 0);
+#endif /* CONFIG_BT_LOGGING_ASYNC */
 
 #endif
 
@@ -183,6 +187,7 @@ static unsigned int bt_ble_get_timestamp(void)
 #endif
 
 #if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
+#if (defined(CONFIG_BT_LOGGING_ASYNC) && (CONFIG_BT_LOGGING_ASYNC > 0))
 static void porting_log_task(void* param)
 {
 	static uint8_t dumpBuffer[512];
@@ -204,9 +209,8 @@ static void porting_log_task(void* param)
 		OSA_TaskYield();
 	}
 }
-#endif
+#endif /* CONFIG_BT_LOGGING_ASYNC */
 
-#if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 static bool logging_initialized;
 
 void bt_logging_init(void)
@@ -224,8 +228,12 @@ void bt_logging_init(void)
 	(void)LOG_SetTimestamp(bt_ble_get_timestamp);
 #endif
 
+#if (defined(CONFIG_BT_LOGGING_ASYNC) && (CONFIG_BT_LOGGING_ASYNC > 0))
 	ret = OSA_TaskCreate((osa_task_handle_t)porting_log_task_data, OSA_TASK(porting_log_task), NULL);
 	assert(KOSA_StatusSuccess == ret);
+#else
+	LOG_InitBackendDebugconsole();
+#endif /* CONFIG_BT_LOGGING_ASYNC */
 
 	(void)ret;
 }
@@ -238,8 +246,12 @@ void bt_logging_deinit(void)
 		return;
 	}
 
+#if (defined(CONFIG_BT_LOGGING_ASYNC) && (CONFIG_BT_LOGGING_ASYNC > 0))
 	ret = OSA_TaskDestroy((osa_task_handle_t)porting_log_task_data);
 	assert(KOSA_StatusSuccess == ret);
+#else
+	LOG_DeinitBackendDebugconsole();
+#endif /* CONFIG_BT_LOGGING_ASYNC */
 	(void)ret;
 
 	logging_initialized = false;
