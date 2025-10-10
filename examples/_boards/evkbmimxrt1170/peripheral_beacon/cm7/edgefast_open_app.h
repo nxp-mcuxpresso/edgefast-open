@@ -28,12 +28,9 @@
 #define IBEACON_APP 0
 #define EDDYSTONE   0
 
-#if (defined EDDYSTONE) && (EDDYSTONE)
-#undef CONFIG_BT_SETTINGS
-#define CONFIG_BT_SETTINGS              1
 #undef CONFIG_BT_KEYS_OVERWRITE_OLDEST
 #define CONFIG_BT_KEYS_OVERWRITE_OLDEST 1
-#endif
+
 #if defined(IBEACON_APP) && (IBEACON_APP == 1)
 #undef CONFIG_BT_DEVICE_NAME
 #define CONFIG_BT_DEVICE_NAME "ibeacon"
