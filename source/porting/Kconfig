@@ -13,8 +13,7 @@ rsource "./*/Kconfig"
 
 config SYSTEM_WORKQUEUE_STACK_SIZE
 	int "System Workqueue Stack Size"
-	default 4096 if BT_SMP || BT_CLASSIC
-	default 2048
+	default 4096
 	help
 	  Configure the stack size for the system workqueue used in Bluetooth stack processing
 
