@@ -19,21 +19,12 @@
 #include <zephyr/bluetooth/gatt.h>
 #include <fsl_debug_console.h>
 
-#include "eBT_timer.h"
-
 #define NUMBER_OF_SLOTS         1
 #define EDS_VERSION             0x00
 #define EDS_URL_READ_OFFSET     2
 #define EDS_URL_WRITE_OFFSET    4
 #define EDS_IDLE_TIMEOUT        30 /* seconds */
 #define EDS_DCNT_IDLE_TIMEOUT   1 /* seconds */
-
-
-static QueueHandle_t idle_timeout_sync;
-static void idle_timeout(void *data, UINT16 datalen);
-
-/* Idle timer */
-static BT_timer_handle idle_work_timer_handle = BT_TIMER_HANDLE_INIT_VAL;
 
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
@@ -633,7 +624,16 @@ static void connected(struct bt_conn *conn, uint8_t err)
 		printk("Connection failed (err 0x%02x)\n", err);
 	} else {
 		printk("Connected\n");
-        BT_stop_timer(idle_work_timer_handle);
+	}
+}
+
+static struct k_work_delayable switch_beacon_mode_work;
+
+static void switch_beacon_mode_work_handler(struct k_work *work)
+{
+	if (eds_slots[eds_active_slot].type == EDS_TYPE_NONE) {
+		printk("Switching to Beacon mode %u.\n", eds_active_slot);
+		eds_slot_restart(&eds_slots[eds_active_slot], EDS_TYPE_URL);
 	}
 }
 
@@ -644,16 +644,14 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	printk("Disconnected (reason 0x%02x)\n", reason);
 
 	if (!slot->connectable) {
-        /* Start 1 Second timer to rapidly re-establish Beaconing Service
-        (because it needs to be executed outside of disconnect callback) */
-        BT_start_timer
-        (
-            &idle_work_timer_handle,
-            EDS_DCNT_IDLE_TIMEOUT,
-            idle_timeout,
-            NULL,
-            0
-        );
+		/* Start 1 Second timer to rapidly re-establish Beaconing Service
+		(because it needs to be executed outside of disconnect callback) */
+		int err;
+
+		err = k_work_reschedule(&switch_beacon_mode_work, K_SECONDS(EDS_DCNT_IDLE_TIMEOUT));
+		if (err < 0) {
+			printk("Failed to reschedule delayable worker");
+		}
 	}
 }
 
@@ -691,79 +689,34 @@ static void bt_ready(int err)
 	bt_addr_le_to_str(&oob.addr, addr_s, sizeof(addr_s));
 	printk("Initial advertising as %s\n", addr_s);
 
-    if (BT_TIMER_HANDLE_INIT_VAL == idle_work_timer_handle)
-    {
-        /* Start timer to switching to Beacon mode */
-        BT_start_timer
-        (
-            &idle_work_timer_handle,
-            EDS_IDLE_TIMEOUT,
-            idle_timeout,
-            NULL,
-            0
-        );
-    }
-
 	printk("Configuration mode: waiting connections...\n");
-}
 
-static void idle_timeout_process(void *data, UINT16 datalen)
-{
-	if (eds_slots[eds_active_slot].type == EDS_TYPE_NONE) {
-		printk("Switching to Beacon mode %u.\n", eds_active_slot);
-		eds_slot_restart(&eds_slots[eds_active_slot], EDS_TYPE_URL);
+	k_work_init_delayable(&switch_beacon_mode_work, switch_beacon_mode_work_handler);
+
+	err = k_work_reschedule(&switch_beacon_mode_work, K_SECONDS(EDS_IDLE_TIMEOUT));
+	if (err < 0) {
+		printk("Failed to reschedule delayable worker");
 	}
-}
-
-static void idle_timeout(void *data, UINT16 datalen)
-{
-    if (NULL != idle_timeout_sync)
-    {
-        /* it is not in isr context */
-        xSemaphoreGive(idle_timeout_sync);
-    }
-    else
-    {
-        idle_timeout_process(data, datalen);
-    }
 }
 
 void beacon_task(void *pvParameters)
 {
-    int err;
+	int err;
 
-    printk("BLE Eddystone demo start...\n");
+	printk("BLE Eddystone demo start...\n");
 
-    idle_timeout_sync = xSemaphoreCreateCounting(0xFFu, 0u);
-    if (NULL == idle_timeout_sync)
-    {
-        printk("faile to create idle_timeout_sync\n");
-    }
-    /* Initialize the Bluetooth Subsystem */
-    err = bt_enable(bt_ready);
-    if (err)
-    {
-        printk("Bluetooth init failed (err %d)\n", err);
-        return;
-    }
+	/* Initialize the Bluetooth Subsystem */
+	err = bt_enable(bt_ready);
+	if (err)
+	{
+		printk("Bluetooth init failed (err %d)\n", err);
+		return;
+	}
 
-    if (NULL != idle_timeout_sync)
-    {
-        while(1)
-        {
-            if (pdTRUE == xSemaphoreTake(idle_timeout_sync, portMAX_DELAY))
-            {
-                idle_timeout_process(NULL, 0);
-            }
-        }
-    }
-    else
-    {
-        while(1)
-        {
-            vTaskDelay(1000);
-        }
-    }
+	while(1)
+	{
+		vTaskDelay(1000);
+	}
 }
 
 #endif /* EDDYSTONE */
