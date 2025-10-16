@@ -37,4 +37,12 @@ config SHELL_PROMPT_UART
 	  Configure the prompt UART string for shell operations.
 	  Macro value is in quotes
 
+config SHELL_BUFFER_SIZE
+	int "Shell Command Buffer Size Configuration"
+	range 8 65535
+	default 64
+	help
+	  Configure the buffer size for shell cmd.
+	  No prefix in generated macro
+
 endif # PORT_SHELL
