@@ -1,5 +1,7 @@
-Hardware requirements
-=====================
+# MIMXRT1170-EVKB
+
+## Hardware requirements
+
 - Micro USB cable
 - evkbmimxrt1170 board
 - Personal Computer
@@ -8,14 +10,14 @@ Hardware requirements
 - Embedded Artists 2EL M.2 Module (Rev-A1) - direct M2 connection.
 - Embedded Artists 2LL M.2 Module (EAR00500) - direct M2 connection.
 
-Jumper settings for RT1170-EVKB (enables external 5V supply):
-========================================================
+## Jumper settings for RT1170-EVKB (enables external 5V supply):
+
 remove  J38 5-6
 connect J38 1-2
 connect J43 with external power(controlled by SW5)
 
-Murata Solution Board settings
-==============================
+## Murata Solution Board settings
+
 Embedded Artists M.2 module resource page: https://www.embeddedartists.com/m2
 Embedded Artists 1XK module datasheet: https://www.embeddedartists.com/doc/ds/1XK_M2_Datasheet.pdf
 Embedded Artists 1ZM module datasheet: https://www.embeddedartists.com/doc/ds/1ZM_M2_Datasheet.pdf

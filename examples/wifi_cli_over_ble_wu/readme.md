@@ -58,11 +58,11 @@ To avoid this issue, following steps shall be taken:
 3. Press enter on keyboard and the APP will send this cmd to the board.
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_open_examples/wifi_cli_over_ble_wu/example_board_readme.md)
-- [MIMXRT1060-EVKC](../../_boards/evkcmimxrt1060/edgefast_open_examples/wifi_cli_over_ble_wu/example_board_readme.md)
-- [EVK-MIMXRT595](../../_boards/evkmimxrt595/edgefast_open_examples/wifi_cli_over_ble_wu/example_board_readme.md)
-- [FRDM-RW612](../../_boards/frdmrw612/edgefast_open_examples/wifi_cli_over_ble_wu/example_board_readme.md)
-- [MIMXRT685-AUD-EVK](../../_boards/mimxrt685audevk/edgefast_open_examples/wifi_cli_over_ble_wu/example_board_readme.md)
-- [MIMXRT700-EVK](../../_boards/mimxrt700evk/edgefast_open_examples/wifi_cli_over_ble_wu/example_board_readme.md)
-- [RD-RW612-BGA](../../_boards/rdrw612bga/edgefast_open_examples/wifi_cli_over_ble_wu/example_board_readme.md)
-- [FRDM-MCXN947](../../_boards/frdmmcxn947/edgefast_open_examples/wifi_cli_over_ble_wu/example_board_readme.md)
+- [MIMXRT1170-EVKB](../_boards/evkbmimxrt1170/wifi_cli_over_ble_wu/example_board_readme.md)
+- [MIMXRT1060-EVKC](../_boards/evkcmimxrt1060/wifi_cli_over_ble_wu/example_board_readme.md)
+- [EVK-MIMXRT595](../_boards/evkmimxrt595/wifi_cli_over_ble_wu/example_board_readme.md)
+- [FRDM-RW612](../_boards/frdmrw612/wifi_cli_over_ble_wu/example_board_readme.md)
+- [MIMXRT685-AUD-EVK](../_boards/mimxrt685audevk/wifi_cli_over_ble_wu/example_board_readme.md)
+- [MIMXRT700-EVK](../_boards/mimxrt700evk/wifi_cli_over_ble_wu/example_board_readme.md)
+- [RD-RW612-BGA](../_boards/rdrw612bga/wifi_cli_over_ble_wu/example_board_readme.md)
+- [FRDM-MCXN947](../_boards/frdmmcxn947/wifi_cli_over_ble_wu/example_board_readme.md)

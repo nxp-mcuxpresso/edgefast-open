@@ -20,6 +20,6 @@ edgefast_open_examples
    peripheral_ipsp/readme.md
    peripheral_pxr/readme.md
    peripheral_tip/readme.md
-   shell/readme.md
+   shell/bluetooth-shell.rst
    wifi_cli_over_ble_wu/readme.md
    wireless_uart/readme.md

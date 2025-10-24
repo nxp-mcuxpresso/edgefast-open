@@ -32,6 +32,6 @@ The application will trigger periodic alerts on the target device until a thresh
 After the disconnect from the target the locator will restart scanning.
 
 ## Supported Boards
-- [FRDM-RW612](../../_boards/frdmrw612/edgefast_open_examples/central_fmp/example_board_readme.md)
-- [RD-RW612-BGA](../../_boards/rdrw612bga/edgefast_open_examples/central_fmp/example_board_readme.md)
-- [FRDM-MCXN947](../../_boards/frdmmcxn947/edgefast_open_examples/central_fmp/example_board_readme.md)
+- [FRDM-RW612](../_boards/frdmrw612/central_fmp/example_board_readme.md)
+- [RD-RW612-BGA](../_boards/rdrw612bga/central_fmp/example_board_readme.md)
+- [FRDM-MCXN947](../_boards/frdmmcxn947/central_fmp/example_board_readme.md)

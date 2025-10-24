@@ -28,6 +28,6 @@ The application will initially set the default levels for the Link Loss Alert an
 The Locator will trigger an Immediate Alert on the application and disconnect. The Target will then resume advertising.
 
 ## Supported Boards
-- [FRDM-RW612](../../_boards/frdmrw612/edgefast_open_examples/peripheral_fmp/example_board_readme.md)
-- [RD-RW612-BGA](../../_boards/rdrw612bga/edgefast_open_examples/peripheral_fmp/example_board_readme.md)
-- [FRDM-MCXN947](../../_boards/frdmmcxn947/edgefast_open_examples/peripheral_fmp/example_board_readme.md)
+- [FRDM-RW612](../_boards/frdmrw612/peripheral_fmp/example_board_readme.md)
+- [RD-RW612-BGA](../_boards/rdrw612bga/peripheral_fmp/example_board_readme.md)
+- [FRDM-MCXN947](../_boards/frdmmcxn947/peripheral_fmp/example_board_readme.md)

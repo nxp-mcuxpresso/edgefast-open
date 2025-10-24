@@ -32,6 +32,6 @@ Once the client configures the Current Time Characteristic CCCD for notification
 the server will periodically notify its local time value to the client.
 
 ## Supported Boards
-- [FRDM-RW612](../../_boards/frdmrw612/edgefast_open_examples/peripheral_tip/example_board_readme.md)
-- [RD-RW612-BGA](../../_boards/rdrw612bga/edgefast_open_examples/peripheral_tip/example_board_readme.md)
-- [FRDM-MCXN947](../../_boards/frdmmcxn947/edgefast_open_examples/peripheral_tip/example_board_readme.md)
+- [FRDM-RW612](../_boards/frdmrw612/peripheral_tip/example_board_readme.md)
+- [RD-RW612-BGA](../_boards/rdrw612bga/peripheral_tip/example_board_readme.md)
+- [FRDM-MCXN947](../_boards/frdmmcxn947/peripheral_tip/example_board_readme.md)

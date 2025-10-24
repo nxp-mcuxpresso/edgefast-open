@@ -30,6 +30,6 @@ the application will subscribe to receive time notifications from the peer.
 The application will display the received notifications in the console.
 
 ## Supported Boards
-- [FRDM-RW612](../../_boards/frdmrw612/edgefast_open_examples/central_tip/example_board_readme.md)
-- [RD-RW612-BGA](../../_boards/rdrw612bga/edgefast_open_examples/central_tip/example_board_readme.md)
-- [FRDM-MCXN947](../../_boards/frdmmcxn947/edgefast_open_examples/central_tip/example_board_readme.md)
+- [FRDM-RW612](../_boards/frdmrw612/central_tip/example_board_readme.md)
+- [RD-RW612-BGA](../_boards/rdrw612bga/central_tip/example_board_readme.md)
+- [FRDM-MCXN947](../_boards/frdmmcxn947/central_tip/example_board_readme.md)
