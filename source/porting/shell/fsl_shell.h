@@ -40,6 +40,10 @@
 #define SHELL_ECHO (1U)
 #endif
 
+#ifndef SHELL_ECHO_WHEN_EOF_RECEIVED
+#define SHELL_ECHO_WHEN_EOF_RECEIVED (0U)
+#endif
+
 /*! @brief Macro to set maximum arguments in command. */
 #ifndef SHELL_MAX_ARGS
 #define SHELL_MAX_ARGS (8U)

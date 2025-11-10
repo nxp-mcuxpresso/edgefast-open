@@ -507,8 +507,21 @@ void SHELL_Task(shell_handle_t shellHandle)
                     }
                     else
                     {
-                        endoflinechar = (char)ch;
+#if ((SHELL_ECHO > 0) && (SHELL_ECHO_WHEN_EOF_RECEIVED > 0))
+                        static uint8_t echo_buffer[sizeof(shellContextHandle->line) + 3];
+
+                        echo_buffer[sizeof(shellContextHandle->line)] = 0U;
+                        echo_buffer[sizeof(shellContextHandle->line) + 1] = 0U;
+                        echo_buffer[sizeof(shellContextHandle->line) + 2] = 0U;
+                        memcpy(echo_buffer, shellContextHandle->line, sizeof(shellContextHandle->line));
+                        memcpy(&echo_buffer[strlen(echo_buffer)], "\r\n", 2);
+                        (void)SHELL_Write(shellContextHandle, (char *)echo_buffer, strlen(echo_buffer));
+#else
                         (void)SHELL_Write(shellContextHandle, (char *)"\r\n", 2);
+#endif
+
+                        endoflinechar = (char)ch;
+
                         /* If command line is or start with NULL, will start a new transfer */
                         if (0U == strlen(shellContextHandle->line))
                         {
@@ -538,7 +551,7 @@ void SHELL_Task(shell_handle_t shellHandle)
                                   &shellContextHandle->line[shellContextHandle->c_pos],
                                   shellContextHandle->l_pos - shellContextHandle->c_pos);
                     shellContextHandle->line[shellContextHandle->c_pos] = (char)ch;
-#if (SHELL_ECHO > 0)
+#if ((SHELL_ECHO > 0) && (SHELL_ECHO_WHEN_EOF_RECEIVED == 0))
                     if (0 == shellContextHandle->state.noEcho)
                     {
                         (void)SHELL_Write(shellContextHandle, &shellContextHandle->line[shellContextHandle->c_pos],
@@ -555,7 +568,7 @@ void SHELL_Task(shell_handle_t shellHandle)
                 else
                 {
                     shellContextHandle->line[shellContextHandle->l_pos] = (char)ch;
-#if (SHELL_ECHO > 0)
+#if ((SHELL_ECHO > 0) && (SHELL_ECHO_WHEN_EOF_RECEIVED == 0))
                     if (0 == shellContextHandle->state.noEcho)
                     {
                         (void)SHELL_Write(shellContextHandle, &shellContextHandle->line[shellContextHandle->l_pos], 1);
