@@ -200,6 +200,11 @@ do {                                                                    \
 #define __deprecated	__attribute__((deprecated))
 #endif
 
+#ifndef __deprecated_version
+#define __deprecated_version(version) \
+	__attribute__((deprecated("planned removal in v" #version)))
+#endif
+
 #define FUNC_NO_STACK_PROTECTOR _Pragma("no_stack_protect")
 
 #ifndef __attribute_const__
@@ -256,9 +261,13 @@ do {                                                                    \
 #define __WARN1(s) __PRAGMA(message = #s)
 
 /* Generic message */
-#ifndef __DEPRECATED_MACRO
+#ifndef CONFIG_DEPRECATION_TEST
 #define __DEPRECATED_MACRO __WARN("Macro is deprecated")
+#else
+#define __DEPRECATED_MACRO
 #endif
+
+
 
 /* These macros allow having ARM asm functions callable from thumb */
 

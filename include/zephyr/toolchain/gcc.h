@@ -286,6 +286,11 @@ do {                                                                    \
  */
 #endif
 
+#ifndef __deprecated_version
+#define __deprecated_version(version) \
+	__attribute__((deprecated("planned removal in v" #version)))
+#endif
+
 #ifndef __attribute_const__
 #define __attribute_const__ __attribute__((__const__))
 #endif
@@ -710,6 +715,12 @@ do {                                                                    \
 #define FUNC_NO_STACK_PROTECTOR
 #endif
 
+#if defined(CONFIG_INSTRUMENTATION)
+#define __no_instrumentation__ __attribute__((__no_instrument_function__))
+#else
+#define __no_instrumentation__ /**/
+#endif
+
 #endif /* !_LINKER */
 
 #define TOOLCHAIN_WARNING_ADDRESS_OF_PACKED_MEMBER "-Waddress-of-packed-member"
@@ -721,6 +732,7 @@ do {                                                                    \
 #define TOOLCHAIN_WARNING_SHADOW                   "-Wshadow"
 #define TOOLCHAIN_WARNING_UNUSED_LABEL             "-Wunused-label"
 #define TOOLCHAIN_WARNING_UNUSED_VARIABLE          "-Wunused-variable"
+#define TOOLCHAIN_WARNING_CAST_QUAL                "-Wcast-qual"
 
 /* GCC-specific warnings that aren't in clang. */
 #if defined(__GNUC__) && !defined(__clang__)

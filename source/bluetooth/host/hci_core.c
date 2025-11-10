@@ -1077,9 +1077,16 @@ static void hci_disconn_complete(struct net_buf *buf)
 		 * If only for one connection session bond was set, clear keys
 		 * database row for this connection.
 		 */
-		if (conn->type == BT_CONN_TYPE_BR && conn->br.link_key != NULL &&
-		    atomic_test_and_clear_bit(conn->flags, BT_CONN_BR_NOBOND)) {
-			bt_keys_link_key_clear(conn->br.link_key);
+		if (conn->type == BT_CONN_TYPE_BR && conn->br.link_key != NULL) {
+			/*
+			 * If the connection link is paired but not bond, remove
+			 * the link key upon disconnection.
+			 */
+			if (atomic_test_and_clear_bit(conn->flags, BT_CONN_BR_NOBOND)) {
+				bt_keys_link_key_clear(conn->br.link_key);
+			}
+
+			conn->br.link_key->enc_key_size = 0;
 		}
 #endif
 		bt_conn_unref(conn);
@@ -1497,24 +1504,12 @@ void bt_hci_le_enh_conn_complete(struct bt_hci_evt_le_enh_conn_complete *evt)
 			bt_addr_copy(&conn->le.resp_addr.a, &evt->local_rpa);
 		}
 
-		/* if the controller supports, lets advertise for another
-		 * peripheral connection.
-		 * check for connectable advertising state is sufficient as
-		 * this is how this le connection complete for peripheral occurred.
-		 */
-		if (BT_LE_STATES_PER_CONN_ADV(bt_dev.le.states)) {
-			bt_le_adv_resume();
-		}
-
 		if (IS_ENABLED(CONFIG_BT_EXT_ADV) &&
 		    !BT_DEV_FEAT_LE_EXT_ADV(bt_dev.le.features)) {
-			struct bt_le_ext_adv *adv = bt_le_adv_lookup_legacy();
 			/* No advertising set terminated event, must be a
 			 * legacy advertiser set.
 			 */
-			if (!atomic_test_bit(adv->flags, BT_ADV_PERSIST)) {
-				bt_le_adv_delete_legacy();
-			}
+			bt_le_adv_delete_legacy();
 		}
 	}
 
@@ -1800,7 +1795,7 @@ static void le_remote_feat_complete(struct net_buf *buf)
 	if (IS_ENABLED(CONFIG_BT_REMOTE_INFO) &&
 	    (!IS_ENABLED(CONFIG_BT_REMOTE_VERSION) ||
 	     atomic_test_bit(conn->flags, BT_CONN_AUTO_VERSION_INFO))) {
-		notify_remote_info(conn);
+		bt_conn_notify_remote_info(conn);
 	}
 
 	bt_conn_unref(conn);
@@ -1831,7 +1826,7 @@ static void le_read_all_remote_feat_complete(struct net_buf *buf)
 		params.features = evt->features;
 	}
 
-	notify_read_all_remote_feat_complete(conn, &params);
+	bt_conn_notify_read_all_remote_feat_complete(conn, &params);
 
 	bt_conn_unref(conn);
 }
@@ -1860,7 +1855,7 @@ static void le_frame_space_update_complete(struct net_buf *buf)
 		params.initiator = evt->initiator;
 	}
 
-	notify_frame_space_update_complete(conn, &params);
+	bt_conn_notify_frame_space_update_complete(conn, &params);
 }
 #endif /* CONFIG_BT_FRAME_SPACE_UPDATE */
 
@@ -1903,7 +1898,7 @@ static void le_data_len_change(struct net_buf *buf)
 	conn->le.data_len.tx_max_time = max_tx_time;
 	conn->le.data_len.rx_max_len = max_rx_octets;
 	conn->le.data_len.rx_max_time = max_rx_time;
-	notify_le_data_len_updated(conn);
+	bt_conn_notify_le_data_len_updated(conn);
 #endif
 
 	bt_conn_unref(conn);
@@ -1930,7 +1925,7 @@ static void le_phy_update_complete(struct net_buf *buf)
 #if defined(CONFIG_BT_USER_PHY_UPDATE)
 	conn->le.phy.tx_phy = bt_get_phy(evt->tx_phy);
 	conn->le.phy.rx_phy = bt_get_phy(evt->rx_phy);
-	notify_le_phy_updated(conn);
+	bt_conn_notify_le_phy_updated(conn);
 #endif
 
 	bt_conn_unref(conn);
@@ -2024,7 +2019,7 @@ static void le_conn_param_req(struct net_buf *buf)
 		return;
 	}
 
-	if (!le_param_req(conn, &param)) {
+	if (!bt_conn_le_param_req(conn, &param)) {
 		le_conn_param_neg_reply(handle, BT_HCI_ERR_INVALID_LL_PARAM);
 	} else {
 		le_conn_param_req_reply(handle, &param);
@@ -2103,7 +2098,7 @@ static void le_conn_update_complete(struct net_buf *buf)
 
 		}
 
-		notify_le_param_updated(conn);
+		bt_conn_notify_le_param_updated(conn);
 	}
 
 	bt_conn_unref(conn);
@@ -2440,7 +2435,7 @@ static void bt_hci_evt_read_remote_version_complete(struct net_buf *buf)
 	if (IS_ENABLED(CONFIG_BT_REMOTE_INFO) &&
 	    atomic_test_bit(conn->flags, BT_CONN_LE_FEATURES_EXCHANGED)) {
 		/* Remote features is already present */
-		notify_remote_info(conn);
+		bt_conn_notify_remote_info(conn);
 	}
 
 	bt_conn_unref(conn);
@@ -2714,7 +2709,7 @@ void bt_hci_le_transmit_power_report(struct net_buf *buf)
 	report.tx_power_level_flag = evt->tx_power_level_flag;
 	report.delta = evt->delta;
 
-	notify_tx_power_report(conn, report);
+	bt_conn_notify_tx_power_report(conn, report);
 
 	bt_conn_unref(conn);
 }
@@ -2750,7 +2745,7 @@ void bt_hci_le_path_loss_threshold_event(struct net_buf *buf)
 		report.path_loss = evt->current_path_loss;
 	}
 
-	notify_path_loss_threshold_report(conn, report);
+	bt_conn_notify_path_loss_threshold_report(conn, report);
 
 	bt_conn_unref(conn);
 }
@@ -2806,7 +2801,7 @@ void bt_hci_le_subrate_change_event(struct net_buf *buf)
 	params.peripheral_latency = conn->le.latency;
 	params.supervision_timeout = conn->le.timeout;
 
-	notify_subrate_change(conn, params);
+	bt_conn_notify_subrate_change(conn, params);
 
 	bt_conn_unref(conn);
 }
@@ -3088,6 +3083,10 @@ static const struct event_handler normal_events[] = {
 		      sizeof(struct bt_hci_evt_remote_ext_features)),
 	EVENT_HANDLER(BT_HCI_EVT_ROLE_CHANGE, bt_hci_role_change,
 		      sizeof(struct bt_hci_evt_role_change)),
+#if defined(CONFIG_BT_POWER_MODE_CONTROL)
+	EVENT_HANDLER(BT_HCI_EVT_MODE_CHANGE, bt_hci_link_mode_change,
+		      sizeof(struct bt_hci_evt_mode_change)),
+#endif /* CONFIG_BT_POWER_MODE_CONTROL */
 	EVENT_HANDLER(BT_HCI_EVT_SYNC_CONN_COMPLETE, bt_hci_synchronous_conn_complete,
 		      sizeof(struct bt_hci_evt_sync_conn_complete)),
 #endif /* CONFIG_BT_CLASSIC */
@@ -4662,6 +4661,10 @@ int bt_disable(void)
 	bt_periodic_sync_disable();
 #endif /* CONFIG_BT_PER_ADV_SYNC */
 
+	if (IS_ENABLED(CONFIG_BT_ISO)) {
+		bt_iso_reset();
+	}
+
 #if defined(CONFIG_BT_CONN)
 	if (IS_ENABLED(CONFIG_BT_SMP)) {
 		bt_pub_key_hci_disrupted();
@@ -4715,10 +4718,6 @@ int bt_disable(void)
 
 	/* If random address was set up - clear it */
 	bt_addr_le_copy(&bt_dev.random_addr, BT_ADDR_LE_ANY);
-
-	if (IS_ENABLED(CONFIG_BT_ISO)) {
-		bt_iso_reset();
-	}
 
 	bt_monitor_send(BT_MONITOR_CLOSE_INDEX, NULL, 0);
 

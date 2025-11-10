@@ -12,6 +12,11 @@ config BT_CRYPTO
 	help
 	  This option enables the Bluetooth Cryptographic Toolbox.
 
+config PSA_CRYPTO
+	bool "PSA Crypto Support"
+	help
+	  Enable support for PSA (Platform Security Architecture) Crypto
+
 config BT_CRYPTO_PSA
 	bool "PSA Crypto Support for Bluetooth"
 	depends on BT_CRYPTO
