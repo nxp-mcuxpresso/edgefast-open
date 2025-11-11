@@ -801,6 +801,9 @@ static int h4_close(const struct device *dev)
 	/* Abort RX thread */
 	k_thread_abort(cfg->rx_thread);
 
+	/* Abort TX thread */
+	k_thread_abort(cfg->tx_thread);
+
 	h4->recv = NULL;
 
 	return 0;
