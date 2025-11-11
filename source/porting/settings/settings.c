@@ -20,7 +20,7 @@ int settings_subsys_init(void)
 {
     if (NULL != lfs)
     {
-        return -EALREADY;
+        return 0;
     }
     lfs = settings_lfs_init();
 
