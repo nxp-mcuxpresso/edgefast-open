@@ -32,5 +32,5 @@ config BT_A2DP_SOURCE_DATA_BUF_COUNT
 
 config BT_A2DP_SOURCE_DUAL
 	bool "enable dual a2dp source function"
-
+source "middleware/edgefast_open/Kconfig"
 source "Kconfig.mcuxpresso"

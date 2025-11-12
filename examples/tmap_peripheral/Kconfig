@@ -6,7 +6,7 @@
 #
 
 mainmenu "Bluetooth: Earbuds"
-
+source "middleware/edgefast_open/Kconfig"
 source "Kconfig.mcuxpresso"
 
 menu "Earbuds"
