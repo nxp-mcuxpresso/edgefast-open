@@ -230,6 +230,13 @@ enum shell_vt100_color {
  */
 #define SHELL_ERROR	SHELL_VT100_COLOR_RED
 
+static inline void shell_flush(void)
+{
+	if (IS_ENABLED(SHELL_AUTO_FLUSH)) {
+		DbgConsole_Flush();
+	}
+}
+
 #define shell_fprintf_eol(sh, mode, fmt, ...)					\
 do {										\
 	(void)sh;								\
@@ -240,6 +247,7 @@ do {										\
 	} else {								\
 		PRINTF( "\x1B[1;3%dm" fmt "\x1B[0m\r\n", mode, ##__VA_ARGS__);	\
 	}									\
+	shell_flush();								\
 } while(0)
 
 #define shell_fprintf(sh, mode, fmt, ...)					\
@@ -252,6 +260,7 @@ do {										\
 	} else {								\
 		PRINTF( "\x1B[1;3%dm" fmt "\x1B[0m", mode, ##__VA_ARGS__);	\
 	}									\
+	shell_flush();								\
 } while(0)
 
 #define shell_dump(sh, fmt, ...) shell_fprintf(sh, SHELL_OPTION, fmt, ##__VA_ARGS__)

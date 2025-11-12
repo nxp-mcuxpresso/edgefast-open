@@ -52,4 +52,11 @@ config SHELL_ECHO_WHEN_EOF_RECEIVED
 	  Shell Command only be echoed when an EOF is received.
 	  No prefix in generated macro
 
+config SHELL_AUTO_FLUSH
+	bool "Auto flush all print message"
+	default n
+	help
+	  Auto flush all print message.
+	  No prefix in generated macro
+
 endif # PORT_SHELL
