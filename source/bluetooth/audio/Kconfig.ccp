@@ -28,7 +28,7 @@ config BT_CCP_CALL_CONTROL_CLIENT_BEARER_COUNT
 
 module = BT_CCP_CALL_CONTROL_CLIENT
 module-str = "Call Control Profile Client"
-# source "subsys/logging/Kconfig.template.log_config"
+source "middleware/edgefast_open/source/porting/Kconfig.template.log_config"
 
 endif # BT_CCP_CALL_CONTROL_CLIENT
 
@@ -59,7 +59,7 @@ config BT_CCP_CALL_CONTROL_SERVER_PROVIDER_NAME_MAX_LENGTH
 
 module = BT_CCP_CALL_CONTROL_SERVER
 module-str = "Call Control Profile Call Control Server"
-# source "subsys/logging/Kconfig.template.log_config"
+source "middleware/edgefast_open/source/porting/Kconfig.template.log_config"
 
 endif # BT_CCP_CALL_CONTROL_SERVER
 

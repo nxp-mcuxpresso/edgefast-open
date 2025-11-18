@@ -52,6 +52,6 @@ rsource "Kconfig.pbp"
 
 module = BT_AUDIO
 module-str = "Bluetooth Audio"
-# source "subsys/logging/Kconfig.template.log_config"
+source "middleware/edgefast_open/source/porting/Kconfig.template.log_config"
 
 endif # BT_AUDIO
