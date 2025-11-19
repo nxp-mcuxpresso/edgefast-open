@@ -59,8 +59,7 @@ static void * bt_fifo_sem_create(bt_fifo_t *fifo)
 	return xSemaphoreCreateCountingStatic(0xFFFFFFFFU, 0U, &fifo->sem_buffer);
 }
 
-
-static bt_fifo_sem_delete(bt_fifo_t *fifo)
+static void bt_fifo_sem_delete(bt_fifo_t *fifo)
 {
 	vSemaphoreDelete(&fifo->sem_buffer);
 }
