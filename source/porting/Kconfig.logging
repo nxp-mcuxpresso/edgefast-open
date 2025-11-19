@@ -36,3 +36,9 @@ config BT_DEFAULT_LOG_LEVEL
 	range 0 6
 	help
 	  Configure logging verbosity for Bluetooth stack initialization and core configuration
+
+config BT_LOGGING_USBCDC
+	bool "Bluetooth logging via USBCDC"
+	depends on BT_LOGGING
+	help
+	  Enable logging via USBCDC for Bluetooth stack
