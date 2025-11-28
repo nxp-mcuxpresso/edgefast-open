@@ -13,16 +13,6 @@
     #define CONFIG_SYSTEM_WORKQUEUE_PRIORITY (configMAX_PRIORITIES - 2)
 #endif
 
-/*! @brief Work queue task stack size.
- */
-#ifndef CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE
-#if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
-    #define CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE 4096
-#else
-    #define CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE 2048
-#endif /* CONFIG_BT_SMP */
-#endif
-
 enum {
 	K_WORK_DELAY_Q_TIMER = 0,
 };
