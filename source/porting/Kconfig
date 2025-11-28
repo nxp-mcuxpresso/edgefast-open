@@ -34,3 +34,8 @@ config PRINTK
 config KERNEL_INIT_PRIORITY_DEVICE
 	int
 	default 50
+
+config ZTEST
+	bool "Bluetooth testing"
+	help
+	  Enable Bluetooth testing
