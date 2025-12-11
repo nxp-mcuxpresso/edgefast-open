@@ -13,6 +13,8 @@
 #include "fsl_component_log.h"
 LOG_MODULE_DEFINE(LOG_MODULE_NAME, kLOG_LevelTrace);
 
+static struct k_spinlock lock;
+
 static void bt_fifo_sem_post(QueueHandle_t sem)
 {
 	if (k_is_in_isr())
@@ -69,6 +71,7 @@ void bt_fifo_init(bt_fifo_t *fifo)
 {
 	LOG_DBG("FIFO init", fifo);
 
+	k_spinlock_key_t key = k_spin_lock(&lock);
 	if (fifo->sem == (QueueHandle_t)&fifo->sem_buffer)
 	{
 		bt_fifo_sem_delete(fifo);
@@ -87,6 +90,7 @@ void bt_fifo_init(bt_fifo_t *fifo)
 		__ASSERT(0, "fifo init failed");
 		LOG_ERR("failed");
 	}
+	k_spin_unlock(&lock, key);
 }
 
 #if (defined(CONFIG_BT_DEBUG_FIFO) && (CONFIG_BT_DEBUG_FIFO > 0U))
@@ -95,9 +99,13 @@ void bt_fifo_append_debug(bt_fifo_t *fifo, void *data, const char *func, int lin
 void bt_fifo_append(bt_fifo_t *fifo, void *data)
 #endif /* CONFIG_BT_DEBUG_FIFO */
 {
+	k_spinlock_key_t key;
+
 	if (fifo->sem == NULL) {
 		bt_fifo_init(fifo);
 	}
+
+	key = k_spin_lock(&lock);
 	if (true == sys_slist_find(&fifo->list, (sys_snode_t*)data, NULL))
 	{
 #if (defined(CONFIG_BT_DEBUG_FIFO) && (CONFIG_BT_DEBUG_FIFO > 0U))
@@ -105,10 +113,12 @@ void bt_fifo_append(bt_fifo_t *fifo, void *data)
 #else
 		LOG_ERR("node %p has been inserted to fifo %p", data, fifo);
 #endif /* CONFIG_BT_DEBUG_FIFO */
+		k_spin_unlock(&lock, key);
 		return;
 	}
 	LOG_INF("node %p, fifo %p", data, fifo);
 	sys_slist_append(&fifo->list, (sys_snode_t*)data);
+	k_spin_unlock(&lock, key);
 	LOG_INF("next %p", ((sys_snode_t*)data)->next);
 	bt_fifo_sem_post(fifo->sem);
 }
@@ -119,9 +129,13 @@ void bt_fifo_prepend_debug(bt_fifo_t *fifo, void *data, const char *func, int li
 void bt_fifo_prepend(bt_fifo_t *fifo, void *data)
 #endif /* CONFIG_BT_DEBUG_FIFO */
 {
+	k_spinlock_key_t key;
+
 	if (fifo->sem == NULL) {
 		bt_fifo_init(fifo);
 	}
+
+	key = k_spin_lock(&lock);
 	if (true == sys_slist_find(&fifo->list, (sys_snode_t*)data, NULL))
 	{
 #if (defined(CONFIG_BT_DEBUG_FIFO) && (CONFIG_BT_DEBUG_FIFO > 0U))
@@ -129,9 +143,11 @@ void bt_fifo_prepend(bt_fifo_t *fifo, void *data)
 #else
 		LOG_ERR("node %p has been inserted to fifo %p", data, fifo);
 #endif /* CONFIG_BT_DEBUG_FIFO */
+		k_spin_unlock(&lock, key);
 		return;
 	}
 	sys_slist_prepend(&fifo->list, (sys_snode_t*)data);
+	k_spin_unlock(&lock, key);
 	bt_fifo_sem_post(fifo->sem);
 }
 
@@ -141,9 +157,13 @@ void bt_fifo_insert_debug(bt_fifo_t *fifo, void *prev, void *data, const char *f
 void bt_fifo_insert(bt_fifo_t *fifo, void *prev, void *data)
 #endif /* CONFIG_BT_DEBUG_FIFO */
 {
+	k_spinlock_key_t key;
+
 	if (fifo->sem == NULL) {
 		bt_fifo_init(fifo);
 	}
+
+	key = k_spin_lock(&lock);
 	if (true == sys_slist_find(&fifo->list, (sys_snode_t*)data, NULL))
 	{
 #if (defined(CONFIG_BT_DEBUG_FIFO) && (CONFIG_BT_DEBUG_FIFO > 0U))
@@ -151,18 +171,24 @@ void bt_fifo_insert(bt_fifo_t *fifo, void *prev, void *data)
 #else
 		LOG_ERR("node %p has been inserted to fifo %p", data, fifo);
 #endif /* CONFIG_BT_DEBUG_FIFO */
+		k_spin_unlock(&lock, key);
 		return;
 	}
 	sys_slist_insert(&fifo->list, (sys_snode_t*)prev, (sys_snode_t*)data);
+	k_spin_unlock(&lock, key);
 	bt_fifo_sem_post(fifo->sem);
 }
 
 int bt_fifo_append_list(bt_fifo_t *fifo, void *head, void *tail)
 {
+	k_spinlock_key_t key;
+
 	if (fifo->sem == NULL) {
 		bt_fifo_init(fifo);
 	}
+	key = k_spin_lock(&lock);
 	sys_slist_append_list(&fifo->list, (sys_snode_t*)head, (sys_snode_t*)tail);
+	k_spin_unlock(&lock, key);
 
 	bt_fifo_sem_post(fifo->sem);
 
@@ -171,11 +197,15 @@ int bt_fifo_append_list(bt_fifo_t *fifo, void *head, void *tail)
 
 int bt_fifo_merge_slist(bt_fifo_t *fifo, sys_slist_t *head)
 {
+	k_spinlock_key_t key;
+
 	if (fifo->sem == NULL) {
 		bt_fifo_init(fifo);
 	}
+	key = k_spin_lock(&lock);
 	sys_slist_append_list(&fifo->list, (sys_snode_t*)head->head, (sys_snode_t*)NULL);
 	head->head = NULL;
+	k_spin_unlock(&lock, key);
 	bt_fifo_sem_post(fifo->sem);
 
 	return 0;
@@ -193,7 +223,9 @@ void *bt_fifo_get(bt_fifo_t *fifo, size_t timeout)
 
 	if (k_is_in_isr())
 	{
+		k_spinlock_key_t key = k_spin_lock(&lock);
 		head = sys_slist_get(&fifo->list);
+		k_spin_unlock(&lock, key);
 	}
 	else
 	{
@@ -201,7 +233,9 @@ void *bt_fifo_get(bt_fifo_t *fifo, size_t timeout)
 		current = start;
 		while (((current - start) <= timeout) && (NULL == head))
 		{
+			k_spinlock_key_t key = k_spin_lock(&lock);
 			head = sys_slist_get(&fifo->list);
+			k_spin_unlock(&lock, key);
 			if (NULL == head)
 			{
 				if ((current - start) < timeout)
@@ -226,24 +260,37 @@ void *bt_fifo_get(bt_fifo_t *fifo, size_t timeout)
 
 bool bt_fifo_remove(bt_fifo_t *fifo, void *data)
 {
+	bool ret;
+	k_spinlock_key_t key;
+
 	if (fifo->sem == NULL) {
 		bt_fifo_init(fifo);
 	}
 
-	return sys_slist_find_and_remove(&fifo->list, (sys_snode_t*)data);
+	key = k_spin_lock(&lock);
+	ret = sys_slist_find_and_remove(&fifo->list, (sys_snode_t*)data);
+	k_spin_unlock(&lock, key);
+
+	return ret;
 }
 
 bool bt_fifo_unique_append(bt_fifo_t *fifo, void *data)
 {
+	k_spinlock_key_t key;
+
 	if (fifo->sem == NULL) {
 		bt_fifo_init(fifo);
 	}
+
+	key = k_spin_lock(&lock);
 	if (true == sys_slist_find(&fifo->list, (sys_snode_t*)data, NULL))
 	{
+		k_spin_unlock(&lock, key);
 		LOG_ERR("node %p has been inserted to fifo %p", data, fifo);
 		return false;
 	}
 	sys_slist_append(&fifo->list, (sys_snode_t*)data);
+	k_spin_unlock(&lock, key);
 	bt_fifo_sem_post(fifo->sem);
 
 	return true;
