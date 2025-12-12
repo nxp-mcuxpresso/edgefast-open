@@ -39,3 +39,11 @@ config ZTEST
 	bool "Bluetooth testing"
 	help
 	  Enable Bluetooth testing
+
+config SEGGER_RTT_MAX_NUM_UP_BUFFERS
+	int "Segger RTT max number of up buffers"
+	default 10
+	help
+	  Configure the maximum number of up buffers for Segger RTT
+	  It is used to fix Kconfig warning.
+
