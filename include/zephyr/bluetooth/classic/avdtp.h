@@ -132,6 +132,8 @@ enum bt_avdtp_recovery_type {
 	BT_ADVTP_RECOVERY_TYPE_RFC2733 = 0x01,
 };
 
+struct bt_avdtp_sep;
+
 struct bt_avdtp_sep_ops {
 	/** @brief Stream End Point (SEP) l2cap connected callback
 	 *
