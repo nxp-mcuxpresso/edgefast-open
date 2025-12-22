@@ -52,11 +52,6 @@
 /*! @brief Macro to set maximum count of history commands. */
 #define SHELL_HISTORY_COUNT (3U)
 
-/*! @brief Macro to determine whether use common task. */
-#ifndef SHELL_USE_COMMON_TASK
-#define SHELL_USE_COMMON_TASK (1U)
-#endif
-
 /*! @brief Macro to set shell task priority. */
 #ifndef SHELL_TASK_PRIORITY
 #define SHELL_TASK_PRIORITY (2U)
