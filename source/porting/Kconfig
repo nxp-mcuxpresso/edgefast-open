@@ -47,3 +47,15 @@ config SEGGER_RTT_MAX_NUM_UP_BUFFERS
 	  Configure the maximum number of up buffers for Segger RTT
 	  It is used to fix Kconfig warning.
 
+config APPLICATION_INIT_PRIORITY
+	int "Default init priority for application level drivers"
+	default 90
+	help
+	  This priority level is for end-user drivers such as sensors and display
+	  which have no inward dependencies.
+
+config KERNEL_INIT_PRIORITY_DEFAULT
+	int "Default init priority"
+	default 40
+	help
+	  Default minimal init priority for each init level.
