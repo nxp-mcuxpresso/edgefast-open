@@ -1334,14 +1334,14 @@ static int32_t SHELL_ParseLine(shell_context_handle_t *shellContextHandle, char 
         }
     }
 
-    for (uint32_t i = strlen(argv[0]) - 1; i >= 0; i--) {
+    for (uint32_t i = strlen(argv[0]) - 1; i > 0; i--) {
         if (argv[0][i] != ' ') {
             break;
         }
         argv[0][i] = '\0';
     }
 
-    for (uint32_t i = strlen(argv[0]) - 1; i >= 0; i--) {
+    for (uint32_t i = strlen(argv[0]) - 1; i > 0; i--) {
         if (argv[0][i] != ' ') {
             continue;
         }
