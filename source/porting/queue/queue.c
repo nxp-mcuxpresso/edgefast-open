@@ -61,25 +61,13 @@ static void * bt_fifo_sem_create(bt_fifo_t *fifo)
 	return xSemaphoreCreateCountingStatic(0xFFFFFFFFU, 0U, &fifo->sem_buffer);
 }
 
-static void bt_fifo_sem_delete(bt_fifo_t *fifo)
-{
-	vSemaphoreDelete(&fifo->sem_buffer);
-}
-
-
 void bt_fifo_init(bt_fifo_t *fifo)
 {
 	LOG_DBG("FIFO init", fifo);
 
 	k_spinlock_key_t key = k_spin_lock(&lock);
-	if (fifo->sem == (QueueHandle_t)&fifo->sem_buffer)
-	{
-		bt_fifo_sem_delete(fifo);
-	}
 
 	/* Clear object */
-	(void)memset((void *)fifo, 0, sizeof(*fifo));
-
 	fifo->sem = bt_fifo_sem_create(fifo);
 	if (fifo->sem == (QueueHandle_t)&fifo->sem_buffer)
 	{
