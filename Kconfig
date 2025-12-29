@@ -29,6 +29,7 @@ menuconfig MCUX_COMPONENT_middleware.edgefast_open
 						MCUX_HW_DEVICE_MIMXRT798S
 	select BT_CRYPTO_PSA if MCUX_HW_DEVICE_MIMXRT1176 || \
 				MCUX_HW_DEVICE_MIMXRT798S
+	select ATOMIC_OPERATIONS_BUILTIN
 
 if MCUX_COMPONENT_middleware.edgefast_open
 

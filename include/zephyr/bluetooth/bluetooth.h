@@ -1755,7 +1755,7 @@ struct bt_le_per_adv_sync_synced_info {
  * @brief Information about the termination of a periodic advertising sync.
  *
  * @details This struct provides information about the termination of a periodic advertising sync.
- * It includes the advertiser¡¯s address and SID, along with the reason for the sync termination.
+ * It includes the advertiserâ€™s address and SID, along with the reason for the sync termination.
  * This information is provided in the callback when the sync is terminated, either due to a
  * local or remote request, or due to missing data (e.g., out of range or lost sync).
  *
@@ -1776,7 +1776,7 @@ struct bt_le_per_adv_sync_term_info {
  * @brief Information about a received periodic advertising report.
  *
  * @details This struct holds information about a periodic advertising event that has been received.
- * It contains details such as the advertiser¡¯s address, SID, transmit power, RSSI, CTE type, and
+ * It contains details such as the advertiserâ€™s address, SID, transmit power, RSSI, CTE type, and
  * additional information depending on the configuration (e.g., event counter and subevent in case
  * of a subevent indication). This information is provided in the callback when periodic advertising
  * data is received.
@@ -2788,6 +2788,9 @@ struct bt_le_oob {
  *       - The local identity address conflicts with the local identity address used by other
  *         roles.
  *
+ * @note This function randomly generates cryptographic material used in the pairing process, and
+ *       should be called again for each new pairing process.
+ *
  * @param[in]  id  Local identity handle (typically @ref BT_ID_DEFAULT). Corresponds to the identity
  *                 address this function will be called for.
  * @param[out] oob LE OOB information
@@ -2814,6 +2817,9 @@ int bt_le_oob_get_local(uint8_t id, struct bt_le_oob *oob);
  * @note If privacy is enabled the RPA cannot be refreshed in the following
  *       cases:
  *       - Creating a connection in progress, wait for the connected callback.
+ *
+ * @note This function randomly generates cryptographic material used in the pairing process, and
+ *       should be called again for each new pairing process.
  *
  * @param[in]  adv The advertising set object
  * @param[out] oob LE OOB information
