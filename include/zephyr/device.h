@@ -10,6 +10,8 @@
 #define __ZEPHYR_DEVICE_H__
 
 #include <errno.h>
+#include <zephyr/init.h>
+#include <zephyr/arch/common/ffs.h>
 #include <zephyr/toolchain/common.h>
 #include <zephyr/devicetree.h>
 
