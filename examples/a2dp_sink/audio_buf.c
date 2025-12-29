@@ -179,7 +179,7 @@ void audio_process_sbc_buf(uint8_t sbc_hdr, uint8_t *data, size_t len, uint16_t 
 		}
 
 		out_size = sizeof(pcm_frame_buffer);
-		err = sbc_decode(&decoder, &in_data, &len, pcm_frame_buffer, &out_size);
+		err = sbc_decode(&decoder, &in_data, (uint32_t*)&len, pcm_frame_buffer, (uint32_t*)&out_size);
 
 		if (err == 0) {
 			audio_add_pcm_data((uint8_t *)pcm_frame_buffer, out_size);
