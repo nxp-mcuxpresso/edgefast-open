@@ -187,6 +187,15 @@ SECTIONS
     . = ALIGN(4);
   } > m_text
 
+  ._bt_sco_hci_cb :
+  {
+    . = ALIGN(4);
+    _bt_sco_hci_cb_list_start = .;
+    KEEP(*(SORT(._bt_sco_hci_cb*)))
+    _bt_sco_hci_cb_list_end = .;
+    . = ALIGN(4);
+  } > m_text
+
   ._bt_ias_cb :
   {
     . = ALIGN(4);

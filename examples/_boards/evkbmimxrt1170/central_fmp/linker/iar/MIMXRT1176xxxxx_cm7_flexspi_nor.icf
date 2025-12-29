@@ -162,6 +162,10 @@ define block ._bt_sco_conn_cb with fixed order { readonly section ._bt_sco_conn_
 define image symbol _bt_sco_conn_cb_list_start = ADDR(._bt_sco_conn_cb);
 define image symbol _bt_sco_conn_cb_list_end = END(._bt_sco_conn_cb);
 
+define block ._bt_sco_hci_cb with fixed order { readonly section ._bt_sco_hci_cb*};
+define image symbol _bt_sco_hci_cb_list_start = ADDR(._bt_sco_hci_cb);
+define image symbol _bt_sco_hci_cb_list_end = END(._bt_sco_hci_cb);
+
 define block ._bt_ias_cb with fixed order { readonly section ._bt_ias_cb*};
 define image symbol _bt_ias_cb_list_start = ADDR(._bt_ias_cb);
 define image symbol _bt_ias_cb_list_end = END(._bt_ias_cb);
@@ -228,7 +232,7 @@ keep {
   block .z_init_APPLICATION_3 , section .z_init_APPLICATION_P_???_*,
 };
 
-place in TEXT_region                        { readonly,block ._bt_gatt_service_static, block ._bt_settings_static, block ._bt_conn_cb, block ._bt_sco_conn_cb, block ._bt_ias_cb, block ._bt_l2cap_fixed_chan, block ._bt_l2cap_br_fixed_chan, block ._settings_handler_static , block .z_init};
+place in TEXT_region                        { readonly,block ._bt_gatt_service_static, block ._bt_settings_static, block ._bt_conn_cb, block ._bt_sco_conn_cb, block ._bt_sco_hci_cb, block ._bt_ias_cb, block ._bt_l2cap_fixed_chan, block ._bt_l2cap_br_fixed_chan, block ._settings_handler_static , block .z_init};
 place in DATA2_region                       { block RW, block ._net_buf_pool, block .__shell_command, block ._k_mem_slab, block USB_RW};
 place in DATA2_region                       { block ZI, block USB_ZI };
 place in DATA_region                        { last block HEAP };
