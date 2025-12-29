@@ -89,7 +89,7 @@ struct _timeout
     uint32_t count;
 };
 
-#include "spinlock/spinlock.h"
+#include "zephyr/spinlock.h"
 
 #include "heap/heap.h"
 

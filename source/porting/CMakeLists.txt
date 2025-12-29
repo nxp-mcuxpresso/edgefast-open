@@ -12,7 +12,6 @@ edgefast_open_add_subdirectory_ifdef(CONFIG_BT sem)
 edgefast_open_add_subdirectory_ifdef(CONFIG_BT shell)
 edgefast_open_add_subdirectory_ifdef(CONFIG_BT settings)
 edgefast_open_add_subdirectory_ifdef(CONFIG_BT slab)
-edgefast_open_add_subdirectory_ifdef(CONFIG_BT spinlock)
 edgefast_open_add_subdirectory_ifdef(CONFIG_BT thread)
 edgefast_open_add_subdirectory_ifdef(CONFIG_BT work)
 
