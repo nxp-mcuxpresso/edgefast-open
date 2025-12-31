@@ -100,7 +100,7 @@ static shell_status_t shell_bt(shell_handle_t shellHandle, int32_t argc, char **
 		app_disconnect();
 	} else if (strcmp(argv[1], "delete") == 0) {
 		int err = 0;
-		err = bt_unpair(BT_ID_DEFAULT, NULL);
+		err = bt_br_unpair(BT_ID_DEFAULT);
 		if (err != 0) {
 			PRINTF("failed reason = %d\r\n", err);
 		} else {
