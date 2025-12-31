@@ -27,8 +27,6 @@
 
 #define SAMPLE_BIT_WIDTH (16U)
 
-#define A2DP_CLASS_OF_DEVICE (0x200404U)
-
 struct bt_a2dp *default_a2dp;
 BT_A2DP_SBC_SINK_EP_DEFAULT(sbc_sink_ep);
 static struct bt_a2dp_stream sbc_stream;
@@ -244,9 +242,6 @@ static void app_edgefast_a2dp_init(void)
 
 static void bt_ready(int err)
 {
-	struct net_buf *buf = NULL;
-	struct bt_hci_cp_write_class_of_device *cp;
-
 	if (err) {
 		PRINTF("Bluetooth init failed (err %d)\n", err);
 		return;
@@ -257,19 +252,6 @@ static void bt_ready(int err)
 	}
 
 	PRINTF("Bluetooth initialized\n");
-
-	buf = bt_hci_cmd_alloc(K_FOREVER);
-	if (buf != NULL) {
-		cp = net_buf_add(buf, sizeof(*cp));
-		sys_put_le24(A2DP_CLASS_OF_DEVICE, &cp->class_of_device[0]);
-		err = bt_hci_cmd_send_sync(BT_HCI_OP_WRITE_CLASS_OF_DEVICE, buf, NULL);
-	} else {
-		err = -ENOBUFS;
-	}
-
-	if (err != 0) {
-		PRINTF("setting class of device failed\n");
-	}
 
 	app_connect_init();
 	app_edgefast_a2dp_init();
