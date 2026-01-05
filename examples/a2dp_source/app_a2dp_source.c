@@ -24,7 +24,7 @@
 #include "fsl_debug_console.h"
 #include "app_connect.h"
 #include "app_discover.h"
-#include "a2dp_pl_media_48KHz.h"
+#include "a2dp_media_data.h"
 #include "app_shell.h"
 
 /* User may need to change it for real production */
@@ -179,7 +179,7 @@ static uint8_t *a2dp_produce_media(uint32_t samples_num)
 		for (index = 0; index < samples_num; index++) {
 			media[(2 * index)] = *((uint8_t *)media_data + media_index);
 			media[(2 * index) + 1] = *((uint8_t *)media_data + media_index + 1);
-			/* Update the tone index */
+			/* Update the media index */
 			media_index += 4u;
 			if (media_index >= sizeof(media_data)) {
 				media_index = 0U;
@@ -198,12 +198,12 @@ static uint8_t *a2dp_produce_media(uint32_t samples_num)
 			memcpy(&media[sizeof(media_data) - media_index],
 				((uint8_t *)media_data),
 				((samples_num << 2) - (sizeof(media_data) - media_index)));
-			/* Update the tone index */
+			/* Update the media index */
 			media_index = ((samples_num << 2) -
 				(sizeof(media_data) - media_index));
 		} else {
 			media = ((uint8_t *)media_data + media_index);
-			/* Update the tone index */
+			/* Update the media index */
 			media_index += (samples_num << 2);
 			if (media_index >= sizeof(media_data)) {
 				media_index = 0U;

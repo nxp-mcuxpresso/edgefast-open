@@ -22,7 +22,7 @@ include(${SdkRootDirPath}/CMakeLists.txt)
 mcux_add_source(
   BASE_PATH ${SdkRootDirPath}
   SOURCES
-    middleware/edgefast_open/examples/a2dp_source/a2dp_pl_media_48KHz.h
+    middleware/edgefast_open/examples/a2dp_source/a2dp_media_data.h
     middleware/edgefast_open/examples/a2dp_source/app_a2dp_source.c
     middleware/edgefast_open/examples/a2dp_source/app_a2dp_source.h
     middleware/edgefast_open/examples/a2dp_source/app_connect.c
