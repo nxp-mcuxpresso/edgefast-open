@@ -53,6 +53,8 @@ static void codec_tx_callback(hal_audio_handle_t handle, hal_audio_status_t comp
 
 void codec_play_configure(uint32_t sample_rate, uint8_t sample_width, uint8_t channels)
 {
+	audio_sample_rate = sample_rate;
+
 	audioTxConfig.sampleRate_Hz  = sample_rate;
 	audioTxConfig.lineChannels = (hal_audio_channel_t)channels;
 	audioTxConfig.srcClock_Hz = BOARD_SwitchAudioFreq(audioTxConfig.sampleRate_Hz);
