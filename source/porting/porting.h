@@ -95,6 +95,9 @@ struct arch_esf;
 #define _bt_sco_conn_cb_list_start  Load$$ER_bt_sco_conn_cb$$Base
 #define _bt_sco_conn_cb_list_end  Load$$ER_bt_sco_conn_cb$$Limit
 
+#define _bt_sco_hci_cb_list_start Load$$ER_bt_sco_hci_cb$$Base
+#define _bt_sco_hci_cb_list_end Load$$ER_bt_sco_hci_cb$$Limit
+
 #define _bt_ias_cb_list_start  Load$$ER_bt_ias_cb$$Base
 #define _bt_ias_cb_list_end  Load$$ER_bt_ias_cb$$Limit
 
