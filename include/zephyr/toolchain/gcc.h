@@ -244,6 +244,11 @@ do {                                                                    \
 #endif	/* __GNUC__ >= 7 */
 #endif
 
+#ifndef _OFF_T_DECLARED
+typedef int off_t; /* file offset */
+#define _OFF_T_DECLARED
+#endif
+
 #ifndef __packed
 #define __packed        __attribute__((__packed__))
 #endif
