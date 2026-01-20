@@ -195,7 +195,7 @@ struct change_speed_config {
 	uint32_t fcr_val;
 };
 
-#define SEND_BUFFER_MAX_LENGTH  0xFFFFU /* Maximum 2 byte value */
+#define SEND_BUFFER_MAX_LENGTH  4096U  /* Maximum 2 byte value */
 #define RECV_RING_BUFFER_LENGTH 1024
 
 struct nxp_ctlr_fw_upload_state {
