@@ -1,0 +1,40 @@
+	    *(.data*)
+	    . = ALIGN(4);
+	    _net_buf_pool_list_start = .;
+	    KEEP(*(SORT(._net_buf_pool*)))
+	    _net_buf_pool_list_end = .;
+	    . = ALIGN(4);
+	    _k_mem_slab_list_start = .;
+	    KEEP(*(SORT(._k_mem_slab*)))
+	    _k_mem_slab_list_end = .;
+	    . = ALIGN(4);
+	    __shell_command_list_start = .;
+	    KEEP(*(SORT(.__shell_command*)))
+	    __shell_command_list_end = .;
+	    . = ALIGN(32);
+        *(CacheLineData.init)
+        . = ALIGN(32);
+        <#if memory.name=="SRAM_OC1">
+        *fsl_adapter_flexspi_nor_flash.o(.text .text* .rodata .rodata*)
+        *fsl_flexspi.o(.text .text* .rodata .rodata*)
+        *mflash_drv.o(.text .text* .rodata .rodata*)
+        *srCvtFrm.o(.text .text* .rodata .rodata*)
+        *attdet.o(.text .text* .rodata .rodata*)
+        *bits.o(.text .text* .rodata .rodata*)
+        *bwdet.o(.text .text* .rodata .rodata*)
+        *energy.o(.text .text* .rodata .rodata*)
+        *lc3.o(.text .text* .rodata .rodata*)
+        *ltpf.o(.text .text* .rodata .rodata*)
+        *mdct.o(.text .text* .rodata .rodata*)
+        *plc.o(.text .text* .rodata .rodata*)
+        *sns.o(.text .text* .rodata .rodata*)
+        *spec.o(.text .text* .rodata .rodata*)
+        *tables.o(.text .text* .rodata .rodata*)
+        *tns.o(.text .text* .rodata .rodata*)
+
+        *fsl_edma.o(.text .text* .rodata .rodata*)
+        *fsl_sai.o(.text .text* .rodata .rodata*)
+        *fsl_sai_edma.o(.text .text* .rodata .rodata*)
+        *hardware_init.o(.text .text* .rodata .rodata*)
+        *main.o(.text .text* .rodata .rodata*)
+        </#if>

@@ -1,0 +1,21 @@
+#
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+mainmenu "Bluetooth: A2DP Sink"
+
+config A2DP_SBC_PCM_BUFFER_PLAY_COUNT
+	int "The buffer count that every size is 480*2*2 bytes"
+	default 16
+
+config A2DP_BOARD_CODEC_PLAY_COUNT
+	int "The play count of the board codec interface (i2s)"
+	default 4
+
+config A2DP_BOARD_CODEC_PLAY_THRESHOLD
+	int "The threshold of pcm buffer when playing data to codec (n%)"
+	default 50
+
+source "Kconfig.mcuxpresso"

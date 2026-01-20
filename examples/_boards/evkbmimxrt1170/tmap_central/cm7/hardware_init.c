@@ -1,0 +1,104 @@
+/*
+ * Copyright 2022-2023 NXP
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/*${header:start}*/
+#include "clock_config.h"
+#include "board.h"
+#include "pin_mux.h"
+
+#include "fsl_debug_console.h"
+#include "fsl_lpuart_edma.h"
+#include "fsl_dmamux.h"
+#if (((defined(CONFIG_BT_SMP)) && (CONFIG_BT_SMP)))
+#include "psa/crypto.h"
+#endif /* CONFIG_BT_SMP */
+#include <zephyr/drivers/bluetooth.h>
+/*${header:end}*/
+
+/*${macro:start}*/
+#if defined(WIFI_IW612_BOARD_RD_USD)
+#define CONTROLLER_RESET_GPIO GPIO3
+#define CONTROLLER_RESET_PIN  9U
+#endif
+
+/*${macro:end}*/
+
+/*${variable:start}*/
+
+/*${variable:end}*/
+
+/*${function:start}*/
+
+#if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
+void bt_psa_crypto_init(void)
+{
+    psa_status_t status;
+
+    status = psa_crypto_init();
+    if (status != PSA_SUCCESS) {
+        PRINTF("Failed to initialize PSA crypto");
+    }
+    assert(status == PSA_SUCCESS);
+}
+#endif /* CONFIG_BT_SMP */
+
+void BOARD_InitHardware(void)
+{
+    BOARD_ConfigMPU();
+    BOARD_InitBootPins();
+#if (defined(WIFI_IW416_BOARD_AW_AM510MA) || defined(WIFI_88W8987_BOARD_AW_CM358MA) || \
+     defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || \
+     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) )
+    BOARD_InitM2UARTPins();
+#else
+    BOARD_InitArduinoUARTPins();
+#endif
+    BOARD_InitBootClocks();
+    BOARD_InitDebugConsole();
+
+#if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
+    DMAMUX_Type *dmaMuxBases[] = DMAMUX_BASE_PTRS;
+    edma_config_t config;
+    DMA_Type *dmaBases[] = DMA_BASE_PTRS;
+    DMAMUX_Init(dmaMuxBases[0]);
+    EDMA_GetDefaultConfig(&config);
+    EDMA_Init(dmaBases[0], &config);
+#endif
+#if defined(WIFI_IW612_BOARD_RD_USD)
+    GPIO_PinWrite(CONTROLLER_RESET_GPIO, CONTROLLER_RESET_PIN, 0U);
+    SDK_DelayAtLeastUs(10U, SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY);
+    GPIO_PinWrite(CONTROLLER_RESET_GPIO, CONTROLLER_RESET_PIN, 1U);
+#endif
+}
+
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
+{
+    if (NULL == config)
+    {
+        return -1;
+    }
+    config->clockSrc        = CLOCK_GetRootClockFreq(kCLOCK_Root_Lpuart2);
+    config->defaultBaudrate = 115200u;
+    config->runningBaudrate = BOARD_BT_UART_BAUDRATE;
+    config->instance        = 2;
+#if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
+    config->dma_instance     = 0U;
+    config->rx_channel       = 0U;
+    config->tx_channel       = 1U;
+    config->dma_mux_instance = 0U;
+    config->rx_request       = kDmaRequestMuxLPUART2Rx;
+    config->tx_request       = kDmaRequestMuxLPUART2Tx;
+#endif
+    config->enableRxRTS = 1u;
+    config->enableTxCTS = 1u;
+    return 0;
+}
+#else
+#endif
+
+/*${function:end}*/
