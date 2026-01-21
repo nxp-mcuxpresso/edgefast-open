@@ -75,6 +75,8 @@ static void _sys_work_queue_init(void)
 	}
 }
 
+SYS_INIT(_sys_work_queue_init, POST_KERNEL, CONFIG_APPLICATION_INIT_PRIORITY);
+
 static inline void flag_clear(uint32_t *flagp,
 			      uint32_t bit)
 {
@@ -210,8 +212,6 @@ int k_work_submit(struct k_work *work)
 	int ret;
 
 	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_work, submit, work);
-
-	_sys_work_queue_init();
 
 	ret = k_work_submit_to_queue(&k_sys_work_q, work);
 
@@ -636,8 +636,6 @@ int k_work_schedule(struct k_work_delayable *dwork,
 {
 	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_work, schedule, dwork, delay);
 
-	_sys_work_queue_init();
-
 	int ret = k_work_schedule_for_queue(&k_sys_work_q, dwork, delay);
 
 	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_work, schedule, dwork, delay, ret);
@@ -679,8 +677,6 @@ int k_work_reschedule(struct k_work_delayable *dwork,
 				     k_timeout_t delay)
 {
 	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_work, reschedule, dwork, delay);
-
-	_sys_work_queue_init();
 
 	int ret = k_work_reschedule_for_queue(&k_sys_work_q, dwork, delay);
 
