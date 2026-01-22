@@ -13,6 +13,9 @@ endif # BT_LONG_WQ
 config SYSTEM_WORKQUEUE_PRIORITY
 	range 0 NUM_PREEMPT_PRIORITIES
 
+config BT_RX_PRIO
+	default 9
+
 config BT_MPL_MEDIA_PLAYER_NAME
 	help
 	  Macro value is in quotes

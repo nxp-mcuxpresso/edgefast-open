@@ -1,3 +1,7 @@
   # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library_sources(*.*)
+
+if(CONFIG_BT_RX_PRIO LESS_EQUAL CONFIG_SYSTEM_WORKQUEUE_PRIORITY)
+  message(FATAL_ERROR "CONFIG_BT_RX_PRIO (${CONFIG_BT_RX_PRIO}) must be greater than CONFIG_SYSTEM_WORKQUEUE_PRIORITY (${CONFIG_SYSTEM_WORKQUEUE_PRIORITY})")
+endif()
