@@ -542,8 +542,6 @@ static void avdtp_tx_processor(struct k_work *item)
 	}
 
 	avdtp_tx_frags(session, buf, user_data);
-
-	avdtp_tx_raise();
 }
 
 static void avdtp_buf_init_user_data(struct bt_avdtp *session, struct net_buf *buf)
