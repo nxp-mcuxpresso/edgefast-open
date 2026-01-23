@@ -54,7 +54,7 @@ struct k_work_delay_q k_sys_work_delay_q;
 
 static void work_queue_main(void * p1, void *p2, void *p3);
 
-static void _sys_work_queue_init(void)
+static int _sys_work_queue_init(void)
 {
 	bool init = false;
 
@@ -77,6 +77,8 @@ static void _sys_work_queue_init(void)
 			K_PRIO_COOP(CONFIG_SYSTEM_WORKQUEUE_PRIORITY), NULL);
 		k_thread_name_set(&k_sys_work_q.thread, "SYS WORK QUEUE");
 	}
+
+	return 0;
 }
 
 SYS_INIT(_sys_work_queue_init, POST_KERNEL, CONFIG_APPLICATION_INIT_PRIORITY);
