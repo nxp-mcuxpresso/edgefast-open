@@ -14,10 +14,6 @@ zephyr_include_directories(
   )
 
 zephyr_library_sources(
-  ${ZEPHYR_LIBSBC_MODULE_DIR}/sbc.c
-  )
-
-zephyr_library_sources(
   ${ZEPHYR_LIBSBC_MODULE_DIR}/encoder/srce/sbc_analysis.c
   ${ZEPHYR_LIBSBC_MODULE_DIR}/encoder/srce/sbc_dct.c
   ${ZEPHYR_LIBSBC_MODULE_DIR}/encoder/srce/sbc_dct_coeffs.c

@@ -1,26 +1,20 @@
 #
-# Copyright 2023-2025 NXP
+# Copyright 2023-2026 NXP
 #
 # SPDX-License-Identifier: Apache-2.0
 #
 
-config HCI_NXP_ENABLE_AUTO_SLEEP
-	bool "BLE Controller auto sleep mode"
-	help
-	  If enabled, the Controller auto sleep mode will be configured and enabled during HCI init.
-	  Auto sleep mode means the Controller will handle its low power state automatically.
-	  Enabling this feature will allow to save power at the cost of some latency when sending a HCI
-	  message to the Controller as the Host will need to wake it up.
-
 config HCI_NXP_SET_CAL_DATA
-	bool "BLE Controller calibration data"
+	bool "Bluetooth Controller calibration data"
+	default y if BT_NXP_NW612 || BT_NXP_IW416
 	help
-	  If enabled, the Host will send calibration data to the BLE Controller during HCI init.
+	  If enabled, the Host will send calibration data to the Bluetooth Controller during HCI init.
 
 config HCI_NXP_SET_CAL_DATA_ANNEX100
-	bool "BLE Controller calibration data annex 100"
+	bool "Bluetooth Controller calibration data annex 100"
+	default y if BT_NXP_NW612 || BT_NXP_IW416
 	help
-	  If enabled, the Host will send calibration data annex 100 to the BLE Controller during HCI
+	  If enabled, the Host will send calibration data annex 100 to the Bluetooth Controller during HCI
 	  init.
 
 config HCI_NXP_RX_THREAD

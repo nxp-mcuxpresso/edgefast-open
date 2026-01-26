@@ -80,7 +80,7 @@ static lc3_codec_info_t lc3_codec_info;
 #define UNICAST_ENQUEUE_COUNT 16U
 #define TOTAL_BUF_NEEDED (UNICAST_ENQUEUE_COUNT * CONFIG_BT_BAP_UNICAST_CLIENT_ASE_SNK_COUNT)
 
-BUILD_ASSERT_MSG(CONFIG_BT_ISO_TX_BUF_COUNT >= TOTAL_BUF_NEEDED,
+BUILD_ASSERT(CONFIG_BT_ISO_TX_BUF_COUNT >= TOTAL_BUF_NEEDED,
 	     "CONFIG_BT_ISO_TX_BUF_COUNT should be at least "
 	     "BROADCAST_ENQUEUE_COUNT * CONFIG_BT_BAP_UNICAST_CLIENT_ASE_SNK_COUNT");
 
@@ -319,7 +319,7 @@ static int audio_stream_encode(bool mute)
 	/* encode every channels */
 	for(int i = 0; i < lc3_codec_info.channels; i++)
 	{
-		int lc3_res = lc3_encode(encoder[i], LC3_PCM_FORMAT_S16, audio_buff[i], 1, lc3_codec_info.octets_per_frame, sdu_buff[i]);		
+		int lc3_res = lc3_encode(encoder[i], LC3_PCM_FORMAT_S16, audio_buff[i], 1, lc3_codec_info.octets_per_frame, sdu_buff[i]);
 		if(lc3_res)
 		{
 			PRINTF("\nlc3_encoder fail!\n");

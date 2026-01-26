@@ -206,10 +206,6 @@
 	}
 #endif
 
-#ifndef BUILD_ASSERT_MSG
-#define BUILD_ASSERT_MSG(EXPR, MSG)  BUILD_ASSERT(EXPR, MSG)
-#endif
-
 /*
  * This is meant to be used in conjunction with __in_section() and similar
  * where scattered structure instances are concatenated together by the linker

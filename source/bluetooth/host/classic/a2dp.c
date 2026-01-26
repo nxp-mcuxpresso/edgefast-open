@@ -4,7 +4,7 @@
 
 /*
  * Copyright (c) 2015-2016 Intel Corporation
- * Copyright 2021,2024 NXP
+ * Copyright 2021,2024-2025 NXP
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -80,7 +80,13 @@ static int bt_a2dp_get_sep_caps(struct bt_a2dp *a2dp);
 
 static struct bt_a2dp *a2dp_get_connection(struct bt_conn *conn)
 {
-	struct bt_a2dp *a2dp = &connection[bt_conn_index(conn)];
+	struct bt_a2dp *a2dp;
+	size_t index;
+
+	index = (size_t)bt_conn_index(conn);
+	__ASSERT(index < ARRAY_SIZE(connection), "Conn index is out of bounds");
+
+	a2dp = &connection[index];
 
 	if (a2dp->session.br_chan.chan.conn == NULL) {
 		/* Clean the memory area before returning */
@@ -476,10 +482,13 @@ static int a2dp_open_ind(struct bt_avdtp *session, struct bt_avdtp_sep *sep, uin
 {
 	struct bt_a2dp_ep *ep = CONTAINER_OF(sep, struct bt_a2dp_ep, sep);
 	bt_a2dp_ctrl_req_cb req_cb;
+	bt_a2dp_ctrl_done_cb done_cb;
 
 	__ASSERT(sep, "Invalid sep");
 	req_cb = a2dp_cb != NULL ? a2dp_cb->establish_req : NULL;
-	return a2dp_ctrl_ind(session, sep, errcode, req_cb, NULL);
+	done_cb = (ep->stream != NULL && ep->stream->ops != NULL) ? ep->stream->ops->established
+								  : NULL;
+	return a2dp_ctrl_ind(session, sep, errcode, req_cb, done_cb);
 }
 
 static int a2dp_start_ind(struct bt_avdtp *session, struct bt_avdtp_sep *sep, uint8_t *errcode)
@@ -1018,8 +1027,11 @@ static int bt_a2dp_open_cb(struct bt_avdtp_req *req, struct net_buf *buf)
 {
 	struct bt_a2dp_ep *ep = CONTAINER_OF(CTRL_REQ(req)->sep, struct bt_a2dp_ep, sep);
 	bt_a2dp_rsp_cb rsp_cb = a2dp_cb != NULL ? a2dp_cb->establish_rsp : NULL;
+	bt_a2dp_done_cb done_cb = (ep->stream != NULL && ep->stream->ops != NULL)
+					  ? ep->stream->ops->established
+					  : NULL;
 
-	return bt_a2dp_ctrl_cb(req, rsp_cb, NULL);
+	return bt_a2dp_ctrl_cb(req, rsp_cb, done_cb);
 }
 
 static int bt_a2dp_start_cb(struct bt_avdtp_req *req, struct net_buf *buf)
@@ -1430,53 +1442,6 @@ static const struct bt_avdtp_ops_cb signaling_avdtp_ops = {
 #endif
 };
 
-static void stream_connected(struct bt_avdtp_sep *sep)
-{
-	struct bt_a2dp_ep *ep;
-	struct bt_a2dp_stream *stream;
-
-	__ASSERT(sep, "Invalid sep");
-	ep = CONTAINER_OF(sep, struct bt_a2dp_ep, sep);
-	if (ep->stream == NULL) {
-		return;
-	}
-
-	stream = ep->stream;
-	if (stream->ops != NULL && stream->ops->established != NULL) {
-		stream->ops->established(stream);
-	}
-}
-
-static void stream_disconnected(struct bt_avdtp_sep *sep)
-{
-	struct bt_a2dp_ep *ep;
-	struct bt_a2dp_stream *stream;
-
-	__ASSERT(sep, "Invalid sep");
-	ep = CONTAINER_OF(sep, struct bt_a2dp_ep, sep);
-	if (ep->stream == NULL) {
-		return;
-	}
-
-	stream = ep->stream;
-	if (stream->ops != NULL && stream->ops->released != NULL) {
-		stream->ops->released(stream);
-	}
-}
-
-static struct bt_avdtp_sep_ops source_sep_ops = {
-	.connected = stream_connected,
-	.disconnected = stream_disconnected,
-};
-
-#if defined(CONFIG_BT_A2DP_SINK)
-static struct bt_avdtp_sep_ops sink_sep_ops = {
-	.connected = stream_connected,
-	.disconnected = stream_disconnected,
-	.media_data_cb = bt_a2dp_media_data_callback,
-};
-#endif
-
 int a2dp_accept(struct bt_conn *conn, struct bt_avdtp **session)
 {
 	struct bt_a2dp *a2dp;
@@ -1498,23 +1463,25 @@ static struct bt_avdtp_event_cb avdtp_cb = {
 	.accept = a2dp_accept,
 };
 
-int bt_a2dp_init(void)
+void bt_a2dp_init(void)
 {
-	int err;
+	__maybe_unused int err;
+
+	static bool initialized;
+
+	if (initialized) {
+		return;
+	}
 
 	/* Register event handlers with AVDTP */
 	err = bt_avdtp_register(&avdtp_cb);
-	if (err < 0) {
-		LOG_ERR("A2DP registration failed");
-		return err;
-	}
-
-	for (uint8_t i = 0; i < CONFIG_BT_MAX_CONN; i++) {
-		memset(&connection[i], 0, sizeof(struct bt_a2dp));
+	if ((err < 0) && (err != -EALREADY)) {
+		LOG_ERR("A2DP registration failed (err %d)", err);
+		return;
 	}
 
 	LOG_DBG("A2DP Initialized successfully.");
-	return 0;
+	initialized = true;
 }
 
 struct bt_a2dp *bt_a2dp_connect(struct bt_conn *conn)
@@ -1555,14 +1522,15 @@ int bt_a2dp_register_ep(struct bt_a2dp_ep *ep, uint8_t media_type, uint8_t sep_t
 
 #if defined(CONFIG_BT_A2DP_SINK)
 	if (sep_type == BT_AVDTP_SINK) {
-		ep->sep.ops = &sink_sep_ops;
+		ep->sep.media_data_cb = bt_a2dp_media_data_callback;
 	} else {
-		ep->sep.ops = &source_sep_ops;
+		ep->sep.media_data_cb = NULL;
 	}
 #else
-	ep->sep.ops = &source_sep_ops;
+	ep->sep.media_data_cb = NULL;
 #endif
 
+	ep->sep.endpoint_released = a2dp_endpoint_released;
 	err = bt_avdtp_register_sep(media_type, sep_type, &(ep->sep));
 	if (err < 0) {
 		return err;

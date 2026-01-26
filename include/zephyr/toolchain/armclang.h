@@ -23,9 +23,4 @@
 #define __GENERIC_SECTION(segment) __attribute__((section(STRINGIFY(segment)), used))
 #define Z_GENERIC_SECTION(segment) __GENERIC_SECTION(segment)
 
-#ifndef _OFF_T_DECLARED
-typedef int off_t; /* file offset */
-#define _OFF_T_DECLARED
-#endif
-
 #endif /* ZEPHYR_INCLUDE_TOOLCHAIN_ARMCLANG_H_ */

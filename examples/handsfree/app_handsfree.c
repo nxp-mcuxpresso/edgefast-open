@@ -264,7 +264,7 @@ static void hf_dialing(struct bt_hfp_hf *hf, int err)
 }
 
 #if defined(CONFIG_BT_HFP_HF_CLI)
-static void hf_clip(struct bt_hfp_hf_call *call, char *number, uint8_t type)
+static void hf_clip(struct bt_hfp_hf_call *call, const char *number, uint8_t type)
 {
     PRINTF("HF call %p CLIP %s %d\n", call, number, type);
     PRINTF("Phone call number: %s\n", number);
@@ -288,7 +288,7 @@ static void hf_inband_ring(struct bt_hfp_hf *hf, bool inband)
     PRINTF("HF ring: %s\n", inband ? "in-band" : "no in-band");
 }
 
-static void hf_operator(struct bt_hfp_hf *hf, uint8_t mode, uint8_t format, char *operator)
+static void hf_operator(struct bt_hfp_hf *hf, uint8_t mode, uint8_t format, const char *operator)
 {
     PRINTF("HF mode %d, format %d, operator %s\n", mode, format, operator);
 }
@@ -318,7 +318,7 @@ static void hf_codec_negotiate(struct bt_hfp_hf *hf, uint8_t id)
 #endif /* CONFIG_BT_HFP_HF_CODEC_NEG */
 
 #if defined(CONFIG_BT_HFP_HF_3WAY_CALL)
-static void hf_call_waiting(struct bt_hfp_hf_call *call, char *number, uint8_t type)
+static void hf_call_waiting(struct bt_hfp_hf_call *call, const char *number, uint8_t type)
 {
     PRINTF("3way call %p waiting. number %s type %d\n", call, number, type);
     PRINTF("> CALL WAITING Received Number: %s\n", number);
