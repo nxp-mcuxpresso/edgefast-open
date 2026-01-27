@@ -34,9 +34,6 @@ static volatile uint8_t s_call_status = 0;
 struct bt_hfp_hf *hfp_hf;
 struct bt_conn *hf_sco_conn;
 static struct bt_hfp_hf_call *hfp_hf_call[CONFIG_BT_HFP_HF_MAX_CALLS];
-#if defined(CONFIG_BT_HFP_HF_CODEC_NEG)
-static bool hf_auto_select_codec;
-#endif /* CONFIG_BT_HFP_HF_CODEC_NEG */
 
 static void auth_cancel(struct bt_conn *conn)
 {

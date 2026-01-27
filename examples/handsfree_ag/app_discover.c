@@ -75,7 +75,7 @@ static void br_device_found(
     PRINTF("[%d]: %s, RSSI %i %s\r\n", index + 1, br_addr, rssi, name);
 }
 
-static void br_discovery_complete(struct bt_br_discovery_result *results, size_t count)
+static void br_discovery_complete(const struct bt_br_discovery_result *results, size_t count)
 {
     size_t index;
 

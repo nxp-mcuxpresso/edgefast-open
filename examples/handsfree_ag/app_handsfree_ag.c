@@ -91,19 +91,6 @@ static app_hfp_ag_t *app_ag_get_instance(struct bt_hfp_ag *hfp_ag)
     return NULL;
 }
 
-static uint8_t app_ag_instance_index(struct bt_hfp_ag *hfp_ag)
-{
-    for (uint8_t index = 0; index < CONFIG_BT_MAX_CONN; index++)
-    {
-        if (g_HfpAgs[index].hfp_agHandle == hfp_ag)
-        {
-            return index;
-        }
-    }
-
-    return 0xFF; /* Return invalid index instead of 0 */
-}
-
 static bool app_ag_check_idle_instance(void)
 {
     for (uint8_t index = 0; index < CONFIG_BT_MAX_CONN; index++)
@@ -136,6 +123,7 @@ static void ag_connected(struct bt_conn *conn, struct bt_hfp_ag *ag)
 static void ag_disconnected(struct bt_hfp_ag *ag)
 {
 	ag_remove_calls();
+        app_ag_remove_instance(ag);
 	PRINTF("AG disconnected");
 }
 
@@ -288,11 +276,13 @@ static void ag_retrieve(struct bt_hfp_ag_call *call)
 static void ag_reject(struct bt_hfp_ag_call *call)
 {
     PRINTF("AG call %p reject\n", call);
+    ag_remove_a_call(call);
 }
 
 static void ag_terminate(struct bt_hfp_ag_call *call)
 {
     PRINTF("AG call %p terminate\n", call);
+    ag_remove_a_call(call);
 }
 
 static void ag_codec(struct bt_hfp_ag *ag, uint32_t ids)
