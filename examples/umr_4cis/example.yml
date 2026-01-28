@@ -1,15 +1,15 @@
 umr_4cis:
   section-type: application
   contents:
-    meta_path: examples/edgefast_bluetooth_examples/umr_4cis
-    project-root-path: boards/${board}/edgefast_bluetooth_examples/umr_4cis/${multicore_foldername}
+    meta_path: middleware/edgefast_open/examples/umr_4cis
+    project-root-path: boards/${board}/edgefast_open_examples/umr_4cis/${multicore_foldername}
     document:
       name: umr_4cis${core_id_suffix_name}
-      category: edgefast_bluetooth_examples/
+      category: edgefast_open_examples/
       brief: The Edgefast Bluetooth pxm example with simplified application.
       example_readme:
-      - examples/edgefast_bluetooth_examples/umr_4cis/readme.md
-      - ${board_root}/${board}/edgefast_bluetooth_examples/umr_4cis/example_board_readme.md
+      - middleware/edgefast_open/examples/umr_4cis/readme.md
+      - middleware/edgefast_open/examples/_boards/${board}/umr_4cis/example_board_readme.md
       - ${board_root}/${board}/examples_shared_readme.md
   boards:
     evkbmimxrt1170@cm7:

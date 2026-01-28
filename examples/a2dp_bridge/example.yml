@@ -1,15 +1,15 @@
 a2dp_bridge:
   section-type: application
   contents:
-    meta_path: examples/edgefast_bluetooth_examples/a2dp_bridge
-    project-root-path: boards/${board}/edgefast_bluetooth_examples/a2dp_bridge/${multicore_foldername}
+    meta_path: middleware/edgefast_open/examples/a2dp_bridge
+    project-root-path: boards/${board}/edgefast_open_examples/a2dp_bridge/${multicore_foldername}
     document:
       name: a2dp_bridge${core_id_suffix_name}
-      category: edgefast_bluetooth_examples/
+      category: edgefast_open_examples/
       brief: The Edgefast Bluetooth a2dp bridge with simplified application.
       example_readme:
-      - examples/edgefast_bluetooth_examples/a2dp_bridge/readme.md
-      - ${board_root}/${board}/edgefast_bluetooth_examples/a2dp_bridge/example_board_readme.md
+      - middleware/edgefast_open/examples/a2dp_bridge/readme.md
+      - middleware/edgefast_open/examples/_boards/${board}/a2dp_bridge/example_board_readme.md
       - ${board_root}/${board}/examples_shared_readme.md
   boards:
     evkbmimxrt1170@cm7:

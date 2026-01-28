@@ -1,15 +1,15 @@
 call_terminal:
   section-type: application
   contents:
-    meta_path: examples/edgefast_bluetooth_examples/call_terminal
-    project-root-path: boards/${board}/edgefast_bluetooth_examples/call_terminal/${multicore_foldername}
+    meta_path: middleware/edgefast_open/examples/call_terminal
+    project-root-path: boards/${board}/edgefast_open_examples/call_terminal/${multicore_foldername}
     document:
       name: call_terminal${core_id_suffix_name}
-      category: edgefast_bluetooth_examples/
+      category: edgefast_open_examples/
       brief: The Edgefast Bluetooth call terminal example with simplified application.
       example_readme:
-      - examples/edgefast_bluetooth_examples/call_terminal/readme.md
-      - ${board_root}/${board}/edgefast_bluetooth_examples/call_terminal/example_board_readme.md
+      - middleware/edgefast_open/examples/call_terminal/readme.md
+      - middleware/edgefast_open/examples/_boards/${board}/call_terminal/example_board_readme.md
       - ${board_root}/${board}/examples_shared_readme.md
   boards:
     evkbmimxrt1170@cm7:

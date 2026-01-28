@@ -20,8 +20,6 @@
 #include "fsl_codec_common.h"
 #include "fsl_wm8962.h"
 #include "fsl_codec_adapter.h"
-#include "usb_host_config.h"
-#include "usb_host.h"
 #include "fsl_lpuart_edma.h"
 #include "fsl_dmamux.h"
 #if (((defined(CONFIG_BT_SMP)) && (CONFIG_BT_SMP)))
@@ -32,13 +30,6 @@
 /*${header:end}*/
 
 /*${macro:start}*/
-#if defined(__GIC_PRIO_BITS)
-#define USB_HOST_INTERRUPT_PRIORITY (25U)
-#elif defined(__NVIC_PRIO_BITS) && (__NVIC_PRIO_BITS >= 3)
-#define USB_HOST_INTERRUPT_PRIORITY (6U)
-#else
-#define USB_HOST_INTERRUPT_PRIORITY (3U)
-#endif
 #if defined(WIFI_IW612_BOARD_RD_USD)
 #define CONTROLLER_RESET_GPIO GPIO3
 #define CONTROLLER_RESET_PIN  9U
