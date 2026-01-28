@@ -124,24 +124,7 @@ SECTIONS
         */mflash_drv.c.obj
         */fsl_flexspi.c.obj
 
-        */attdet.c.obj
-        */bits.c.obj
-        */bwdet.c.obj
-        */energy.c.obj
-        */lc3.c.obj
-        */ltpf.c.obj
-        */mdct.c.obj
-        */plc.c.obj
-        */sns.c.obj
-        */spec.c.obj
-        */tables.c.obj
-        */tns.c.obj
-    ) .text)                 /* .text sections (code) */
-    *(EXCLUDE_FILE(
-        /* Exclude flash and frequently executed functions from XIP */
-        */fsl_adapter_flexspi_nor_flash.c.obj
-        */mflash_drv.c.obj
-        */fsl_flexspi.c.obj
+        */srCvtFrm.c.obj
 
         */attdet.c.obj
         */bits.c.obj
@@ -155,12 +138,47 @@ SECTIONS
         */spec.c.obj
         */tables.c.obj
         */tns.c.obj
+
+        */fsl_edma.c.obj
+        */fsl_sai.c.obj
+        */fsl_sai_edma.c.obj
+        */hardware_init.c.obj
+        */main.c.obj
+    ) .text)                 /* .text sections (code) */
+    *(EXCLUDE_FILE(
+        /* Exclude flash and frequently executed functions from XIP */
+        */fsl_adapter_flexspi_nor_flash.c.obj
+        */mflash_drv.c.obj
+        */fsl_flexspi.c.obj
+
+        */srCvtFrm.c.obj
+
+        */attdet.c.obj
+        */bits.c.obj
+        */bwdet.c.obj
+        */energy.c.obj
+        */lc3.c.obj
+        */ltpf.c.obj
+        */mdct.c.obj
+        */plc.c.obj
+        */sns.c.obj
+        */spec.c.obj
+        */tables.c.obj
+        */tns.c.obj
+
+        */fsl_edma.c.obj
+        */fsl_sai.c.obj
+        */fsl_sai_edma.c.obj
+        */hardware_init.c.obj
+        */main.c.obj
     ) .text*)                /* .text* sections (code) */
     *(EXCLUDE_FILE(
         /* Exclude flash and frequently executed functions from XIP */
         */fsl_adapter_flexspi_nor_flash.c.obj
         */mflash_drv.c.obj
         */fsl_flexspi.c.obj
+
+        */srCvtFrm.c.obj
 
         */attdet.c.obj
         */bits.c.obj
@@ -180,6 +198,8 @@ SECTIONS
         */fsl_adapter_flexspi_nor_flash.c.obj
         */mflash_drv.c.obj
         */fsl_flexspi.c.obj
+
+        */srCvtFrm.c.obj
 
         */attdet.c.obj
         */bits.c.obj
@@ -394,6 +414,8 @@ SECTIONS
     */mflash_drv.c.obj(.text .text* .rodata .rodata*)
     */fsl_flexspi.c.obj(.text .text* .rodata .rodata*)
 
+    */srCvtFrm.c.obj(.text .text* .rodata .rodata*)
+
     */attdet.c.obj(.text .text* .rodata .rodata*)
     */bits.c.obj(.text .text* .rodata .rodata*)
     */bwdet.c.obj(.text .text* .rodata .rodata*)
@@ -406,6 +428,12 @@ SECTIONS
     */spec.c.obj(.text .text* .rodata .rodata*)
     */tables.c.obj(.text .text* .rodata .rodata*)
     */tns.c.obj(.text .text* .rodata .rodata*)
+
+    */fsl_edma.c.obj
+    */fsl_sai.c.obj
+    */fsl_sai_edma.c.obj
+    */hardware_init.c.obj
+    */main.c.obj
 
     *(.data)                 /* .data sections */
     *(.data*)                /* .data* sections */

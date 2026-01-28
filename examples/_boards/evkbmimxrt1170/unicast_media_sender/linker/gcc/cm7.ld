@@ -136,6 +136,11 @@ SECTIONS
         */spec.c.obj
         */tables.c.obj
         */tns.c.obj
+        */fsl_edma.c.obj
+        */fsl_sai.c.obj
+        */fsl_sai_edma.c.obj
+        */hardware_init.c.obj
+        */main.c.obj
     ) .text)                 /* .text sections (code) */
     *(EXCLUDE_FILE(
         /* Exclude flash and frequently executed functions from XIP */
@@ -155,6 +160,11 @@ SECTIONS
         */spec.c.obj
         */tables.c.obj
         */tns.c.obj
+        */fsl_edma.c.obj
+        */fsl_sai.c.obj
+        */fsl_sai_edma.c.obj
+        */hardware_init.c.obj
+        */main.c.obj
     ) .text*)                /* .text* sections (code) */
     *(EXCLUDE_FILE(
         /* Exclude flash and frequently executed functions from XIP */
@@ -407,6 +417,11 @@ SECTIONS
     */tables.c.obj(.text .text* .rodata .rodata*)
     */tns.c.obj(.text .text* .rodata .rodata*)
 
+    */fsl_edma.c.obj
+    */fsl_sai.c.obj
+    */fsl_sai_edma.c.obj
+    */hardware_init.c.obj
+    */main.c.obj
     *(.data)                 /* .data sections */
     *(.data*)                /* .data* sections */
     *(DataQuickAccess)       /* quick access data section */

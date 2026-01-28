@@ -192,12 +192,6 @@ SECTIONS
         */spec.c.obj
         */tables.c.obj
         */tns.c.obj
-
-        */fsl_edma.c.obj
-        */fsl_sai.c.obj
-        */fsl_sai_edma.c.obj
-        */hardware_init.c.obj
-        */main.c.obj
     ) .rodata)                 /* .rodata sections (code) */
     *(EXCLUDE_FILE(
         /* Exclude flash and frequently executed functions from XIP */
@@ -219,12 +213,6 @@ SECTIONS
         */spec.c.obj
         */tables.c.obj
         */tns.c.obj
-
-        */fsl_edma.c.obj
-        */fsl_sai.c.obj
-        */fsl_sai_edma.c.obj
-        */hardware_init.c.obj
-        */main.c.obj
     ) .rodata*)                /* .rodata* sections (code) */
     *(.glue_7)               /* glue arm to thumb code */
     *(.glue_7t)              /* glue thumb to arm code */

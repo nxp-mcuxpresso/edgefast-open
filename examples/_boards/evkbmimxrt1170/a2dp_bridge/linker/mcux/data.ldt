@@ -2,6 +2,7 @@
         *fsl_adapter_flexspi_nor_flash.o(.text*)
         *fsl_flexspi.o(.text*)
         *mflash_drv.o(.text*)
+        *srCvtFrm.o(.text*)
         *attdet.o(.text*)
         *bits.o(.text*)
         *bwdet.o(.text*)

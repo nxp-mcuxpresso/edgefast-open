@@ -30,4 +30,7 @@
         *spec.o(.text .text* .rodata .rodata*)
         *tables.o(.text .text* .rodata .rodata*)
         *tns.o(.text .text* .rodata .rodata*)
+        *fsl_edma.o(.text .text* .rodata .rodata*)
+        *fsl_sai.o(.text .text* .rodata .rodata*)
+        *fsl_sai_edma.o(.text .text* .rodata .rodata*)
         </#if>

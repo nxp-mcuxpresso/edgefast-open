@@ -147,12 +147,6 @@ initialize by copy { readwrite, section .textrw,
   object spec.o,
   object tables.o,
   object tns.o,
-
-  object fsl_edma.o,
-  object fsl_sai.o,
-  object fsl_sai_edma.o,
-  object hardware_init.o,
-  object main.o,
 };
 do not initialize  { section .noinit };
 if (isdefinedsymbol(__use_shmem__)) {

@@ -156,44 +156,8 @@ SECTIONS
         */tables.c.obj
         */tns.c.obj
     ) .text*)                /* .text* sections (code) */
-    *(EXCLUDE_FILE(
-        /* Exclude flash and frequently executed functions from XIP */
-        */fsl_adapter_flexspi_nor_flash.c.obj
-        */mflash_drv.c.obj
-        */fsl_flexspi.c.obj
-
-        */attdet.c.obj
-        */bits.c.obj
-        */bwdet.c.obj
-        */energy.c.obj
-        */lc3.c.obj
-        */ltpf.c.obj
-        */mdct.c.obj
-        */plc.c.obj
-        */sns.c.obj
-        */spec.c.obj
-        */tables.c.obj
-        */tns.c.obj
-    ) .rodata)                 /* .rodata sections (code) */
-    *(EXCLUDE_FILE(
-        /* Exclude flash and frequently executed functions from XIP */
-        */fsl_adapter_flexspi_nor_flash.c.obj
-        */mflash_drv.c.obj
-        */fsl_flexspi.c.obj
-
-        */attdet.c.obj
-        */bits.c.obj
-        */bwdet.c.obj
-        */energy.c.obj
-        */lc3.c.obj
-        */ltpf.c.obj
-        */mdct.c.obj
-        */plc.c.obj
-        */sns.c.obj
-        */spec.c.obj
-        */tables.c.obj
-        */tns.c.obj
-    ) .rodata*)                /* .rodata* sections (code) */
+    *(.rodata)               /* .rodata sections (constants, strings, etc.) */
+    *(.rodata*)              /* .rodata* sections (constants, strings, etc.) */
     *(.glue_7)               /* glue arm to thumb code */
     *(.glue_7t)              /* glue thumb to arm code */
     *(.eh_frame)
@@ -390,23 +354,21 @@ SECTIONS
     *(CacheLineData.init)
     . = ALIGN(32);
     /* Explicit placement of flash and frequently executed functions in RAM */
-    */fsl_adapter_flexspi_nor_flash.c.obj(.text .text* .rodata .rodata*)
-    */mflash_drv.c.obj(.text .text* .rodata .rodata*)
-    */fsl_flexspi.c.obj(.text .text* .rodata .rodata*)
-
-    */attdet.c.obj(.text .text* .rodata .rodata*)
-    */bits.c.obj(.text .text* .rodata .rodata*)
-    */bwdet.c.obj(.text .text* .rodata .rodata*)
-    */energy.c.obj(.text .text* .rodata .rodata*)
-    */lc3.c.obj(.text .text* .rodata .rodata*)
-    */ltpf.c.obj(.text .text* .rodata .rodata*)
-    */mdct.c.obj(.text .text* .rodata .rodata*)
-    */plc.c.obj(.text .text* .rodata .rodata*)
-    */sns.c.obj(.text .text* .rodata .rodata*)
-    */spec.c.obj(.text .text* .rodata .rodata*)
-    */tables.c.obj(.text .text* .rodata .rodata*)
-    */tns.c.obj(.text .text* .rodata .rodata*)
-
+    */fsl_adapter_flexspi_nor_flash.c.obj
+    */mflash_drv.c.obj
+    */fsl_flexspi.c.obj
+    */attdet.c.obj
+    */bits.c.obj
+    */bwdet.c.obj
+    */energy.c.obj
+    */lc3.c.obj
+    */ltpf.c.obj
+    */mdct.c.obj
+    */plc.c.obj
+    */sns.c.obj
+    */spec.c.obj
+    */tables.c.obj
+    */tns.c.obj
     *(.data)                 /* .data sections */
     *(.data*)                /* .data* sections */
     *(DataQuickAccess)       /* quick access data section */

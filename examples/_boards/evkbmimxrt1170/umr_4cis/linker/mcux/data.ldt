@@ -15,9 +15,4 @@
         *spec.o(.text*)
         *tables.o(.text*)
         *tns.o(.text*)
-        *fsl_edma.o(.text*)
-        *fsl_sai.o(.text*)
-        *fsl_sai_edma.o(.text*)
-        *hardware_init.o(.text*)
-        *main.o(.text*)
         </#if>

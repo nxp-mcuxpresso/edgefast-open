@@ -133,6 +133,8 @@ initialize by copy { readwrite, section .textrw, section CodeQuickAccess, sectio
   object fsl_flexspi.o,
  };
 initialize by copy { readwrite, section .textrw,
+  object srCvtFrm.o,
+
   object attdet.o,
   object bits.o,
   object bwdet.o,

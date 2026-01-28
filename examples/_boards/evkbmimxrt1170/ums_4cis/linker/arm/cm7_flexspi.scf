@@ -277,6 +277,11 @@ LR_m_text m_interrupts_start m_text_start+m_text_size-m_interrupts_start {   ; l
     spec.o (+RO +RW +ZI)
     tables.o (+RO +RW +ZI)
     tns.o (+RO +RW +ZI)
+    fsl_edma.o (+RO +RW +ZI)
+    fsl_sai.o (+RO +RW +ZI)
+    fsl_sai_edma.o (+RO +RW +ZI)
+    hardware_init.o (+RO +RW +ZI)
+    main.o (+RO +RW +ZI)
   }
   RW_m_usb_data +0 ALIGNALL 32 { ; USB RW data
     * (*CacheLineData.init)

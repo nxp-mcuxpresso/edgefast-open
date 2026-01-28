@@ -18,7 +18,6 @@
         *fsl_adapter_flexspi_nor_flash.o(.text .text* .rodata .rodata*)
         *fsl_flexspi.o(.text .text* .rodata .rodata*)
         *mflash_drv.o(.text .text* .rodata .rodata*)
-        *srCvtFrm.o(.text .text* .rodata .rodata*)
         *attdet.o(.text .text* .rodata .rodata*)
         *bits.o(.text .text* .rodata .rodata*)
         *bwdet.o(.text .text* .rodata .rodata*)
@@ -31,10 +30,4 @@
         *spec.o(.text .text* .rodata .rodata*)
         *tables.o(.text .text* .rodata .rodata*)
         *tns.o(.text .text* .rodata .rodata*)
-
-        *fsl_edma.o(.text .text* .rodata .rodata*)
-        *fsl_sai.o(.text .text* .rodata .rodata*)
-        *fsl_sai_edma.o(.text .text* .rodata .rodata*)
-        *hardware_init.o(.text .text* .rodata .rodata*)
-        *main.o(.text .text* .rodata .rodata*)
         </#if>

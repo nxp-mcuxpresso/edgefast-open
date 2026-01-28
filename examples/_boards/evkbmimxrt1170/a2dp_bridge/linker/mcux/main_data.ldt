@@ -18,6 +18,7 @@
         *fsl_adapter_flexspi_nor_flash.o(.text .text* .rodata .rodata*)
         *fsl_flexspi.o(.text .text* .rodata .rodata*)
         *mflash_drv.o(.text .text* .rodata .rodata*)
+        *srCvtFrm.o(.text .text* .rodata .rodata*)
         *attdet.o(.text .text* .rodata .rodata*)
         *bits.o(.text .text* .rodata .rodata*)
         *bwdet.o(.text .text* .rodata .rodata*)
