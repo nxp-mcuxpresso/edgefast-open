@@ -9,4 +9,9 @@
 
 typedef signed long ssize_t;
 
+#if !defined(__off_t_defined)
+#define __off_t_defined
+typedef int off_t;
+#endif
+
 #endif /* __EDGEFAST_LIBC_ARM_INCLUDE_SYS_TYPES_H__ */
