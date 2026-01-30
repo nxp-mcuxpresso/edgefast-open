@@ -30,20 +30,52 @@
 /* User may need to change it for real production */
 #define APP_CLASS_OF_DEVICE (0x200000U)
 
-bool a2dp_connect_initiated;
-struct bt_a2dp *default_a2dp;
-static struct bt_a2dp_stream sbc_stream;
-struct sbc_encoder encoder;
+struct bt_a2dp_app {
+	struct bt_a2dp *a2dp;
+	struct bt_a2dp_ep *sbc_source_ep;
+	struct bt_a2dp_ep *sbc_sink_ep;
+	struct bt_a2dp_stream sbc_stream;
+	struct k_work_delayable initiate_stream_work;
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	struct bt_a2dp_codec_sbc_params sbc_params;
+	bool reconfiguring;
+	bool stream_configured;
+	bool ready_start;
+#endif
+	bool a2dp_connect_initiated;
+	bool peer_sbc_found;
+	volatile bool started;
+};
 
-BT_A2DP_SBC_SOURCE_EP_DEFAULT(sbc_source_ep);
-static bool peer_sbc_found;
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+#define APP_A2DP_COUNT (2)
+#else
+#define APP_A2DP_COUNT (1)
+#endif
+
+struct bt_a2dp_app app_a2dps[APP_A2DP_COUNT];
+
+BT_A2DP_SBC_SOURCE_EP_DEFAULT(sbc_source_ep1);
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+BT_A2DP_SBC_SOURCE_EP_DEFAULT(sbc_source_ep2);
+#endif
 struct bt_a2dp_codec_ie sbc_sink_ep_capabilities;
-static struct bt_a2dp_ep sbc_sink_ep = {
+static struct bt_a2dp_ep sbc_sink_ep1 = {
 	.codec_cap = &sbc_sink_ep_capabilities,
 };
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+struct bt_a2dp_codec_ie sbc_sink_ep_capabilities2;
+static struct bt_a2dp_ep sbc_sink_ep2 = {
+	.codec_cap = &sbc_sink_ep_capabilities2,
+};
+
+#define APP_SBC_SINK_EPS() static struct bt_a2dp_ep *app_sbc_sink_eps[APP_A2DP_COUNT] = {&sbc_sink_ep1, &sbc_sink_ep2}
+#define APP_SBC_SOURCE_EPS() static struct bt_a2dp_ep *app_sbc_source_eps[APP_A2DP_COUNT] = {&sbc_source_ep1, &sbc_source_ep2}
+#endif
 BT_A2DP_SBC_EP_CFG_DEFAULT(sbc_cfg_default, A2DP_SBC_SAMP_FREQ_44100);
 
 /* sbc audio stream control variables */
+struct sbc_encoder encoder;
 static TimerHandle_t a2dp_src_timer;
 static uint32_t a2dp_src_missed_count;
 static volatile bool a2dp_src_playback;
@@ -63,7 +95,6 @@ NET_BUF_POOL_DEFINE(a2dp_tx_pool, CONFIG_BT_A2DP_SOURCE_DATA_BUF_COUNT,
 		    CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
 static void initiate_stream_work_handle(struct k_work *work);
-K_WORK_DELAYABLE_DEFINE(initiate_stream_work, initiate_stream_work_handle);
 #define CONFIGURE_SBC_DELAY K_MSEC(2000)
 
 NET_BUF_POOL_DEFINE(sdp_discover_pool, 2, BT_L2CAP_BUF_SIZE(CONFIG_BT_L2CAP_TX_MTU),
@@ -253,29 +284,34 @@ static uint32_t audio_play_time_delta(void)
 	return ((uint32_t)((uint64_t)(ticks)*1000uL / (uint64_t)configTICK_RATE_HZ));
 }
 
-static void audio_play_check(void)
+static bool audio_play_check(struct bt_a2dp_app* app_a2dp)
 {
 	uint32_t a2dp_src_num_samples;
 	uint32_t pcm_frame_samples;
 	uint8_t frame_num;
 	struct net_buf *buf;
 	uint32_t pdu_len;
+	uint32_t cal_interval;
+
+	struct bt_a2dp_stream *stream = &app_a2dp->sbc_stream;
 
 	buf = bt_a2dp_stream_create_pdu(&a2dp_tx_pool, K_FOREVER);
-	if (buf->len + sbc_frame_encoded_bytes(&encoder) > bt_a2dp_get_mtu(&sbc_stream)) {
+	if (buf->len + sbc_frame_encoded_bytes(&encoder) > bt_a2dp_get_mtu(stream)) {
+		net_buf_unref(buf);
 		PRINTF("error, the stream mtu is too small\n");
-		return;
+		return false;
 	}
 
-	send_interval = CONFIG_BT_A2DP_SOURCE_DATA_SEND_INTERVAL;
+	cal_interval = CONFIG_BT_A2DP_SOURCE_DATA_SEND_INTERVAL;
 
 	while (true) {
-		if (send_interval == 0) {
+		if (cal_interval == 0) {
+			net_buf_unref(buf);
 			PRINTF("error, the stream mtu is too small\n");
-			return;
+			return false;
 		}
 
-		a2dp_src_num_samples = (uint16_t)((send_interval * a2dp_src_sf) / 1000);
+		a2dp_src_num_samples = (uint16_t)((cal_interval * a2dp_src_sf) / 1000);
 		pcm_frame_samples = sbc_frame_samples(&encoder);
 		frame_num = a2dp_src_num_samples / pcm_frame_samples;
 		if (frame_num * pcm_frame_samples < a2dp_src_num_samples) {
@@ -288,26 +324,26 @@ static void audio_play_check(void)
 		if (pdu_len > net_buf_tailroom(buf)) {
 			PRINTF("Better to increase buf size %d > %d\n", pdu_len,
 			       net_buf_tailroom(buf));
-			PRINTF("stream interval is changed: %dms -> %dms\n", send_interval,
-			       send_interval / 2);
-			send_interval /= 2;
+			PRINTF("stream interval is changed: %dms -> %dms\n", cal_interval,
+			       cal_interval / 2);
+			cal_interval /= 2;
 			continue;
 		}
 
-		if (pdu_len > bt_a2dp_get_mtu(&sbc_stream)) {
+		if (pdu_len > bt_a2dp_get_mtu(stream)) {
 			PRINTF("Better to decrease CONFIG_BT_A2DP_SOURCE_DATA_SEND_INTERVAL"
-				"%d > %d\n", pdu_len, bt_a2dp_get_mtu(&sbc_stream));
-			PRINTF("stream interval is changed: %dms -> %dms\n", send_interval,
-			       send_interval / 2);
-			send_interval /= 2;
+				"%d > %d\n", pdu_len, bt_a2dp_get_mtu(stream));
+			PRINTF("stream interval is changed: %dms -> %dms\n", cal_interval,
+			       cal_interval / 2);
+			cal_interval /= 2;
 			continue;
 		}
 
 		if (!a2dp_produce_media_check(a2dp_src_num_samples)) {
 			PRINTF("Better to increase a2dp_pcm_buffer\n");
-			PRINTF("stream interval is changed: %dms -> %dms\n", send_interval,
-			       send_interval / 2);
-			send_interval /= 2;
+			PRINTF("stream interval is changed: %dms -> %dms\n", cal_interval,
+			       cal_interval / 2);
+			cal_interval /= 2;
 			continue;
 		}
 
@@ -316,7 +352,65 @@ static void audio_play_check(void)
 
 	net_buf_unref(buf);
 
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	if ((send_interval == 0) || (send_interval > cal_interval)) {
+		send_interval = cal_interval;
+	}
+#else
+	send_interval = cal_interval;
+#endif
+
 	PRINTF("send interval is: %dms\n", send_interval);
+
+	return true;
+}
+
+static uint32_t get_min_mtu(void)
+{
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	uint32_t mtu_ret = 0xFFFFFFFFu;
+	uint32_t mtu;
+
+	for (uint8_t i = 0; i < APP_A2DP_COUNT; i++) {
+		if (app_a2dps[i].a2dp != NULL && app_a2dps[i].started) {
+			mtu = bt_a2dp_get_mtu(&app_a2dps[i].sbc_stream);
+			if (mtu != 0) {
+				if (mtu_ret > mtu) {
+					mtu_ret = mtu;
+				}
+			}
+		}
+	}
+
+	return mtu_ret;
+#else
+	if (app_a2dps[0].a2dp != NULL && app_a2dps[0].started) {
+		return bt_a2dp_get_mtu(&app_a2dps[0].sbc_stream);
+	} else {
+		return 0xFFFFFFFFu;
+	}
+#endif
+}
+
+static bool audio_stream_started(void)
+{
+	if (!a2dp_src_playback) {
+		return false;
+	}
+
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		if (app_a2dps[idx].a2dp == NULL || !app_a2dps[idx].started) {
+			return false;
+		}
+	}
+#else
+	if (app_a2dps[0].a2dp == NULL || !app_a2dps[0].started) {
+		return false;
+	}
+#endif
+
+	return true;
 }
 
 static void audio_work_handler(struct k_work *work)
@@ -337,7 +431,7 @@ static void audio_work_handler(struct k_work *work)
 	uint8_t remaining_frame_num;
 
 	/* If stopped then return */
-	if (!a2dp_src_playback || default_a2dp == NULL) {
+	if (!audio_stream_started()) {
 		return;
 	}
 
@@ -377,8 +471,13 @@ static void audio_work_handler(struct k_work *work)
 		frame_num = remaining_frame_num;
 		/* adjust the buf size */
 		while ((pdu_len > net_buf_tailroom(buf)) ||
-		       (pdu_len > bt_a2dp_get_mtu(&sbc_stream)) ||
+		       (pdu_len > get_min_mtu()) ||
 		       (!a2dp_produce_media_check(a2dp_src_num_samples))) {
+			if (!audio_stream_started() || pdu_len <= encoded_frame_size) {
+				net_buf_unref(buf);
+				return;
+			}
+
 			pdu_len -= encoded_frame_size;
 			a2dp_src_num_samples -= pcm_frame_samples;
 			frame_num--;
@@ -404,11 +503,45 @@ static void audio_work_handler(struct k_work *work)
 
 		*sbc_hdr = (uint8_t)BT_A2DP_SBC_MEDIA_HDR_ENCODE(frame_num, 0, 0, 0);
 
-		err = bt_a2dp_stream_send(&sbc_stream, buf, send_count, send_samples_count);
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+		uint8_t streams_count = 0;
+		struct bt_a2dp_stream *streams[APP_A2DP_COUNT];
+
+		for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+			if (app_a2dps[idx].a2dp != NULL && app_a2dps[idx].started) {
+				streams[idx] = &app_a2dps[idx].sbc_stream;
+				streams_count++;
+			} else {
+				streams[idx] = NULL;
+			}
+		}
+
+		for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+			if (streams[idx] != NULL) {
+				struct net_buf *sent_buf;
+
+				streams_count--;
+
+				if (streams_count == 0) {
+					sent_buf = buf;
+				} else {
+					sent_buf = net_buf_clone(buf, K_FOREVER);
+				}
+
+				err = bt_a2dp_stream_send(streams[idx], sent_buf, send_count, send_samples_count);
+				if (err != 0) {
+					net_buf_unref(sent_buf);
+					PRINTF("  Failed to send SBC audio data on streams(%d)\n", err);
+				}
+			}
+		}
+#else
+		err = bt_a2dp_stream_send(&app_a2dps[0].sbc_stream, buf, send_count, send_samples_count);
 		if (err != 0) {
 			net_buf_unref(buf);
 			PRINTF("  Failed to send SBC audio data on streams(%d)\n", err);
 		}
+#endif
 
 		send_count++;
 		send_samples_count += a2dp_src_num_samples;
@@ -425,6 +558,14 @@ static void a2dp_playback_timeout_handler(TimerHandle_t timer_id)
 
 static void a2dp_stop_playback_timer(void)
 {
+#if 0
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		if (app_a2dps[idx].started) {
+			return;
+		}
+	}
+#endif
+
 	a2dp_src_playback = false;
 	if (a2dp_src_timer != NULL) {
 		/* Stop Audio Source */
@@ -434,8 +575,27 @@ static void a2dp_stop_playback_timer(void)
 	}
 }
 
+static void a2dp_stop_playback_stream(struct bt_a2dp_app* app_a2dp)
+{
+	app_a2dp->started = false;
+	a2dp_stop_playback_timer();
+}
+
 static void a2dp_start_playback_timer(void)
 {
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+#if 0
+	if (a2dp_src_playback) {
+		return;
+	}
+#endif
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		if (!app_a2dps[idx].started) {
+			return;
+		}
+	}
+#endif
+
 	a2dp_stop_playback_timer();
 	a2dp_src_playback = true;
 	audio_play_time_reset();
@@ -443,6 +603,70 @@ static void a2dp_start_playback_timer(void)
 				      portTICK_PERIOD_MS), pdTRUE, NULL,
 				      a2dp_playback_timeout_handler);
 	xTimerStart(a2dp_src_timer, 0);
+}
+
+static void a2dp_start_playback_stream(struct bt_a2dp_app* app_a2dp)
+{
+	app_a2dp->started = true;
+	a2dp_start_playback_timer();
+}
+
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+static struct bt_a2dp_app *get_app_a2dp_by_stream(struct bt_a2dp_stream *stream)
+{
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		if (&app_a2dps[idx].sbc_stream == stream) {
+			return &app_a2dps[idx];
+		}
+	}
+
+	return NULL;
+}
+
+#define GET_APP_A2DP_BY_STREAM() \
+	struct bt_a2dp_app *app_a2dp; \
+	do { \
+		app_a2dp = get_app_a2dp_by_stream(stream); \
+		if (app_a2dp == NULL) { \
+			return; \
+		} \
+	} while(0)
+#else
+#define GET_APP_A2DP_BY_STREAM() struct bt_a2dp_app *app_a2dp = &app_a2dps[0]
+#endif
+
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+static bool stream_ready_check(void)
+{
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		if (!app_a2dps[idx].ready_start || !app_a2dps[idx].stream_configured) {
+			return false;
+		}
+	}
+
+	return true;
+}
+#endif
+
+static void stream_check_and_start(struct bt_a2dp_app *app_a2dp)
+{
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	if (audio_play_check(app_a2dp)) {
+		app_a2dp->ready_start = true;
+	}
+
+	if (stream_ready_check()) {
+		for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+			bt_a2dp_stream_start(&app_a2dps[idx].sbc_stream);
+		}
+	} else {
+		PRINTF("wait other stream ready to start playing\n");
+	}
+#else
+	if (audio_play_check(app_a2dp)) {
+		bt_a2dp_stream_start(stream);
+	}
+#endif
 }
 
 static void sbc_stream_configured(struct bt_a2dp_stream *stream)
@@ -453,6 +677,12 @@ static void sbc_stream_configured(struct bt_a2dp_stream *stream)
 
 	PRINTF("stream configured\n");
 
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	GET_APP_A2DP_BY_STREAM();
+
+	app_a2dp->stream_configured = true;
+	app_a2dp->sbc_params = *sbc_config;
+#endif
 	a2dp_src_sf = bt_a2dp_sbc_get_sampling_frequency(sbc_config);
 	a2dp_src_nc = bt_a2dp_sbc_get_channel_num(sbc_config);
 
@@ -471,33 +701,63 @@ static void sbc_stream_configured(struct bt_a2dp_stream *stream)
 		return;
 	}
 
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	if (app_a2dp->reconfiguring) {
+		app_a2dp->reconfiguring = false;
+		stream_check_and_start(app_a2dp);
+		return;
+	}
+#endif
+
 	bt_a2dp_stream_establish(stream);
 }
 
 static void sbc_stream_established(struct bt_a2dp_stream *stream)
 {
+	GET_APP_A2DP_BY_STREAM();
+
 	PRINTF("stream established\n");
-	audio_play_check();
-	bt_a2dp_stream_start(&sbc_stream);
+
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	if (memcmp(&app_a2dp->sbc_params, &sbc_cfg_default.codec_config->codec_ie, sizeof(app_a2dp->sbc_params))) {
+		/* Two sbc encoders can be used for the two a2dp streams too, but it needs more resource. */
+		PRINTF("sbc encoder is not same, need to reconfigure for dual a2dp\n");
+		app_a2dp->reconfiguring = true;
+		bt_a2dp_stream_reconfig(stream, &sbc_cfg_default);
+		return;
+	}
+#endif
+	stream_check_and_start(app_a2dp);
 }
 
 static void sbc_stream_released(struct bt_a2dp_stream *stream)
 {
+	GET_APP_A2DP_BY_STREAM();
+
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	app_a2dp->stream_configured = false;
+	app_a2dp->ready_start = false;
+#endif
+	app_a2dp->sbc_source_ep = NULL;
 	PRINTF("stream released\n");
-	a2dp_stop_playback_timer();
+	a2dp_stop_playback_stream(app_a2dp);
 }
 
 static void sbc_stream_started(struct bt_a2dp_stream *stream)
 {
+	GET_APP_A2DP_BY_STREAM();
+
 	PRINTF("stream started\n");
 	/* Start Audio Source */
-	a2dp_start_playback_timer();
+	a2dp_start_playback_stream(app_a2dp);
 }
 
 static void sbc_stream_suspended(struct bt_a2dp_stream *stream)
 {
+	GET_APP_A2DP_BY_STREAM();
+
 	PRINTF("stream suspended\n");
-	a2dp_stop_playback_timer();
+	a2dp_stop_playback_stream(app_a2dp);
 }
 
 static struct bt_a2dp_stream_ops sbc_stream_ops = {
@@ -508,16 +768,136 @@ static struct bt_a2dp_stream_ops sbc_stream_ops = {
 	.suspended = sbc_stream_suspended,
 };
 
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+static struct bt_a2dp_app *get_app_a2dp(struct bt_a2dp *a2dp)
+{
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		if (app_a2dps[idx].a2dp == a2dp) {
+			return &app_a2dps[idx];
+		}
+	}
+
+	return NULL;
+}
+
+#define GET_APP_A2DP_RET(ret) \
+	struct bt_a2dp_app *app_a2dp; \
+	do { \
+		app_a2dp = get_app_a2dp(a2dp); \
+		if (app_a2dp == NULL) { \
+			return ret; \
+		} \
+	} while(0)
+
+#define GET_APP_A2DP() \
+	struct bt_a2dp_app *app_a2dp; \
+	do { \
+		app_a2dp = get_app_a2dp(a2dp); \
+		if (app_a2dp == NULL) { \
+			return; \
+		} \
+	} while(0)
+#else
+#define GET_APP_A2DP_RET(ret) struct bt_a2dp_app *app_a2dp = &app_a2dps[0]
+#define GET_APP_A2DP() struct bt_a2dp_app *app_a2dp = &app_a2dps[0]
+#endif
+
+static struct bt_a2dp_app *get_app_a2dp_new(struct bt_a2dp *a2dp)
+{
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		if (app_a2dps[idx].a2dp == a2dp) {
+			return &app_a2dps[idx];
+		}
+	}
+
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		if (app_a2dps[idx].a2dp == NULL) {
+			app_a2dps[idx].a2dp = a2dp;
+			return &app_a2dps[idx];
+		}
+	}
+
+	return NULL;
+#else
+	return &app_a2dps[0];
+#endif
+}
+
+static struct bt_a2dp *get_a2dp_by_conn(struct bt_conn *conn)
+{
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	struct bt_conn *get_conn;
+
+	if (conn == NULL) {
+		return NULL;
+	}
+
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		if (app_a2dps[idx].a2dp == NULL) {
+			continue;
+		}
+
+		get_conn = bt_a2dp_get_conn(app_a2dps[idx].a2dp);
+		if (get_conn == NULL) {
+			continue;
+		}
+
+		if (get_conn == conn) {
+			bt_conn_unref(get_conn);
+			return app_a2dps[idx].a2dp;
+		} else {
+			bt_conn_unref(get_conn);
+		}
+	}
+
+	return NULL;
+#else
+	return app_a2dps[0].a2dp;
+#endif
+
+	
+}
+
+static void set_app_a2dp_source_ep(struct bt_a2dp_app *app_a2dp)
+{
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	app_a2dp->sbc_source_ep = NULL;
+
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		if (app_a2dps[idx].sbc_source_ep != NULL) {
+			if (app_a2dps[idx].sbc_source_ep == &sbc_source_ep1 &&
+			    app_a2dps[idx].stream_configured) {
+				app_a2dp->sbc_source_ep = &sbc_source_ep2;
+				break;
+			} else {
+				app_a2dp->sbc_source_ep = &sbc_source_ep1;
+				break;
+			}
+		}
+	}
+
+	if (app_a2dp->sbc_source_ep == NULL) {
+		app_a2dp->sbc_source_ep = &sbc_source_ep1;
+	}
+#else
+	app_a2dp->sbc_source_ep = &sbc_source_ep1;
+#endif
+}
+
 static uint8_t a2dp_discover_ep_cb(struct bt_a2dp *a2dp,
 		struct bt_a2dp_ep_info *info, struct bt_a2dp_ep **ep)
 {
-	if (peer_sbc_found) {
+	GET_APP_A2DP_RET(BT_A2DP_DISCOVER_EP_STOP);
+
+	if (app_a2dp->peer_sbc_found) {
 		int err;
 
-		bt_a2dp_stream_cb_register(&sbc_stream, &sbc_stream_ops);
-		err = bt_a2dp_stream_config(a2dp, &sbc_stream,
-						&sbc_source_ep, &sbc_sink_ep,
-						&sbc_cfg_default);
+		bt_a2dp_stream_cb_register(&app_a2dp->sbc_stream, &sbc_stream_ops);
+		set_app_a2dp_source_ep(app_a2dp);
+		err = bt_a2dp_stream_config(a2dp, &app_a2dp->sbc_stream,
+					    app_a2dp->sbc_source_ep, app_a2dp->sbc_sink_ep,
+					    &sbc_cfg_default);
 		if (err != 0) {
 			PRINTF("fail to configure stream\n");
 		}
@@ -532,8 +912,8 @@ static uint8_t a2dp_discover_ep_cb(struct bt_a2dp *a2dp,
 		    (ep != NULL)) {
 			PRINTF("it is SBC codec and use it\r\n");
 
-			peer_sbc_found = true;
-			*ep = &sbc_sink_ep; /* get the peer's sbc endpoint */
+			app_a2dp->peer_sbc_found = true;
+			*ep = app_a2dp->sbc_sink_ep; /* get the peer's sbc endpoint */
 		} else {
 			PRINTF("it is not SBC codec\n");
 		}
@@ -553,35 +933,42 @@ static struct bt_a2dp_discover_param ep_discover_param = {
 
 void app_a2dp_connected(struct bt_a2dp *a2dp, int err)
 {
+	struct bt_a2dp_app *app_a2dp = get_app_a2dp_new(a2dp);
+
+	if (app_a2dp == NULL) {
+		return;
+	}
+
+	app_a2dp->a2dp = a2dp;
+	app_a2dp->sbc_source_ep = NULL;
+
 	if (err == 0) {
-		default_a2dp = a2dp;
-		if (a2dp_connect_initiated) {
-			a2dp_connect_initiated = false;
-			initiate_stream_work_handle(NULL);
+		if (app_a2dp->a2dp_connect_initiated) {
+			initiate_stream_work_handle(&app_a2dp->initiate_stream_work.work);
 		} else {
 			/* usually the peer headset will configure a2dp_source demo automatically if connecting from peer headset.
 			 * there are headsets that doesn't do it.
 			 */
-			k_work_schedule(&initiate_stream_work, CONFIGURE_SBC_DELAY);
+			k_work_schedule(&app_a2dp->initiate_stream_work, CONFIGURE_SBC_DELAY);
 		}
 
 		PRINTF("a2dp connected success\r\n");
 	} else {
-		if (default_a2dp != NULL) {
-			default_a2dp = NULL;
-		}
+		app_a2dp->a2dp = NULL;
 
 		PRINTF("a2dp connected fail\r\n");
 	}
+
+	app_a2dp->a2dp_connect_initiated = false;
 }
 
 void app_a2dp_disconnected(struct bt_a2dp *a2dp)
 {
-	if (default_a2dp != NULL) {
-		default_a2dp = NULL;
-	}
+	GET_APP_A2DP();
 
-	a2dp_stop_playback_timer();
+	app_a2dp->a2dp = NULL;
+
+	a2dp_stop_playback_stream(app_a2dp);
 	PRINTF("a2dp disconnected\r\n");
 }
 
@@ -589,12 +976,28 @@ static int app_config_req(struct bt_a2dp *a2dp, struct bt_a2dp_ep *ep,
 		struct bt_a2dp_codec_cfg *codec_cfg, struct bt_a2dp_stream **stream,
 		uint8_t *rsp_err_code)
 {
-	k_work_cancel_delayable(&initiate_stream_work);
-	bt_a2dp_stream_cb_register(&sbc_stream, &sbc_stream_ops);
-	*stream = &sbc_stream;
+	GET_APP_A2DP_RET(-EIO);
+
+	app_a2dp->sbc_source_ep = ep;
+
+	k_work_cancel_delayable(&app_a2dp->initiate_stream_work);
+	bt_a2dp_stream_cb_register(&app_a2dp->sbc_stream, &sbc_stream_ops);
+	*stream = &app_a2dp->sbc_stream;
 	*rsp_err_code = 0;
 
 	return 0;
+}
+
+void app_config_rsp(struct bt_a2dp_stream *stream, uint8_t rsp_err_code)
+{
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	GET_APP_A2DP_BY_STREAM();
+
+	if (app_a2dp->reconfiguring && rsp_err_code != 0) {
+		app_a2dp->reconfiguring = false;
+		PRINTF("fail to reconfigure\n");
+	}
+#endif
 }
 
 static uint8_t sdp_discover_cb(struct bt_conn *conn, struct bt_sdp_client_result *result,
@@ -611,6 +1014,8 @@ static uint8_t sdp_discover_cb(struct bt_conn *conn, struct bt_sdp_client_result
 		if (err != 0) {
 			PRINTF("PSM is not found\r\n");
 		} else if (value == BT_UUID_AVDTP_VAL) {
+			struct bt_a2dp *a2dp;
+
 			PRINTF("The A2DP server found, connecting a2dp\r\n");
 			err = bt_sdp_get_proto_param(result->resp_buf, BT_UUID_AVDTP_VAL, &value);
 			if (err != 0) {
@@ -619,10 +1024,17 @@ static uint8_t sdp_discover_cb(struct bt_conn *conn, struct bt_sdp_client_result
 			}
 
 			ep_discover_param.avdtp_version = value;
-			a2dp_connect_initiated = true;
-			default_a2dp = bt_a2dp_connect(conn);
-			if (default_a2dp == NULL) {
+			a2dp = bt_a2dp_connect(conn);
+			if (a2dp == NULL) {
 				PRINTF("Fail to create A2DP connection (err %d)\r\n", err);
+			} else {
+				struct bt_a2dp_app *app_a2dp = get_app_a2dp_new(a2dp);
+
+				if (app_a2dp == NULL) {
+					return BT_SDP_DISCOVER_UUID_STOP;
+				}
+				app_a2dp->a2dp = a2dp;
+				app_a2dp->a2dp_connect_initiated = true;
 			}
 		} else {
 			PRINTF("Don't find A2DP server\r\n");
@@ -639,11 +1051,11 @@ static struct bt_sdp_discover_params sdp_discover = {
 	.uuid = BT_UUID_DECLARE_16(BT_SDP_AUDIO_SINK_SVCLASS),
 };
 
-void app_sdp_discover_a2dp_sink(void)
+void app_sdp_discover_a2dp_sink(struct bt_conn *conn)
 {
 	int res;
 	sdp_discover.func = sdp_discover_cb;
-	res = bt_sdp_discover(default_conn, &sdp_discover);
+	res = bt_sdp_discover(conn, &sdp_discover);
 	if (res) {
 		PRINTF("SDP discovery failed: result\r\n");
 	} else {
@@ -656,6 +1068,13 @@ static uint8_t sdp_discover_version_cb(struct bt_conn *conn, struct bt_sdp_clien
 {
 	int err;
 	uint16_t value;
+	struct bt_a2dp *a2dp = get_a2dp_by_conn(conn);
+
+	if (a2dp == NULL) {
+		return BT_SDP_DISCOVER_UUID_CONTINUE;
+	}
+
+	GET_APP_A2DP_RET(BT_SDP_DISCOVER_UUID_STOP);
 
 	if (result != NULL && result->resp_buf != NULL) {
 		err = bt_sdp_get_proto_param(result->resp_buf, BT_SDP_PROTO_L2CAP, &value);
@@ -670,7 +1089,8 @@ static uint8_t sdp_discover_version_cb(struct bt_conn *conn, struct bt_sdp_clien
 			}
 
 			ep_discover_param.avdtp_version = value;
-			err = bt_a2dp_discover(default_a2dp, &ep_discover_param);
+			app_a2dp->peer_sbc_found = false;
+			err = bt_a2dp_discover(a2dp, &ep_discover_param);
 			if (err != 0) {
 				PRINTF("fail to discover\n");
 			}
@@ -682,11 +1102,11 @@ static uint8_t sdp_discover_version_cb(struct bt_conn *conn, struct bt_sdp_clien
 	return BT_SDP_DISCOVER_UUID_STOP;
 }
 
-void app_sdp_discover_a2dp_sink_version(void)
+void app_sdp_discover_a2dp_sink_version(struct bt_conn *conn)
 {
 	int res;
 	sdp_discover.func = sdp_discover_version_cb;
-	res = bt_sdp_discover(default_conn, &sdp_discover);
+	res = bt_sdp_discover(conn, &sdp_discover);
 	if (res) {
 		PRINTF("SDP discovery failed: result\r\n");
 	} else {
@@ -696,28 +1116,65 @@ void app_sdp_discover_a2dp_sink_version(void)
 
 static void initiate_stream_work_handle(struct k_work *work)
 {
-	if (default_a2dp != NULL) {
-		app_sdp_discover_a2dp_sink_version();
+	struct bt_conn *conn;
+	struct bt_a2dp_app *app_a2dp =
+		CONTAINER_OF(work, struct bt_a2dp_app, initiate_stream_work.work);
+
+	if (app_a2dp->a2dp == NULL) {
+		return;
 	}
+
+	conn = bt_a2dp_get_conn(app_a2dp->a2dp);
+	if (conn == NULL) {
+		return;
+	}
+
+	app_sdp_discover_a2dp_sink_version(conn);
+	bt_conn_unref(conn);
 }
 
 static struct bt_a2dp_cb a2dp_cb = {
 	.connected = app_a2dp_connected,
 	.disconnected = app_a2dp_disconnected,
 	.config_req = app_config_req,
+	.config_rsp = app_config_rsp,
 };
 
 static void app_edgefast_a2dp_init(void)
 {
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	APP_SBC_SINK_EPS();
+	APP_SBC_SOURCE_EPS();
+
+	for (uint8_t idx = 0; idx < APP_A2DP_COUNT; ++idx) {
+		k_work_init_delayable(&app_a2dps[idx].initiate_stream_work,
+				      initiate_stream_work_handle);
+		app_a2dps[idx].sbc_sink_ep = app_sbc_sink_eps[idx];
+
+		bt_a2dp_register_ep(app_sbc_source_eps[idx], BT_AVDTP_AUDIO, BT_AVDTP_SOURCE);
+	}
+#else
+	k_work_init_delayable(&app_a2dps[0].initiate_stream_work, initiate_stream_work_handle);
+	app_a2dps[0].sbc_sink_ep = &sbc_sink_ep1;
+
+	bt_a2dp_register_ep(&sbc_source_ep1, BT_AVDTP_AUDIO, BT_AVDTP_SOURCE);
+#endif
+
 	bt_a2dp_register_cb(&a2dp_cb);
-	bt_a2dp_register_ep(&sbc_source_ep, BT_AVDTP_AUDIO, BT_AVDTP_SOURCE);
 
 	k_work_queue_init(&audio_play_work_q);
 	k_work_queue_start(&audio_play_work_q, audio_play_work_q_thread_stack,
 		CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE,
-		K_PRIO_COOP(CONFIG_SYSTEM_WORKQUEUE_PRIORITY), NULL);
+		K_PRIO_COOP(CONFIG_SYSTEM_WORKQUEUE_PRIORITY - 2), NULL);
 	k_thread_name_set(&audio_play_work_q.thread, "audio play");
 }
+
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+enum bt_br_conn_req_rsp bt_br_conn_req_cb(const bt_addr_t *addr, uint32_t cod)
+{
+	return BT_BR_CONN_REQ_ACCEPT_CENTRAL;
+}
+#endif
 
 static void bt_ready(int err)
 {
@@ -751,7 +1208,11 @@ static void bt_ready(int err)
 	app_connect_init();
 	app_discover_init();
 
-	err = bt_br_set_connectable(true);
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	err = bt_br_set_connectable(true, bt_br_conn_req_cb);
+#else
+	err = bt_br_set_connectable(true, NULL);
+#endif
 	if (err != 0) {
 		PRINTF("BR/EDR set/rest connectable failed (err %d)\n", err);
 		return;

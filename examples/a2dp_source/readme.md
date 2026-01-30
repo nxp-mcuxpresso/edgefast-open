@@ -41,6 +41,18 @@ Procedures to run
 3. input "bt connect [index]" to create basic bluetooth connection with the discovered device
 4. the music start playing after connection success.
 
+## Running the demo (dual)
+The demo supports dual a2dp sources, please use `west list_project` to get the project from example.yml.
+In dual a2dp sources mode, the demo connects to two a2dp sinks. After two are connected, the demo starts to play music.
+If only one is connected, the music will not be started.
+
+Procedures to run
+1. input "help" to show command list
+2. input "bt discover" to discover connctable bluetooth devices
+3. input "bt connect [index]" to create connection with the first device.
+3. input "bt connect [index]" to create connection with the second device.
+4. the music start playing after connections success.
+
 ## Supported Boards
 - [EVKB-IMXRT1050](../../_boards/evkbimxrt1050/edgefast_bluetooth_examples/a2dp_source/example_board_readme.md)
 - [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/a2dp_source/example_board_readme.md)

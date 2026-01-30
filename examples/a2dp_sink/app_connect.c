@@ -112,33 +112,29 @@ static void security_changed(struct bt_conn *conn, bt_security_t level,
 				 enum bt_security_err err)
 {
     char addr[BT_ADDR_LE_STR_LEN];
+	bt_addr_t *dst_addr = bt_conn_get_dst_br(conn);
 
-    bt_addr_to_str(bt_conn_get_dst_br(conn), addr, sizeof(addr));
+	if (dst_addr == NULL) {
+		return;
+	}
+
+    bt_addr_to_str(dst_addr, addr, sizeof(addr));
 
     if (err == BT_SECURITY_ERR_SUCCESS) {
         PRINTF("Security changed: %s level %u\n", addr, level);
     } else {
         PRINTF("Security failed: %s level %u err %d\n", addr, level, err);
         if (err == BT_SECURITY_ERR_PIN_OR_KEY_MISSING) {
-            bt_addr_le_t addr;
-            struct bt_conn_info info;
             int ret;
 #if !((defined AUTO_CONNECT_USE_BOND_INFO) && (AUTO_CONNECT_USE_BOND_INFO))
             int ret2;
 #endif
 
-            bt_conn_get_info(conn, &info);
-            if (info.type == BT_CONN_TYPE_LE) {
-                return;
-            }
-
             PRINTF("The peer device seems to have lost the bonding information.\n");
             PRINTF("Delete the bonding information of the peer, please try again.\n");
-            addr.type = BT_ADDR_LE_PUBLIC;
-            addr.a = *info.br.dst;
-            ret = bt_unpair(BT_ID_DEFAULT, &addr);
+            ret = bt_br_unpair(dst_addr);
 #if !((defined AUTO_CONNECT_USE_BOND_INFO) && (AUTO_CONNECT_USE_BOND_INFO))
-            ret2 = app_auto_connect_del_addr(&addr.a);
+            ret2 = app_auto_connect_del_addr(dst_addr);
             if (ret || ret2) {
 #else
             if (ret) {

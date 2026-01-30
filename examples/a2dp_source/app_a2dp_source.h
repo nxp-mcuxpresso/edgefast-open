@@ -18,6 +18,6 @@
 
 void app_a2dp_source_task(void *param);
 
-void app_sdp_discover_a2dp_sink(void);
+void app_sdp_discover_a2dp_sink(struct bt_conn *conn);
 
 #endif /* __APP_A2DP_SOURCE_H__ */

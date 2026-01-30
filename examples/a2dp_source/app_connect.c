@@ -29,9 +29,12 @@ static void disconnected(struct bt_conn *conn, uint8_t reason);
 static void security_changed(struct bt_conn *conn, bt_security_t level,
 				 enum bt_security_err err);
 
-struct bt_conn *default_conn;
-bt_addr_t default_peer_addr;
-static uint8_t default_connect_initialized;
+struct bt_conn *default_conns[CONFIG_BT_MAX_CONN];
+bt_addr_t connecting_peer_addr[CONFIG_BT_MAX_CONN];
+
+//todo
+#define APP_LOCK()
+#define APP_UNLOCK()
 
 static struct bt_conn_cb conn_callbacks = {
 	.connected = connected,
@@ -41,69 +44,96 @@ static struct bt_conn_cb conn_callbacks = {
 
 static void connected(struct bt_conn *conn, uint8_t err)
 {
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	uint8_t index = bt_conn_index(conn);
+#else
+	uint8_t index = 0;
+#endif
+
+	APP_LOCK();
+
 	if (err) {
-		if (default_conn != NULL) {
-			default_conn = NULL;
-		}
+		default_conns[index] = NULL;
+		APP_UNLOCK();
 		PRINTF("Connection failed (err 0x%02x)\n", err);
 	} else {
-		default_conn = conn;
-		if (1U == default_connect_initialized) {
-			struct bt_conn_info info;
+		struct bt_conn_info info;
+		bool connect_initated = false;
+		const bt_addr_t *dst_addr = bt_conn_get_dst_br(conn);
 
-			default_connect_initialized = 0U;
-			bt_conn_get_info(conn, &info);
-			if (info.type == BT_CONN_TYPE_LE) {
-				return;
-			}
+		if (dst_addr == NULL) {
+			return;
+		}
 
+		default_conns[index] = conn;
+
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+		if (bt_addr_eq(&connecting_peer_addr[index], dst_addr)) {
+			connect_initated = true;
+		}
+#else
+		if (bt_addr_eq(&connecting_peer_addr[0], dst_addr)) {
+			connect_initated = true;
+		}
+#endif
+		memset(&connecting_peer_addr[index], 0, sizeof(bt_addr_t));
+		APP_UNLOCK();
+
+		/* connecting is initiated from local */
+		if (connect_initated) {
 			/*
 			 * Do an SDP Query on Successful ACL connection complete with the
 			 * required device
 			 */
-			if (0 == memcmp(info.br.dst, &default_peer_addr, 6U)) {
-				app_sdp_discover_a2dp_sink();
-			}
-			PRINTF("Connected\n");
+			app_sdp_discover_a2dp_sink(conn);
 		}
+
+		bt_conn_get_info(conn, &info);
+		if (info.type == BT_CONN_TYPE_LE) {
+			return;
+		}
+
+		PRINTF("Connected %s\n", info.role == BT_HCI_ROLE_CENTRAL ? "central" : "peripheral");
 	}
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-	PRINTF("Disconnected (reason 0x%02x)\n", reason);
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	uint8_t index = bt_conn_index(conn);
+#else
+	uint8_t index = 0;
+#endif
 
-	if (default_conn == conn) {
-		default_conn = NULL;
-	}
+	printk("Disconnected (reason 0x%02x)\n", reason);
+	APP_LOCK();
+	memset(&connecting_peer_addr[index], 0, sizeof(bt_addr_t));
+	default_conns[index] = NULL;
+	APP_UNLOCK();
 }
 
 static void security_changed(struct bt_conn *conn, bt_security_t level,
 				 enum bt_security_err err)
 {
 	char addr[BT_ADDR_LE_STR_LEN];
+	const bt_addr_t *dst_addr = bt_conn_get_dst_br(conn);
 
-	bt_addr_to_str(bt_conn_get_dst_br(conn), addr, sizeof(addr));
+	if (dst_addr == NULL) {
+		return;
+	}
+
+	bt_addr_to_str(dst_addr, addr, sizeof(addr));
 
 	if (err == BT_SECURITY_ERR_SUCCESS) {
 		PRINTF("Security changed: %s level %u\n", addr, level);
 	} else {
 		PRINTF("Security failed: %s level %u err %d\n", addr, level, err);
 		if (err == BT_SECURITY_ERR_PIN_OR_KEY_MISSING) {
-			bt_addr_le_t addr;
-			struct bt_conn_info info;
 			int ret;
-
-			bt_conn_get_info(conn, &info);
-			if (info.type == BT_CONN_TYPE_LE) {
-				return;
-			}
 
 			PRINTF("The peer device seems to have lost the bonding information.\n");
 			PRINTF("Delete the bonding information of the peer, please try again.\n");
-			addr.type = BT_ADDR_LE_PUBLIC;
-			addr.a = *info.br.dst;
-			ret = bt_unpair(BT_ID_DEFAULT, &addr);
+			ret = bt_br_unpair(dst_addr);
 			if (ret) {
 				PRINTF("fail to delete.\n");
 			} else {
@@ -115,23 +145,63 @@ static void security_changed(struct bt_conn *conn, bt_security_t level,
 
 void app_connect(uint8_t *addr)
 {
-	default_connect_initialized = 1U;
-	memcpy(&default_peer_addr, addr, 6U);
-	default_conn = bt_conn_create_br(&default_peer_addr, BT_BR_CONN_PARAM_DEFAULT);
-	if (default_conn == NULL) {
-		default_connect_initialized = 0U;
+	struct bt_conn *conn;
+	uint8_t addr_idx = 0xFFu;
+
+	APP_LOCK();
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	for (uint8_t idx = 0; idx < CONFIG_BT_MAX_CONN; ++idx) {
+		if (default_conns[idx] == NULL) {
+			memcpy(&connecting_peer_addr[idx], addr, 6U);
+			addr_idx = idx;
+			break;
+		}
+	}
+	
+	if (addr_idx == 0xFFu) {
+		APP_UNLOCK();
+		PRINTF("no connection idle\r\n");
+		return;
+	}
+#else
+	memcpy(&connecting_peer_addr[0], addr, 6U);
+	addr_idx = 0;
+#endif
+
+	default_conns[addr_idx] = NULL;
+	conn = bt_conn_create_br(&connecting_peer_addr[addr_idx], BT_BR_CONN_PARAM_DEFAULT);
+	if (conn == NULL) {
+		memset(&connecting_peer_addr[addr_idx], 0, sizeof(bt_addr_t));
+		APP_UNLOCK();
 		PRINTF("Connection failed\r\n");
 	} else {
+		default_conns[addr_idx] = conn;
+		APP_UNLOCK();
 		/* unref connection obj in advance as app user */
-		bt_conn_unref(default_conn);
+		bt_conn_unref(conn);
 		PRINTF("Connection pending\r\n");
 	}
 }
 
 void app_disconnect(void)
 {
-	if (bt_conn_disconnect(default_conn, 0x13U)) {
-		PRINTF("Disconnection failed\r\n");
+#if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
+	struct bt_conn *conn = NULL;
+
+	for (uint8_t i = 0; i < CONFIG_BT_MAX_CONN; i++) {
+		if (default_conns[i] != NULL) {
+			conn = default_conns[i];
+			break;
+		}
+	}
+#else
+	struct bt_conn *conn = default_conns[0];
+#endif
+
+	if (conn != NULL) {
+		if (bt_conn_disconnect(conn, 0x13U)) {
+			printk("Disconnection failed\r\n");
+		}
 	}
 }
 
