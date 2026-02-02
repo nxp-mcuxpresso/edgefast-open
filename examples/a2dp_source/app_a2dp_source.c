@@ -36,6 +36,7 @@ struct bt_a2dp_app {
 	struct bt_a2dp_ep *sbc_sink_ep;
 	struct bt_a2dp_stream sbc_stream;
 	struct k_work_delayable initiate_stream_work;
+	struct k_work_delayable start_stream_work;
 #if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
 	struct bt_a2dp_codec_sbc_params sbc_params;
 	bool reconfiguring;
@@ -648,8 +649,15 @@ static bool stream_ready_check(void)
 }
 #endif
 
-static void stream_check_and_start(struct bt_a2dp_app *app_a2dp)
+static void start_stream_work_handle(struct k_work *work)
 {
+	struct bt_a2dp_app *app_a2dp =
+		CONTAINER_OF(work, struct bt_a2dp_app, start_stream_work.work);
+
+	if (app_a2dp->a2dp == NULL) {
+		return;
+	}
+
 #if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
 	if (audio_play_check(app_a2dp)) {
 		app_a2dp->ready_start = true;
@@ -664,9 +672,15 @@ static void stream_check_and_start(struct bt_a2dp_app *app_a2dp)
 	}
 #else
 	if (audio_play_check(app_a2dp)) {
-		bt_a2dp_stream_start(stream);
+		bt_a2dp_stream_start(&app_a2dp->sbc_stream);
 	}
 #endif
+}
+
+static void stream_check_and_start(struct bt_a2dp_app *app_a2dp)
+{
+	k_work_init_delayable(&app_a2dp->start_stream_work, start_stream_work_handle);
+	k_work_schedule(&app_a2dp->start_stream_work, K_MSEC(500));
 }
 
 static void sbc_stream_configured(struct bt_a2dp_stream *stream)
