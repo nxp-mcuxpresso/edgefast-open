@@ -33,6 +33,7 @@ extern hal_audio_config_t audioTxConfig;
 extern codec_config_t boardCodecConfig;
 AT_NONCACHEABLE_SECTION_ALIGN(static HAL_AUDIO_HANDLE_DEFINE(audio_tx_handle), 4);
 static codec_handle_t codec_handle;
+static bool codec_initialized;
 
 static QueueHandle_t codec_sem;
 
@@ -72,10 +73,16 @@ void codec_play_configure(uint32_t sample_rate, uint8_t sample_width, uint8_t ch
 	CODEC_SetVolume(&codec_handle, kCODEC_VolumeDAC, A2DP_CODEC_DAC_VOLUME);
 	CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, A2DP_CODEC_HP_VOLUME);
 	CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, false);
+
+	codec_initialized = true;
 }
 
 void codec_play_deconfigure(void)
 {
+	if (!codec_initialized) {
+		return;
+	}
+
 	CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, true);
 	HAL_AudioTxDeinit((hal_audio_handle_t)&audio_tx_handle[0]);
 	(void)BOARD_SwitchAudioFreq(0U);
