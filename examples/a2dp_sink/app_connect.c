@@ -112,7 +112,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level,
 				 enum bt_security_err err)
 {
     char addr[BT_ADDR_LE_STR_LEN];
-	bt_addr_t *dst_addr = bt_conn_get_dst_br(conn);
+	const bt_addr_t *dst_addr = bt_conn_get_dst_br(conn);
 
 	if (dst_addr == NULL) {
 		return;
