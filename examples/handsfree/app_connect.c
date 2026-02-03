@@ -61,7 +61,7 @@ void app_hf_set_connectable(void)
 
     connectable_set = 1U;
 
-    err = bt_br_set_connectable(true);
+    err = bt_br_set_connectable(true, NULL);
     if (err) {
         PRINTF("BR/EDR set/rest connectable failed (err %d)\n", err);
         return;

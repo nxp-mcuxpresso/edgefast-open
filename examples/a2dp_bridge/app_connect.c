@@ -52,14 +52,14 @@ static lfs_file_t lfs_file;
 void app_a2dp_set_connectable(void)
 {
     int err;
-    
+
     if (connectable_set) {
         return;
     }
 
     connectable_set = 1U;
 
-    err = bt_br_set_connectable(true);
+    err = bt_br_set_connectable(true, NULL);
     if (err) {
         PRINTF("BR/EDR set/rest connectable failed (err %d)\n", err);
         return;
@@ -231,7 +231,7 @@ void app_a2dp_snk_auto_connect(void)
 
     memset(&auto_connect_device, 0, sizeof(auto_connect_device));
     bt_br_foreach_bond(bond_info, &valid);
-    
+
     if (valid) {
         struct bt_conn *conn;
 

@@ -365,7 +365,7 @@ static void bt_ready(int err)
     app_connect_init();
     app_discover_init();
 
-    err = bt_br_set_connectable(true);
+    err = bt_br_set_connectable(true, NULL);
     if (err)
     {
         PRINTF("BR/EDR set/rest connectable failed (err %d)\n", err);
