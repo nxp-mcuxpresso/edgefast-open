@@ -100,59 +100,57 @@ struct h4_config {
 static int h4_starting_recv(const struct device *dev, uint8_t *buffer, uint16_t length)
 {
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
-    hal_uart_dma_status_t ret_dma = HAL_UartDMATransferReceive
-    		(
-              (hal_uart_handle_t)hci_uart_handle,
-              buffer,
-              length, true
-    	    );
+	hal_uart_dma_status_t ret_dma = HAL_UartDMATransferReceive(
+		(hal_uart_handle_t)hci_uart_handle,
+		buffer,
+		length, true
+	);
 #else
-    hal_uart_status_t err = HAL_UartReceiveNonBlocking
-          (
-              (hal_uart_handle_t)hci_uart_handle,
-              buffer,
-              length
-          );
+	hal_uart_status_t err = HAL_UartReceiveNonBlocking(
+		(hal_uart_handle_t)hci_uart_handle,
+		buffer,
+		length
+	);
 #endif
 
 #if defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U)
-    if (ret_dma != kStatus_HAL_UartDmaSuccess)
+	if (ret_dma != kStatus_HAL_UartDmaSuccess)
 #else
-    if (err != kStatus_HAL_UartSuccess)
+	if (err != kStatus_HAL_UartSuccess)
 #endif /*defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U)*/
-    {
-        return -EIO;
-    }
-    return 0;
+	{
+		return -EIO;
+	}
+	return 0;
 }
 
 static int h4_uart_sending(uint8_t *buffer, uint32_t len)
 {
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
-    hal_uart_dma_status_t ret_dma = HAL_UartDMATransferSend
-    (
-        (hal_uart_handle_t)hci_uart_handle,
-        buffer,
-        len
-    );
-    if (kStatus_HAL_UartDmaSuccess != ret_dma)
-    {
-        return -EIO;
-    }
+	hal_uart_dma_status_t ret_dma = HAL_UartDMATransferSend
+	(
+		(hal_uart_handle_t)hci_uart_handle,
+		buffer,
+		len
+	);
+	if (kStatus_HAL_UartDmaSuccess != ret_dma)
+	{
+		return -EIO;
+	}
 #else
-    /* Write HCI Packet */
-    hal_uart_status_t err = HAL_UartSendNonBlocking
-    (
-        (hal_uart_handle_t)hci_uart_handle,
-        buffer,
-        len
-    );
-    if (kStatus_HAL_UartSuccess != err)
-    {
-        return -EIO;
-    }
+	/* Write HCI Packet */
+	hal_uart_status_t err = HAL_UartSendNonBlocking
+	(
+		(hal_uart_handle_t)hci_uart_handle,
+		buffer,
+		len
+	);
+	if (kStatus_HAL_UartSuccess != err)
+	{
+		return -EIO;
+	}
 #endif
-    return 0;
+	return 0;
 }
 
 static void h4_reset_rx(const struct device *dev)
@@ -447,7 +445,7 @@ static void process_rx(const struct device *dev, uint8_t *buffer, uint16_t rx_le
 
 static void hci_send(struct h4_data *h4)
 {
-    	int err = 0;
+	int err = 0;
 	k_spinlock_key_t key;
 
 	key = k_spin_lock(&h4->lock);
@@ -458,16 +456,16 @@ static void hci_send(struct h4_data *h4)
 
 	do
 	{
-	    h4->tx.buf = k_fifo_get(&h4->tx.fifo, K_NO_WAIT);
+		h4->tx.buf = k_fifo_get(&h4->tx.fifo, K_NO_WAIT);
 
-	    if (h4->tx.buf != NULL) {
-		    err = h4_uart_sending(h4->tx.buf->data, h4->tx.buf->len);
-		    if (err != 0) {
-			LOG_ERR("Unable to write to UART (err %d)", err);
-			net_buf_unref(h4->tx.buf);
-			h4->tx.buf = NULL;
-		    }
-	    }
+		if (h4->tx.buf != NULL) {
+			err = h4_uart_sending(h4->tx.buf->data, h4->tx.buf->len);
+			if (err != 0) {
+				LOG_ERR("Unable to write to UART (err %d)", err);
+				net_buf_unref(h4->tx.buf);
+				h4->tx.buf = NULL;
+			}
+		}
 	} while (err != 0);
 	k_spin_unlock(&h4->lock, key);
 }

@@ -243,7 +243,9 @@ void *bt_fifo_get(bt_fifo_t *fifo, size_t timeout)
 		}
 	}
 
-	head->next = NULL;
+	if (head != NULL) {
+		head->next = NULL;
+	}
 
 	return head;
 }
