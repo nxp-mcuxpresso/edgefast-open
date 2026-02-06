@@ -8,6 +8,7 @@
 #ifndef __APPL_BROADCAST_MEDIA_SENDER_H_
 #define __APPL_BROADCAST_MEDIA_SENDER_H_
 
+#include <zephyr/bluetooth/audio/bap.h>
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
