@@ -17,14 +17,11 @@
 #include <zephyr/bluetooth/classic/sdp.h>
 #include "clock_config.h"
 #include "board.h"
-// #include "fsl_adapter_audio.h"
-// #include "fsl_codec_common.h"
-// #include "fsl_codec_adapter.h"
 #include "fsl_debug_console.h"
 #include "app_connect.h"
-#include "audio_buf.h"
-// #include "codec_play.h"
+
 #include "zephyr/sys/ring_buffer.h"
+#include <zephyr/bluetooth/sbc.h>
 
 #if 1 /* Code change for bridge. */
 #include "unicast_media_sender.h"
@@ -36,6 +33,16 @@ bt_addr_t a2dp_bdaddr;
 extern int a2dp_audio_sample_rate;
 extern int a2dp_audio_channels;
 extern int a2dp_audio_bits;
+
+RING_BUF_DECLARE(a2dp_ring_buf, 48000 / 100 * 4 * 32);
+/* The PCM data size for one sbc frame
+ * (channel num: 2, sample size: 2, max subband: 8, max block length: 16)
+ */
+#define A2DP_SBC_ONE_FRAME_MAX_SIZE (2 * 2 * 16 * 8)
+static uint16_t pcm_frame_buffer[A2DP_SBC_ONE_FRAME_MAX_SIZE / 2];
+static bool sbc_first_data = true;
+static uint32_t sbc_expected_ts = 0;
+static struct sbc_decoder decoder;
 #endif
 
 #define SAMPLE_BIT_WIDTH (16U)
@@ -127,7 +134,6 @@ void app_a2dp_connect(struct bt_conn *conn)
 static void sbc_stop_play(void)
 {
 	PRINTF("stream stopped\n");
-	// codec_play_stop();
 }
 
 void sbc_stream_configured(struct bt_a2dp_stream *stream)
@@ -139,7 +145,6 @@ void sbc_stream_configured(struct bt_a2dp_stream *stream)
 
 	channel_num = bt_a2dp_sbc_get_channel_num(sbc_config);
 	sample_freq = bt_a2dp_sbc_get_sampling_frequency(sbc_config);
-	// codec_play_configure(sample_freq, SAMPLE_BIT_WIDTH, channel_num);
 
 #if 1 /* Code change for bridge. */
 	a2dp_audio_sample_rate  = sample_freq;
@@ -160,20 +165,15 @@ void sbc_stream_established(struct bt_a2dp_stream *stream)
 void sbc_stream_released(struct bt_a2dp_stream *stream)
 {
 	sbc_stop_play();
-	// codec_play_deconfigure();
 }
 
 void sbc_stream_started(struct bt_a2dp_stream *stream)
 {
 	PRINTF("stream started\n");
-
-	uint32_t sample_freq;
-	struct bt_a2dp_codec_sbc_params *sbc_config = (struct bt_a2dp_codec_sbc_params *)
-						      &sbc_cfg.codec_config->codec_ie[0];
-
-	sample_freq = bt_a2dp_sbc_get_sampling_frequency(sbc_config);
-	audio_buf_reset(sample_freq);
 #if 1 /* Code change for bridge. */
+	sbc_setup_decoder(&decoder);
+	ring_buf_reset(&a2dp_ring_buf);
+	sbc_first_data = true;
 	OSA_SemaphorePost(a2dp_sink_init_done);
 #endif
 }
@@ -186,13 +186,62 @@ void sbc_stream_suspended(struct bt_a2dp_stream *stream)
 void sbc_stream_recv(struct bt_a2dp_stream *stream, struct net_buf *buf, uint16_t seq_num,
 		     uint32_t ts)
 {
-	uint8_t channel_num;
 	struct bt_a2dp_codec_sbc_params *sbc_config = (struct bt_a2dp_codec_sbc_params *)
 						      &sbc_cfg.codec_config->codec_ie[0];
 
-	channel_num = bt_a2dp_sbc_get_channel_num(sbc_config);
+	uint8_t channel_num = bt_a2dp_sbc_get_channel_num(sbc_config);
+	uint8_t sbc_hdr = net_buf_pull_u8(buf);
+	uint8_t num_frames = BT_A2DP_SBC_MEDIA_HDR_NUM_FRAMES_GET(sbc_hdr);
 
-	audio_process_sbc_buf(net_buf_pull_u8(buf), buf->data, buf->len, seq_num, ts, channel_num);
+	/* first handle the ts. */
+	if (sbc_first_data) {
+		sbc_expected_ts = ts;
+		sbc_first_data = false;
+	}
+
+	/* check if there is a gap in the timestamp. */
+	if (ts != sbc_expected_ts) {
+		/* if we have a gap and the ring buffer have enough space, then fill the gap. */
+		if (ts > sbc_expected_ts) {
+			uint32_t gap_samples = ts - sbc_expected_ts;
+			uint32_t gap_bytes = gap_samples * channel_num * (SAMPLE_BIT_WIDTH / 8U);
+
+			if (ring_buf_space_get(&a2dp_ring_buf) >= gap_bytes) {
+				uint8_t zero_buf[4];
+				memset(zero_buf, 0, sizeof(zero_buf));
+				for(int i = 0; i < gap_samples; i++)
+				{
+					ring_buf_put(&a2dp_ring_buf, zero_buf, sizeof(zero_buf));
+				}
+			}
+		}
+		sbc_expected_ts = ts;
+	}
+
+	/* process the sbc frames */
+	uint32_t samples_count = 0;
+	const void *in_data = (void *)buf->data;
+	uint16_t len = buf->len;
+	for(int i = 0; i < num_frames; i++)
+	{
+		size_t out_size = sizeof(pcm_frame_buffer);
+		int err = sbc_decode(&decoder, &in_data, (uint32_t*)&len, pcm_frame_buffer, (uint32_t*)&out_size);
+		if(err == 0)
+		{
+			if(out_size <= ring_buf_space_get(&a2dp_ring_buf))
+			{
+				ring_buf_put(&a2dp_ring_buf, (uint8_t *)pcm_frame_buffer, out_size);
+				samples_count += out_size / (channel_num * (SAMPLE_BIT_WIDTH / 8U));
+			}
+		}
+		else
+		{
+			PRINTF("sbc decode error %d\r\n", err);
+			break;
+		}
+	}
+
+	sbc_expected_ts = ts + samples_count;
 }
 
 static struct bt_a2dp_stream_ops stream_ops = {

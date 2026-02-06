@@ -24,7 +24,6 @@
 #include "le_audio_common.h"
 #include "le_audio_shell.h"
 #include "le_audio_service.h"
-#include "audio_buf.h"
 
 /* Note: this include should be remove once audio api could get bt_iso_chan. */
 #include "audio/bap_endpoint.h"
@@ -54,11 +53,11 @@ static lc3_encoder_mem_48k_t encoder_mem[MAX_AUDIO_CHANNEL_COUNT];
 #include <zephyr/sys/ring_buffer.h>
 int a2dp_sink_audio_frame_size = 0;
 extern void app_audio_streamer_task_signal(void);
-static int ring_buff_read_out_bytes = 0;
 
 int a2dp_audio_sample_rate = 0;
 int a2dp_audio_channels = 0;
 int a2dp_audio_bits = 0;
+extern struct ring_buf a2dp_ring_buf;
 
 #if defined(APP_BRIDGE_UPSAMPLE_441_TO_48) && (APP_BRIDGE_UPSAMPLE_441_TO_48 > 0)
 #include "srCvtFrm.h"
@@ -270,20 +269,22 @@ static int audio_stream_encode(bool mute)
 	/* read one frame samples. */
 	if(!mute)
 	{
-		uint8_t *pcm_data = NULL;
 		uint32_t pcm_len = 0;
 #if defined(APP_BRIDGE_UPSAMPLE_441_TO_48) && (APP_BRIDGE_UPSAMPLE_441_TO_48 > 0)
 		pcm_len = 441 * 4;
 #else
 		pcm_len = lc3_codec_info.samples_per_frame * 4;
 #endif
-		audio_get_pcm_data(&pcm_data, pcm_len);
-		if(pcm_data == NULL)
+		if(ring_buf_size_get(&a2dp_ring_buf) < pcm_len)
 		{
 			return 0;
 		}
-		memcpy(pcm_audio_buff, pcm_data, pcm_len);
-		audio_media_sync(pcm_data, pcm_len);
+		
+		uint32_t ret = ring_buf_get(&a2dp_ring_buf, pcm_audio_buff, pcm_len);
+		if(ret != pcm_len)
+		{
+			return 0;
+		}
 	}
 
 	bits = 16;

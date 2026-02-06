@@ -26,8 +26,6 @@ mcux_add_source(
     middleware/edgefast_open/examples/a2dp_bridge/app_a2dp_sink.h
     middleware/edgefast_open/examples/a2dp_bridge/app_connect.c
     middleware/edgefast_open/examples/a2dp_bridge/app_connect.h
-    middleware/edgefast_open/examples/a2dp_bridge/audio_buf.c
-    middleware/edgefast_open/examples/a2dp_bridge/audio_buf.h
     middleware/edgefast_open/examples/a2dp_bridge/le_audio_common.c
     middleware/edgefast_open/examples/a2dp_bridge/le_audio_common.h
     middleware/edgefast_open/examples/a2dp_bridge/le_audio_service.c
