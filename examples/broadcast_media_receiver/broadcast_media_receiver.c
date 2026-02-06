@@ -364,7 +364,7 @@ static bool bis_cb(const struct bt_bap_base_subgroup_bis *bis, void *user_data)
     enum bt_audio_location chan_allocation;
     int ret;
 
-	bis_index_bitfield |= BIT(bis->index);
+	bis_index_bitfield |= BT_ISO_BIS_INDEX_BIT(bis->index);
 
     /* get bis codec_cfg. */
     ret = bt_bap_base_subgroup_bis_codec_to_codec_cfg(bis, &bis_codec_cfg);
@@ -388,7 +388,7 @@ static bool bis_cb(const struct bt_bap_base_subgroup_bis *bis, void *user_data)
             {
                     bt_audio_codec_cfg_set_chan_allocation(codec_cfg, chan_allocation);
 
-                    requested_bis_sync = BIT(bis->index);
+                    requested_bis_sync = BT_ISO_BIS_INDEX_BIT(bis->index);
 
                     return false;
             }
@@ -399,7 +399,7 @@ static bool bis_cb(const struct bt_bap_base_subgroup_bis *bis, void *user_data)
             {
                     bt_audio_codec_cfg_set_chan_allocation(codec_cfg, chan_allocation);
 
-                    requested_bis_sync = BIT(bis->index);
+                    requested_bis_sync = BT_ISO_BIS_INDEX_BIT(bis->index);
 
                     return false;
             }
