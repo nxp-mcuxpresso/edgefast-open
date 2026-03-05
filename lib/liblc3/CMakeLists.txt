@@ -4,6 +4,10 @@ mcux_add_iar_configuration(
     CC "--diag_suppress=Pa211"
 )
 
+mcux_add_iar_configuration(
+    CC "--diag_suppress=Pa093,Pa092"
+)
+
 zephyr_include_directories(
   ${ZEPHYR_LIBLC3_MODULE_DIR}/include
   ${ZEPHYR_LIBLC3_MODULE_DIR}/src
