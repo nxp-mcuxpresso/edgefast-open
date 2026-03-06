@@ -135,8 +135,8 @@ struct bt_avdtp_media_hdr {
 	uint8_t marker: 1;
 	uint8_t playload_type: 7;
 #endif
-	uint16_t sequence_number;
-	uint32_t time_stamp;
+	uint8_t sequence_number[2];
+	uint8_t time_stamp[4];
 	uint32_t synchronization_source;
 } __packed;
 

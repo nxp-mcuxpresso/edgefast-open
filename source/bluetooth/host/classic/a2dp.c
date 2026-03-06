@@ -439,8 +439,8 @@ static void bt_a2dp_media_data_callback(struct bt_avdtp_sep *sep, struct net_buf
 		return;
 	}
 
-	stream->ops->recv(stream, buf, sys_be16_to_cpu(media_hdr->sequence_number),
-			  sys_be32_to_cpu(media_hdr->time_stamp));
+	stream->ops->recv(stream, buf, sys_get_be16(media_hdr->sequence_number),
+			  sys_get_be32(media_hdr->time_stamp));
 }
 #endif
 
@@ -1348,9 +1348,9 @@ int bt_a2dp_stream_send(struct bt_a2dp_stream *stream, struct net_buf *buf, uint
 	media_hdr->RTP_version = BT_AVDTP_RTP_VERSION;
 	media_hdr->synchronization_source = 0U;
 	/* update time_stamp in the buf */
-	sys_put_be32(ts, (uint8_t *)&media_hdr->time_stamp);
+	sys_put_be32(ts, media_hdr->time_stamp);
 	/* update sequence_number in the buf */
-	sys_put_be16(seq_num, (uint8_t *)&media_hdr->sequence_number);
+	sys_put_be16(seq_num, media_hdr->sequence_number);
 	/* send the buf */
 	return bt_avdtp_send_media_data(&stream->local_ep->sep, buf);
 }
