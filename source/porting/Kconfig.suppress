@@ -1,0 +1,9 @@
+# Copyright 2026 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+config EDGEFAST_OPEN_SUPPRESSED_WARNINGS
+	bool "Suppress compiler warnings for EdgeFast Open stack"
+	default y
+	help
+	  Suppress compiler warnings for EdgeFast Open stack

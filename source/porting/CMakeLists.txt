@@ -36,3 +36,14 @@ if(CONFIG_BT_LOGGING)
 		)
 	endif()
 endif()
+
+if(CONFIG_EDGEFAST_OPEN_SUPPRESSED_WARNINGS)
+	# For liblc3
+	mcux_add_iar_configuration(
+		CC "--diag_suppress=Pa093,Pa092"
+	)
+	# use of a const variable in a constant expression is nonstandard in C
+	mcux_add_iar_configuration(
+		CC "--diag_suppress=Pe1901"
+	)
+endif()
