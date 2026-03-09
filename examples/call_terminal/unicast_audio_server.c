@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 NXP
+ * Copyright 2023-2026 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -110,9 +110,8 @@ struct decoder_t
     lc3_decoder_t decoder[MAX_AUDIO_CHANNEL_COUNT];
     uint8_t* enc_buf_list_in[MAX_AUDIO_CHANNEL_COUNT];
     int32_t* dec_buf_list_out[MAX_AUDIO_CHANNEL_COUNT];
-    uint8_t enc_buf_in[MAX_AUDIO_CHANNEL_COUNT][LC3_MAX_FRAME_BYTES];
-    int16_t dec_buf_out[MAX_AUDIO_CHANNEL_COUNT][LC3_INPUT_FRAME_SIZE_MAX];
     lc3_decoder_mem_16k_t decoder_mem[MAX_AUDIO_CHANNEL_COUNT];
+    int16_t pcm_buf_out[MAX_AUDIO_CHANNEL_COUNT][LC3_INPUT_FRAME_SIZE_MAX];
     sys_snode_t node;
 };
 
@@ -1011,20 +1010,14 @@ static void sink_recv_stream_task(void *param)
             {
                 dec_byte_count[i] = snk_config_cap.frame_bytes;
 
-                if (0 != buf->len)
+                lc3_ret = lc3_decode(connection.snk.decoder.decoder[i], (plc_flag[i]) ? NULL : &in[i * dec_byte_count[i]], dec_byte_count[i],
+                    LC3_PCM_FORMAT_S16, connection.snk.decoder.pcm_buf_out[i], 1);
+                if(lc3_ret == -1)
                 {
-                    lc3_ret = lc3_decode(connection.snk.decoder.decoder[i], (plc_flag[i]) ? NULL : &in[i * dec_byte_count[i]], dec_byte_count[i],
-                        LC3_PCM_FORMAT_S16, connection.snk.in_buffer, 1);
-                    if(lc3_ret == -1)
-                    {
-                        memset(connection.snk.decoder.dec_buf_out[i], 0, sizeof(int32_t) * LC3_INPUT_FRAME_SIZE_MAX);
-                        PRINTF("Fail to decoder stream! %d\n", lc3_ret);
-                    }
+                    memset(connection.snk.decoder.pcm_buf_out[i], 0, sizeof(connection.snk.decoder.pcm_buf_out[i]));
+                    PRINTF("Fail to decoder stream! %d\n", lc3_ret);
                 }
-                else
-                {
-                    memset(connection.snk.decoder.dec_buf_out[i], 0, sizeof(int32_t) * LC3_INPUT_FRAME_SIZE_MAX);
-                }
+
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
                 OSA_ENTER_CRITICAL();
                 if (0 == connection.snk.status.start_slot)
@@ -1063,7 +1056,7 @@ static void sink_recv_stream_task(void *param)
                 srCvtUpdateFreqOffset(&connection.snk.resampler[i].upSrc, update_delta);
 
                 /* resampler */
-                connection.snk.resampler[i].out_length = upCvtFrm(&connection.snk.resampler[i].upSrc, connection.snk.in_buffer, connection.snk.resampler[i].out_buffer);
+                connection.snk.resampler[i].out_length = upCvtFrm(&connection.snk.resampler[i].upSrc, connection.snk.decoder.pcm_buf_out[i], connection.snk.resampler[i].out_buffer);
 
                 output_length += connection.snk.resampler[i].out_length;
                 received_length += (snk_config_cap.frequency * snk_config_cap.duration / 1000000);
@@ -1107,7 +1100,7 @@ static void sink_recv_stream_task(void *param)
             {
                 for(int i = 0; i < snk_config_cap.channel_count; i++)
                 {
-                    pcm[j * snk_config_cap.channel_count + i] = (int16_t)connection.snk.decoder.dec_buf_out[i][j];
+                    pcm[j * snk_config_cap.channel_count + i] = (int16_t)connection.snk.decoder.pcm_buf_out[i][j];
                 }
             }
             tx_len = tx_len * snk_config_cap.channel_count * BITS_RATES_OF_SAMPLE / 8;
