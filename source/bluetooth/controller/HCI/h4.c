@@ -583,7 +583,8 @@ static void hci_uartdma_transmit_cb(hal_uart_dma_handle_t handle, hal_dma_callba
 		process_tx(dev);
 	}
 }
-#endif /* HAL_UART_DMA_ENABLE */
+
+#else
 
 static void hci_uart_transmit_cb(hal_uart_handle_t handle, hal_uart_status_t status, void *userData)
 {
@@ -599,6 +600,8 @@ static void hci_uart_transmit_cb(hal_uart_handle_t handle, hal_uart_status_t sta
 		process_tx(dev);
 	}
 }
+
+#endif /* HAL_UART_DMA_ENABLE */
 
 int __weak controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
 {
