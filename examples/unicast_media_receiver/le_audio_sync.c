@@ -294,7 +294,7 @@ void le_audio_sync_process(frame_packet_t *frame)
             /* calculate the start parameters. */
             /* The other parameters will affect the total system delay. */
             audio_sync_info.system_delay_us = (float)(16 * audio_sync_info.sample_duration_us); /* Resampler have 16 samples delay. */
-            audio_sync_info.system_delay_us += 0.0; /* LC3 delay, here we assume it is zero. */
+            audio_sync_info.system_delay_us += 0.0f; /* LC3 delay, here we assume it is zero. */
             audio_sync_info.system_delay_us += System_Sync_offset(audio_sync_info.sample_rate);
 
             /* Timestamp + Presentation_Delay = Sync_Signal_Index * ISO_interval + BIG_CIG_Sync_Delay + Mute_Audio_Frame_Duration + Sync_Offset + system_delay_us.

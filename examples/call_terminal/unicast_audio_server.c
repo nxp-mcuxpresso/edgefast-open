@@ -1030,7 +1030,7 @@ static void sink_recv_stream_task(void *param)
                     /* Resampler have 16 samples delay. */
                     connection.snk.status.system_delay_us = (float)(connection.info.bits_pre_sample * connection.info.sample_duration_us);
                     /* LC3 decode delay. 0 for default */
-                    connection.snk.status.system_delay_us += 0.0;
+                    connection.snk.status.system_delay_us += 0.0f;
                     /* Addition delay */
                     connection.snk.status.system_delay_us += System_Sync_offset(connection.info.sample_rate);
 

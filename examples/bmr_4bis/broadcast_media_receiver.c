@@ -25,6 +25,8 @@
 #include "le_audio_shell.h"
 #include "broadcast_media_receiver.h"
 
+#include "common/bt_str.h"
+
 #ifndef printk
 #define printk PRINTF
 #endif

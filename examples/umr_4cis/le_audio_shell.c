@@ -24,6 +24,8 @@
 #include "le_audio_shell.h"
 #include "le_audio_service.h"
 
+#include "common/bt_str.h"
+
 #if defined(LE_AUDIO_SYNC_ENABLE) && (LE_AUDIO_SYNC_ENABLE > 0)
 #include "le_audio_sync.h"
 #endif

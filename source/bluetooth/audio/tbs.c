@@ -647,8 +647,8 @@ static bool is_tbs_uri_unique(const char *uri_list, const char *uri_to_search)
 	 * in uri_list.
 	 */
 
-	if ((uri_pos != NULL) && ((uri_pos == uri_list) || (!isalnum(*(uri_pos - 1)))) &&
-	    (!isalnum(*(uri_pos + uri_len)))) {
+	if ((uri_pos != NULL) && ((uri_pos == uri_list) || (!isalnum((unsigned char)*(uri_pos - 1)))) &&
+		(!isalnum((unsigned char)*(uri_pos + uri_len)))) {
 		is_matched = true;
 	}
 
