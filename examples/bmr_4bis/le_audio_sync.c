@@ -113,7 +113,7 @@ typedef struct _audio_sync_pcm {
     int out;
     int count;
 } audio_sync_pcm_t;
-static audio_sync_pcm_t audio_sync_pcm; 
+static audio_sync_pcm_t audio_sync_pcm;
 
 /* Resampler */
 SrCvtFrmCfg_t upSrcCfg[2];
@@ -214,7 +214,7 @@ static void sync_timer_callback(uint32_t sync_index, uint64_t bclk_count)
         /* PI loop. */
         audio_sync_info.fix_i += audio_sync_info.extra_samples_needed;
         audio_sync_info.fix_output = audio_sync_info.fix_kp * audio_sync_info.extra_samples_needed + audio_sync_info.fix_ki * audio_sync_info.fix_i;
-        
+
         //PRINTF("%d, r:%.3f, t:%.3f, d:%8.3fus\n", sync_index, audio_sync_info.i2s_output_samples, ideal_played_samples, audio_sync_info.extra_samples_needed * audio_sync_info.sample_duration_us);
     }
 }
@@ -261,7 +261,7 @@ void le_audio_sync_set(uint32_t iso_interval_us, uint32_t sync_delay_us, uint32_
     audio_sync_info.time_stamp = 0xffffffff; /* This is the invalid value. */
 }
 
-/* 
+/*
 1, start sync.
 2, keep sync.
 3, stop sync.
@@ -294,7 +294,7 @@ void le_audio_sync_process(frame_packet_t *frame)
         {
             /* calculate the start parameters. */
             /* The other parameters will affect the total system delay. */
-            audio_sync_info.system_delay_us = 16 * audio_sync_info.sample_duration_us; /* Resampler have 16 samples delay. */
+            audio_sync_info.system_delay_us = (float)(16 * audio_sync_info.sample_duration_us); /* Resampler have 16 samples delay. */
             audio_sync_info.system_delay_us += 0.0; /* LC3 delay, here we assume it is zero. */
             audio_sync_info.system_delay_us += System_Sync_offset(audio_sync_info.sample_rate);
 
@@ -376,7 +376,7 @@ void le_audio_sync_process(frame_packet_t *frame)
         resampler_samples_out = Resampler(1, (int16_t *)frame->buff[1], resampler_buff[1]);
         audio_sync_info.resampler_added_samples += resampler_samples_out - audio_sync_info.samples_per_frame;
         audio_sync_info.resampler_internal_samples = Resampler_GetFrc(0);
-        
+
         if(audio_sync_pcm.count < PCM_PACKET_COUNT)
         {
             audio_data_make_stereo(resampler_samples_out, 16, (uint8_t *)&resampler_buff[0], (uint8_t *)&resampler_buff[1], (uint8_t *)audio_sync_pcm.pcm_packet[audio_sync_pcm.in].buff);
@@ -411,6 +411,6 @@ void le_audio_sync_info_get(struct sync_info *info)
     info->iso_interval       = audio_sync_info.iso_interval_us;
     info->sync_delay         = audio_sync_info.sync_delay_us;
     info->presentation_delay = audio_sync_info.presentation_delay_us;
-    
+
     info->time_stamp         = audio_sync_info.time_stamp;
 }

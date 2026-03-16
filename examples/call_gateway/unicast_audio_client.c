@@ -1737,7 +1737,7 @@ static void sink_recv_stream_task(void *param)
                         state->info.iso_interval_us = get_iso_interval(state);
 
                         /* Resampler have 16 samples delay. */
-                        state->src[0].status.system_delay_us = state->info.bits_pre_sample * state->info.sample_duration_us;
+                        state->src[0].status.system_delay_us = (float)(state->info.bits_pre_sample * state->info.sample_duration_us);
                         /* LC3 decode delay. 0 for default */
                         state->src[0].status.system_delay_us += 0.0;
                         /* Addition delay */
