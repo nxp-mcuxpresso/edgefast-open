@@ -20,6 +20,8 @@
 #include <zephyr/bluetooth/audio/bap_lc3_preset.h>
 #include <zephyr/bluetooth/audio/pacs.h>
 
+#include "common/bt_str.h"
+
 #include "le_audio_common.h"
 #include "le_audio_shell.h"
 #include "broadcast_media_receiver.h"

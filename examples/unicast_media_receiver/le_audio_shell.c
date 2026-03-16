@@ -15,6 +15,8 @@
 
 #include <zephyr/bluetooth/audio/csip.h>
 
+#include "common/bt_str.h"
+
 #include "fsl_shell.h"
 #include "hw_codec.h"
 
