@@ -125,7 +125,16 @@ a2dp_source:
 a2dp_source@dual:
   section-type: custom_application
   contents:
+    meta_path: middleware/edgefast_open/examples/a2dp_source
+    project-root-path: boards/${board}/edgefast_open_examples/a2dp_source/${multicore_foldername}
     document:
+      name: a2dp_source${core_id_suffix_name}
+      category: edgefast_open_examples/
+      brief: The Edgefast Bluetooth audio source with simplified application.
+      example_readme:
+      - middleware/edgefast_open/examples/a2dp_source/readme.md
+      - middleware/edgefast_open/examples/_boards/${board}/a2dp_source/example_board_readme.md
+      - ${board_root}/${board}/examples_shared_readme.md
       extra_build_args:
       - -DCONFIG_BT_A2DP_SOURCE_DUAL=y
       - -DCONFIG_BT_MAX_CONN=2
