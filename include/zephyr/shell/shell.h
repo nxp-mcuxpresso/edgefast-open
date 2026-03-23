@@ -153,8 +153,10 @@ typedef int (*shell_cmd_handler_t)(const struct shell *sh, size_t argc, char *ar
 		(struct _shell_command *)NULL,				\
 	};
 
+#define SHELL_COMMAND_VARIABLE_NAME(command) _CONCAT(shell_cmd_, command)
+
 #define SHELL_COMMAND_SET_DEFINE(command, cmdList, descriptor, callback, miniArg, addtionArg) \
-    STRUCT_SECTION_ITERABLE(_shell_command, command) = {                                      \
+    STRUCT_SECTION_ITERABLE(_shell_command, SHELL_COMMAND_VARIABLE_NAME(command)) = {         \
         .pcCommand           = (#command),                                                    \
         .pcHelpString        = (char *)(descriptor),                                          \
         .pFuncCallBack       = (callback),                                                    \
