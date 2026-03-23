@@ -24,6 +24,7 @@
 #include "le_audio_common.h"
 #include "le_audio_shell.h"
 #include "le_audio_service.h"
+#include "unicast_media_sender.h"
 
 /* Note: this include should be remove once audio api could get bt_iso_chan. */
 #include "audio/bap_endpoint.h"
