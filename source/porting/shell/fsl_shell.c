@@ -514,8 +514,8 @@ void SHELL_Task(shell_handle_t shellHandle)
                         echo_buffer[sizeof(shellContextHandle->line) + 1] = 0U;
                         echo_buffer[sizeof(shellContextHandle->line) + 2] = 0U;
                         memcpy(echo_buffer, shellContextHandle->line, sizeof(shellContextHandle->line));
-                        memcpy(&echo_buffer[strlen(echo_buffer)], "\r\n", 2);
-                        (void)SHELL_Write(shellContextHandle, (char *)echo_buffer, strlen(echo_buffer));
+                        memcpy(&echo_buffer[strlen((char *)echo_buffer)], "\r\n", 2);
+                        (void)SHELL_Write(shellContextHandle, (char *)echo_buffer, strlen((char *)echo_buffer));
 #else
                         (void)SHELL_Write(shellContextHandle, (char *)"\r\n", 2);
 #endif

@@ -44,6 +44,17 @@ static AT_NONCACHEABLE_SECTION_ALIGN(uint8_t h4_hci_recv_buffer[HCI_UART_RECV_BU
 struct h4_data {
 	struct k_spinlock       lock;
 
+	bt_hci_recv_t recv;
+        	struct
+	{
+		struct net_buf     *buf;
+		struct k_fifo       fifo;
+
+		struct k_sem        ready;
+
+		uint8_t             type;
+	} tx;
+
 	struct
 	{
 		struct net_buf     *buf;
@@ -62,6 +73,8 @@ struct h4_data {
 		uint8_t             hdr_len;
 
 		uint8_t             type;
+
+		struct net_buf_simple *hci_buffer;
 		union
 		{
 			struct bt_hci_acl_hdr    acl;
@@ -70,21 +83,7 @@ struct h4_data {
 			struct bt_hci_iso_hdr    iso;
 			uint8_t                  hdr[4];
 		};
-
-		struct net_buf_simple *hci_buffer;
 	} rx;
-
-	struct
-	{
-		struct net_buf     *buf;
-		struct k_fifo       fifo;
-
-		struct k_sem        ready;
-
-		uint8_t             type;
-	} tx;
-
-	bt_hci_recv_t recv;
 };
 
 struct h4_config {

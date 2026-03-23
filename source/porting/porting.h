@@ -15,8 +15,6 @@
 
 #include "system_c.h"
 
-#include "common/bt_str.h"
-
 #include <zephyr/linker/section_tags.h>
 
 #include <zephyr/settings/settings.h>

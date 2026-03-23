@@ -265,11 +265,6 @@ void k_thread_system_pool_assign(struct k_thread *thread)
 }
 #endif /* (CONFIG_HEAP_MEM_POOL_SIZE > 0) */
 
-static k_ticks_t k_thread_get_tick(void)
-{
-    return (k_ticks_t)k_uptime_ticks();
-}
-
 /**
  * @brief Sleep until a thread exits
  *
@@ -292,7 +287,7 @@ static k_ticks_t k_thread_get_tick(void)
 int k_thread_join(struct k_thread *thread, k_timeout_t timeout)
 {
     eTaskState state;
-    int ret;
+    int ret = 0;
     uint32_t current;
     uint32_t start = k_uptime_get_32();
 
