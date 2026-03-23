@@ -29,6 +29,7 @@
 #include "app_sco_bridge.h"
 #include "app_connect.h"
 #include "app_shell.h"
+#include "app_discover.h"
 
 #define APP_CLASS_OF_DEVICE (0x200408U)
 
