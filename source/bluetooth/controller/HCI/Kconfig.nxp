@@ -13,6 +13,7 @@ config HCI_NXP_SET_CAL_DATA
 config HCI_NXP_SET_CAL_DATA_ANNEX100
 	bool "Bluetooth Controller calibration data annex 100"
 	default y if BT_NXP_NW612 || BT_NXP_IW416
+	depends on HCI_NXP_SET_CAL_DATA
 	help
 	  If enabled, the Host will send calibration data annex 100 to the Bluetooth Controller during HCI
 	  init.

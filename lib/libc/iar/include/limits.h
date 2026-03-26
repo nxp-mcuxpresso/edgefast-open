@@ -9,14 +9,8 @@
 
 #include_next <limits.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+#ifndef PATH_MAX
 #define PATH_MAX 256
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* ZEPHYR_LIB_LIBC_IAR_INCLUDE_LIMITS_H_ */

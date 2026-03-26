@@ -31,12 +31,12 @@
 #include <zephyr/settings/settings.h>
 #include <zephyr/sys/__assert.h>
 #include <zephyr/sys/atomic.h>
+#include <zephyr/sys/clock.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/sys/util_macro.h>
 #include <zephyr/sys_clock.h>
 #include <zephyr/types.h>
 #include <zephyr/sys/byteorder.h>
-#include <zephyr/sys/check.h>
 
 #include "../host/conn_internal.h"
 #include "../host/keys.h"
@@ -1039,12 +1039,12 @@ int bt_csip_set_member_register(const struct bt_csip_set_member_register_param *
 	struct bt_csip_set_member_svc_inst *inst;
 	int err;
 
-	CHECKIF(param == NULL) {
+	if (param == NULL) {
 		LOG_DBG("NULL param");
 		return -EINVAL;
 	}
 
-	CHECKIF(!valid_register_param(param)) {
+	if (!valid_register_param(param)) {
 		LOG_DBG("Invalid parameters");
 		return -EINVAL;
 	}
@@ -1125,7 +1125,7 @@ int bt_csip_set_member_unregister(struct bt_csip_set_member_svc_inst *svc_inst)
 {
 	int err;
 
-	CHECKIF(svc_inst == NULL) {
+	if (svc_inst == NULL) {
 		LOG_DBG("NULL svc_inst");
 		return -EINVAL;
 	}
@@ -1160,12 +1160,12 @@ int bt_csip_set_member_unregister(struct bt_csip_set_member_svc_inst *svc_inst)
 int bt_csip_set_member_sirk(struct bt_csip_set_member_svc_inst *svc_inst,
 			    const uint8_t sirk[BT_CSIP_SIRK_SIZE])
 {
-	CHECKIF(svc_inst == NULL) {
+	if (svc_inst == NULL) {
 		LOG_DBG("NULL svc_inst");
 		return -EINVAL;
 	}
 
-	CHECKIF(sirk == NULL) {
+	if (sirk == NULL) {
 		LOG_DBG("NULL SIRK");
 		return -EINVAL;
 	}

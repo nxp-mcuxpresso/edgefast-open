@@ -43,6 +43,12 @@ if(CONFIG_EDGEFAST_OPEN_SUPPRESSED_WARNINGS)
 		CC "--diag_suppress=Pa093,Pa092"
 	)
 
+	# Error[Pa039]: use of address of unaligned structure member
+	# sys_put_be16(seq_num, (uint8_t *)&media_hdr->sequence_number);
+	mcux_add_iar_configuration(
+		CC "--diag_suppress=Pa039"
+	)
+
 	mcux_add_iar_configuration(
 		CC "--diag_suppress=Pa134"
 	)

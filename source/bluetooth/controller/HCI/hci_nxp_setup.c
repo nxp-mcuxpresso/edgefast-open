@@ -981,6 +981,15 @@ static int fw_upload_v1_send_data(uint16_t len)
 		len = fw_upload.fw_length - fw_upload.current_length;
 	}
 
+	__ASSERT(sizeof(fw_upload.send_buffer) >= len, "V1: Out of sending buffer range (%u < %u)",
+		 sizeof(fw_upload.send_buffer), len);
+
+	if (sizeof(fw_upload.send_buffer) < len) {
+		LOG_ERR("V1: Out of sending buffer range (%u < %u)", sizeof(fw_upload.send_buffer),
+			len);
+		return -ENOMEM;
+	}
+
 	memcpy(fw_upload.send_buffer, fw_upload.fw + fw_upload.current_length, len);
 	fw_upload.current_length += len;
 	cmd = sys_get_le32(fw_upload.send_buffer);
@@ -1031,6 +1040,16 @@ static int fw_upload_v3_send_data(void)
 	if ((fw_upload.length + start) > fw_upload.fw_length) {
 		fw_upload.length = fw_upload.fw_length - start;
 	}
+	__ASSERT(sizeof(fw_upload.send_buffer) >= fw_upload.length,
+		 "V3: Out of sending buffer range (%u < %u)", sizeof(fw_upload.send_buffer),
+		 fw_upload.length);
+
+	if (sizeof(fw_upload.send_buffer) < fw_upload.length) {
+		LOG_ERR("V3: Out of sending buffer range (%u < %u)", sizeof(fw_upload.send_buffer),
+			fw_upload.length);
+		return -ENOMEM;
+	}
+
 	memcpy(fw_upload.send_buffer, fw_upload.fw + start, fw_upload.length);
 	fw_upload.current_length = start + fw_upload.length;
 
@@ -1463,12 +1482,14 @@ static int bt_hci_baudrate_update(const struct device *dev, uint32_t baudrate)
 
 extern int bt_hci_reinit(const struct device *dev, bool default_speed, bool flow_control);
 
-int bt_h4_vnd_setup(const struct device *dev)
+int bt_h4_vnd_setup(const struct device *dev, const struct bt_hci_setup_params *params)
 {
 	int err;
 	uint32_t default_speed;
 	uint32_t operation_speed;
 	bool flowcontrol_of_hci;
+
+	ARG_UNUSED(params);
 
 	if (dev != uart_dev) {
 		return -EINVAL;
