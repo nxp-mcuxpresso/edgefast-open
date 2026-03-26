@@ -15,8 +15,10 @@
  * @ingroup mutex_apis
  */
 struct k_mutex {
-	SemaphoreHandle_t mutex;\
+	SemaphoreHandle_t mutex;
 	StaticSemaphore_t mutex_buffer;
+	/** Current lock count */
+	uint32_t lock_count;
 
 	SYS_PORT_TRACING_TRACKING_FIELD(k_mutex)
 };

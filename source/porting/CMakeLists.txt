@@ -60,41 +60,49 @@ if(CONFIG_EDGEFAST_OPEN_SUPPRESSED_WARNINGS)
 
 	mcux_add_armgcc_configuration(
 		CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
-                CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
+		CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
 	)
 
-        #struct bt_hfp_hf *hf = CONTAINER_OF(hf_at, struct bt_hfp_hf, at);
-        #LOG_DBG("CMEE set (result %d) on %p", result, hf);
-        #The code has no warning because the LOG sys in zephyr can use the variable.
+	#struct bt_hfp_hf *hf = CONTAINER_OF(hf_at, struct bt_hfp_hf, at);
+	#LOG_DBG("CMEE set (result %d) on %p", result, hf);
+	#The code has no warning because the LOG sys in zephyr can use the variable.
 	mcux_add_armgcc_configuration(
 		CC "-Wno-unused-variable -Wno-unused-function"
-                CX "-Wno-unused-variable -Wno-unused-function"
+		CX "-Wno-unused-variable -Wno-unused-function"
 	)
 
 	# tbs.c:650:70: error: array subscript has type 'char' [-Werror=char-subscripts]
-        mcux_add_armgcc_configuration(
-                CC "-Wno-char-subscripts"
-                CX "-Wno-char-subscripts"
-        )
+	mcux_add_armgcc_configuration(
+		CC "-Wno-char-subscripts"
+		CX "-Wno-char-subscripts"
+	)
 
-        mcux_add_mdk_configuration(
-                CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
-                CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
-        )
+	mcux_add_mdk_configuration(
+		CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
+		CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
+	)
 
 	mcux_add_mdk_configuration(
 		CC "-Wno-unused-variable -Wno-unused-function"
-                CX "-Wno-unused-variable -Wno-unused-function"
+		CX "-Wno-unused-variable -Wno-unused-function"
 	)
 
-        mcux_add_mdk_configuration(
-                CC "-Wno-char-subscripts"
-                CX "-Wno-char-subscripts"
-        )
+	mcux_add_mdk_configuration(
+		CC "-Wno-char-subscripts"
+		CX "-Wno-char-subscripts"
+	)
 
-        #att_internal.h:345:16 typedef void (*bt_gatt_complete_func_t) (struct bt_conn *conn, void *user_data);
+	#att_internal.h:345:16 typedef void (*bt_gatt_complete_func_t) (struct bt_conn *conn, void *user_data);
 	mcux_add_mdk_configuration(
 		CC "-Wno-typedef-redefinition"
 		CX "-Wno-typedef-redefinition"
+	)
+
+	# tester/src/btp_hfp_ag.c:1689:19: result of comparison of constant 256 with expression of
+	# type 'const uint8_t' (aka 'const unsigned char') is always false
+	# if (cp->text_len >= sizeof(text)) {
+	mcux_add_mdk_configuration(
+		CC "-Wno-tautological-constant-out-of-range-compare"
+		CX "-Wno-tautological-constant-out-of-range-compare"
 	)
 endif()

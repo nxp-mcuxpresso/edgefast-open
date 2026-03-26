@@ -10,6 +10,8 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <string.h>
+#include <strings.h>
 
 #include "FreeRTOS.h"
 #include "semphr.h"
