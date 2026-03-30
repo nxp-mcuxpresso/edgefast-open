@@ -1108,27 +1108,23 @@ static void call_server_task(void* parm)
     }
 }
 
-#define URI_LIST_LEN	2
-
-static const char *uri_list[URI_LIST_LEN] = {"skype", "tel"};
-
 int call_server_init(shell_handle_t shellHandle)
 {
-    int err = -1;
+	int err = -EINVAL;
 
-    s_shellHandle = shellHandle;
+	s_shellHandle = shellHandle;
 
-    if (xTaskCreate(call_server_task, "call_server_task", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, NULL) != pdPASS)
-    {
-        PRINTF("Fail to create call server task!\r\n");
-        return err;
-    }
+	if (xTaskCreate(call_server_task, "call_server_task", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, NULL) != pdPASS)
+	{
+		PRINTF("Fail to create call server task!\r\n");
+		return err;
+	}
 
-    if(KOSA_StatusSuccess != OSA_SemaphoreCreate((osa_semaphore_handle_t)semHandle, 0))
-    {
-        PRINTF("Fail to create call server semaphore!\r\n");
-        return err;
-    }
+	if(KOSA_StatusSuccess != OSA_SemaphoreCreate((osa_semaphore_handle_t)semHandle, 0))
+	{
+		PRINTF("Fail to create call server semaphore!\r\n");
+		return err;
+	}
 
 	const struct bt_tbs_register_param gtbs_param = {
 		.provider_name = "Generic TBS",
@@ -1137,7 +1133,7 @@ int call_server_init(shell_handle_t shellHandle)
 		.gtbs = true,
 		.authorization_required = false,
 		.technology = BT_TBS_TECHNOLOGY_3G,
-		.supported_features = CONFIG_BT_TBS_SUPPORTED_FEATURES,
+		.supported_features = BT_TBS_FEATURE_ALL,
 	};
 
 	err = bt_tbs_register_bearer(&gtbs_param);
@@ -1146,14 +1142,14 @@ int call_server_init(shell_handle_t shellHandle)
 		return -ENOEXEC;
 	}
 
-    const struct bt_tbs_register_param tbs_param = {
+	const struct bt_tbs_register_param tbs_param = {
 		.provider_name = "TBS",
 		.uci = "un001",
 		.uri_schemes_supported = "tel",
 		.gtbs = false,
 		.authorization_required = false,
 		.technology = BT_TBS_TECHNOLOGY_3G,
-		.supported_features = CONFIG_BT_TBS_SUPPORTED_FEATURES,
+		.supported_features = BT_TBS_FEATURE_ALL,
 	};
 
 	err = bt_tbs_register_bearer(&tbs_param);
@@ -1162,11 +1158,11 @@ int call_server_init(shell_handle_t shellHandle)
 		return -ENOEXEC;
 	}
 
-    bt_tbs_register_cb(&app_tbs_cb);
+	bt_tbs_register_cb(&app_tbs_cb);
 
-	err = bt_tbs_set_uri_scheme_list(BT_TBS_GTBS_INDEX, (const char **)&uri_list, URI_LIST_LEN);
+	err = bt_tbs_set_uri_scheme_list(BT_TBS_GTBS_INDEX, "tel");
 
-    bt_conn_cb_register(&conn_callbacks);
+	bt_conn_cb_register(&conn_callbacks);
 
     return 0;
 }
