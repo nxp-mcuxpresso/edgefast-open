@@ -219,20 +219,28 @@ static uint8_t *a2dp_produce_media(uint32_t samples_num)
 		}
 	} else {
 		if ((media_index + (samples_num << 2)) > sizeof(media_data)) {
+			uint32_t remaining_samples = samples_num;
+			uint8_t *media_dst;
+
 			media = (uint8_t *)&a2dp_pcm_buffer[0];
 			if (medialen > sizeof(a2dp_pcm_buffer)) {
 				PRINTF("need increase a2dp_pcm_buffer\n");
 				return NULL;
 			}
 
-			memcpy(media, ((uint8_t *)media_data + media_index),
-				sizeof(media_data) - media_index);
-			memcpy(&media[sizeof(media_data) - media_index],
-				((uint8_t *)media_data),
-				((samples_num << 2) - (sizeof(media_data) - media_index)));
-			/* Update the media index */
-			media_index = ((samples_num << 2) -
-				(sizeof(media_data) - media_index));
+			media_dst = media;
+			while (remaining_samples > 0) {
+				uint32_t samples_to_copy = MIN(remaining_samples, (sizeof(media_data) - media_index) >> 2);
+
+				memcpy(media_dst, ((uint8_t *)media_data + media_index), samples_to_copy << 2);
+				/* Update the media index */
+				media_index += (samples_to_copy << 2);
+				if (media_index >= sizeof(media_data)) {
+					media_index = 0U;
+				}
+				media_dst += (samples_to_copy << 2);
+				remaining_samples -= samples_to_copy;
+			}
 		} else {
 			media = ((uint8_t *)media_data + media_index);
 			/* Update the media index */
