@@ -1,0 +1,225 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2026-04-01T10:01:52Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.26"
+  },
+  "name": "mcux-sdk-middleware-edgefast-open-v1.0.0",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://nxp.com/spdx/a5aa9c9c-468d-46f8-892c-526e31d76dcf",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf",
+      "name": "mcux-sdk-middleware-edgefast-open",
+      "versionInfo": "v1.0.0",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/mcux-sdk-middleware-edgefast-open",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---6860d35e-9d89-4b6d-b8bb-33d8caf5250a",
+      "name": "FreeRTOS Real Time Kernel",
+      "versionInfo": "V11.1.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://sourceforge.net/projects/freertos",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: freertos",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "787ec417-16a8-4a84-90a3-166358ca5713",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:amazon:aws-freertos-kernel:11.1.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:amazon:freertos:11.1.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:o:amazon:freertos:11.1.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:github/freertos/freertos-kernel@V11.1.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---7381f2a3-ace4-497b-9b5e-3f5a157e7475",
+      "name": "google/liblc3",
+      "versionInfo": "v1.1.3",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://github.com/google/liblc3",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: opensuse",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "ff1d46b8-2c14-45fa-b05e-4a9cee39ec06",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/opensuse/liblc3-debugsource@1.1.3-1.1?arch=aarch64",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---fea2dbed-9f9b-4b25-92a4-808a7bec9a49",
+      "name": "mbed TLS",
+      "versionInfo": "v3.6.4",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://www.trustedfirmware.org/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: mbed TLS",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:arm:mbed_tls:3.6.4:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:mbed:mbedtls:3.6.4:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:o:arm:mbed_tls:3.6.4:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---64070398-cf5f-410d-8483-da858dbee5fa",
+      "name": "platform-packages-modules-Bluetooth",
+      "versionInfo": "android-15.0.0_r5",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://android.googlesource.com/platform/packages/modules/Bluetooth",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: android",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "0de7bf2b-1db5-4cb3-9a03-0a202d04eee8",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---be99128f-7f08-4b6e-89b4-e46c4bea4c2c",
+      "name": "zephyr",
+      "versionInfo": "v4.4.0-rc1",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://zephyrproject.org/doc",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: zephyrproject-rtos",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "34241c7a-cc5c-4aff-ae65-49c9fd1ae454",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:zephyrproject:zephyr:4.4.0:rc1:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:zephyrproject_rtos:zephyr:4.4.0:rc1:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:o:zephyrproject:zephyr:4.4.0:rc1:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:github/zephyrproject-rtos/zephyr@v4.4.0-rc1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---64070398-cf5f-410d-8483-da858dbee5fa"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---6860d35e-9d89-4b6d-b8bb-33d8caf5250a"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---6860d35e-9d89-4b6d-b8bb-33d8caf5250a"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---7381f2a3-ace4-497b-9b5e-3f5a157e7475"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---7381f2a3-ace4-497b-9b5e-3f5a157e7475"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---be99128f-7f08-4b6e-89b4-e46c4bea4c2c"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---be99128f-7f08-4b6e-89b4-e46c4bea4c2c"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-a5aa9c9c-468d-46f8-892c-526e31d76dcf---fea2dbed-9f9b-4b25-92a4-808a7bec9a49"
+    }
+  ]
+}
