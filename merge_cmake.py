@@ -1193,18 +1193,126 @@ def replace_conditions_in_cmake(cmake_path, output_path=None, ignore_list=None):
 
     return replacements
 
-def generate_kconfig_file(replacements, output_path):
+def _infer_kconfig_symbol_type_from_lines(lines, symbol_name):
+    """Infer the type of a Kconfig symbol from a list of lines.
+
+    Returns one of: "bool", "tristate", "int", "hex", "string", or None.
+
+    Notes:
+      - We look for a `config <symbol_name>` block and then scan until the next
+        `config`/`menuconfig`/`choice`/`endchoice`/`endif`/`endmenu`.
+      - We detect a type line like: `bool`, `int`, `hex`, `string`, `tristate`
+        possibly preceded by indentation and/or followed by a prompt.
     """
-    Generate Kconfig.ecosystem file
+    in_block = False
+
+    # Block-termination keywords at indentation level 0 typically, but keep it simple.
+    block_end_re = re.compile(r"^\s*(config|menuconfig|choice|endchoice|endif|endmenu)\b")
+    config_re = re.compile(r"^\s*(config|menuconfig)\s+([A-Za-z0-9_]+)\b")
+    type_re = re.compile(r"^\s*(bool|tristate|int|hex|string)\b")
+
+    for raw in lines:
+        line = raw.strip('\n')
+
+        m = config_re.match(line)
+        if m:
+            name = m.group(2)
+            if in_block:
+                # Starting a new config block => previous block ended.
+                return None
+            if name == symbol_name:
+                in_block = True
+                continue
+
+        if not in_block:
+            continue
+
+        # If we hit a new top-level block marker, stop scanning.
+        if block_end_re.match(line):
+            return None
+
+        tm = type_re.match(line)
+        if tm:
+            return tm.group(1)
+
+    return None
+
+
+def infer_kconfig_symbol_type(symbol_name, search_roots):
+    """Search Kconfig files under `search_roots` and infer `symbol_name` type.
 
     Args:
-        replacements: Condition replacement mapping {original condition: new condition}
-        output_path: Output Kconfig.ecosystem file path
+        symbol_name: Kconfig symbol without CONFIG_ prefix (e.g. "BT_RX_PRIO")
+        search_roots: iterable of directory/file paths (relative to workspace)
+
+    Returns:
+        One of: "bool", "tristate", "int", "hex", "string", or None.
+    """
+    # Build candidate file list.
+    kconfig_files = []
+    for root in search_roots:
+        p = Path(root)
+        if p.is_file():
+            kconfig_files.append(p)
+        elif p.is_dir():
+            for file in p.rglob('Kconfig*'):
+                if file.is_file():
+                    kconfig_files.append(file)
+
+    # Stable ordering for deterministic output.
+    kconfig_files = sorted(set(kconfig_files), key=lambda x: str(x).lower())
+
+    for path in kconfig_files:
+        try:
+            text = path.read_text(encoding='utf-8', errors='ignore')
+        except Exception:
+            continue
+
+        # Fast prefilter
+        if f"config {symbol_name}" not in text and f"menuconfig {symbol_name}" not in text:
+            continue
+
+        t = _infer_kconfig_symbol_type_from_lines(text.splitlines(True), symbol_name)
+        if t:
+            return t
+
+    return None
+
+
+def _kconfig_def_directive_for_type(kconfig_type):
+    """Map Kconfig type to appropriate `def_*` directive."""
+    if kconfig_type in (None, "bool", "tristate"):
+        return "def_bool"
+    if kconfig_type == "int":
+        return "def_int"
+    if kconfig_type == "hex":
+        return "def_hex"
+    if kconfig_type == "string":
+        return "def_string"
+    # Fallback
+    return "def_bool"
+
+
+def generate_kconfig_file(replacements, output_path):
+    """Generate Kconfig.ecosystem file.
+
+    Enhancements:
+      - Infers original Zephyr Kconfig symbol type (bool/int/hex/string/...) from
+        Kconfig sources under this repository, and emits `def_*` accordingly.
     """
     output_path = Path(output_path).resolve()
 
     # Remove read-only attribute for modification
     remove_readonly(output_path)
+
+    # Where to look for symbol definitions in this repo
+    kconfig_search_roots = [
+        "Kconfig",
+        "Kconfig.defconfig",
+        "source",
+        "lib",
+        "include",
+    ]
 
     kconfig_lines = []
 
@@ -1229,6 +1337,8 @@ def generate_kconfig_file(replacements, output_path):
     kconfig_lines.append("# Each configuration maps to a corresponding Zephyr configuration option")
     kconfig_lines.append("")
 
+    type_cache = {}
+
     # Generate Kconfig configuration for each condition
     for old_condition, new_condition in replacements.items():
         # Get Kconfig config name (without CONFIG_ prefix)
@@ -1237,9 +1347,17 @@ def generate_kconfig_file(replacements, output_path):
         # Get original condition name (without CONFIG_ prefix)
         original_name = old_condition[7:]  # Remove "CONFIG_"
 
+        if original_name not in type_cache:
+            type_cache[original_name] = infer_kconfig_symbol_type(original_name, kconfig_search_roots)
+
+        kconfig_type = type_cache[original_name]
+        def_directive = _kconfig_def_directive_for_type(kconfig_type)
+
         # Generate Kconfig configuration
         kconfig_lines.append(f"config {kconfig_name}")
-        kconfig_lines.append(f"    def_bool {original_name}")
+        if kconfig_type:
+            kconfig_lines.append(f"    # Original type: {kconfig_type}")
+        kconfig_lines.append(f"    {def_directive} {original_name}")
         kconfig_lines.append("")
 
     # Write file
@@ -1262,8 +1380,12 @@ def generate_kconfig_file(replacements, output_path):
         for i, (old_condition, new_condition) in enumerate(list(replacements.items())[:10]):
             kconfig_name = convert_config_name_to_kconfig(old_condition)
             original_name = old_condition[7:]
+            kconfig_type = type_cache.get(original_name)
+            def_directive = _kconfig_def_directive_for_type(kconfig_type)
             print(f"  config {kconfig_name}")
-            print(f"      def_bool {original_name}")
+            if kconfig_type:
+                print(f"      # Original type: {kconfig_type}")
+            print(f"      {def_directive} {original_name}")
             print()
 
     # Set file to read-only
@@ -1295,8 +1417,8 @@ if __name__ == "__main__":
 
     # 3.1: Extract and replace conditions
     print("\n3.1: Extract and replace conditions in CMakeLists.txt...")
-    ignore_list = ['CONFIG_BT_RX_PRIO']
-    replacements = replace_conditions_in_cmake(output_file, ignore_list=ignore_list)
+    # Type-aware Kconfig generation now supports non-bool configs like CONFIG_BT_RX_PRIO.
+    replacements = replace_conditions_in_cmake(output_file, ignore_list=[])
 
     # 3.2: Generate Kconfig.ecosystem file
     print("\n3.2: Generate Kconfig.ecosystem file...")

@@ -18,78 +18,102 @@
 # Each configuration maps to a corresponding Zephyr configuration option
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt
+    # Original type: bool
     def_bool BT
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_rpa
+    # Original type: bool
     def_bool BT_RPA
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_private_shell
+    # Original type: bool
     def_bool BT_PRIVATE_SHELL
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hci
+    # Original type: bool
     def_bool BT_HCI
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hci_raw
+    # Original type: bool
     def_bool BT_HCI_RAW
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_monitor
+    # Original type: bool
     def_bool BT_MONITOR
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_settings
+    # Original type: bool
     def_bool BT_SETTINGS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_host_ccm
+    # Original type: bool
     def_bool BT_HOST_CCM
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_long_wq
+    # Original type: bool
     def_bool BT_LONG_WQ
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host
+    # Original type: bool
     def_bool BT_HCI_HOST
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_broadcaster
+    # Original type: bool
     def_bool BT_BROADCASTER
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_observer
+    # Original type: bool
     def_bool BT_OBSERVER
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_host_crypto
+    # Original type: bool
     def_bool BT_HOST_CRYPTO
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ecc
+    # Original type: bool
     def_bool BT_ECC
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_conn
+    # Original type: bool
     def_bool BT_CONN
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_gatt_gap_svc_validate
+    # Original type: bool
     def_bool BT_GATT_GAP_SVC_VALIDATE
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_smp
+    # Original type: bool
     def_bool BT_SMP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_iso
+    # Original type: bool
     def_bool BT_ISO
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_channel_sounding
+    # Original type: bool
     def_bool BT_CHANNEL_SOUNDING
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_df
+    # Original type: bool
     def_bool BT_DF
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_smp_log_level_dbg
     def_bool BT_SMP_LOG_LEVEL_DBG
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_fixed_passkey
+    # Original type: bool
     def_bool BT_FIXED_PASSKEY
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_oob_data_fixed
+    # Original type: bool
     def_bool BT_OOB_DATA_FIXED
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_use_debug_keys
+    # Original type: bool
     def_bool BT_USE_DEBUG_KEYS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_conn_disable_security
+    # Original type: bool
     def_bool BT_CONN_DISABLE_SECURITY
 
 config MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm
@@ -99,51 +123,67 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_mesh
     def_bool BT_MESH
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_classic
+    # Original type: bool
     def_bool BT_CLASSIC
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_a2dp
+    # Original type: bool
     def_bool BT_A2DP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_avdtp
+    # Original type: bool
     def_bool BT_AVDTP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp
+    # Original type: bool
     def_bool BT_AVRCP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_avctp
+    # Original type: bool
     def_bool BT_AVCTP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_rfcomm
+    # Original type: bool
     def_bool BT_RFCOMM
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bip
+    # Original type: bool
     def_bool BT_BIP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_hf
+    # Original type: bool
     def_bool BT_HFP_HF
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_ag
+    # Original type: bool
     def_bool BT_HFP_AG
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_goep
+    # Original type: bool
     def_bool BT_GOEP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_did
+    # Original type: bool
     def_bool BT_DID
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp_ct_cover_art
+    # Original type: bool
     def_bool BT_AVRCP_CT_COVER_ART
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_shell
+    # Original type: bool
     def_bool BT_SHELL
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp_tg_cover_art
+    # Original type: bool
     def_bool BT_AVRCP_TG_COVER_ART
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_l2cap_dynamic_channel
+    # Original type: bool
     def_bool BT_L2CAP_DYNAMIC_CHANNEL
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_h4
+    # Original type: bool
     def_bool BT_H4
 
 config MCUX_COMPONENT_middleware.edgefast_open.build_only_no_blobs
@@ -162,36 +202,46 @@ config MCUX_COMPONENT_middleware.edgefast_open.dt_has_renesas_bt_hci_da1469x_ena
     def_bool DT_HAS_RENESAS_BT_HCI_DA1469X_ENABLED
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ambiq_hci
+    # Original type: bool
     def_bool BT_AMBIQ_HCI
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_cyw208xx
+    # Original type: bool
     def_bool BT_CYW208XX
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_cyw43xx
     def_bool BT_CYW43XX
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_da1453x
+    # Original type: bool
     def_bool BT_DA1453X
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_da1469x
+    # Original type: bool
     def_bool BT_DA1469X
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_esp32
+    # Original type: bool
     def_bool BT_ESP32
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr
+    # Original type: bool
     def_bool BT_H4_NXP_CTLR
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_h5
+    # Original type: bool
     def_bool BT_H5
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hci_ipc
+    # Original type: bool
     def_bool BT_HCI_IPC
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_nxp
+    # Original type: bool
     def_bool BT_NXP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_psoc6_bless
+    # Original type: bool
     def_bool BT_PSOC6_BLESS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_sf32lb
@@ -204,265 +254,349 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_siwx91x
     def_bool BT_SILABS_SIWX91X
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_spi_bluenrg
+    # Original type: bool
     def_bool BT_SPI_BLUENRG
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_spi_zephyr
+    # Original type: bool
     def_bool BT_SPI_ZEPHYR
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wb0
+    # Original type: bool
     def_bool BT_STM32WB0
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wba
+    # Original type: bool
     def_bool BT_STM32WBA
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_stm32_ipm
+    # Original type: bool
     def_bool BT_STM32_IPM
 
 config MCUX_COMPONENT_middleware.edgefast_open.soc_nrf5340_cpuapp
     def_bool SOC_NRF5340_CPUAPP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_userchan
+    # Original type: bool
     def_bool BT_USERCHAN
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ans
+    # Original type: bool
     def_bool BT_ANS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_dis
+    # Original type: bool
     def_bool BT_DIS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_gap_svc
+    # Original type: bool
     def_bool BT_GAP_SVC
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_cts
+    # Original type: bool
     def_bool BT_CTS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ets
+    # Original type: bool
     def_bool BT_ETS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hrs
+    # Original type: bool
     def_bool BT_HRS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_tps
+    # Original type: bool
     def_bool BT_TPS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_wus
+    # Original type: bool
     def_bool BT_WUS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_fmp
+    # Original type: bool
     def_bool BT_FMP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hps
+    # Original type: bool
     def_bool BT_HPS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hts
+    # Original type: bool
     def_bool BT_HTS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ipsp
+    # Original type: bool
     def_bool BT_IPSP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_pxr
+    # Original type: bool
     def_bool BT_PXR
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_tip
+    # Original type: bool
     def_bool BT_TIP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bas
+    # Original type: bool
     def_bool BT_BAS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bas_bls
+    # Original type: bool
     def_bool BT_BAS_BLS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bas_bcs
+    # Original type: bool
     def_bool BT_BAS_BCS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ots
+    # Original type: bool
     def_bool BT_OTS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ots_dir_list_obj
+    # Original type: bool
     def_bool BT_OTS_DIR_LIST_OBJ
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ots_client
+    # Original type: bool
     def_bool BT_OTS_CLIENT
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ias
+    # Original type: bool
     def_bool BT_IAS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ias_client
+    # Original type: bool
     def_bool BT_IAS_CLIENT
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_zephyr_nus
+    # Original type: bool
     def_bool BT_ZEPHYR_NUS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_zephyr_nus_auto_start_bluetooth
+    # Original type: bool
     def_bool BT_ZEPHYR_NUS_AUTO_START_BLUETOOTH
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_audio
+    # Original type: bool
     def_bool BT_AUDIO
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_vocs
+    # Original type: bool
     def_bool BT_VOCS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_vocs_client
+    # Original type: bool
     def_bool BT_VOCS_CLIENT
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_aics
+    # Original type: bool
     def_bool BT_AICS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_aics_client
+    # Original type: bool
     def_bool BT_AICS_CLIENT
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_vcp_vol_rend
+    # Original type: bool
     def_bool BT_VCP_VOL_REND
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_vcp_vol_ctlr
+    # Original type: bool
     def_bool BT_VCP_VOL_CTLR
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_micp_mic_dev
+    # Original type: bool
     def_bool BT_MICP_MIC_DEV
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_micp_mic_ctlr
+    # Original type: bool
     def_bool BT_MICP_MIC_CTLR
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_csip_set_member
+    # Original type: bool
     def_bool BT_CSIP_SET_MEMBER
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_csip_set_coordinator
+    # Original type: bool
     def_bool BT_CSIP_SET_COORDINATOR
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_tbs
+    # Original type: bool
     def_bool BT_TBS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_tbs_client
     def_bool BT_TBS_CLIENT
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_mcc
+    # Original type: bool
     def_bool BT_MCC
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_mcs
+    # Original type: bool
     def_bool BT_MCS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_mpl
+    # Original type: bool
     def_bool BT_MPL
 
 config MCUX_COMPONENT_middleware.edgefast_open.mctl
+    # Original type: bool
     def_bool MCTL
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ascs
+    # Original type: bool
     def_bool BT_ASCS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_pacs
     def_bool BT_PACS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bap_stream
+    # Original type: bool
     def_bool BT_BAP_STREAM
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bap_base
     def_bool BT_BAP_BASE
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bap_unicast_server
+    # Original type: bool
     def_bool BT_BAP_UNICAST_SERVER
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bap_unicast_client
+    # Original type: bool
     def_bool BT_BAP_UNICAST_CLIENT
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bap_broadcast_source
+    # Original type: bool
     def_bool BT_BAP_BROADCAST_SOURCE
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bap_broadcast_sink
+    # Original type: bool
     def_bool BT_BAP_BROADCAST_SINK
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bap_scan_delegator
+    # Original type: bool
     def_bool BT_BAP_SCAN_DELEGATOR
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bap_broadcast_assistant
+    # Original type: bool
     def_bool BT_BAP_BROADCAST_ASSISTANT
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ccp_call_control_client
+    # Original type: bool
     def_bool BT_CCP_CALL_CONTROL_CLIENT
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ccp_call_control_server
+    # Original type: bool
     def_bool BT_CCP_CALL_CONTROL_SERVER
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_has
+    # Original type: bool
     def_bool BT_HAS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_has_client
+    # Original type: bool
     def_bool BT_HAS_CLIENT
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_cap
     def_bool BT_CAP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_cap_acceptor
+    # Original type: bool
     def_bool BT_CAP_ACCEPTOR
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_cap_initiator
+    # Original type: bool
     def_bool BT_CAP_INITIATOR
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_cap_commander
+    # Original type: bool
     def_bool BT_CAP_COMMANDER
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_cap_handover
+    # Original type: bool
     def_bool BT_CAP_HANDOVER
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_cap_initiator_unicast
     def_bool BT_CAP_INITIATOR_UNICAST
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_tmap
+    # Original type: bool
     def_bool BT_TMAP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_gmap
+    # Original type: bool
     def_bool BT_GMAP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_pbp
+    # Original type: bool
     def_bool BT_PBP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_has_preset_support
     def_bool BT_HAS_PRESET_SUPPORT
 
 config MCUX_COMPONENT_middleware.edgefast_open.liblc3
+    # Original type: bool
     def_bool LIBLC3
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_crypto
+    # Original type: bool
     def_bool BT_CRYPTO
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa
+    # Original type: bool
     def_bool BT_CRYPTO_PSA
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_log_level_dbg
     def_bool BT_CRYPTO_LOG_LEVEL_DBG
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ead
+    # Original type: bool
     def_bool BT_EAD
 
 config MCUX_COMPONENT_middleware.edgefast_open.libsbc
+    # Original type: bool
     def_bool LIBSBC
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_logging
+    # Original type: bool
     def_bool BT_LOGGING
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_logging_async
+    # Original type: bool
     def_bool BT_LOGGING_ASYNC
 
 config MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings
+    # Original type: bool
     def_bool EDGEFAST_OPEN_SUPPRESSED_WARNINGS
 
 config MCUX_COMPONENT_middleware.edgefast_open.port_shell
+    # Original type: bool
     def_bool PORT_SHELL
 
+config MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio
+    # Original type: int
+    def_int BT_RX_PRIO
+
 config MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings
+    # Original type: bool
     def_bool SUPPRESSED_WARNINGS
 
 config MCUX_COMPONENT_middleware.edgefast_open.net_buf
+    # Original type: bool
     def_bool NET_BUF
 
 config MCUX_COMPONENT_middleware.edgefast_open.crc
+    # Original type: bool
     def_bool CRC
 
 config MCUX_COMPONENT_middleware.edgefast_open.utf8
+    # Original type: bool
     def_bool UTF8
 
 config MCUX_COMPONENT_middleware.edgefast_open.asrc_sw
+    # Original type: bool
     def_bool ASRC_SW
 
 config MCUX_COMPONENT_middleware.edgefast_open.uuid
+    # Original type: bool
     def_bool UUID
