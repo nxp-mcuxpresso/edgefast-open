@@ -6,24 +6,24 @@ from collections import OrderedDict
 
 def extract_subdirectories(cmake_content):
     """
-    从 CMakeLists.txt 内容中提取所有 add_subdirectory 调用
-    支持四种函数:
+    Extract all add_subdirectory calls from CMakeLists.txt content
+    Supports four functions:
     - edgefast_open_add_subdirectory(dir)
     - edgefast_open_add_subdirectory_ifdef(config_option dir)
     - add_subdirectory_ifdef(config_option dir)
     - add_subdirectory(dir)
 
-    返回: [(function_name, config_option, subdir)]
+    Returns: [(function_name, config_option, subdir)]
     """
     subdirs = []
 
-    # 1. 匹配 edgefast_open_add_subdirectory(dir)
+    # 1. Match edgefast_open_add_subdirectory(dir)
     pattern1 = r'edgefast_open_add_subdirectory\s*\(\s*([^)]+)\s*\)'
     for match in re.finditer(pattern1, cmake_content):
         subdir = match.group(1).strip()
         subdirs.append(('edgefast_open_add_subdirectory', None, subdir, match.start()))
 
-    # 2. 匹配 edgefast_open_add_subdirectory_ifdef(config_option dir)
+    # 2. Match edgefast_open_add_subdirectory_ifdef(config_option dir)
     pattern2 = r'edgefast_open_add_subdirectory_ifdef\s*\(\s*([^)]+)\s*\)'
     for match in re.finditer(pattern2, cmake_content):
         args = match.group(1).strip().split()
@@ -32,7 +32,7 @@ def extract_subdirectories(cmake_content):
             subdir = args[1]
             subdirs.append(('edgefast_open_add_subdirectory_ifdef', config_option, subdir, match.start()))
 
-    # 3. 匹配 add_subdirectory_ifdef(config_option dir)
+    # 3. Match add_subdirectory_ifdef(config_option dir)
     pattern3 = r'(?<!edgefast_open_)add_subdirectory_ifdef\s*\(\s*([^)]+)\s*\)'
     for match in re.finditer(pattern3, cmake_content):
         args = match.group(1).strip().split()
@@ -41,74 +41,74 @@ def extract_subdirectories(cmake_content):
             subdir = args[1]
             subdirs.append(('add_subdirectory_ifdef', config_option, subdir, match.start()))
 
-    # 4. 匹配 add_subdirectory(dir)
+    # 4. Match add_subdirectory(dir)
     pattern4 = r'(?<!edgefast_open_)(?<!_ifdef\()add_subdirectory\s*\(\s*([^)]+)\s*\)'
     for match in re.finditer(pattern4, cmake_content):
         subdir = match.group(1).strip()
-        # 过滤掉可能的额外参数（如 EXCLUDE_FROM_ALL）
+        # Filter out possible extra parameters (like EXCLUDE_FROM_ALL)
         subdir_parts = subdir.split()
         subdir = subdir_parts[0]
         subdirs.append(('add_subdirectory', None, subdir, match.start()))
 
-    # 按照在文件中出现的顺序排序
+    # Sort by order of appearance in file
     subdirs.sort(key=lambda x: x[3])
 
-    # 返回时去掉位置信息
+    # Return without position information
     return [(func, config, subdir) for func, config, subdir, _ in subdirs]
 
 def is_source_file(filename):
     """
-    判断是否是源文件
+    Check if it is a source file
     """
     source_extensions = {'.c', '.cpp', '.cc', '.cxx', '.h', '.hpp', '.s', '.S', '.asm', '.dat'}
     return any(filename.endswith(ext) for ext in source_extensions)
 
 def is_wildcard_pattern(word):
     """
-    判断是否是通配符模式
+    Check if it is a wildcard pattern
     """
-    # 检查是否包含通配符
+    # Check if it contains wildcards
     if '*' in word or '?' in word:
         return True
-    # 检查是否是单独的 '.'
+    # Check if it is a standalone '.'
     if word == '.':
         return True
     return False
 
 def convert_path_to_posix(path):
     """
-    将路径转换为 POSIX 格式（使用正斜杠）
+    Convert path to POSIX format (using forward slashes)
     """
     return str(path).replace('\\', '/')
 
 def process_wildcard_path(word, current_dir, base_dir):
     """
-    处理通配符路径
-    例如: *.c -> ./source/bluetooth/host/*.c
-          *.* -> ./source/bluetooth/host/*.*
-          .   -> ./source/bluetooth (对于 include_directories)
+    Process wildcard paths
+    Example: *.c -> ./source/bluetooth/host/*.c
+             *.* -> ./source/bluetooth/host/*.*
+             .   -> ./source/bluetooth (for include_directories)
     """
-    # 移除可能的尾随字符
+    # Remove possible trailing characters
     trailing = ''
     clean_word = word
     if word and word[-1] in ',)':
         trailing = word[-1]
         clean_word = word[:-1]
 
-    # 如果已经是以 ./ 开头的路径，跳过
+    # Skip if already starts with ./
     if clean_word.startswith('./'):
         return word
 
-    # 获取相对于根目录的路径
+    # Get path relative to root directory
     try:
         rel_dir = current_dir.relative_to(base_dir)
         rel_dir_str = convert_path_to_posix(rel_dir)
 
         if clean_word == '.':
-            # 单独的 '.' 通常用于 include_directories，转换为相对路径
+            # Standalone '.' is usually for include_directories, convert to relative path
             new_path = f'./{rel_dir_str}'
         else:
-            # 通配符模式，如 *.c, *.*
+            # Wildcard pattern, like *.c, *.*
             new_path = f'./{rel_dir_str}/{clean_word}'
 
         return new_path + trailing
@@ -117,17 +117,17 @@ def process_wildcard_path(word, current_dir, base_dir):
 
 def replace_environment_variables(line, current_dir, base_dir):
     """
-    替换环境变量为当前目录的相对路径
+    Replace environment variables with relative path of current directory
 
-    参数:
-        line: 要处理的行
-        current_dir: 当前 CMakeLists.txt 文件所在目录
-        base_dir: 基础目录路径（edgefast_open 目录）
+    Args:
+        line: Line to process
+        current_dir: Directory containing current CMakeLists.txt file
+        base_dir: Base directory path (edgefast_open directory)
 
-    返回:
-        替换后的行
+    Returns:
+        Line after replacement
     """
-    # 定义需要替换的环境变量列表
+    # Define list of environment variables to replace
     env_vars = [
         '${ZEPHYR_ASRC_SW_MODULE_DIR}',
         '${ZEPHYR_LIBLC3_MODULE_DIR}',
@@ -136,87 +136,87 @@ def replace_environment_variables(line, current_dir, base_dir):
 
     result = line
 
-    # 检查是否包含任何环境变量
+    # Check if it contains any environment variables
     for env_var in env_vars:
         if env_var in result:
-            # 计算当前目录相对于基础目录的路径
+            # Calculate path of current directory relative to base directory
             try:
                 rel_dir = current_dir.relative_to(base_dir)
                 rel_path = './' + convert_path_to_posix(rel_dir)
-                # 替换环境变量为相对路径
+                # Replace environment variable with relative path
                 result = result.replace(env_var, rel_path)
             except ValueError:
-                # 如果无法计算相对路径，保持原样
+                # If unable to calculate relative path, keep as is
                 pass
 
     return result
 
 def process_source_paths(line, current_dir, base_dir):
     """
-    处理一行中的源文件路径，将相对路径转换为相对于根目录的路径
-    如果路径中已包含 edgefast_open，则不添加相对路径前缀
+    Process source file paths in a line, converting relative paths to paths relative to root directory
+    If path already contains edgefast_open, do not add relative path prefix
     """
 
-    # 跳过注释
+    # Skip comments
     if len(line.strip()) > 0 and '#' == (line.strip())[0]:
         return line
 
-    # 检查是否是可能包含路径的行
+    # Check if line may contain paths
     if not any(pattern in line for pattern in ['.c', '.cpp', '.h', '.hpp', '.s', '.S', '.asm', '.dat', '*', '.', 'include_directories']):
         return line
 
-    # 保存原始缩进
+    # Save original indentation
     leading_spaces = len(line) - len(line.lstrip())
     stripped_line = line.lstrip()
 
-    # 分割行，保留空格和格式
+    # Split line, preserving spaces and format
     words = stripped_line.split()
     if not words:
         return line
 
     processed_words = []
-    # 检查是否是 include_directories 相关的命令
+    # Check if it is an include_directories related command
     is_include_dir_cmd = any(cmd in words[0] for cmd in ['include_directories', 'target_include_directories', 'zephyr_include_directories'])
 
     for i, word in enumerate(words):
-        # 检查是否包含左括号（函数调用的开始）
+        # Check if it contains left parenthesis (start of function call)
         if '(' in word:
-            # 分离函数名和参数
+            # Separate function name and arguments
             left_paren_idx = word.index('(')
-            func_part = word[:left_paren_idx + 1]  # 包含函数名和左括号
-            arg_part = word[left_paren_idx + 1:]   # 参数部分
+            func_part = word[:left_paren_idx + 1]  # Include function name and left parenthesis
+            arg_part = word[left_paren_idx + 1:]   # Argument part
 
-            # 如果参数部分为空或只是右括号，保持原样
+            # If argument part is empty or just right parenthesis, keep as is
             if not arg_part or arg_part == ')':
                 processed_words.append(word)
                 continue
 
-            # 处理参数部分
+            # Process argument part
             trailing = ''
             clean_arg = arg_part
 
-            # 处理尾随的右括号
+            # Handle trailing right parentheses
             trailing_parens = ''
             while clean_arg and clean_arg[-1] == ')':
                 trailing_parens = ')' + trailing_parens
                 clean_arg = clean_arg[:-1]
 
-            # 处理其他尾随字符
+            # Handle other trailing characters
             if clean_arg and clean_arg[-1] in ',':
                 trailing = clean_arg[-1]
                 clean_arg = clean_arg[:-1]
 
             trailing = trailing + trailing_parens
 
-            # 处理参数
+            # Process argument
             processed_arg = clean_arg
 
-            # 如果路径中已包含 edgefast_open，保持原样
+            # If path already contains edgefast_open, keep as is
             if 'edgefast_open' in clean_arg:
                 processed_words.append(func_part + processed_arg + trailing)
                 continue
 
-            # 检查是否是单独的 '.'
+            # Check if it is a standalone '.'
             if clean_arg == '.' and is_include_dir_cmd:
                 try:
                     rel_dir = current_dir.relative_to(base_dir)
@@ -224,7 +224,7 @@ def process_source_paths(line, current_dir, base_dir):
                     processed_arg = f'./{rel_dir_str}'
                 except ValueError:
                     processed_arg = clean_arg
-            # 检查是否是通配符模式
+            # Check if it is a wildcard pattern
             elif is_wildcard_pattern(clean_arg):
                 try:
                     rel_dir = current_dir.relative_to(base_dir)
@@ -232,7 +232,7 @@ def process_source_paths(line, current_dir, base_dir):
                     processed_arg = f'./{rel_dir_str}/{clean_arg}'
                 except ValueError:
                     processed_arg = clean_arg
-            # 检查是否是源文件
+            # Check if it is a source file
             elif is_source_file(clean_arg):
                 if not clean_arg.startswith('./') and not clean_arg.startswith('/') and not clean_arg.startswith('${') and ':' not in clean_arg:
                     file_path = current_dir / clean_arg
@@ -245,96 +245,96 @@ def process_source_paths(line, current_dir, base_dir):
             processed_words.append(func_part + processed_arg + trailing)
             continue
 
-        # 没有左括号的情况，按原来的逻辑处理
+        # Case without left parenthesis, process with original logic
         trailing = ''
         clean_word = word
 
-        # 处理尾随的右括号
+        # Handle trailing right parentheses
         trailing_parens = ''
         while clean_word and clean_word[-1] == ')':
             trailing_parens = ')' + trailing_parens
             clean_word = clean_word[:-1]
 
-        # 处理其他尾随字符
+        # Handle other trailing characters
         if clean_word and clean_word[-1] in ',':
             trailing = clean_word[-1]
             clean_word = clean_word[:-1]
 
         trailing = trailing + trailing_parens
 
-        # 如果路径中已包含 edgefast_open，保持原样
+        # If path already contains edgefast_open, keep as is
         if 'edgefast_open' in clean_word:
             processed_words.append(word)
             continue
 
-        # 检查是否是单独的 '.' (通常用于 include_directories)
+        # Check if it is a standalone '.' (usually for include_directories)
         if clean_word == '.' and is_include_dir_cmd:
             new_word = process_wildcard_path(clean_word, current_dir, base_dir)
             processed_words.append(new_word + trailing)
             continue
 
-        # 检查是否是通配符模式
+        # Check if it is a wildcard pattern
         if is_wildcard_pattern(clean_word) and clean_word != '.':
             new_word = process_wildcard_path(clean_word, current_dir, base_dir)
             processed_words.append(new_word + trailing)
             continue
 
-        # 检查是否是源文件
+        # Check if it is a source file
         if is_source_file(clean_word):
-            # 如果已经是以 ./ 开头的路径，跳过
+            # Skip if already starts with ./
             if clean_word.startswith('./'):
                 processed_words.append(word)
                 continue
 
-            # 如果是绝对路径或包含 ${...}，保持不变
+            # If it is an absolute path or contains ${...}, keep unchanged
             if clean_word.startswith('/') or clean_word.startswith('${') or ':' in clean_word:
                 processed_words.append(word)
                 continue
 
-            # 构建相对于当前 CMakeLists.txt 的完整路径
+            # Build full path relative to current CMakeLists.txt
             file_path = current_dir / clean_word
 
-            # 转换为相对于根目录的路径
+            # Convert to path relative to root directory
             try:
                 rel_path = file_path.relative_to(base_dir)
-                # 添加 ./ 前缀并转换为 POSIX 格式
+                # Add ./ prefix and convert to POSIX format
                 new_path = './' + convert_path_to_posix(rel_path)
                 processed_words.append(new_path + trailing)
             except ValueError:
-                # 如果路径不在 base_dir 下，保持原样
+                # If path is not under base_dir, keep as is
                 processed_words.append(word)
         else:
             processed_words.append(word)
 
-    # 重新组合行，保持原有的缩进
+    # Reassemble line, preserving original indentation
     return ' ' * leading_spaces + ' '.join(processed_words)
 
 def is_inside_function(lines, line_index):
     """
-    检查指定行是否在函数定义内部
+    Check if specified line is inside a function definition
 
-    参数:
-        lines: 所有行的列表
-        line_index: 要检查的行索引
+    Args:
+        lines: List of all lines
+        line_index: Line index to check
 
-    返回:
-        True 如果在函数内部，否则 False
+    Returns:
+        True if inside function, otherwise False
     """
-    # 向前查找，看是否在 function() 和 endfunction() 之间
+    # Search backward to see if between function() and endfunction()
     function_depth = 0
 
-    # 从当前行向前查找
+    # Search backward from current line
     for i in range(line_index, -1, -1):
         line = lines[i].strip()
 
-        # 检查是否是 endfunction()
+        # Check if it is endfunction()
         if re.match(r'^\s*endfunction\s*\(', line):
             function_depth += 1
 
-        # 检查是否是 function()
+        # Check if it is function()
         if re.match(r'^\s*function\s*\(', line):
             if function_depth == 0:
-                # 找到了包含当前行的 function，说明在函数内部
+                # Found function containing current line, so it is inside function
                 return True
             else:
                 function_depth -= 1
@@ -343,79 +343,79 @@ def is_inside_function(lines, line_index):
 
 def set_file_readonly(file_path):
     """
-    将文件设置为只读
+    Set file to read-only
 
-    参数:
-        file_path: 文件路径
+    Args:
+        file_path: File path
     """
     try:
-        # 获取当前文件权限
+        # Get current file permissions
         current_permissions = os.stat(file_path).st_mode
 
-        # 设置为只读：移除所有写权限
+        # Set to read-only: remove all write permissions
         readonly_permissions = current_permissions & ~(stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH)
 
-        # 应用新权限
+        # Apply new permissions
         os.chmod(file_path, readonly_permissions)
 
-        print(f"✓ 文件已设置为只读")
+        print(f"✓ File set to read-only")
     except Exception as e:
-        print(f"警告: 无法设置文件为只读: {e}")
+        print(f"Warning: Unable to set file to read-only: {e}")
 
 def remove_readonly(file_path):
     """
-    移除文件的只读属性
+    Remove read-only attribute from file
 
-    参数:
-        file_path: 文件路径
+    Args:
+        file_path: File path
     """
     try:
         if os.path.exists(file_path):
-            # 获取当前文件权限
+            # Get current file permissions
             current_permissions = os.stat(file_path).st_mode
 
-            # 添加写权限
+            # Add write permission
             writable_permissions = current_permissions | stat.S_IWUSR
 
-            # 应用新权限
+            # Apply new permissions
             os.chmod(file_path, writable_permissions)
 
-            print(f"✓ 已移除文件的只读属性以便重新生成")
+            print(f"✓ Removed read-only attribute for regeneration")
     except Exception as e:
-        print(f"警告: 无法移除只读属性: {e}")
+        print(f"Warning: Unable to remove read-only attribute: {e}")
 
 def find_condition_for_subdirectory(lines, subdir_line_idx):
     """
-    查找包裹 add_subdirectory 调用的 if() 条件
+    Find if() condition wrapping add_subdirectory call
 
-    参数:
-        lines: 所有行的列表
-        subdir_line_idx: add_subdirectory 调用所在的行索引
+    Args:
+        lines: List of all lines
+        subdir_line_idx: Line index of add_subdirectory call
 
-    返回:
-        (condition, if_line_idx) 如果找到条件，否则 (None, None)
+    Returns:
+        (condition, if_line_idx) if condition found, otherwise (None, None)
     """
-    # 向前查找最近的 if() 语句
+    # Search backward for nearest if() statement
     if_depth = 0
 
     for i in range(subdir_line_idx - 1, -1, -1):
         line = lines[i].strip()
 
-        # 跳过注释和空行
+        # Skip comments and empty lines
         if not line or line.startswith('#'):
             continue
 
-        # 检查是否是 endif()
+        # Check if it is endif()
         if re.match(r'^\s*endif\s*\(', line):
             if_depth += 1
             continue
 
-        # 检查是否是 if()
+        # Check if it is if()
         if_match = re.match(r'^\s*if\s*\(\s*([^)]+)\s*\)', line)
         if if_match:
             if if_depth == 0:
-                # 找到了直接包裹当前 add_subdirectory 的 if
-                # 检查这个 if 和 add_subdirectory 之间是否只有注释或空行
+                # Found if directly wrapping current add_subdirectory
+                # Check if there is only comments or empty lines between this if and add_subdirectory
                 has_other_content = False
                 for j in range(i + 1, subdir_line_idx):
                     check_line = lines[j].strip()
@@ -435,30 +435,30 @@ def find_condition_for_subdirectory(lines, subdir_line_idx):
 
 def find_matching_endif(lines, if_line_idx):
     """
-    查找与 if() 匹配的 endif()
+    Find endif() matching if()
 
-    参数:
-        lines: 所有行的列表
-        if_line_idx: if() 语句所在的行索引
+    Args:
+        lines: List of all lines
+        if_line_idx: Line index of if() statement
 
-    返回:
-        endif_line_idx 如果找到，否则 None
+    Returns:
+        endif_line_idx if found, otherwise None
     """
     if_depth = 1
 
     for i in range(if_line_idx + 1, len(lines)):
         line = lines[i].strip()
 
-        # 跳过注释和空行
+        # Skip comments and empty lines
         if not line or line.startswith('#'):
             continue
 
-        # 检查是否是 if()
+        # Check if it is if()
         if re.match(r'^\s*if\s*\(', line):
             if_depth += 1
             continue
 
-        # 检查是否是 endif()
+        # Check if it is endif()
         if re.match(r'^\s*endif\s*\(', line):
             if_depth -= 1
             if if_depth == 0:
@@ -468,15 +468,15 @@ def find_matching_endif(lines, if_line_idx):
 
 def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, indent_level=0):
     """
-    递归处理 CMakeLists.txt 文件
+    Recursively process CMakeLists.txt file
     """
-    # 避免重复处理
+    # Avoid duplicate processing
     abs_path = cmake_path.resolve()
     if abs_path in processed_files:
         return
 
     if not cmake_path.exists():
-        print(f"警告: 文件不存在 - {cmake_path}")
+        print(f"Warning: File does not exist - {cmake_path}")
         return
 
     processed_files.add(abs_path)
@@ -487,7 +487,7 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
     except ValueError:
         relative_path = cmake_path
 
-    # 添加注释标记这个文件的开始
+    # Add comment marking start of this file
     output_lines.append(f"\n{indent}# ========================================")
     output_lines.append(f"{indent}# Content from: {convert_path_to_posix(relative_path)}")
     output_lines.append(f"{indent}# ========================================")
@@ -496,20 +496,20 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
         with open(cmake_path, 'r', encoding='utf-8') as f:
             content = f.read()
     except Exception as e:
-        print(f"错误: 无法读取文件 {cmake_path}: {e}")
+        print(f"Error: Unable to read file {cmake_path}: {e}")
         return
 
     current_dir = cmake_path.parent
 
-    # 提取所有子目录调用
+    # Extract all subdirectory calls
     subdirs = extract_subdirectories(content)
 
-    # 为每个子目录查找其包裹的条件
+    # Find wrapping condition for each subdirectory
     subdir_conditions = {}
     lines = content.splitlines()
 
     for func_name, config_option, subdir in subdirs:
-        # 查找这个调用在文件中的位置
+        # Find position of this call in file
         for line_idx, line in enumerate(lines):
             if config_option:
                 pattern = rf'{func_name}\s*\(\s*{re.escape(config_option)}\s+{re.escape(subdir)}'
@@ -517,7 +517,7 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
                 pattern = rf'{func_name}\s*\(\s*{re.escape(subdir)}'
 
             if re.search(pattern, line):
-                # 查找包裹的条件
+                # Find wrapping condition
                 condition, if_idx = find_condition_for_subdirectory(lines, line_idx)
                 if condition:
                     endif_idx = find_matching_endif(lines, if_idx)
@@ -529,18 +529,18 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
                     }
                 break
 
-    # 记录需要跳过的行（已经被处理为条件块的行）
+    # Record lines to skip (already processed as conditional blocks)
     skip_lines = set()
     for subdir, info in subdir_conditions.items():
         if info['if_idx'] is not None and info['endif_idx'] is not None:
-            # 标记 if 到 endif 之间的所有行为需要跳过
+            # Mark all lines from if to endif as needing to be skipped
             for idx in range(info['if_idx'], info['endif_idx'] + 1):
                 skip_lines.add(idx)
 
-    # 处理文件内容
+    # Process file content
     i = 0
     while i < len(lines):
-        # 如果这一行已经被处理为条件块的一部分，跳过
+        # If this line has already been processed as part of conditional block, skip
         if i in skip_lines:
             i += 1
             continue
@@ -548,40 +548,40 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
         line = lines[i]
         stripped = line.strip()
 
-        # 检查是否是任何一种 add_subdirectory 调用
+        # Check if it is any kind of add_subdirectory call
         is_add_subdir = (
             'edgefast_open_add_subdirectory' in stripped or
             (stripped.startswith('add_subdirectory') and '(' in stripped)
         )
 
         if is_add_subdir:
-            # 检查是否是 edgefast_open 相关函数且在函数定义内部
+            # Check if it is edgefast_open related function and inside function definition
             is_edgefast_open_func = (
                 'edgefast_open_add_subdirectory_ifdef' in stripped or
                 'edgefast_open_add_subdirectory' in stripped
             )
 
             if is_edgefast_open_func and is_inside_function(lines, i):
-                # 在函数内部，保持原样不转换
+                # Inside function, keep as is without conversion
                 output_lines.append(line)
             else:
-                # 注释掉原始的 add_subdirectory 调用
+                # Comment out original add_subdirectory call
                 output_lines.append(f"{indent}# {line}")
         else:
-            # 先替换环境变量
+            # First replace environment variables
             processed_line = replace_environment_variables(line, current_dir, base_dir)
-            # 再处理源文件路径
+            # Then process source file paths
             processed_line = process_source_paths(processed_line, current_dir, base_dir)
             output_lines.append(processed_line)
 
         i += 1
 
-    # 递归处理所有子目录
+    # Recursively process all subdirectories
     for func_name, config_option, subdir in subdirs:
-        # 检查这个 add_subdirectory 调用是否在函数内部
+        # Check if this add_subdirectory call is inside function
         is_edgefast_open_func = func_name in ['edgefast_open_add_subdirectory', 'edgefast_open_add_subdirectory_ifdef']
 
-        # 查找这个调用在文件中的位置
+        # Find position of this call in file
         call_in_function = False
         if is_edgefast_open_func:
             for line_idx, line in enumerate(lines):
@@ -595,27 +595,27 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
                         call_in_function = True
                     break
 
-        # 如果是 edgefast_open 函数且在函数内部，跳过展开
+        # If it is edgefast_open function and inside function, skip expansion
         if is_edgefast_open_func and call_in_function:
             continue
 
         sub_cmake = current_dir / subdir / 'CMakeLists.txt'
 
-        # 检查是否有包裹的条件
+        # Check if there is wrapping condition
         wrapper_condition = None
         if subdir in subdir_conditions:
             wrapper_condition = subdir_conditions[subdir]['condition']
 
-        # 确定最终使用的条件
+        # Determine final condition to use
         final_condition = None
         if config_option:
-            # edgefast_open_add_subdirectory_ifdef 自带条件
+            # edgefast_open_add_subdirectory_ifdef has its own condition
             final_condition = config_option
         elif wrapper_condition:
-            # 使用包裹的 if() 条件
+            # Use wrapping if() condition
             final_condition = wrapper_condition
 
-        # 添加说明注释
+        # Add explanatory comment
         output_lines.append(f"\n{indent}# ----------------------------------------")
         if final_condition:
             if wrapper_condition and not config_option:
@@ -627,39 +627,39 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
                 output_lines.append(f"{indent}# Condition: {final_condition}")
                 output_lines.append(f"{indent}# Original: {func_name}({final_condition} {subdir})")
             output_lines.append(f"{indent}# ----------------------------------------")
-            # 添加条件判断
+            # Add conditional check
             output_lines.append(f"{indent}if({final_condition})")
-            # 递归处理子目录的 CMakeLists.txt，增加缩进级别
+            # Recursively process subdirectory's CMakeLists.txt, increase indentation level
             process_cmake_file(sub_cmake, base_dir, processed_files, output_lines, indent_level + 1)
-            # 添加 endif()
+            # Add endif()
             output_lines.append(f"{indent}endif()")
         else:
             output_lines.append(f"{indent}# Subdirectory: {subdir}")
             output_lines.append(f"{indent}# Original: {func_name}({subdir})")
             output_lines.append(f"{indent}# ----------------------------------------")
-            # 递归处理子目录的 CMakeLists.txt，保持相同缩进级别
+            # Recursively process subdirectory's CMakeLists.txt, keep same indentation level
             process_cmake_file(sub_cmake, base_dir, processed_files, output_lines, indent_level)
 
 def merge_cmake_files(root_cmake_path, output_path):
     """
-    合并所有 CMakeLists.txt 文件
+    Merge all CMakeLists.txt files
     """
     root_path = Path(root_cmake_path).resolve()
     base_dir = root_path.parent
 
-    print(f"工作目录: {os.getcwd()}")
-    print(f"根 CMakeLists.txt: {root_path}")
-    print(f"基础目录: {base_dir}")
-    print(f"输出文件: {Path(output_path).resolve()}\n")
+    print(f"Working directory: {os.getcwd()}")
+    print(f"Root CMakeLists.txt: {root_path}")
+    print(f"Base directory: {base_dir}")
+    print(f"Output file: {Path(output_path).resolve()}\n")
 
     if not root_path.exists():
-        print(f"错误: 根 CMakeLists.txt 文件不存在: {root_path}")
+        print(f"Error: Root CMakeLists.txt file does not exist: {root_path}")
         return
 
     processed_files = set()
     output_lines = []
 
-    # 添加文件头
+    # Add file header
     output_lines.append("# Copyright 2025 NXP")
     output_lines.append("#")
     output_lines.append("# SPDX-License-Identifier: BSD-3-Clause")
@@ -699,44 +699,44 @@ def merge_cmake_files(root_cmake_path, output_path):
     output_lines.append("#   ${ZEPHYR_LIBSBC_MODULE_DIR}   -> ./lib/libsbc (in lib/libsbc/CMakeLists.txt)")
     output_lines.append("")
 
-    # 处理根 CMakeLists.txt
+    # Process root CMakeLists.txt
     process_cmake_file(root_path, base_dir, processed_files, output_lines)
 
-    # 写入输出文件前，先移除只读属性（如果文件已存在）
+    # Before writing output file, remove read-only attribute (if file already exists)
     output_path_abs = Path(output_path).resolve()
     remove_readonly(output_path_abs)
 
-    # 写入输出文件
+    # Write output file
     try:
         with open(output_path_abs, 'w', encoding='utf-8') as f:
             f.write('\n'.join(output_lines))
     except Exception as e:
-        print(f"错误: 无法写入输出文件: {e}")
+        print(f"Error: Unable to write output file: {e}")
         return
 
-    print(f"✓ 合并完成！")
-    print(f"\n共处理 {len(processed_files)} 个 CMakeLists.txt 文件:")
+    print(f"✓ Merge completed!")
+    print(f"\nProcessed {len(processed_files)} CMakeLists.txt files:")
     for f in sorted(processed_files):
         try:
             rel_path = f.relative_to(base_dir)
         except ValueError:
             rel_path = f
         print(f"  - {convert_path_to_posix(rel_path)}")
-    print(f"\n输出文件: {output_path_abs}")
-    print(f"文件大小: {os.path.getsize(output_path_abs):,} 字节")
+    print(f"\nOutput file: {output_path_abs}")
+    print(f"File size: {os.path.getsize(output_path_abs):,} bytes")
 
-    # 设置文件为只读
+    # Set file to read-only
     set_file_readonly(output_path_abs)
 
 def convert_zephyr_functions_to_mcux(input_path, output_path=None):
     """
-    转换 CMakeLists 文件中的 zephyr 函数为 mcux 格式
+    Convert zephyr functions to mcux format in CMakeLists file
 
-    参数:
-        input_path: 输入文件路径
-        output_path: 输出文件路径，如果为 None，则覆盖输入文件
+    Args:
+        input_path: Input file path
+        output_path: Output file path, if None, overwrite input file
 
-    支持的转换:
+    Supported conversions:
     1. zephyr_library_sources_ifdef(CONFIG_XXX file1 file2 [TOOLCHAINS toolchains])
        =>
        if(CONFIG_XXX)
@@ -785,7 +785,7 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
        mcux_add_include(INCLUDES path1 [TOOLCHAINS toolchains])
        mcux_add_include(INCLUDES path2 [TOOLCHAINS toolchains])
 
-    注意: 如果这些函数在 function() 定义内部，则不会被转换
+    Note: If these functions are inside function() definitions, they will not be converted
     """
     input_path = Path(input_path).resolve()
 
@@ -794,22 +794,22 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
     else:
         output_path = Path(output_path).resolve()
 
-    print(f"\n开始转换 zephyr 函数...")
-    print(f"输入文件: {input_path}")
-    print(f"输出文件: {output_path}")
+    print(f"\nStarting zephyr function conversion...")
+    print(f"Input file: {input_path}")
+    print(f"Output file: {output_path}")
 
     if not input_path.exists():
-        print(f"错误: 输入文件不存在: {input_path}")
+        print(f"Error: Input file does not exist: {input_path}")
         return
 
-    # 移除只读属性以便修改
+    # Remove read-only attribute for modification
     remove_readonly(input_path)
 
     try:
         with open(input_path, 'r', encoding='utf-8') as f:
             content = f.read()
     except Exception as e:
-        print(f"错误: 无法读取文件 {input_path}: {e}")
+        print(f"Error: Unable to read file {input_path}: {e}")
         return
 
     lines = content.splitlines()
@@ -840,28 +840,28 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
         line = lines[i]
         stripped = line.strip()
 
-        # 检查是否是 zephyr_sources 或 zephyr_include_directories 相关函数
-        # 注意：先匹配 _ifdef 版本，再匹配普通版本
+        # Check if it is zephyr_sources or zephyr_include_directories related function
+        # Note: Match _ifdef version first, then regular version
         pattern = r'^\s*(zephyr_(?:library_)?(?:sources|include_directories)(?:_ifdef)?)\s*\('
         match = re.match(pattern, line)
 
         if match:
             func_name = match.group(1)
 
-            # 检查是否在函数定义内部
+            # Check if inside function definition
             if is_inside_function(lines, i):
-                # 在函数内部，跳过转换
+                # Inside function, skip conversion
                 result_lines.append(line)
                 if func_name in skipped_stats:
                     skipped_stats[func_name] += 1
                 i += 1
                 continue
 
-            # 获取原始缩进
+            # Get original indentation
             indent = len(line) - len(line.lstrip())
             indent_str = ' ' * indent
 
-            # 收集完整的函数调用（可能跨多行）
+            # Collect complete function call (may span multiple lines)
             full_call = line
             paren_count = line.count('(') - line.count(')')
             j = i
@@ -871,15 +871,15 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
                 full_call += ' ' + lines[j].strip()
                 paren_count += lines[j].count('(') - lines[j].count(')')
 
-            # 判断是否是 _ifdef 版本
+            # Determine if it is _ifdef version
             is_ifdef = func_name.endswith('_ifdef')
 
-            # 判断是 sources 还是 include_directories
+            # Determine if it is sources or include_directories
             is_sources = 'sources' in func_name
             is_includes = 'include_directories' in func_name
 
             if is_ifdef:
-                # 解析 _ifdef 版本: function_name(CONDITION items... [TOOLCHAINS toolchains...])
+                # Parse _ifdef version: function_name(CONDITION items... [TOOLCHAINS toolchains...])
                 full_pattern = r'(zephyr_(?:library_)?(?:sources|include_directories)_ifdef)\s*\(\s*(\w+)\s+(.*?)\)'
                 full_match = re.search(full_pattern, full_call)
 
@@ -887,7 +887,7 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
                     condition = full_match.group(2)
                     args_str = full_match.group(3).strip()
 
-                    # 分离项目和 TOOLCHAINS
+                    # Separate items and TOOLCHAINS
                     toolchains_str = None
                     items_str = args_str
 
@@ -896,10 +896,10 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
                         items_str = parts[0].strip()
                         toolchains_str = parts[1].strip() if len(parts) > 1 else None
 
-                    # 分割项目列表
+                    # Split item list
                     items = [f.strip() for f in items_str.split() if f.strip()]
 
-                    # 构建转换后的内容
+                    # Build converted content
                     result_lines.append(f'{indent_str}if({condition})')
 
                     for item in items:
@@ -921,14 +921,14 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
                     i = j + 1
                     continue
             else:
-                # 解析普通版本: function_name(items... [TOOLCHAINS toolchains...])
+                # Parse regular version: function_name(items... [TOOLCHAINS toolchains...])
                 full_pattern = r'(zephyr_(?:library_)?(?:sources|include_directories))\s*\((.*?)\)'
                 full_match = re.search(full_pattern, full_call)
 
                 if full_match:
                     args_str = full_match.group(2).strip()
 
-                    # 分离项目和 TOOLCHAINS
+                    # Separate items and TOOLCHAINS
                     toolchains_str = None
                     items_str = args_str
 
@@ -937,10 +937,10 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
                         items_str = parts[0].strip()
                         toolchains_str = parts[1].strip() if len(parts) > 1 else None
 
-                    # 分割项目列表
+                    # Split item list
                     items = [f.strip() for f in items_str.split() if f.strip()]
 
-                    # 构建转换后的内容（不需要 if/endif）
+                    # Build converted content (no if/endif needed)
                     for item in items:
                         if is_sources:
                             result_lines.append(f'{indent_str}mcux_add_source(')
@@ -958,87 +958,87 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
                     i = j + 1
                     continue
 
-        # 不是 zephyr 函数，保留原始行
+        # Not a zephyr function, keep original line
         result_lines.append(line)
         i += 1
 
-    # 写入输出文件
+    # Write output file
     try:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write('\n'.join(result_lines))
     except Exception as e:
-        print(f"错误: 无法写入输出文件: {e}")
+        print(f"Error: Unable to write output file: {e}")
         return
 
-    print(f"✓ 转换完成！")
-    print(f"\n转换统计:")
+    print(f"✓ Conversion completed!")
+    print(f"\nConversion statistics:")
     total_converted = 0
     for func, count in conversion_stats.items():
         if count > 0:
-            print(f"  {func}: {count} 处")
+            print(f"  {func}: {count} occurrences")
             total_converted += count
-    print(f"  总计: {total_converted} 处")
+    print(f"  Total: {total_converted} occurrences")
 
     total_skipped = sum(skipped_stats.values())
     if total_skipped > 0:
-        print(f"\n跳过统计 (函数内部):")
+        print(f"\nSkipped statistics (inside functions):")
         for func, count in skipped_stats.items():
             if count > 0:
-                print(f"  {func}: {count} 处")
-        print(f"  总计: {total_skipped} 处")
+                print(f"  {func}: {count} occurrences")
+        print(f"  Total: {total_skipped} occurrences")
 
-    print(f"\n输出文件: {output_path}")
-    print(f"文件大小: {os.path.getsize(output_path):,} 字节")
+    print(f"\nOutput file: {output_path}")
+    print(f"File size: {os.path.getsize(output_path):,} bytes")
 
-    # 设置文件为只读
+    # Set file to read-only
     set_file_readonly(output_path)
 
 def extract_conditions_from_cmake(cmake_path):
     """
-    从 CMakeLists.txt 文件中提取所有条件编译的条件
-    忽略注释中的条件
+    Extract all conditional compilation conditions from CMakeLists.txt file
+    Ignore conditions in comments
 
-    参数:
-        cmake_path: CMakeLists.txt 文件路径
+    Args:
+        cmake_path: CMakeLists.txt file path
 
-    返回:
-        OrderedDict: {原始条件名: 出现次数}
+    Returns:
+        OrderedDict: {original condition name: occurrence count}
     """
     cmake_path = Path(cmake_path).resolve()
 
     if not cmake_path.exists():
-        print(f"错误: 文件不存在: {cmake_path}")
+        print(f"Error: File does not exist: {cmake_path}")
         return OrderedDict()
 
     try:
         with open(cmake_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
     except Exception as e:
-        print(f"错误: 无法读取文件 {cmake_path}: {e}")
+        print(f"Error: Unable to read file {cmake_path}: {e}")
         return OrderedDict()
 
     conditions = OrderedDict()
 
-    # 逐行处理，忽略注释
+    # Process line by line, ignoring comments
     for line in lines:
-        # 移除注释部分
-        # 查找 # 的位置
+        # Remove comment part
+        # Find position of #
         comment_pos = line.find('#')
         if comment_pos != -1:
-            # 只处理 # 之前的内容
+            # Only process content before #
             line = line[:comment_pos]
 
-        # 如果行为空或只有空白，跳过
+        # If line is empty or only whitespace, skip
         if not line.strip():
             continue
 
-        # 匹配 if(CONFIG_XXX) 和 if(NOT CONFIG_XXX) 等模式
-        # 支持多种格式：if(CONFIG_XXX), if(NOT CONFIG_XXX), if(CONFIG_XXX AND CONFIG_YYY) 等
+        # Match if(CONFIG_XXX) and if(NOT CONFIG_XXX) patterns
+        # Support multiple formats: if(CONFIG_XXX), if(NOT CONFIG_XXX), if(CONFIG_XXX AND CONFIG_YYY) etc.
         pattern = r'\bif\s*\(\s*(?:NOT\s+)?(CONFIG_\w+)'
 
         for match in re.finditer(pattern, line):
             condition = match.group(1)
-            # 跳过已经是 MCUX_COMPONENT 格式的条件
+            # Skip conditions already in MCUX_COMPONENT format
             if not condition.startswith('CONFIG_MCUX_COMPONENT_'):
                 if condition in conditions:
                     conditions[condition] += 1
@@ -1049,51 +1049,51 @@ def extract_conditions_from_cmake(cmake_path):
 
 def convert_config_name_to_mcux(config_name):
     """
-    将 CONFIG_XXX 转换为 CONFIG_MCUX_COMPONENT_middleware.edgefast_open.xxx 格式
+    Convert CONFIG_XXX to CONFIG_MCUX_COMPONENT_middleware.edgefast_open.xxx format
 
-    参数:
-        config_name: 原始配置名，如 CONFIG_BT_CONN
+    Args:
+        config_name: Original config name, e.g. CONFIG_BT_CONN
 
-    返回:
-        转换后的配置名，如 CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn
+    Returns:
+        Converted config name, e.g. CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn
     """
-    # 移除 CONFIG_ 前缀
-    name_without_prefix = config_name[7:]  # 去掉 "CONFIG_"
+    # Remove CONFIG_ prefix
+    name_without_prefix = config_name[7:]  # Remove "CONFIG_"
 
-    # 转换为小写
+    # Convert to lowercase
     name_lower = name_without_prefix.lower()
 
-    # 构建新的配置名
+    # Build new config name
     new_config_name = f'CONFIG_MCUX_COMPONENT_middleware.edgefast_open.{name_lower}'
 
     return new_config_name
 
 def convert_config_name_to_kconfig(config_name):
     """
-    将 CONFIG_XXX 转换为 Kconfig 配置名（不带 CONFIG_ 前缀）
+    Convert CONFIG_XXX to Kconfig config name (without CONFIG_ prefix)
 
-    参数:
-        config_name: 原始配置名，如 CONFIG_BT_CONN
+    Args:
+        config_name: Original config name, e.g. CONFIG_BT_CONN
 
-    返回:
-        Kconfig 配置名，如 MCUX_COMPONENT_middleware.edgefast_open.bt_conn
+    Returns:
+        Kconfig config name, e.g. MCUX_COMPONENT_middleware.edgefast_open.bt_conn
     """
     mcux_name = convert_config_name_to_mcux(config_name)
-    # 移除 CONFIG_ 前缀
-    return mcux_name[7:]  # 去掉 "CONFIG_"
+    # Remove CONFIG_ prefix
+    return mcux_name[7:]  # Remove "CONFIG_"
 
 def replace_conditions_in_cmake(cmake_path, output_path=None, ignore_list=None):
     """
-    替换 CMakeLists.txt 文件中的所有条件为 MCUX 格式
-    只替换非注释部分的条件
+    Replace all conditions in CMakeLists.txt file with MCUX format
+    Only replace conditions in non-comment parts
 
-    参数:
-        cmake_path: 输入的 CMakeLists.txt 文件路径
-        output_path: 输出文件路径，如果为 None，则覆盖输入文件
-        ignore_list: 需要忽略的条件列表，这些条件不会被替换
+    Args:
+        cmake_path: Input CMakeLists.txt file path
+        output_path: Output file path, if None, overwrite input file
+        ignore_list: List of conditions to ignore, these conditions will not be replaced
 
-    返回:
-        替换的条件映射 {原始条件: 新条件}
+    Returns:
+        Replacement condition mapping {original condition: new condition}
     """
     cmake_path = Path(cmake_path).resolve()
 
@@ -1106,41 +1106,41 @@ def replace_conditions_in_cmake(cmake_path, output_path=None, ignore_list=None):
         ignore_list = []
 
     if not cmake_path.exists():
-        print(f"错误: 文件不存在: {cmake_path}")
+        print(f"Error: File does not exist: {cmake_path}")
         return {}
 
-    # 移除只读属性以便修改
+    # Remove read-only attribute for modification
     remove_readonly(cmake_path)
 
     try:
         with open(cmake_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
     except Exception as e:
-        print(f"错误: 无法读取文件 {cmake_path}: {e}")
+        print(f"Error: Unable to read file {cmake_path}: {e}")
         return {}
 
-    # 提取所有条件
+    # Extract all conditions
     conditions = extract_conditions_from_cmake(cmake_path)
 
-    # 构建替换映射，跳过忽略列表中的条件
+    # Build replacement mapping, skip conditions in ignore list
     replacements = OrderedDict()
     for condition in conditions.keys():
         if condition in ignore_list:
-            print(f"  跳过忽略的条件: {condition}")
+            print(f"  Skipping ignored condition: {condition}")
             continue
         new_condition = convert_config_name_to_mcux(condition)
         replacements[condition] = new_condition
 
-    # 逐行处理，只替换非注释部分
+    # Process line by line, only replace non-comment parts
     modified_lines = []
     replacement_count = {}
 
     for line in lines:
-        # 查找注释位置
+        # Find comment position
         comment_pos = line.find('#')
 
         if comment_pos == -1:
-            # 没有注释，整行都可以替换
+            # No comment, entire line can be replaced
             modified_line = line
             for old_condition, new_condition in replacements.items():
                 pattern = r'\b' + re.escape(old_condition) + r'\b'
@@ -1150,11 +1150,11 @@ def replace_conditions_in_cmake(cmake_path, output_path=None, ignore_list=None):
                     replacement_count[old_condition] = replacement_count.get(old_condition, 0) + count
             modified_lines.append(modified_line)
         else:
-            # 有注释，分别处理注释前后部分
+            # Has comment, process parts before and after comment separately
             code_part = line[:comment_pos]
             comment_part = line[comment_pos:]
 
-            # 只替换代码部分
+            # Only replace code part
             modified_code = code_part
             for old_condition, new_condition in replacements.items():
                 pattern = r'\b' + re.escape(old_condition) + r'\b'
@@ -1165,41 +1165,41 @@ def replace_conditions_in_cmake(cmake_path, output_path=None, ignore_list=None):
 
             modified_lines.append(modified_code + comment_part)
 
-    # 写入输出文件
+    # Write output file
     try:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.writelines(modified_lines)
     except Exception as e:
-        print(f"错误: 无法写入文件 {output_path}: {e}")
+        print(f"Error: Unable to write file {output_path}: {e}")
         return {}
 
-    # 打印替换统计
+    # Print replacement statistics
     if replacement_count:
-        print(f"\n  替换统计:")
+        print(f"\n  Replacement statistics:")
         for old_condition, count in replacement_count.items():
             new_condition = replacements[old_condition]
-            print(f"    {old_condition} -> {new_condition}: {count} 次")
+            print(f"    {old_condition} -> {new_condition}: {count} times")
     else:
-        print(f"\n  未找到需要替换的条件")
+        print(f"\n  No conditions found to replace")
 
     return replacements
 
 def generate_kconfig_file(replacements, output_path):
     """
-    生成 Kconfig.ecosystem 文件
+    Generate Kconfig.ecosystem file
 
-    参数:
-        replacements: 条件替换映射 {原始条件: 新条件}
-        output_path: 输出的 Kconfig.ecosystem 文件路径
+    Args:
+        replacements: Condition replacement mapping {original condition: new condition}
+        output_path: Output Kconfig.ecosystem file path
     """
     output_path = Path(output_path).resolve()
 
-    # 移除只读属性以便修改
+    # Remove read-only attribute for modification
     remove_readonly(output_path)
 
     kconfig_lines = []
 
-    # 添加文件头
+    # Add file header
     kconfig_lines.append("# Copyright 2025 NXP")
     kconfig_lines.append("#")
     kconfig_lines.append("# SPDX-License-Identifier: BSD-3-Clause")
@@ -1220,35 +1220,35 @@ def generate_kconfig_file(replacements, output_path):
     kconfig_lines.append("# Each configuration maps to a corresponding Zephyr configuration option")
     kconfig_lines.append("")
 
-    # 为每个条件生成 Kconfig 配置
+    # Generate Kconfig configuration for each condition
     for old_condition, new_condition in replacements.items():
-        # 获取 Kconfig 配置名（不带 CONFIG_ 前缀）
+        # Get Kconfig config name (without CONFIG_ prefix)
         kconfig_name = convert_config_name_to_kconfig(old_condition)
 
-        # 获取原始条件名（不带 CONFIG_ 前缀）
-        original_name = old_condition[7:]  # 去掉 "CONFIG_"
+        # Get original condition name (without CONFIG_ prefix)
+        original_name = old_condition[7:]  # Remove "CONFIG_"
 
-        # 生成 Kconfig 配置
+        # Generate Kconfig configuration
         kconfig_lines.append(f"config {kconfig_name}")
         kconfig_lines.append(f"    def_bool {original_name}")
         kconfig_lines.append("")
 
-    # 写入文件
+    # Write file
     try:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write('\n'.join(kconfig_lines))
     except Exception as e:
-        print(f"错误: 无法写入 Kconfig 文件: {e}")
+        print(f"Error: Unable to write Kconfig file: {e}")
         return
 
-    print(f"✓ Kconfig 文件生成完成！")
-    print(f"\n生成统计:")
-    print(f"  共生成 {len(replacements)} 个 Kconfig 配置")
-    print(f"\n输出文件: {output_path}")
-    print(f"文件大小: {os.path.getsize(output_path):,} 字节")
+    print(f"✓ Kconfig file generation completed!")
+    print(f"\nGeneration statistics:")
+    print(f"  Generated {len(replacements)} Kconfig configurations")
+    print(f"\nOutput file: {output_path}")
+    print(f"File size: {os.path.getsize(output_path):,} bytes")
 
     if len(replacements) > 0:
-        print(f"\n前 10 个 Kconfig 配置示例:")
+        print(f"\nFirst 10 Kconfig configuration examples:")
         for i, (old_condition, new_condition) in enumerate(list(replacements.items())[:10]):
             kconfig_name = convert_config_name_to_kconfig(old_condition)
             original_name = old_condition[7:]
@@ -1256,45 +1256,45 @@ def generate_kconfig_file(replacements, output_path):
             print(f"      def_bool {original_name}")
             print()
 
-    # 设置文件为只读
+    # Set file to read-only
     set_file_readonly(output_path)
 
 if __name__ == "__main__":
-    # 当前工作目录应该是 C:\_DDM\sdk-next\mcuxsdk\middleware\edgefast_open
-    # 根 CMakeLists_root.txt 在当前目录
+    # Current working directory should be C:\_DDM\sdk-next\mcuxsdk\middleware\edgefast_open
+    # Root CMakeLists_root.txt is in current directory
     root_cmake = "CMakeLists_root.txt"
     output_file = "CMakeLists.txt"
     kconfig_file = "Kconfig.ecosystem"
 
-    # 第一步：合并所有 CMakeLists.txt 文件
+    # Step 1: Merge all CMakeLists.txt files
     print("=" * 80)
-    print("第一步：合并所有 CMakeLists.txt 文件")
+    print("Step 1: Merge all CMakeLists.txt files")
     print("=" * 80)
     merge_cmake_files(root_cmake, output_file)
 
-    # 第二步：转换 zephyr 函数为 mcux 格式
+    # Step 2: Convert zephyr functions to mcux format
     print("\n" + "=" * 80)
-    print("第二步：转换 zephyr 函数为 mcux 格式")
+    print("Step 2: Convert zephyr functions to mcux format")
     print("=" * 80)
     convert_zephyr_functions_to_mcux(output_file)
 
-    # 第三步：替换条件并生成 Kconfig 文件
+    # Step 3: Replace conditions and generate Kconfig file
     print("\n" + "=" * 80)
-    print("第三步：替换条件并生成 Kconfig 文件")
+    print("Step 3: Replace conditions and generate Kconfig file")
     print("=" * 80)
 
-    # 3.1: 提取并替换条件
-    print("\n3.1: 提取并替换 CMakeLists.txt 中的条件...")
+    # 3.1: Extract and replace conditions
+    print("\n3.1: Extract and replace conditions in CMakeLists.txt...")
     ignore_list = ['CONFIG_BT_RX_PRIO']
     replacements = replace_conditions_in_cmake(output_file, ignore_list=ignore_list)
 
-    # 3.2: 生成 Kconfig.ecosystem 文件
-    print("\n3.2: 生成 Kconfig.ecosystem 文件...")
+    # 3.2: Generate Kconfig.ecosystem file
+    print("\n3.2: Generate Kconfig.ecosystem file...")
     generate_kconfig_file(replacements, kconfig_file)
 
     print("\n" + "=" * 80)
-    print("所有步骤完成！")
+    print("All steps completed!")
     print("=" * 80)
-    print(f"\n生成的文件:")
+    print(f"\nGenerated files:")
     print(f"  1. {Path(output_file).resolve()}")
     print(f"  2. {Path(kconfig_file).resolve()}")
