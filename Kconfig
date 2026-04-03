@@ -36,6 +36,8 @@ if MCUX_COMPONENT_middleware.edgefast_open
 # Load Kconfig.defconfig firstly
 rsource "Kconfig.defconfig"
 
+rsource "Kconfig.ecosystem"
+
 rsource "./*/Kconfig"
 
 endif # MCUX_COMPONENT_middleware.edgefast_open

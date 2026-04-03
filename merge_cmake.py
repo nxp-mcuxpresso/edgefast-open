@@ -2,6 +2,7 @@ import os
 import re
 import stat
 from pathlib import Path
+from collections import OrderedDict
 
 def extract_subdirectories(cmake_content):
     """
@@ -852,14 +853,306 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
     # 设置文件为只读
     set_file_readonly(output_path)
 
+def extract_conditions_from_cmake(cmake_path):
+    """
+    从 CMakeLists.txt 文件中提取所有条件编译的条件
+    忽略注释中的条件
+
+    参数:
+        cmake_path: CMakeLists.txt 文件路径
+
+    返回:
+        OrderedDict: {原始条件名: 出现次数}
+    """
+    cmake_path = Path(cmake_path).resolve()
+
+    if not cmake_path.exists():
+        print(f"错误: 文件不存在: {cmake_path}")
+        return OrderedDict()
+
+    try:
+        with open(cmake_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except Exception as e:
+        print(f"错误: 无法读取文件 {cmake_path}: {e}")
+        return OrderedDict()
+
+    conditions = OrderedDict()
+
+    # 逐行处理，忽略注释
+    for line in lines:
+        # 移除注释部分
+        # 查找 # 的位置
+        comment_pos = line.find('#')
+        if comment_pos != -1:
+            # 只处理 # 之前的内容
+            line = line[:comment_pos]
+
+        # 如果行为空或只有空白，跳过
+        if not line.strip():
+            continue
+
+        # 匹配 if(CONFIG_XXX) 和 if(NOT CONFIG_XXX) 等模式
+        # 支持多种格式：if(CONFIG_XXX), if(NOT CONFIG_XXX), if(CONFIG_XXX AND CONFIG_YYY) 等
+        pattern = r'\bif\s*\(\s*(?:NOT\s+)?(CONFIG_\w+)'
+
+        for match in re.finditer(pattern, line):
+            condition = match.group(1)
+            # 跳过已经是 MCUX_COMPONENT 格式的条件
+            if not condition.startswith('CONFIG_MCUX_COMPONENT_'):
+                if condition in conditions:
+                    conditions[condition] += 1
+                else:
+                    conditions[condition] = 1
+
+    return conditions
+
+def convert_config_name_to_mcux(config_name):
+    """
+    将 CONFIG_XXX 转换为 CONFIG_MCUX_COMPONENT_middleware.edgefast_open.xxx 格式
+
+    参数:
+        config_name: 原始配置名，如 CONFIG_BT_CONN
+
+    返回:
+        转换后的配置名，如 CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn
+    """
+    # 移除 CONFIG_ 前缀
+    name_without_prefix = config_name[7:]  # 去掉 "CONFIG_"
+
+    # 转换为小写
+    name_lower = name_without_prefix.lower()
+
+    # 构建新的配置名
+    new_config_name = f'CONFIG_MCUX_COMPONENT_middleware.edgefast_open.{name_lower}'
+
+    return new_config_name
+
+def convert_config_name_to_kconfig(config_name):
+    """
+    将 CONFIG_XXX 转换为 Kconfig 配置名（不带 CONFIG_ 前缀）
+
+    参数:
+        config_name: 原始配置名，如 CONFIG_BT_CONN
+
+    返回:
+        Kconfig 配置名，如 MCUX_COMPONENT_middleware.edgefast_open.bt_conn
+    """
+    mcux_name = convert_config_name_to_mcux(config_name)
+    # 移除 CONFIG_ 前缀
+    return mcux_name[7:]  # 去掉 "CONFIG_"
+
+def replace_conditions_in_cmake(cmake_path, output_path=None):
+    """
+    替换 CMakeLists.txt 文件中的所有条件为 MCUX 格式
+    只替换非注释部分的条件
+
+    参数:
+        cmake_path: 输入的 CMakeLists.txt 文件路径
+        output_path: 输出文件路径，如果为 None，则覆盖输入文件
+
+    返回:
+        替换的条件映射 {原始条件: 新条件}
+    """
+    cmake_path = Path(cmake_path).resolve()
+
+    if output_path is None:
+        output_path = cmake_path
+    else:
+        output_path = Path(output_path).resolve()
+
+    if not cmake_path.exists():
+        print(f"错误: 文件不存在: {cmake_path}")
+        return {}
+
+    # 移除只读属性以便修改
+    remove_readonly(cmake_path)
+
+    try:
+        with open(cmake_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except Exception as e:
+        print(f"错误: 无法读取文件 {cmake_path}: {e}")
+        return {}
+
+    # 提取所有条件
+    conditions = extract_conditions_from_cmake(cmake_path)
+
+    # 构建替换映射
+    replacements = OrderedDict()
+    for condition in conditions.keys():
+        new_condition = convert_config_name_to_mcux(condition)
+        replacements[condition] = new_condition
+
+    # 逐行处理，只替换非注释部分
+    modified_lines = []
+    replacement_count = {}
+
+    for line in lines:
+        # 查找注释位置
+        comment_pos = line.find('#')
+
+        if comment_pos == -1:
+            # 没有注释，整行都可以替换
+            modified_line = line
+            for old_condition, new_condition in replacements.items():
+                pattern = r'\b' + re.escape(old_condition) + r'\b'
+                count = len(re.findall(pattern, modified_line))
+                if count > 0:
+                    modified_line = re.sub(pattern, new_condition, modified_line)
+                    replacement_count[old_condition] = replacement_count.get(old_condition, 0) + count
+            modified_lines.append(modified_line)
+        else:
+            # 有注释，分别处理注释前后部分
+            code_part = line[:comment_pos]
+            comment_part = line[comment_pos:]
+
+            # 只替换代码部分
+            modified_code = code_part
+            for old_condition, new_condition in replacements.items():
+                pattern = r'\b' + re.escape(old_condition) + r'\b'
+                count = len(re.findall(pattern, modified_code))
+                if count > 0:
+                    modified_code = re.sub(pattern, new_condition, modified_code)
+                    replacement_count[old_condition] = replacement_count.get(old_condition, 0) + count
+
+            # 重新组合代码和注释
+            modified_lines.append(modified_code + comment_part)
+
+    # 写入输出文件
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.writelines(modified_lines)
+    except Exception as e:
+        print(f"错误: 无法写入输出文件: {e}")
+        return {}
+
+    print(f"✓ 条件替换完成！")
+    print(f"\n替换统计:")
+    print(f"  共替换 {len(replacement_count)} 个不同的条件")
+    print(f"  总替换次数: {sum(replacement_count.values())} 次")
+
+    if len(replacement_count) > 0:
+        print(f"\n前 10 个替换示例:")
+        for i, (old, count) in enumerate(list(replacement_count.items())[:10]):
+            new = replacements[old]
+            print(f"  {old} -> {new} ({count} 次)")
+
+    # 设置文件为只读
+    set_file_readonly(output_path)
+
+    return replacements
+
+def generate_kconfig_file(replacements, output_path):
+    """
+    生成 Kconfig.ecosystem 文件
+
+    参数:
+        replacements: 条件替换映射 {原始条件: 新条件}
+        output_path: 输出的 Kconfig.ecosystem 文件路径
+    """
+    output_path = Path(output_path).resolve()
+
+    # 移除只读属性以便修改
+    remove_readonly(output_path)
+
+    kconfig_lines = []
+
+    # 添加文件头
+    kconfig_lines.append("# Copyright 2025 NXP")
+    kconfig_lines.append("#")
+    kconfig_lines.append("# SPDX-License-Identifier: BSD-3-Clause")
+    kconfig_lines.append("#")
+    kconfig_lines.append("# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    kconfig_lines.append("# WARNING: This file is AUTO-GENERATED by merge_cmake.py script")
+    kconfig_lines.append("# DO NOT MODIFY THIS FILE MANUALLY!")
+    kconfig_lines.append("#")
+    kconfig_lines.append("# To make changes:")
+    kconfig_lines.append("#   1. Modify the source CMakeLists.txt files in their respective directories")
+    kconfig_lines.append("#   2. Re-run the merge_cmake.py script to regenerate this file")
+    kconfig_lines.append("#")
+    kconfig_lines.append("# Any manual modifications to this file will be OVERWRITTEN when the script")
+    kconfig_lines.append("# is run again.")
+    kconfig_lines.append("# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    kconfig_lines.append("")
+    kconfig_lines.append("# This file contains Kconfig definitions for EdgeFast Open middleware components")
+    kconfig_lines.append("# Each configuration maps to a corresponding Zephyr configuration option")
+    kconfig_lines.append("")
+
+    # 为每个条件生成 Kconfig 配置
+    for old_condition, new_condition in replacements.items():
+        # 获取 Kconfig 配置名（不带 CONFIG_ 前缀）
+        kconfig_name = convert_config_name_to_kconfig(old_condition)
+
+        # 获取原始条件名（不带 CONFIG_ 前缀）
+        original_name = old_condition[7:]  # 去掉 "CONFIG_"
+
+        # 生成 Kconfig 配置
+        kconfig_lines.append(f"config {kconfig_name}")
+        kconfig_lines.append(f"    def_bool {original_name}")
+        kconfig_lines.append("")
+
+    # 写入文件
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(kconfig_lines))
+    except Exception as e:
+        print(f"错误: 无法写入 Kconfig 文件: {e}")
+        return
+
+    print(f"✓ Kconfig 文件生成完成！")
+    print(f"\n生成统计:")
+    print(f"  共生成 {len(replacements)} 个 Kconfig 配置")
+    print(f"\n输出文件: {output_path}")
+    print(f"文件大小: {os.path.getsize(output_path):,} 字节")
+
+    if len(replacements) > 0:
+        print(f"\n前 10 个 Kconfig 配置示例:")
+        for i, (old_condition, new_condition) in enumerate(list(replacements.items())[:10]):
+            kconfig_name = convert_config_name_to_kconfig(old_condition)
+            original_name = old_condition[7:]
+            print(f"  config {kconfig_name}")
+            print(f"      def_bool {original_name}")
+            print()
+
+    # 设置文件为只读
+    set_file_readonly(output_path)
+
 if __name__ == "__main__":
     # 当前工作目录应该是 C:\_DDM\sdk-next\mcuxsdk\middleware\edgefast_open
     # 根 CMakeLists_root.txt 在当前目录
     root_cmake = "CMakeLists_root.txt"
     output_file = "CMakeLists.txt"
+    kconfig_file = "Kconfig.ecosystem"
 
     # 第一步：合并所有 CMakeLists.txt 文件
+    print("=" * 80)
+    print("第一步：合并所有 CMakeLists.txt 文件")
+    print("=" * 80)
     merge_cmake_files(root_cmake, output_file)
 
     # 第二步：转换 zephyr 函数为 mcux 格式
+    print("\n" + "=" * 80)
+    print("第二步：转换 zephyr 函数为 mcux 格式")
+    print("=" * 80)
     convert_zephyr_functions_to_mcux(output_file)
+
+    # 第三步：替换条件并生成 Kconfig 文件
+    print("\n" + "=" * 80)
+    print("第三步：替换条件并生成 Kconfig 文件")
+    print("=" * 80)
+
+    # 3.1: 提取并替换条件
+    print("\n3.1: 提取并替换 CMakeLists.txt 中的条件...")
+    replacements = replace_conditions_in_cmake(output_file)
+
+    # 3.2: 生成 Kconfig.ecosystem 文件
+    print("\n3.2: 生成 Kconfig.ecosystem 文件...")
+    generate_kconfig_file(replacements, kconfig_file)
+
+    print("\n" + "=" * 80)
+    print("所有步骤完成！")
+    print("=" * 80)
+    print(f"\n生成的文件:")
+    print(f"  1. {Path(output_file).resolve()}")
+    print(f"  2. {Path(kconfig_file).resolve()}")

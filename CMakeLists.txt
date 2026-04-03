@@ -232,7 +232,7 @@ endfunction()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT bluetooth)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/bluetooth/CMakeLists.txt
@@ -279,12 +279,12 @@ mcux_add_source(
     SOURCES ./source/bluetooth/common/bt_str.c
 )
 
-if(CONFIG_BT_RPA)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rpa)
     mcux_add_source(
         SOURCES ./source/bluetooth/common/rpa.c
     )
 endif()
-if(CONFIG_BT_PRIVATE_SHELL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_private_shell)
     mcux_add_source(
         SOURCES ./source/bluetooth/common/bt_shell_private.c
     )
@@ -297,7 +297,7 @@ zephyr_library_link_libraries(subsys__bluetooth)
 # Condition: CONFIG_BT_HCI
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI host)
 # ----------------------------------------
-if(CONFIG_BT_HCI)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci)
 
 # ========================================
 # Content from: source/bluetooth/host/CMakeLists.txt
@@ -310,7 +310,7 @@ zephyr_library_link_libraries(subsys__bluetooth)
 # add_subdirectory_ifdef(CONFIG_BT_CLASSIC classic)
 # add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 
-if(CONFIG_BT_HCI_RAW)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_raw)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/hci_raw.c
     )
@@ -318,28 +318,28 @@ if(CONFIG_BT_HCI_RAW)
         SOURCES ./source/bluetooth/host/hci_common.c
     )
 endif()
-if(CONFIG_BT_MONITOR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_monitor)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/monitor.c
     )
 endif()
-if(CONFIG_BT_SETTINGS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_settings)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/settings.c
     )
 endif()
-if(CONFIG_BT_HOST_CCM)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_host_ccm)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/aes_ccm.c
     )
 endif()
-if(CONFIG_BT_LONG_WQ)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_long_wq)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/long_wq.c
     )
 endif()
 
-if(CONFIG_BT_HCI_HOST)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host)
   mcux_add_source(
       SOURCES ./source/bluetooth/host/uuid.c
   )
@@ -361,30 +361,30 @@ if(CONFIG_BT_HCI_HOST)
   mcux_add_source(
       SOURCES ./source/bluetooth/host/id.c
   )
-  if(CONFIG_BT_BROADCASTER)
+  if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_broadcaster)
       mcux_add_source(
           SOURCES ./source/bluetooth/host/adv.c
       )
   endif()
-  if(CONFIG_BT_OBSERVER)
+  if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_observer)
       mcux_add_source(
           SOURCES ./source/bluetooth/host/scan.c
       )
   endif()
 
-  if(CONFIG_BT_HOST_CRYPTO)
+  if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_host_crypto)
       mcux_add_source(
           SOURCES ./source/bluetooth/host/crypto_psa.c
       )
   endif()
 
-  if(CONFIG_BT_ECC)
+  if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ecc)
       mcux_add_source(
           SOURCES ./source/bluetooth/host/ecc.c
       )
   endif()
 
-  if(CONFIG_BT_CONN)
+  if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/conn.c
     )
@@ -398,13 +398,13 @@ if(CONFIG_BT_HCI_HOST)
         SOURCES ./source/bluetooth/host/gatt.c
     )
 
-    if(CONFIG_BT_GATT_GAP_SVC_VALIDATE)
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_gatt_gap_svc_validate)
         mcux_add_source(
             SOURCES ./source/bluetooth/host/gatt_gap_svc_validate.c
         )
     endif()
 
-    if(CONFIG_BT_SMP)
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_smp)
       mcux_add_source(
           SOURCES ./source/bluetooth/host/smp.c
       )
@@ -418,7 +418,7 @@ if(CONFIG_BT_HCI_HOST)
     endif()
   endif()
 
-  if(CONFIG_BT_ISO)
+  if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_iso)
       mcux_add_source(
           SOURCES ./source/bluetooth/host/iso.c
       )
@@ -427,47 +427,47 @@ if(CONFIG_BT_HCI_HOST)
       )
   endif()
 
-  if(CONFIG_BT_CHANNEL_SOUNDING)
+  if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_channel_sounding)
       mcux_add_source(
           SOURCES ./source/bluetooth/host/cs.c
       )
   endif()
 
-  if(CONFIG_BT_DF)
+  if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_df)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/direction.c
     )
   endif()
 endif()
 
-if(CONFIG_BT_SMP_LOG_LEVEL_DBG OR CONFIG_BT_KEYS_LOG_LEVEL_DBG OR CONFIG_BT_LOG_SNIFFER_INFO)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_smp_log_level_dbg OR CONFIG_BT_KEYS_LOG_LEVEL_DBG OR CONFIG_BT_LOG_SNIFFER_INFO)
   message(WARNING "One of these options are enabled:
-  CONFIG_BT_SMP_LOG_LEVEL_DBG CONFIG_BT_KEYS_LOG_LEVEL_DBG CONFIG_BT_LOG_SNIFFER_INFO.
+  CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_smp_log_level_dbg CONFIG_BT_KEYS_LOG_LEVEL_DBG CONFIG_BT_LOG_SNIFFER_INFO.
   Private security keys such as the LTK will be printed out, do not use in
   production."
     )
 endif()
-if(CONFIG_BT_FIXED_PASSKEY)
-  message(WARNING "CONFIG_BT_FIXED_PASSKEY is enabled
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_fixed_passkey)
+  message(WARNING "CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_fixed_passkey is enabled
   A fixed passkey is easy to deduce during the pairing procedure, do not use in
   production."
     )
 endif()
-if(CONFIG_BT_OOB_DATA_FIXED)
-  message(WARNING "CONFIG_BT_OOB_DATA_FIXED is enabled.
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_oob_data_fixed)
+  message(WARNING "CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_oob_data_fixed is enabled.
   A hardcoded OOB data set will be stored in the image, do not use in
   production."
     )
 endif()
-if(CONFIG_BT_USE_DEBUG_KEYS OR CONFIG_BT_STORE_DEBUG_KEYS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_use_debug_keys OR CONFIG_BT_STORE_DEBUG_KEYS)
   message(WARNING "One or both these options are enabled:
-  CONFIG_BT_USE_DEBUG_KEYS CONFIG_BT_STORE_DEBUG_KEYS.
+  CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_use_debug_keys CONFIG_BT_STORE_DEBUG_KEYS.
   A predefined, publicly available keypair intended for testing will be used.
   Do not use in production."
     )
 endif()
-if(CONFIG_BT_CONN_DISABLE_SECURITY)
-  message(WARNING "CONFIG_BT_CONN_DISABLE_SECURITY is enabled.
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn_disable_security)
+  message(WARNING "CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn_disable_security is enabled.
   Security is disabled for incoming requests for GATT attributes and L2CAP
   channels that would otherwise require encryption/authentication in order to
   be accessed.
@@ -476,7 +476,7 @@ if(CONFIG_BT_CONN_DISABLE_SECURITY)
 endif()
 
 zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS mbedTLS)
-if(CONFIG_BUILD_WITH_TFM)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
     mcux_add_include(
         INCLUDES $<TARGET_PROPERTY:tfm,TFM_BINARY_DIR>/api_ns/interface/include
     )
@@ -485,7 +485,7 @@ endif()
 # Bluetooth Mesh has test dependencies in the host.
 # In order to compile Bsim tests with these test features
 # and PSA enabled, the libraries must be linked.
-if(CONFIG_BT_MESH AND CONFIG_BT_TESTING)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mesh AND CONFIG_BT_TESTING)
   zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS mbedTLS)
 endif()
 
@@ -494,7 +494,7 @@ endif()
 # Condition: CONFIG_BT_CLASSIC
 # Original: add_subdirectory_ifdef(CONFIG_BT_CLASSIC classic)
 # ----------------------------------------
-if(CONFIG_BT_CLASSIC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic)
 
 # ========================================
 # Content from: source/bluetooth/host/classic/CMakeLists.txt
@@ -506,7 +506,7 @@ if(CONFIG_BT_CLASSIC)
 zephyr_library()
 zephyr_library_link_libraries(subsys__bluetooth)
 
-if(CONFIG_BT_A2DP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_a2dp)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/a2dp.c
     )
@@ -514,33 +514,33 @@ if(CONFIG_BT_A2DP)
         SOURCES ./source/bluetooth/host/classic/a2dp_codec_sbc.c
     )
 endif()
-if(CONFIG_BT_AVDTP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avdtp)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/avdtp.c
     )
 endif()
-if(CONFIG_BT_AVRCP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/avrcp.c
     )
 endif()
-if(CONFIG_BT_AVCTP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avctp)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/avctp.c
     )
 endif()
-if(CONFIG_BT_RFCOMM)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rfcomm)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/rfcomm.c
     )
 endif()
-if(CONFIG_BT_BIP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bip)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/bip.c
     )
 endif()
 
-if(CONFIG_BT_CLASSIC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/br.c
     )
@@ -564,7 +564,7 @@ if(CONFIG_BT_CLASSIC)
     )
 endif()
 
-if(CONFIG_BT_HFP_HF)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_hf)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/hfp_hf.c
     )
@@ -573,13 +573,13 @@ if(CONFIG_BT_HFP_HF)
     )
 endif()
 
-if(CONFIG_BT_HFP_AG)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_ag)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/hfp_ag.c
     )
 endif()
 
-if(CONFIG_BT_GOEP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_goep)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/obex.c
     )
@@ -588,13 +588,13 @@ if(CONFIG_BT_GOEP)
     )
 endif()
 
-if(CONFIG_BT_DID)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_did)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/did.c
     )
 endif()
 
-if(CONFIG_BT_AVRCP_CT_COVER_ART OR CONFIG_BT_AVRCP_TG_COVER_ART)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp_ct_cover_art OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp_tg_cover_art)
   mcux_add_source(
       SOURCES ./source/bluetooth/host/classic/avrcp_cover_art.c
   )
@@ -605,7 +605,7 @@ endif()
 # Condition: CONFIG_BT_SHELL
 # Original: add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 # ----------------------------------------
-if(CONFIG_BT_SHELL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
 
 # ========================================
 # Content from: source/bluetooth/host/classic/shell/CMakeLists.txt
@@ -616,38 +616,38 @@ zephyr_library()
 mcux_add_source(
     SOURCES ./source/bluetooth/host/classic/shell/bredr.c
 )
-if(CONFIG_BT_RFCOMM)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rfcomm)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/shell/rfcomm.c
     )
 endif()
-if(CONFIG_BT_A2DP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_a2dp)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/shell/a2dp.c
     )
 endif()
-if(CONFIG_BT_AVRCP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/shell/avrcp.c
     )
 endif()
-if(CONFIG_BT_HFP_HF OR CONFIG_BT_HFP_AG)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_hf OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_ag)
   mcux_add_source(
       SOURCES ./source/bluetooth/host/classic/shell/hfp.c
   )
 endif()
 
-if(CONFIG_BT_GOEP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_goep)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/shell/goep.c
     )
 endif()
-if(CONFIG_BT_BIP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bip)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/shell/bip.c
     )
 endif()
-if(CONFIG_BT_AVRCP_TG_COVER_ART OR CONFIG_BT_AVRCP_CT_COVER_ART)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp_tg_cover_art OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp_ct_cover_art)
   mcux_add_source(
       SOURCES ./source/bluetooth/host/classic/shell/avrcp_cover_art.c
   )
@@ -660,7 +660,7 @@ endif()
 # Condition: CONFIG_BT_SHELL
 # Original: add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 # ----------------------------------------
-if(CONFIG_BT_SHELL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
 
 # ========================================
 # Content from: source/bluetooth/host/shell/CMakeLists.txt
@@ -671,22 +671,22 @@ zephyr_library()
 mcux_add_source(
     SOURCES ./source/bluetooth/host/shell/bt.c
 )
-if(CONFIG_BT_CONN)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/shell/gatt.c
     )
 endif()
-if(CONFIG_BT_L2CAP_DYNAMIC_CHANNEL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_l2cap_dynamic_channel)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/shell/l2cap.c
     )
 endif()
-if(CONFIG_BT_ISO)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_iso)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/shell/iso.c
     )
 endif()
-if(CONFIG_BT_CHANNEL_SOUNDING)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_channel_sounding)
     mcux_add_source(
         SOURCES ./source/bluetooth/host/shell/cs.c
     )
@@ -699,7 +699,7 @@ endif()
 # Condition: CONFIG_BT_HCI
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI controller)
 # ----------------------------------------
-if(CONFIG_BT_HCI)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci)
 
 # ========================================
 # Content from: source/bluetooth/controller/CMakeLists.txt
@@ -713,7 +713,7 @@ mcux_add_include(
 )
 # edgefast_open_add_subdirectory(HCI)
 
-if(CONFIG_BT_H4)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4)
   mcux_add_configuration(
     CC "-DDEBUG_CONSOLE_TRANSFER_NON_BLOCKING -DSERIAL_PORT_TYPE_UART=1"
     CX "-DDEBUG_CONSOLE_TRANSFER_NON_BLOCKING -DSERIAL_PORT_TYPE_UART=1"
@@ -732,7 +732,7 @@ endif()
 
 # edgefast_open_add_subdirectory(configs)
 
-if (CONFIG_BUILD_ONLY_NO_BLOBS)
+if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.build_only_no_blobs)
   message(WARNING "
   ---------------------------------------------------------------------------
   Building only the Bluetooth driver without binary blobs and patches.
@@ -741,7 +741,7 @@ if (CONFIG_BUILD_ONLY_NO_BLOBS)
   ")
 else()
 
-if(CONFIG_DT_HAS_ESPRESSIF_ESP32_BT_HCI_ENABLED)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.dt_has_espressif_esp32_bt_hci_enabled)
   zephyr_blobs_verify(MODULE hal_espressif REQUIRED)
 endif()
 
@@ -749,22 +749,22 @@ if((CONFIG_DT_HAS_ST_HCI_STM32WBA_ENABLED) OR (CONFIG_DT_HAS_ST_HCI_STM32WB0_ENA
   zephyr_blobs_verify(MODULE hal_stm32 REQUIRED)
 endif()
 
-if(CONFIG_DT_HAS_SILABS_BT_HCI_EFR32_ENABLED)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.dt_has_silabs_bt_hci_efr32_enabled)
   zephyr_blobs_verify(MODULE hal_silabs REQUIRED)
 endif()
 
-if(CONFIG_DT_HAS_INFINEON_BLESS_HCI_ENABLED)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.dt_has_infineon_bless_hci_enabled)
   zephyr_blobs_verify(MODULE hal_infineon REQUIRED)
 endif()
 
-if(CONFIG_DT_HAS_RENESAS_BT_HCI_DA1469X_ENABLED)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.dt_has_renesas_bt_hci_da1469x_enabled)
   zephyr_blobs_verify(MODULE hal_renesas REQUIRED)
 endif()
 
 endif() # CONFIG_BUILD_ONLY_NO_BLOBS
 
 # zephyr-keep-sorted-start
-if(CONFIG_BT_AMBIQ_HCI)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ambiq_hci)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_ambiq.c
     )
@@ -772,116 +772,116 @@ if(CONFIG_BT_AMBIQ_HCI)
         SOURCES ./source/bluetooth/controller/HCI/apollox_blue.c
     )
 endif()
-if(CONFIG_BT_CYW208XX)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cyw208xx)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_infineon_cyw208xx.c
     )
 endif()
-if(CONFIG_BT_CYW43XX)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cyw43xx)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/h4_infineon_cyw43xxx.c
     )
 endif()
-if(CONFIG_BT_DA1453X)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_da1453x)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_da1453x.c
     )
 endif()
-if(CONFIG_BT_DA1469X)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_da1469x)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_da1469x.c
     )
 endif()
-if(CONFIG_BT_ESP32)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_esp32)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_esp32.c
     )
 endif()
-if(CONFIG_BT_H4)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/h4.c
     )
 endif()
-if(CONFIG_BT_H4_NXP_CTLR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_nxp_setup.c
     )
 endif()
-if(CONFIG_BT_H5)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h5)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/h5.c
     )
 endif()
-if(CONFIG_BT_HCI_IPC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_ipc)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/ipc.c
     )
 endif()
-if(CONFIG_BT_NXP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_nxp)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_nxp.c
     )
 endif()
-if(CONFIG_BT_PSOC6_BLESS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_psoc6_bless)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_infineon_psoc6_bless.c
     )
 endif()
-if(CONFIG_BT_SF32LB)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_sf32lb)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_sf32lb.c
     )
 endif()
-if(CONFIG_BT_SILABS_EFR32)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_efr32)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_silabs_efr32.c
     )
 endif()
-if(CONFIG_BT_SILABS_SIWX91X)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_siwx91x)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_silabs_siwx91x.c
     )
 endif()
-if(CONFIG_BT_SPI_BLUENRG)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_spi_bluenrg)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_spi_st.c
     )
 endif()
-if(CONFIG_BT_SPI_ZEPHYR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_spi_zephyr)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/spi.c
     )
 endif()
-if(CONFIG_BT_STM32WB0)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wb0)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_stm32wb0.c
     )
 endif()
-if(CONFIG_BT_STM32WBA)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wba)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/hci_stm32wba.c
     )
 endif()
-if(CONFIG_BT_STM32_IPM)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32_ipm)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/ipm_stm32wb.c
     )
 endif()
-if(CONFIG_SOC_NRF5340_CPUAPP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.soc_nrf5340_cpuapp)
     mcux_add_source(
         SOURCES ./source/bluetooth/controller/HCI/nrf53_support.c
     )
 endif()
 # zephyr-keep-sorted-stop
 
-if(CONFIG_BT_USERCHAN)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_userchan)
   mcux_add_source(
       SOURCES ./source/bluetooth/controller/HCI/userchan.c
   )
   target_sources(native_simulator INTERFACE ./source/bluetooth/controller/HCI/userchan_bottom.c)
 endif()
 
-if (CONFIG_BT_H4_NXP_CTLR AND CONFIG_BT_CLASSIC)
+if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr AND CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic)
   mcux_add_source(
       SOURCES ./source/bluetooth/controller/HCI/hci_nxp_sco.c
   )
@@ -953,110 +953,110 @@ endif()
 # Condition: CONFIG_BT_CONN
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CONN services)
 # ----------------------------------------
-if(CONFIG_BT_CONN)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn)
 
 # ========================================
 # Content from: source/bluetooth/services/CMakeLists.txt
 # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-if(CONFIG_BT_ANS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ans)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/ans.c
     )
 endif()
 
-if(CONFIG_BT_DIS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_dis)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/dis.c
     )
 endif()
 
-if(CONFIG_BT_GAP_SVC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_gap_svc)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/gap_svc.c
     )
 endif()
 
-if(CONFIG_BT_CTS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cts)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/cts.c
     )
 endif()
 
-if(CONFIG_BT_ETS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ets)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/ets.c
     )
 endif()
 
-if(CONFIG_BT_HRS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hrs)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/hrs.c
     )
 endif()
 
-if(CONFIG_BT_TPS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tps)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/tps.c
     )
 endif()
 
-if(CONFIG_BT_WUS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_wus)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/wus.c
     )
 endif()
 
-if(CONFIG_BT_FMP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_fmp)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/fmp.c
     )
 endif()
 
-if(CONFIG_BT_HPS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hps)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/hps.c
     )
 endif()
 
-if(CONFIG_BT_HTS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hts)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/hts.c
     )
 endif()
 
-if(CONFIG_BT_IPSP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ipsp)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/ipsp.c
     )
 endif()
 
-if(CONFIG_BT_PXR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_pxr)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/pxr.c
     )
 endif()
 
-if(CONFIG_BT_TIP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tip)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/tip.c
     )
 endif()
 
-if(CONFIG_BT_BAS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bas)
 #   edgefast_open_add_subdirectory(bas)
 endif()
 
-if(CONFIG_BT_OTS OR CONFIG_BT_OTS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots_client)
 #   edgefast_open_add_subdirectory(ots)
 endif()
 
-if(CONFIG_BT_IAS OR CONFIG_BT_IAS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias_client)
 #   edgefast_open_add_subdirectory(ias)
 endif()
 
-if(CONFIG_BT_ZEPHYR_NUS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_zephyr_nus)
 #   edgefast_open_add_subdirectory(nus)
 endif()
 
@@ -1069,17 +1069,17 @@ endif()
 # Content from: source/bluetooth/services/bas/CMakeLists.txt
 # ========================================
 # SPDX-License-Identifier: Apache-2.0
-if(CONFIG_BT_BAS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bas)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/bas/bas.c
     )
 endif()
-if(CONFIG_BT_BAS_BLS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bas_bls)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/bas/bas_bls.c
     )
 endif()
-if(CONFIG_BT_BAS_BCS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bas_bcs)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/bas/bas_bcs.c
     )
@@ -1095,7 +1095,7 @@ endif()
 # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-if(CONFIG_BT_OTS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/ots/ots.c
     )
@@ -1113,13 +1113,13 @@ if(CONFIG_BT_OTS)
     )
 endif()
 
-  if(CONFIG_BT_OTS_DIR_LIST_OBJ)
+  if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots_dir_list_obj)
       mcux_add_source(
           SOURCES ./source/bluetooth/services/ots/ots_dir_list.c
       )
   endif()
 
-if(CONFIG_BT_OTS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/ots/ots_client.c
     )
@@ -1140,13 +1140,13 @@ endif()
 
 # edgefast_open_add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 
-if(CONFIG_BT_IAS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/ias/ias.c
     )
 endif()
 
-if(CONFIG_BT_IAS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/ias/ias_client.c
     )
@@ -1157,7 +1157,7 @@ endif()
 # Condition: CONFIG_BT_SHELL
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 # ----------------------------------------
-if(CONFIG_BT_SHELL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
 
 # ========================================
 # Content from: source/bluetooth/services/ias/shell/CMakeLists.txt
@@ -1165,12 +1165,12 @@ if(CONFIG_BT_SHELL)
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
-if(CONFIG_BT_IAS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/ias/shell/ias.c
     )
 endif()
-if(CONFIG_BT_IAS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/ias/shell/ias_client.c
     )
@@ -1200,7 +1200,7 @@ mcux_add_source(
     SOURCES ./source/bluetooth/services/nus/nus_inst.c
 )
 
-if(CONFIG_BT_ZEPHYR_NUS_AUTO_START_BLUETOOTH)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_zephyr_nus_auto_start_bluetooth)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/nus/bt_nus_auto_start_bt.c
     )
@@ -1212,7 +1212,7 @@ endif()
 # Condition: CONFIG_BT_MESH
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_MESH mesh)
 # ----------------------------------------
-if(CONFIG_BT_MESH)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mesh)
 endif()
 
 # ----------------------------------------
@@ -1220,7 +1220,7 @@ endif()
 # Condition: CONFIG_BT_AUDIO
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_AUDIO audio)
 # ----------------------------------------
-if(CONFIG_BT_AUDIO)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio)
 
 # ========================================
 # Content from: source/bluetooth/audio/CMakeLists.txt
@@ -1235,45 +1235,45 @@ mcux_add_source(
     SOURCES ./source/bluetooth/audio/audio.c
 )
 
-if(CONFIG_BT_VOCS OR CONFIG_BT_VOCS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_vocs OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_vocs_client)
   mcux_add_source(
       SOURCES ./source/bluetooth/audio/vocs.c
   )
 endif()
-if(CONFIG_BT_VOCS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_vocs_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/vocs_client.c
     )
 endif()
 
-if(CONFIG_BT_AICS OR CONFIG_BT_AICS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_aics OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_aics_client)
   mcux_add_source(
       SOURCES ./source/bluetooth/audio/aics.c
   )
 endif()
-if(CONFIG_BT_AICS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_aics_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/aics_client.c
     )
 endif()
 
-if(CONFIG_BT_VCP_VOL_REND)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_vcp_vol_rend)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/vcp_vol_rend.c
     )
 endif()
-if(CONFIG_BT_VCP_VOL_CTLR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_vcp_vol_ctlr)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/vcp_vol_ctlr.c
     )
 endif()
 
-if(CONFIG_BT_MICP_MIC_DEV)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_micp_mic_dev)
   mcux_add_source(
       SOURCES ./source/bluetooth/audio/micp_mic_dev.c
   )
 endif()
-if(CONFIG_BT_MICP_MIC_CTLR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_micp_mic_ctlr)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/micp_mic_ctlr.c
     )
@@ -1281,7 +1281,7 @@ endif()
 
 # When CONFIG_BT_AUDIO and CONFIG_BT_CONN is enabled we pull in ccid. It is based on CONFIG_BT_CONN
 # as CCID depends on GATT, and GATT is enabled when CONFIG_BT_CONN=y.
-if(CONFIG_BT_CONN)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/ccid.c
     )
@@ -1289,69 +1289,69 @@ endif()
 
 zephyr_library_link_libraries(subsys__bluetooth)
 
-if(CONFIG_BT_CSIP_SET_MEMBER)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_csip_set_member)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/csip_set_member.c
     )
 endif()
-if(CONFIG_BT_CSIP_SET_COORDINATOR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_csip_set_coordinator)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/csip_set_coordinator.c
     )
 endif()
-if(CONFIG_BT_CSIP_SET_MEMBER OR CONFIG_BT_CSIP_SET_COORDINATOR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_csip_set_member OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_csip_set_coordinator)
   mcux_add_source(
       SOURCES ./source/bluetooth/audio/csip_crypto.c
   )
 endif()
 
-if(CONFIG_BT_TBS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tbs)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/tbs.c
     )
 endif()
 
-if(CONFIG_BT_TBS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tbs_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/tbs_client.c
     )
 endif()
 
-if(CONFIG_BT_MCC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mcc)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/mcc.c
     )
 endif()
 
-if(CONFIG_BT_MCS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mcs)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/mcs.c
     )
 endif()
 
-if(CONFIG_BT_MPL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mpl)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/mpl.c
     )
 endif()
 
-if(CONFIG_MCTL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.mctl)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/media_proxy.c
     )
 endif()
 
-if(CONFIG_BT_ASCS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ascs)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/ascs.c
     )
 endif()
-if(CONFIG_BT_PACS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_pacs)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/pacs.c
     )
 endif()
-if(CONFIG_BT_BAP_STREAM)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_stream)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/bap_stream.c
     )
@@ -1362,97 +1362,97 @@ if(CONFIG_BT_BAP_STREAM)
         SOURCES ./source/bluetooth/audio/bap_iso.c
     )
 endif()
-if(CONFIG_BT_BAP_BASE)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_base)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/bap_base.c
     )
 endif()
-if(CONFIG_BT_BAP_UNICAST_SERVER)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_unicast_server)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/bap_unicast_server.c
     )
 endif()
-if(CONFIG_BT_BAP_UNICAST_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_unicast_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/bap_unicast_client.c
     )
 endif()
-if(CONFIG_BT_BAP_BROADCAST_SOURCE)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_broadcast_source)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/bap_broadcast_source.c
     )
 endif()
-if(CONFIG_BT_BAP_BROADCAST_SINK)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_broadcast_sink)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/bap_broadcast_sink.c
     )
 endif()
-if(CONFIG_BT_BAP_SCAN_DELEGATOR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_scan_delegator)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/bap_scan_delegator.c
     )
 endif()
-if(CONFIG_BT_BAP_BROADCAST_ASSISTANT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_broadcast_assistant)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/bap_broadcast_assistant.c
     )
 endif()
-if(CONFIG_BT_CCP_CALL_CONTROL_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ccp_call_control_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/ccp_call_control_client.c
     )
 endif()
-if(CONFIG_BT_CCP_CALL_CONTROL_SERVER)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ccp_call_control_server)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/ccp_call_control_server.c
     )
 endif()
-if(CONFIG_BT_HAS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_has)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/has.c
     )
 endif()
-if(CONFIG_BT_HAS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_has_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/has_client.c
     )
 endif()
-if(CONFIG_BT_CAP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/cap_stream.c
     )
 endif()
-if(CONFIG_BT_CAP_ACCEPTOR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_acceptor)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/cap_acceptor.c
     )
 endif()
-if(CONFIG_BT_CAP_INITIATOR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_initiator)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/cap_initiator.c
     )
 endif()
-if(CONFIG_BT_CAP_COMMANDER)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_commander)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/cap_commander.c
     )
 endif()
-if(CONFIG_BT_CAP_HANDOVER)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_handover)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/cap_handover.c
     )
 endif()
-if(CONFIG_BT_CAP_INITIATOR_UNICAST OR CONFIG_BT_CAP_COMMANDER)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_initiator_unicast OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_commander)
   mcux_add_source(
       SOURCES ./source/bluetooth/audio/cap_common.c
   )
 endif()
-if(CONFIG_BT_TMAP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tmap)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/tmap.c
     )
 endif()
-if(CONFIG_BT_GMAP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_gmap)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/gmap_client.c
     )
@@ -1460,7 +1460,7 @@ if(CONFIG_BT_GMAP)
         SOURCES ./source/bluetooth/audio/gmap_server.c
     )
 endif()
-if(CONFIG_BT_PBP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_pbp)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/pbp.c
     )
@@ -1471,7 +1471,7 @@ endif()
 # Condition: CONFIG_BT_SHELL
 # Original: add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 # ----------------------------------------
-if(CONFIG_BT_SHELL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
 
 # ========================================
 # Content from: source/bluetooth/audio/shell/CMakeLists.txt
@@ -1481,129 +1481,129 @@ if(CONFIG_BT_SHELL)
 zephyr_library()
 zephyr_library_link_libraries(subsys__bluetooth)
 
-if(CONFIG_BT_CCP_CALL_CONTROL_SERVER)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ccp_call_control_server)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/ccp_call_control_server.c
     )
 endif()
-if(CONFIG_BT_CCP_CALL_CONTROL_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ccp_call_control_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/ccp_call_control_client.c
     )
 endif()
-if(CONFIG_BT_VCP_VOL_REND)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_vcp_vol_rend)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/vcp_vol_rend.c
     )
 endif()
-if(CONFIG_BT_VCP_VOL_CTLR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_vcp_vol_ctlr)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/vcp_vol_ctlr.c
     )
 endif()
-if(CONFIG_BT_MICP_MIC_DEV)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_micp_mic_dev)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/micp_mic_dev.c
     )
 endif()
-if(CONFIG_BT_MICP_MIC_CTLR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_micp_mic_ctlr)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/micp_mic_ctlr.c
     )
 endif()
-if(CONFIG_BT_CSIP_SET_MEMBER)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_csip_set_member)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/csip_set_member.c
     )
 endif()
-if(CONFIG_BT_CSIP_SET_COORDINATOR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_csip_set_coordinator)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/csip_set_coordinator.c
     )
 endif()
-if(CONFIG_BT_TBS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tbs)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/tbs.c
     )
 endif()
-if(CONFIG_BT_TBS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tbs_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/tbs_client.c
     )
 endif()
-if(CONFIG_BT_MPL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mpl)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/mpl.c
     )
 endif()
-if(CONFIG_BT_MCC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mcc)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/mcc.c
     )
 endif()
-if(CONFIG_BT_MCS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mcs)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/media_controller.c
     )
 endif()
-if(CONFIG_BT_HAS_PRESET_SUPPORT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_has_preset_support)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/has.c
     )
 endif()
-if(CONFIG_BT_CAP_ACCEPTOR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_acceptor)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/cap_acceptor.c
     )
 endif()
-if(CONFIG_BT_CAP_INITIATOR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_initiator)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/cap_initiator.c
     )
 endif()
-if(CONFIG_BT_CAP_COMMANDER)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_commander)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/cap_commander.c
     )
 endif()
-if(CONFIG_BT_HAS_CLIENT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_has_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/has_client.c
     )
 endif()
-if(CONFIG_BT_TMAP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tmap)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/tmap.c
     )
 endif()
-if(CONFIG_BT_GMAP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_gmap)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/gmap.c
     )
 endif()
 # We use BT_BAP_STREAM as a common ground for audio, as that is set whenever
 # any audio stream functionality is enabled.
-if(CONFIG_BT_BAP_STREAM)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_stream)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/bap.c
     )
 endif()
-if(CONFIG_LIBLC3 AND CONFIG_USBD_AUDIO2_CLASS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3 AND CONFIG_USBD_AUDIO2_CLASS)
   mcux_add_source(
       SOURCES ./source/bluetooth/audio/shell/bap_usb.c
   )
 endif()
-if(CONFIG_BT_BAP_SCAN_DELEGATOR)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_scan_delegator)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/bap_scan_delegator.c
     )
 endif()
-if(CONFIG_BT_BAP_BROADCAST_ASSISTANT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_broadcast_assistant)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/bap_broadcast_assistant.c
     )
 endif()
-if(CONFIG_BT_PBP)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_pbp)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/pbp.c
     )
@@ -1616,7 +1616,7 @@ endif()
 # Condition: CONFIG_BT_CRYPTO
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CRYPTO crypto)
 # ----------------------------------------
-if(CONFIG_BT_CRYPTO)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto)
 
 # ========================================
 # Content from: source/bluetooth/crypto/CMakeLists.txt
@@ -1629,7 +1629,7 @@ mcux_add_source(
     SOURCES ./source/bluetooth/crypto/bt_crypto.c
 )
 
-if(CONFIG_BT_CRYPTO_PSA)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa)
 mcux_add_source(
     SOURCES ./source/bluetooth/crypto/bt_crypto_psa.c
 )
@@ -1640,14 +1640,14 @@ mcux_add_source(
 endif()
 
 zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS mbedTLS)
-if(CONFIG_BUILD_WITH_TFM)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
     mcux_add_include(
         INCLUDES $<TARGET_PROPERTY:tfm,TFM_BINARY_DIR>/api_ns/interface/include
     )
 endif()
 
-if(CONFIG_BT_CRYPTO_LOG_LEVEL_DBG)
-    message(WARNING "CONFIG_BT_CRYPTO_LOG_LEVEL_DBG is enabled.
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_log_level_dbg)
+    message(WARNING "CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_log_level_dbg is enabled.
     Private security keys such as the Long Term Key will be printed out.
     Do not use in production."
     )
@@ -1664,12 +1664,12 @@ endif()
 # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-if(CONFIG_BT_EAD)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ead)
     mcux_add_source(
         SOURCES ./source/bluetooth/lib/ead.c
     )
 endif()
-if(CONFIG_LIBSBC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc)
     mcux_add_source(
         SOURCES ./source/bluetooth/lib/sbc.c
     )
@@ -1681,7 +1681,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT porting)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/CMakeLists.txt
@@ -1714,7 +1714,7 @@ mcux_add_source(
     SOURCES ./source/porting/*.h
 )
 
-if(CONFIG_BT_LOGGING)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_logging)
 	mcux_add_configuration(
 		CC "-DLOG_MAX_BUFF_LOG_COUNT=255 -DLOG_MAX_ARGUMENT_COUNT=8"
 		CX "-DLOG_MAX_BUFF_LOG_COUNT=255 -DLOG_MAX_ARGUMENT_COUNT=8"
@@ -1723,7 +1723,7 @@ if(CONFIG_BT_LOGGING)
 		CC "-DLOG_ENABLE_OVERWRITE=1"
 		CX "-DLOG_ENABLE_OVERWRITE=1"
 	)
-	if (CONFIG_BT_LOGGING_ASYNC)
+	if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_logging_async)
 		mcux_add_configuration(
 			CC "-DLOG_ENABLE_ASYNC_MODE=1"
 			CX "-DLOG_ENABLE_ASYNC_MODE=1"
@@ -1731,7 +1731,7 @@ if(CONFIG_BT_LOGGING)
 	endif()
 endif()
 
-if(CONFIG_EDGEFAST_OPEN_SUPPRESSED_WARNINGS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings)
 	# For liblc3
 	mcux_add_iar_configuration(
 		CC "--diag_suppress=Pa093,Pa092"
@@ -1806,7 +1806,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT condvar)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/condvar/CMakeLists.txt
@@ -1823,7 +1823,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT fifo)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/fifo/CMakeLists.txt
@@ -1840,7 +1840,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT heap)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/heap/CMakeLists.txt
@@ -1857,7 +1857,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT lifo)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/lifo/CMakeLists.txt
@@ -1874,7 +1874,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT mutex)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/mutex/CMakeLists.txt
@@ -1891,7 +1891,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT poll)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/poll/CMakeLists.txt
@@ -1908,7 +1908,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT queue)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/queue/CMakeLists.txt
@@ -1925,7 +1925,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT reboot)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/reboot/CMakeLists.txt
@@ -1948,7 +1948,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT sem)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/sem/CMakeLists.txt
@@ -1965,25 +1965,25 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT shell)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/shell/CMakeLists.txt
 # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
-if(CONFIG_PORT_SHELL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.port_shell)
     mcux_add_source(
         SOURCES ./source/porting/shell/*.*
     )
 endif()
-if(CONFIG_PORT_SHELL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.port_shell)
     mcux_add_include(
         INCLUDES ./source/porting/shell
     )
 endif()
 
-if(CONFIG_PORT_SHELL)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.port_shell)
     mcux_add_configuration(
         CC "-DOSA_USED=1"
         CX "-DOSA_USED=1"
@@ -1996,7 +1996,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT settings)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/settings/CMakeLists.txt
@@ -2013,7 +2013,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT slab)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/slab/CMakeLists.txt
@@ -2030,7 +2030,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT thread)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/thread/CMakeLists.txt
@@ -2047,7 +2047,7 @@ endif()
 # Condition: CONFIG_BT
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT work)
 # ----------------------------------------
-if(CONFIG_BT)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
 # ========================================
 # Content from: source/porting/work/CMakeLists.txt
@@ -2058,8 +2058,8 @@ mcux_add_source(
     SOURCES ./source/porting/work/*.*
 )
 
-if(CONFIG_BT_RX_PRIO LESS_EQUAL CONFIG_SYSTEM_WORKQUEUE_PRIORITY)
-  message(FATAL_ERROR "CONFIG_BT_RX_PRIO (${CONFIG_BT_RX_PRIO}) must be greater than CONFIG_SYSTEM_WORKQUEUE_PRIORITY (${CONFIG_SYSTEM_WORKQUEUE_PRIORITY})")
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio LESS_EQUAL CONFIG_SYSTEM_WORKQUEUE_PRIORITY)
+  message(FATAL_ERROR "CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio (${CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio}) must be greater than CONFIG_SYSTEM_WORKQUEUE_PRIORITY (${CONFIG_SYSTEM_WORKQUEUE_PRIORITY})")
 endif()
 endif()
 endif()
@@ -2428,7 +2428,7 @@ mcux_add_iar_configuration(
                                  # array member is nonstandard
 )
 
-if(CONFIG_SUPPRESSED_WARNINGS)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings)
     # Pe223: function "xxx" declared implicitly
     # Pe054: too few arguments in invocation of macro
     # Pe1675: unrecognized GCC pragma
@@ -2514,7 +2514,7 @@ mcux_add_source(
 # Condition: CONFIG_NET_BUF
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_NET_BUF net_buf)
 # ----------------------------------------
-if(CONFIG_NET_BUF)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.net_buf)
 
 # ========================================
 # Content from: lib/net_buf/CMakeLists.txt
@@ -2522,7 +2522,7 @@ if(CONFIG_NET_BUF)
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
-if(CONFIG_NET_BUF)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.net_buf)
     mcux_add_source(
         SOURCES ./lib/net_buf/buf.c
     )
@@ -2537,14 +2537,14 @@ endif()
 # Condition: CONFIG_CRC
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_CRC crc)
 # ----------------------------------------
-if(CONFIG_CRC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.crc)
 
 # ========================================
 # Content from: lib/crc/CMakeLists.txt
 # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-if(CONFIG_CRC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.crc)
     mcux_add_source(
         SOURCES ./lib/crc/crc16_sw.c
     )
@@ -2568,7 +2568,7 @@ mcux_add_source(
     SOURCES ./lib/utils/hex.c
 )
 
-if(CONFIG_UTF8)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.utf8)
     mcux_add_source(
         SOURCES ./lib/utils/utf8.c
     )
@@ -2717,12 +2717,12 @@ mcux_add_source(
 # Condition: CONFIG_LIBSBC
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_LIBSBC libsbc)
 # ----------------------------------------
-if(CONFIG_LIBSBC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc)
 
 # ========================================
 # Content from: lib/libsbc/CMakeLists.txt
 # ========================================
-if(CONFIG_LIBSBC)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc)
 
 mcux_add_iar_configuration(
     CC "--diag_suppress=Pa211"
@@ -2817,12 +2817,12 @@ endif()
 # Condition: CONFIG_ASRC_SW
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_ASRC_SW asrc_sw)
 # ----------------------------------------
-if(CONFIG_ASRC_SW)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw)
 
 # ========================================
 # Content from: lib/asrc_sw/CMakeLists.txt
 # ========================================
-if(CONFIG_ASRC_SW)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw)
 
 mcux_add_iar_configuration(
     CC "--diag_suppress=Pa211"
@@ -2850,12 +2850,12 @@ endif()
 # Condition: CONFIG_LIBLC3
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_LIBLC3 liblc3)
 # ----------------------------------------
-if(CONFIG_LIBLC3)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3)
 
 # ========================================
 # Content from: lib/liblc3/CMakeLists.txt
 # ========================================
-if(CONFIG_LIBLC3)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3)
 
 mcux_add_iar_configuration(
     CC "--diag_suppress=Pa211"
@@ -2913,14 +2913,14 @@ endif()
 # Condition: CONFIG_UUID
 # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_UUID uuid)
 # ----------------------------------------
-if(CONFIG_UUID)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.uuid)
 
 # ========================================
 # Content from: lib/uuid/CMakeLists.txt
 # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-if(CONFIG_UUID)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.uuid)
     mcux_add_source(
         SOURCES ./lib/uuid/uuid.c
     )
