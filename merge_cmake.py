@@ -1082,7 +1082,7 @@ def convert_config_name_to_kconfig(config_name):
     # 移除 CONFIG_ 前缀
     return mcux_name[7:]  # 去掉 "CONFIG_"
 
-def replace_conditions_in_cmake(cmake_path, output_path=None):
+def replace_conditions_in_cmake(cmake_path, output_path=None, ignore_list=None):
     """
     替换 CMakeLists.txt 文件中的所有条件为 MCUX 格式
     只替换非注释部分的条件
@@ -1090,6 +1090,7 @@ def replace_conditions_in_cmake(cmake_path, output_path=None):
     参数:
         cmake_path: 输入的 CMakeLists.txt 文件路径
         output_path: 输出文件路径，如果为 None，则覆盖输入文件
+        ignore_list: 需要忽略的条件列表，这些条件不会被替换
 
     返回:
         替换的条件映射 {原始条件: 新条件}
@@ -1100,6 +1101,9 @@ def replace_conditions_in_cmake(cmake_path, output_path=None):
         output_path = cmake_path
     else:
         output_path = Path(output_path).resolve()
+
+    if ignore_list is None:
+        ignore_list = []
 
     if not cmake_path.exists():
         print(f"错误: 文件不存在: {cmake_path}")
@@ -1118,9 +1122,12 @@ def replace_conditions_in_cmake(cmake_path, output_path=None):
     # 提取所有条件
     conditions = extract_conditions_from_cmake(cmake_path)
 
-    # 构建替换映射
+    # 构建替换映射，跳过忽略列表中的条件
     replacements = OrderedDict()
     for condition in conditions.keys():
+        if condition in ignore_list:
+            print(f"  跳过忽略的条件: {condition}")
+            continue
         new_condition = convert_config_name_to_mcux(condition)
         replacements[condition] = new_condition
 
@@ -1156,7 +1163,6 @@ def replace_conditions_in_cmake(cmake_path, output_path=None):
                     modified_code = re.sub(pattern, new_condition, modified_code)
                     replacement_count[old_condition] = replacement_count.get(old_condition, 0) + count
 
-            # 重新组合代码和注释
             modified_lines.append(modified_code + comment_part)
 
     # 写入输出文件
@@ -1164,22 +1170,17 @@ def replace_conditions_in_cmake(cmake_path, output_path=None):
         with open(output_path, 'w', encoding='utf-8') as f:
             f.writelines(modified_lines)
     except Exception as e:
-        print(f"错误: 无法写入输出文件: {e}")
+        print(f"错误: 无法写入文件 {output_path}: {e}")
         return {}
 
-    print(f"✓ 条件替换完成！")
-    print(f"\n替换统计:")
-    print(f"  共替换 {len(replacement_count)} 个不同的条件")
-    print(f"  总替换次数: {sum(replacement_count.values())} 次")
-
-    if len(replacement_count) > 0:
-        print(f"\n前 10 个替换示例:")
-        for i, (old, count) in enumerate(list(replacement_count.items())[:10]):
-            new = replacements[old]
-            print(f"  {old} -> {new} ({count} 次)")
-
-    # 设置文件为只读
-    set_file_readonly(output_path)
+    # 打印替换统计
+    if replacement_count:
+        print(f"\n  替换统计:")
+        for old_condition, count in replacement_count.items():
+            new_condition = replacements[old_condition]
+            print(f"    {old_condition} -> {new_condition}: {count} 次")
+    else:
+        print(f"\n  未找到需要替换的条件")
 
     return replacements
 
@@ -1284,7 +1285,8 @@ if __name__ == "__main__":
 
     # 3.1: 提取并替换条件
     print("\n3.1: 提取并替换 CMakeLists.txt 中的条件...")
-    replacements = replace_conditions_in_cmake(output_file)
+    ignore_list = ['CONFIG_BT_RX_PRIO']
+    replacements = replace_conditions_in_cmake(output_file, ignore_list=ignore_list)
 
     # 3.2: 生成 Kconfig.ecosystem 文件
     print("\n3.2: 生成 Kconfig.ecosystem 文件...")

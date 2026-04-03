@@ -449,9 +449,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings
 config MCUX_COMPONENT_middleware.edgefast_open.port_shell
     def_bool PORT_SHELL
 
-config MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio
-    def_bool BT_RX_PRIO
-
 config MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings
     def_bool SUPPRESSED_WARNINGS
 

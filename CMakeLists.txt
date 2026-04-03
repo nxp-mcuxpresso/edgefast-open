@@ -2058,8 +2058,8 @@ mcux_add_source(
     SOURCES ./source/porting/work/*.*
 )
 
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio LESS_EQUAL CONFIG_SYSTEM_WORKQUEUE_PRIORITY)
-  message(FATAL_ERROR "CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio (${CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio}) must be greater than CONFIG_SYSTEM_WORKQUEUE_PRIORITY (${CONFIG_SYSTEM_WORKQUEUE_PRIORITY})")
+if(CONFIG_BT_RX_PRIO LESS_EQUAL CONFIG_SYSTEM_WORKQUEUE_PRIORITY)
+  message(FATAL_ERROR "CONFIG_BT_RX_PRIO (${CONFIG_BT_RX_PRIO}) must be greater than CONFIG_SYSTEM_WORKQUEUE_PRIORITY (${CONFIG_SYSTEM_WORKQUEUE_PRIORITY})")
 endif()
     endif()
 endif()
