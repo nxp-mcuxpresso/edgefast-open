@@ -269,20 +269,14 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_tip
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bas
     def_bool BT_BAS
 
-config MCUX_COMPONENT_middleware.edgefast_open.bt_ots
-    def_bool BT_OTS
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_ias
-    def_bool BT_IAS
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_zephyr_nus
-    def_bool BT_ZEPHYR_NUS
-
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bas_bls
     def_bool BT_BAS_BLS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_bas_bcs
     def_bool BT_BAS_BCS
+
+config MCUX_COMPONENT_middleware.edgefast_open.bt_ots
+    def_bool BT_OTS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ots_dir_list_obj
     def_bool BT_OTS_DIR_LIST_OBJ
@@ -290,8 +284,14 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_ots_dir_list_obj
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ots_client
     def_bool BT_OTS_CLIENT
 
+config MCUX_COMPONENT_middleware.edgefast_open.bt_ias
+    def_bool BT_IAS
+
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ias_client
     def_bool BT_IAS_CLIENT
+
+config MCUX_COMPONENT_middleware.edgefast_open.bt_zephyr_nus
+    def_bool BT_ZEPHYR_NUS
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_zephyr_nus_auto_start_bluetooth
     def_bool BT_ZEPHYR_NUS_AUTO_START_BLUETOOTH

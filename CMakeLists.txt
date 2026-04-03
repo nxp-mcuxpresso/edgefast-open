@@ -234,37 +234,37 @@ endfunction()
 # ----------------------------------------
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/bluetooth/CMakeLists.txt
-# ========================================
+    # ========================================
+    # Content from: source/bluetooth/CMakeLists.txt
+    # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_add_library(subsys__bluetooth INTERFACE)
 
 zephyr_target_include_directories(subsys__bluetooth INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-# edgefast_open_add_subdirectory(common)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI host)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI controller)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CONN services)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT_MESH mesh)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT_AUDIO audio)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CRYPTO crypto)
+    # edgefast_open_add_subdirectory(common)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI host)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI controller)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CONN services)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT_MESH mesh)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT_AUDIO audio)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CRYPTO crypto)
 
 mcux_add_include(
     INCLUDES ./source/bluetooth
 )
 
-# edgefast_open_add_subdirectory(lib)
+    # edgefast_open_add_subdirectory(lib)
 
-# ----------------------------------------
-# Subdirectory: common
-# Original: edgefast_open_add_subdirectory(common)
-# ----------------------------------------
+    # ----------------------------------------
+    # Subdirectory: common
+    # Original: edgefast_open_add_subdirectory(common)
+    # ----------------------------------------
 
-# ========================================
-# Content from: source/bluetooth/common/CMakeLists.txt
-# ========================================
+    # ========================================
+    # Content from: source/bluetooth/common/CMakeLists.txt
+    # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
@@ -292,23 +292,23 @@ endif()
 
 zephyr_library_link_libraries(subsys__bluetooth)
 
-# ----------------------------------------
-# Conditional subdirectory: host
-# Condition: CONFIG_BT_HCI
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI host)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci)
+    # ----------------------------------------
+    # Conditional subdirectory: host
+    # Condition: CONFIG_BT_HCI
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI host)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci)
 
-# ========================================
-# Content from: source/bluetooth/host/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/bluetooth/host/CMakeLists.txt
+        # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
 zephyr_library_link_libraries(subsys__bluetooth)
 
-# add_subdirectory_ifdef(CONFIG_BT_CLASSIC classic)
-# add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
+        # add_subdirectory_ifdef(CONFIG_BT_CLASSIC classic)
+        # add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_raw)
     mcux_add_source(
@@ -489,19 +489,19 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mesh AND CONFIG_BT_TESTING)
   zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS mbedTLS)
 endif()
 
-# ----------------------------------------
-# Conditional subdirectory: classic
-# Condition: CONFIG_BT_CLASSIC
-# Original: add_subdirectory_ifdef(CONFIG_BT_CLASSIC classic)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic)
+        # ----------------------------------------
+        # Conditional subdirectory: classic
+        # Condition: CONFIG_BT_CLASSIC
+        # Original: add_subdirectory_ifdef(CONFIG_BT_CLASSIC classic)
+        # ----------------------------------------
+        if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic)
 
-# ========================================
-# Content from: source/bluetooth/host/classic/CMakeLists.txt
-# ========================================
+            # ========================================
+            # Content from: source/bluetooth/host/classic/CMakeLists.txt
+            # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-# add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
+            # add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 
 zephyr_library()
 zephyr_library_link_libraries(subsys__bluetooth)
@@ -600,16 +600,16 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp_ct_cover_art OR CONFI
   )
 endif()
 
-# ----------------------------------------
-# Conditional subdirectory: shell
-# Condition: CONFIG_BT_SHELL
-# Original: add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
+            # ----------------------------------------
+            # Conditional subdirectory: shell
+            # Condition: CONFIG_BT_SHELL
+            # Original: add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
+            # ----------------------------------------
+            if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
 
-# ========================================
-# Content from: source/bluetooth/host/classic/shell/CMakeLists.txt
-# ========================================
+                # ========================================
+                # Content from: source/bluetooth/host/classic/shell/CMakeLists.txt
+                # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
@@ -652,19 +652,19 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp_tg_cover_art OR CONFI
       SOURCES ./source/bluetooth/host/classic/shell/avrcp_cover_art.c
   )
 endif()
-endif()
-endif()
+            endif()
+        endif()
 
-# ----------------------------------------
-# Conditional subdirectory: shell
-# Condition: CONFIG_BT_SHELL
-# Original: add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
+        # ----------------------------------------
+        # Conditional subdirectory: shell
+        # Condition: CONFIG_BT_SHELL
+        # Original: add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
+        # ----------------------------------------
+        if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
 
-# ========================================
-# Content from: source/bluetooth/host/shell/CMakeLists.txt
-# ========================================
+            # ========================================
+            # Content from: source/bluetooth/host/shell/CMakeLists.txt
+            # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
@@ -691,19 +691,19 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_channel_sounding)
         SOURCES ./source/bluetooth/host/shell/cs.c
     )
 endif()
-endif()
-endif()
+        endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: controller
-# Condition: CONFIG_BT_HCI
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI controller)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci)
+    # ----------------------------------------
+    # Conditional subdirectory: controller
+    # Condition: CONFIG_BT_HCI
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_HCI controller)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci)
 
-# ========================================
-# Content from: source/bluetooth/controller/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/bluetooth/controller/CMakeLists.txt
+        # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
@@ -711,7 +711,7 @@ zephyr_library_property(ALLOW_EMPTY TRUE)
 mcux_add_include(
     INCLUDES ./source/bluetooth/controller
 )
-# edgefast_open_add_subdirectory(HCI)
+        # edgefast_open_add_subdirectory(HCI)
 
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4)
   mcux_add_configuration(
@@ -720,17 +720,17 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4)
   )
 endif()
 
-# ----------------------------------------
-# Subdirectory: HCI
-# Original: edgefast_open_add_subdirectory(HCI)
-# ----------------------------------------
+        # ----------------------------------------
+        # Subdirectory: HCI
+        # Original: edgefast_open_add_subdirectory(HCI)
+        # ----------------------------------------
 
-# ========================================
-# Content from: source/bluetooth/controller/HCI/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/bluetooth/controller/HCI/CMakeLists.txt
+        # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-# edgefast_open_add_subdirectory(configs)
+        # edgefast_open_add_subdirectory(configs)
 
 if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.build_only_no_blobs)
   message(WARNING "
@@ -887,27 +887,27 @@ if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr AND CONFIG_MCU
   )
 endif()
 
-# ----------------------------------------
-# Subdirectory: configs
-# Original: edgefast_open_add_subdirectory(configs)
-# ----------------------------------------
+        # ----------------------------------------
+        # Subdirectory: configs
+        # Original: edgefast_open_add_subdirectory(configs)
+        # ----------------------------------------
 
-# ========================================
-# Content from: source/bluetooth/controller/HCI/configs/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/bluetooth/controller/HCI/configs/CMakeLists.txt
+        # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-# edgefast_open_add_subdirectory(lwip)
-# edgefast_open_add_subdirectory(wifi)
+        # edgefast_open_add_subdirectory(lwip)
+        # edgefast_open_add_subdirectory(wifi)
 
-# ----------------------------------------
-# Subdirectory: lwip
-# Original: edgefast_open_add_subdirectory(lwip)
-# ----------------------------------------
+        # ----------------------------------------
+        # Subdirectory: lwip
+        # Original: edgefast_open_add_subdirectory(lwip)
+        # ----------------------------------------
 
-# ========================================
-# Content from: source/bluetooth/controller/HCI/configs/lwip/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/bluetooth/controller/HCI/configs/lwip/CMakeLists.txt
+        # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.lwip.config)
@@ -924,14 +924,14 @@ if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.lwip.config)
 endif ()
 
 
-# ----------------------------------------
-# Subdirectory: wifi
-# Original: edgefast_open_add_subdirectory(wifi)
-# ----------------------------------------
+        # ----------------------------------------
+        # Subdirectory: wifi
+        # Original: edgefast_open_add_subdirectory(wifi)
+        # ----------------------------------------
 
-# ========================================
-# Content from: source/bluetooth/controller/HCI/configs/wifi/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/bluetooth/controller/HCI/configs/wifi/CMakeLists.txt
+        # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.wifi.config)
@@ -946,18 +946,18 @@ if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.wifi.config)
      SOURCES ./source/bluetooth/controller/HCI/configs/wifi/*.h
  )
 endif ()
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: services
-# Condition: CONFIG_BT_CONN
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CONN services)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn)
+    # ----------------------------------------
+    # Conditional subdirectory: services
+    # Condition: CONFIG_BT_CONN
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CONN services)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn)
 
-# ========================================
-# Content from: source/bluetooth/services/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/bluetooth/services/CMakeLists.txt
+        # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ans)
@@ -1044,30 +1044,20 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tip)
     )
 endif()
 
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bas)
-#   edgefast_open_add_subdirectory(bas)
-endif()
 
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots_client)
-#   edgefast_open_add_subdirectory(ots)
-endif()
 
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias_client)
-#   edgefast_open_add_subdirectory(ias)
-endif()
 
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_zephyr_nus)
-#   edgefast_open_add_subdirectory(nus)
-endif()
 
-# ----------------------------------------
-# Subdirectory: bas
-# Original: edgefast_open_add_subdirectory(bas)
-# ----------------------------------------
+        # ----------------------------------------
+        # Conditional subdirectory: bas
+        # Condition: CONFIG_BT_BAS (from wrapper if)
+        # Original: if(CONFIG_BT_BAS) edgefast_open_add_subdirectory(bas) endif()
+        # ----------------------------------------
+        if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bas)
 
-# ========================================
-# Content from: source/bluetooth/services/bas/CMakeLists.txt
-# ========================================
+            # ========================================
+            # Content from: source/bluetooth/services/bas/CMakeLists.txt
+            # ========================================
 # SPDX-License-Identifier: Apache-2.0
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bas)
     mcux_add_source(
@@ -1084,15 +1074,18 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bas_bcs)
         SOURCES ./source/bluetooth/services/bas/bas_bcs.c
     )
 endif()
+        endif()
 
-# ----------------------------------------
-# Subdirectory: ots
-# Original: edgefast_open_add_subdirectory(ots)
-# ----------------------------------------
+        # ----------------------------------------
+        # Conditional subdirectory: ots
+        # Condition: CONFIG_BT_OTS OR CONFIG_BT_OTS_CLIENT (from wrapper if)
+        # Original: if(CONFIG_BT_OTS OR CONFIG_BT_OTS_CLIENT) edgefast_open_add_subdirectory(ots) endif()
+        # ----------------------------------------
+        if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots_client)
 
-# ========================================
-# Content from: source/bluetooth/services/ots/CMakeLists.txt
-# ========================================
+            # ========================================
+            # Content from: source/bluetooth/services/ots/CMakeLists.txt
+            # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots)
@@ -1127,18 +1120,21 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots_client)
         SOURCES ./source/bluetooth/services/ots/ots_l2cap.c
     )
 endif()
+        endif()
 
-# ----------------------------------------
-# Subdirectory: ias
-# Original: edgefast_open_add_subdirectory(ias)
-# ----------------------------------------
+        # ----------------------------------------
+        # Conditional subdirectory: ias
+        # Condition: CONFIG_BT_IAS OR CONFIG_BT_IAS_CLIENT (from wrapper if)
+        # Original: if(CONFIG_BT_IAS OR CONFIG_BT_IAS_CLIENT) edgefast_open_add_subdirectory(ias) endif()
+        # ----------------------------------------
+        if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias_client)
 
-# ========================================
-# Content from: source/bluetooth/services/ias/CMakeLists.txt
-# ========================================
+            # ========================================
+            # Content from: source/bluetooth/services/ias/CMakeLists.txt
+            # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
+            # edgefast_open_add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias)
     mcux_add_source(
@@ -1152,16 +1148,16 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias_client)
     )
 endif()
 
-# ----------------------------------------
-# Conditional subdirectory: shell
-# Condition: CONFIG_BT_SHELL
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
+            # ----------------------------------------
+            # Conditional subdirectory: shell
+            # Condition: CONFIG_BT_SHELL
+            # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
+            # ----------------------------------------
+            if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
 
-# ========================================
-# Content from: source/bluetooth/services/ias/shell/CMakeLists.txt
-# ========================================
+                # ========================================
+                # Content from: source/bluetooth/services/ias/shell/CMakeLists.txt
+                # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
@@ -1175,16 +1171,19 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ias_client)
         SOURCES ./source/bluetooth/services/ias/shell/ias_client.c
     )
 endif()
-endif()
+            endif()
+        endif()
 
-# ----------------------------------------
-# Subdirectory: nus
-# Original: edgefast_open_add_subdirectory(nus)
-# ----------------------------------------
+        # ----------------------------------------
+        # Conditional subdirectory: nus
+        # Condition: CONFIG_BT_ZEPHYR_NUS (from wrapper if)
+        # Original: if(CONFIG_BT_ZEPHYR_NUS) edgefast_open_add_subdirectory(nus) endif()
+        # ----------------------------------------
+        if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_zephyr_nus)
 
-# ========================================
-# Content from: source/bluetooth/services/nus/CMakeLists.txt
-# ========================================
+            # ========================================
+            # Content from: source/bluetooth/services/nus/CMakeLists.txt
+            # ========================================
 # Copyright (c) 2024 Croxel, Inc.
 # SPDX-License-Identifier: Apache-2.0
 
@@ -1205,29 +1204,30 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_zephyr_nus_auto_start_bluet
         SOURCES ./source/bluetooth/services/nus/bt_nus_auto_start_bt.c
     )
 endif()
-endif()
+        endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: mesh
-# Condition: CONFIG_BT_MESH
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_MESH mesh)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mesh)
-endif()
+    # ----------------------------------------
+    # Conditional subdirectory: mesh
+    # Condition: CONFIG_BT_MESH
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_MESH mesh)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mesh)
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: audio
-# Condition: CONFIG_BT_AUDIO
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_AUDIO audio)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio)
+    # ----------------------------------------
+    # Conditional subdirectory: audio
+    # Condition: CONFIG_BT_AUDIO
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_AUDIO audio)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio)
 
-# ========================================
-# Content from: source/bluetooth/audio/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/bluetooth/audio/CMakeLists.txt
+        # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-# add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
+        # add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
 
 zephyr_library()
 
@@ -1466,16 +1466,16 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_pbp)
     )
 endif()
 
-# ----------------------------------------
-# Conditional subdirectory: shell
-# Condition: CONFIG_BT_SHELL
-# Original: add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
+        # ----------------------------------------
+        # Conditional subdirectory: shell
+        # Condition: CONFIG_BT_SHELL
+        # Original: add_subdirectory_ifdef(CONFIG_BT_SHELL shell)
+        # ----------------------------------------
+        if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
 
-# ========================================
-# Content from: source/bluetooth/audio/shell/CMakeLists.txt
-# ========================================
+            # ========================================
+            # Content from: source/bluetooth/audio/shell/CMakeLists.txt
+            # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
@@ -1608,19 +1608,19 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_pbp)
         SOURCES ./source/bluetooth/audio/shell/pbp.c
     )
 endif()
-endif()
-endif()
+        endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: crypto
-# Condition: CONFIG_BT_CRYPTO
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CRYPTO crypto)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto)
+    # ----------------------------------------
+    # Conditional subdirectory: crypto
+    # Condition: CONFIG_BT_CRYPTO
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT_CRYPTO crypto)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto)
 
-# ========================================
-# Content from: source/bluetooth/crypto/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/bluetooth/crypto/CMakeLists.txt
+        # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
@@ -1652,16 +1652,16 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_log_level_dbg)
     Do not use in production."
     )
 endif()
-endif()
+    endif()
 
-# ----------------------------------------
-# Subdirectory: lib
-# Original: edgefast_open_add_subdirectory(lib)
-# ----------------------------------------
+    # ----------------------------------------
+    # Subdirectory: lib
+    # Original: edgefast_open_add_subdirectory(lib)
+    # ----------------------------------------
 
-# ========================================
-# Content from: source/bluetooth/lib/CMakeLists.txt
-# ========================================
+    # ========================================
+    # Content from: source/bluetooth/lib/CMakeLists.txt
+    # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ead)
@@ -1683,25 +1683,25 @@ endif()
 # ----------------------------------------
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/CMakeLists.txt
-# ========================================
+    # ========================================
+    # Content from: source/porting/CMakeLists.txt
+    # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT condvar)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT fifo)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT heap)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT lifo)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT mutex)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT poll)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT queue)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT reboot)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT sem)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT shell)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT settings)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT slab)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT thread)
-# edgefast_open_add_subdirectory_ifdef(CONFIG_BT work)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT condvar)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT fifo)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT heap)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT lifo)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT mutex)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT poll)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT queue)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT reboot)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT sem)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT shell)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT settings)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT slab)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT thread)
+    # edgefast_open_add_subdirectory_ifdef(CONFIG_BT work)
 
 mcux_add_include(
     INCLUDES ./source/porting
@@ -1801,135 +1801,135 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warni
 	)
 endif()
 
-# ----------------------------------------
-# Conditional subdirectory: condvar
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT condvar)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: condvar
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT condvar)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/condvar/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/condvar/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/condvar/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: fifo
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT fifo)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: fifo
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT fifo)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/fifo/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/fifo/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/fifo/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: heap
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT heap)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: heap
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT heap)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/heap/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/heap/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/heap/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: lifo
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT lifo)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: lifo
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT lifo)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/lifo/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/lifo/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/lifo/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: mutex
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT mutex)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: mutex
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT mutex)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/mutex/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/mutex/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/mutex/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: poll
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT poll)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: poll
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT poll)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/poll/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/poll/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/poll/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: queue
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT queue)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: queue
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT queue)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/queue/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/queue/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/queue/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: reboot
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT reboot)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: reboot
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT reboot)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/reboot/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/reboot/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 if (BT_REBOOT_WDOG)
@@ -1941,35 +1941,35 @@ else ()
      SOURCES ./source/porting/reboot/reboot_nvic.c
  )
 endif ()
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: sem
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT sem)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: sem
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT sem)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/sem/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/sem/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/sem/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: shell
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT shell)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: shell
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT shell)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/shell/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/shell/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.port_shell)
@@ -1989,69 +1989,69 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.port_shell)
         CX "-DOSA_USED=1"
     )
 endif()
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: settings
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT settings)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: settings
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT settings)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/settings/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/settings/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/settings/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: slab
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT slab)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: slab
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT slab)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/slab/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/slab/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/slab/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: thread
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT thread)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: thread
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT thread)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/thread/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/thread/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
     SOURCES ./source/porting/thread/*.*
 )
-endif()
+    endif()
 
-# ----------------------------------------
-# Conditional subdirectory: work
-# Condition: CONFIG_BT
-# Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT work)
-# ----------------------------------------
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
+    # ----------------------------------------
+    # Conditional subdirectory: work
+    # Condition: CONFIG_BT
+    # Original: edgefast_open_add_subdirectory_ifdef(CONFIG_BT work)
+    # ----------------------------------------
+    if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 
-# ========================================
-# Content from: source/porting/work/CMakeLists.txt
-# ========================================
+        # ========================================
+        # Content from: source/porting/work/CMakeLists.txt
+        # ========================================
   # SPDX-License-Identifier: Apache-2.0
 
 mcux_add_source(
@@ -2061,7 +2061,7 @@ mcux_add_source(
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio LESS_EQUAL CONFIG_SYSTEM_WORKQUEUE_PRIORITY)
   message(FATAL_ERROR "CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio (${CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio}) must be greater than CONFIG_SYSTEM_WORKQUEUE_PRIORITY (${CONFIG_SYSTEM_WORKQUEUE_PRIORITY})")
 endif()
-endif()
+    endif()
 endif()
 
 # ----------------------------------------
@@ -2516,9 +2516,9 @@ mcux_add_source(
 # ----------------------------------------
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.net_buf)
 
-# ========================================
-# Content from: lib/net_buf/CMakeLists.txt
-# ========================================
+    # ========================================
+    # Content from: lib/net_buf/CMakeLists.txt
+    # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_library()
@@ -2539,9 +2539,9 @@ endif()
 # ----------------------------------------
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.crc)
 
-# ========================================
-# Content from: lib/crc/CMakeLists.txt
-# ========================================
+    # ========================================
+    # Content from: lib/crc/CMakeLists.txt
+    # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.crc)
@@ -2719,9 +2719,9 @@ mcux_add_source(
 # ----------------------------------------
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc)
 
-# ========================================
-# Content from: lib/libsbc/CMakeLists.txt
-# ========================================
+    # ========================================
+    # Content from: lib/libsbc/CMakeLists.txt
+    # ========================================
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc)
 
 mcux_add_iar_configuration(
@@ -2819,9 +2819,9 @@ endif()
 # ----------------------------------------
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw)
 
-# ========================================
-# Content from: lib/asrc_sw/CMakeLists.txt
-# ========================================
+    # ========================================
+    # Content from: lib/asrc_sw/CMakeLists.txt
+    # ========================================
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw)
 
 mcux_add_iar_configuration(
@@ -2852,9 +2852,9 @@ endif()
 # ----------------------------------------
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3)
 
-# ========================================
-# Content from: lib/liblc3/CMakeLists.txt
-# ========================================
+    # ========================================
+    # Content from: lib/liblc3/CMakeLists.txt
+    # ========================================
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3)
 
 mcux_add_iar_configuration(
@@ -2915,9 +2915,9 @@ endif()
 # ----------------------------------------
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.uuid)
 
-# ========================================
-# Content from: lib/uuid/CMakeLists.txt
-# ========================================
+    # ========================================
+    # Content from: lib/uuid/CMakeLists.txt
+    # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.uuid)

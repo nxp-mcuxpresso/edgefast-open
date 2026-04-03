@@ -384,6 +384,88 @@ def remove_readonly(file_path):
     except Exception as e:
         print(f"警告: 无法移除只读属性: {e}")
 
+def find_condition_for_subdirectory(lines, subdir_line_idx):
+    """
+    查找包裹 add_subdirectory 调用的 if() 条件
+
+    参数:
+        lines: 所有行的列表
+        subdir_line_idx: add_subdirectory 调用所在的行索引
+
+    返回:
+        (condition, if_line_idx) 如果找到条件，否则 (None, None)
+    """
+    # 向前查找最近的 if() 语句
+    if_depth = 0
+
+    for i in range(subdir_line_idx - 1, -1, -1):
+        line = lines[i].strip()
+
+        # 跳过注释和空行
+        if not line or line.startswith('#'):
+            continue
+
+        # 检查是否是 endif()
+        if re.match(r'^\s*endif\s*\(', line):
+            if_depth += 1
+            continue
+
+        # 检查是否是 if()
+        if_match = re.match(r'^\s*if\s*\(\s*([^)]+)\s*\)', line)
+        if if_match:
+            if if_depth == 0:
+                # 找到了直接包裹当前 add_subdirectory 的 if
+                # 检查这个 if 和 add_subdirectory 之间是否只有注释或空行
+                has_other_content = False
+                for j in range(i + 1, subdir_line_idx):
+                    check_line = lines[j].strip()
+                    if check_line and not check_line.startswith('#'):
+                        has_other_content = True
+                        break
+
+                if not has_other_content:
+                    condition = if_match.group(1).strip()
+                    return (condition, i)
+                else:
+                    return (None, None)
+            else:
+                if_depth -= 1
+
+    return (None, None)
+
+def find_matching_endif(lines, if_line_idx):
+    """
+    查找与 if() 匹配的 endif()
+
+    参数:
+        lines: 所有行的列表
+        if_line_idx: if() 语句所在的行索引
+
+    返回:
+        endif_line_idx 如果找到，否则 None
+    """
+    if_depth = 1
+
+    for i in range(if_line_idx + 1, len(lines)):
+        line = lines[i].strip()
+
+        # 跳过注释和空行
+        if not line or line.startswith('#'):
+            continue
+
+        # 检查是否是 if()
+        if re.match(r'^\s*if\s*\(', line):
+            if_depth += 1
+            continue
+
+        # 检查是否是 endif()
+        if re.match(r'^\s*endif\s*\(', line):
+            if_depth -= 1
+            if if_depth == 0:
+                return i
+
+    return None
+
 def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, indent_level=0):
     """
     递归处理 CMakeLists.txt 文件
@@ -422,9 +504,48 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
     # 提取所有子目录调用
     subdirs = extract_subdirectories(content)
 
-    # 处理文件内容
+    # 为每个子目录查找其包裹的条件
+    subdir_conditions = {}
     lines = content.splitlines()
-    for line_idx, line in enumerate(lines):
+
+    for func_name, config_option, subdir in subdirs:
+        # 查找这个调用在文件中的位置
+        for line_idx, line in enumerate(lines):
+            if config_option:
+                pattern = rf'{func_name}\s*\(\s*{re.escape(config_option)}\s+{re.escape(subdir)}'
+            else:
+                pattern = rf'{func_name}\s*\(\s*{re.escape(subdir)}'
+
+            if re.search(pattern, line):
+                # 查找包裹的条件
+                condition, if_idx = find_condition_for_subdirectory(lines, line_idx)
+                if condition:
+                    endif_idx = find_matching_endif(lines, if_idx)
+                    subdir_conditions[subdir] = {
+                        'condition': condition,
+                        'if_idx': if_idx,
+                        'endif_idx': endif_idx,
+                        'subdir_idx': line_idx
+                    }
+                break
+
+    # 记录需要跳过的行（已经被处理为条件块的行）
+    skip_lines = set()
+    for subdir, info in subdir_conditions.items():
+        if info['if_idx'] is not None and info['endif_idx'] is not None:
+            # 标记 if 到 endif 之间的所有行为需要跳过
+            for idx in range(info['if_idx'], info['endif_idx'] + 1):
+                skip_lines.add(idx)
+
+    # 处理文件内容
+    i = 0
+    while i < len(lines):
+        # 如果这一行已经被处理为条件块的一部分，跳过
+        if i in skip_lines:
+            i += 1
+            continue
+
+        line = lines[i]
         stripped = line.strip()
 
         # 检查是否是任何一种 add_subdirectory 调用
@@ -440,7 +561,7 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
                 'edgefast_open_add_subdirectory' in stripped
             )
 
-            if is_edgefast_open_func and is_inside_function(lines, line_idx):
+            if is_edgefast_open_func and is_inside_function(lines, i):
                 # 在函数内部，保持原样不转换
                 output_lines.append(line)
             else:
@@ -453,10 +574,11 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
             processed_line = process_source_paths(processed_line, current_dir, base_dir)
             output_lines.append(processed_line)
 
+        i += 1
+
     # 递归处理所有子目录
     for func_name, config_option, subdir in subdirs:
         # 检查这个 add_subdirectory 调用是否在函数内部
-        # 需要找到这个调用在原文件中的位置
         is_edgefast_open_func = func_name in ['edgefast_open_add_subdirectory', 'edgefast_open_add_subdirectory_ifdef']
 
         # 查找这个调用在文件中的位置
@@ -479,26 +601,44 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
 
         sub_cmake = current_dir / subdir / 'CMakeLists.txt'
 
+        # 检查是否有包裹的条件
+        wrapper_condition = None
+        if subdir in subdir_conditions:
+            wrapper_condition = subdir_conditions[subdir]['condition']
+
+        # 确定最终使用的条件
+        final_condition = None
+        if config_option:
+            # edgefast_open_add_subdirectory_ifdef 自带条件
+            final_condition = config_option
+        elif wrapper_condition:
+            # 使用包裹的 if() 条件
+            final_condition = wrapper_condition
+
         # 添加说明注释
         output_lines.append(f"\n{indent}# ----------------------------------------")
-        if config_option:
-            output_lines.append(f"{indent}# Conditional subdirectory: {subdir}")
-            output_lines.append(f"{indent}# Condition: {config_option}")
-            output_lines.append(f"{indent}# Original: {func_name}({config_option} {subdir})")
+        if final_condition:
+            if wrapper_condition and not config_option:
+                output_lines.append(f"{indent}# Conditional subdirectory: {subdir}")
+                output_lines.append(f"{indent}# Condition: {final_condition} (from wrapper if)")
+                output_lines.append(f"{indent}# Original: if({final_condition}) {func_name}({subdir}) endif()")
+            else:
+                output_lines.append(f"{indent}# Conditional subdirectory: {subdir}")
+                output_lines.append(f"{indent}# Condition: {final_condition}")
+                output_lines.append(f"{indent}# Original: {func_name}({final_condition} {subdir})")
             output_lines.append(f"{indent}# ----------------------------------------")
             # 添加条件判断
-            output_lines.append(f"{indent}if({config_option})")
+            output_lines.append(f"{indent}if({final_condition})")
+            # 递归处理子目录的 CMakeLists.txt，增加缩进级别
+            process_cmake_file(sub_cmake, base_dir, processed_files, output_lines, indent_level + 1)
+            # 添加 endif()
+            output_lines.append(f"{indent}endif()")
         else:
             output_lines.append(f"{indent}# Subdirectory: {subdir}")
             output_lines.append(f"{indent}# Original: {func_name}({subdir})")
             output_lines.append(f"{indent}# ----------------------------------------")
-
-        # 递归处理子目录的 CMakeLists.txt
-        process_cmake_file(sub_cmake, base_dir, processed_files, output_lines, indent_level)
-
-        # 如果有条件，添加 endif()
-        if config_option:
-            output_lines.append(f"{indent}endif()")
+            # 递归处理子目录的 CMakeLists.txt，保持相同缩进级别
+            process_cmake_file(sub_cmake, base_dir, processed_files, output_lines, indent_level)
 
 def merge_cmake_files(root_cmake_path, output_path):
     """
