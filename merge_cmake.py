@@ -363,7 +363,8 @@ def set_file_readonly(file_path):
         # Apply new permissions
         os.chmod(file_path, readonly_permissions)
 
-        print(f"✓ File set to read-only")
+        # NOTE: Avoid non-ASCII characters in console output (Windows default code page may be GBK)
+        print("[OK] File set to read-only")
     except Exception as e:
         print(f"Warning: Unable to set file to read-only: {e}")
 
@@ -385,7 +386,8 @@ def remove_readonly(file_path):
             # Apply new permissions
             os.chmod(file_path, writable_permissions)
 
-            print(f"✓ Removed read-only attribute for regeneration")
+            # NOTE: Avoid non-ASCII characters in console output (Windows default code page may be GBK)
+            print("[OK] Removed read-only attribute for regeneration")
     except Exception as e:
         print(f"Warning: Unable to remove read-only attribute: {e}")
 
@@ -719,7 +721,8 @@ def merge_cmake_files(root_cmake_path, output_path):
         print(f"Error: Unable to write output file: {e}")
         return
 
-    print(f"✓ Merge completed!")
+    # NOTE: Avoid non-ASCII characters in console output (Windows default code page may be GBK)
+    print("[OK] Merge completed!")
     print(f"\nProcessed {len(processed_files)} CMakeLists.txt files:")
     for f in sorted(processed_files):
         try:
@@ -975,7 +978,8 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
         print(f"Error: Unable to write output file: {e}")
         return
 
-    print(f"✓ Conversion completed!")
+    # NOTE: Avoid non-ASCII characters in console output (Windows default code page may be GBK)
+    print("[OK] Conversion completed!")
     print(f"\nConversion statistics:")
     total_converted = 0
     for func, count in conversion_stats.items():
@@ -1246,7 +1250,8 @@ def generate_kconfig_file(replacements, output_path):
         print(f"Error: Unable to write Kconfig file: {e}")
         return
 
-    print(f"✓ Kconfig file generation completed!")
+    # NOTE: Avoid non-ASCII characters in console output (Windows default code page may be GBK)
+    print("[OK] Kconfig file generation completed!")
     print(f"\nGeneration statistics:")
     print(f"  Generated {len(replacements)} Kconfig configurations")
     print(f"\nOutput file: {output_path}")
