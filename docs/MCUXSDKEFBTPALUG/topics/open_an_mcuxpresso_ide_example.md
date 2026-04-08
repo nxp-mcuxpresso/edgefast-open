@@ -16,7 +16,7 @@
 
     ![](../images/image15.png "MCUXpresso IDE Board selector")
 
-5.  Select the evkmimxrt1060 board EdgeFast Bluetooth example. For example, peripheral\_ht.
+5.  Select the evkmimxrt1060 board EdgeFast Open example. For example, peripheral\_ht.
 6.  Ensure to change SDK debug console from **Semihost** to **UART**.
 7.  Click **Finish**.
 

@@ -24,15 +24,6 @@
     -   **handsfree\_ag**: Application demonstrating usage of the Hands-free Profile Audio Gateway \(HFP-AG\) feature.
     -   **a2dp\_sink**: Application demonstrating how to use the a2dp sink feature.
     -   **a2dp\_source**: Application demonstrating how to use the a2dp source feature.
-    -   **audio\_profile**: Demonstrates the following functions.
-        -   There are five parts working in the demo: AWS cloud, Android app, audio demo \(running on RT1060\), U-disk, and Bluetooth headset.
-
-        -   With an app running on the smartphone \(Android phone\), the end user connects to the AWS cloud and controls the audio demo running on the RT1060 EVK board through AWS cloud. Some operations like play, play next, and pause are used to control the media play functionalities.
-
-        -   Audio demo running on the RT1060 EVK board connects to the AWS through WiFi. A connection establishes between the RT1060 EVK board and a Bluetooth headset. To get the media resource \(mp3 files\) from the U-disk, an HS USB host is enabled, and a U-disk with mp3 files is connected to RT1060 EVK board via the USB port. The audio demo searches the root directory of the U-disk for the music files \(only mp3 files are supported\) and uploads the song file list to AWS. The song list is shown in the app running on the smartphone. The music can then be played out via the Bluetooth headset once end user controls the app to play the mp3 file.
-
-    -   **wifi\_provisioning**: Demonstrates the WiFi provisioning service that safely sends credential from phone to device over Bluetooth low energy. By default, AWS Wi-Fi provisioning demo starts advertising if the Wi-Fi access point \(AP\) is not configured and waits for the Wi-Fi AP configuration. After connecting to the Android APK, the demo executes the request from cellphone and sends the response. When the Wi-Fi AP is configured, the Shadow demo connects to the AWS via Wi-Fi and publishes the configured Wi-Fi AP information.
-
     -   **shell**: Shell application demonstrating the shell mode of the simplified Adapter APIs.
 
 

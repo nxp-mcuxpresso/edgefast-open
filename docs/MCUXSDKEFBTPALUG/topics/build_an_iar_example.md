@@ -5,7 +5,7 @@
     ![](../images/image7.png "IAR Project target
     							switch")
 
-2.  Build the EdgeFast Bluetooth Protocol Abstraction Layer project.
+2.  Build the EdgeFast Open Bluetooth project.
 
     ![](../images/image8.png "IAR project
     							build")

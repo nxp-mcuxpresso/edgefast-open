@@ -6,7 +6,7 @@ To build an MDK example:
 
     ![](../images/workspace.png "Select configurations")
 
-2.  Click the highlighted icon to build the EdgeFast Bluetooth Protocol Abstraction Layer project.
+2.  Click the highlighted icon to build the EdgeFast Open Bluetooth project.
 
     ![](../images/workspace1.png "Click icon to build project")
 

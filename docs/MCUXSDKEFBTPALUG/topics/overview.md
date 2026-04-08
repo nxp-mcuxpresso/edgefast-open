@@ -1,6 +1,6 @@
 # Overview
 
-The EdgeFast Bluetooth Protocol Abstraction Layer host stack software is built based on MCUXpresso SDK. The following chapter uses RT1060 as an example, other boards have similar folder structure and corresponding document.
+The EdgeFast Open Bluetooth Host stack software is built based on MCUXpresso SDK. The following chapter uses RT1060 as an example, other boards have similar folder structure and corresponding document.
 
 
 ```{include} ../topics/folder_structure.md
@@ -8,6 +8,10 @@ The EdgeFast Bluetooth Protocol Abstraction Layer host stack software is built b
 ```
 
 ```{include} ../topics/architecture.md
+:heading-offset: 1
+```
+
+```{include} ../topics/compare_with_edgefast_open_pal.md
 :heading-offset: 1
 ```
 

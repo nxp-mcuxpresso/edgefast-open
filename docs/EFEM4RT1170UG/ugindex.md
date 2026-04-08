@@ -1,4 +1,4 @@
-# Enabling Additional Edgefast BT PAL Examples on M4 core for RT1170
+# Enabling Additional Edgefast Open Examples on M4 core for RT1170
 
 
 ```{tocTree}

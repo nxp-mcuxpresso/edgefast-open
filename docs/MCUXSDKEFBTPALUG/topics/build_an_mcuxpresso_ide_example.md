@@ -5,7 +5,7 @@
     ![](../images/image17.png "MCUXpresso IDE target
     						selector")
 
-2.  Build MCUXpresso IDE EdgeFast Bluetooth Protocol Abstraction Layer project.
+2.  Build MCUXpresso IDE EdgeFast Open Bluetooth project.
 
     ![](../images/image18.png "MCUXpresso IDE project
     						build")

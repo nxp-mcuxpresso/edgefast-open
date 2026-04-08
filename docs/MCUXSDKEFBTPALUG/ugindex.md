@@ -1,4 +1,4 @@
-# MCUXpressoSDK EdgeFast Bluetooth Protocol Abstraction
+# MCUXpressoSDK EdgeFast Open
 
 
 ```{tocTree}
@@ -11,5 +11,5 @@ topics/hardware.md
 topics/demo.md
 topics/known_issues.md
 topics/notes.md
-topics/edgefast_bt_pal_configuration_documentation.md
+topics/edgefast_open_bt_configuration_documentation.md
 ```
