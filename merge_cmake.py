@@ -1979,19 +1979,56 @@ def compress_condition_expression(condition):
 
     # Extract all CONFIG symbols from the condition.
     #
-    # IMPORTANT: preserve negation in the compressed symbol name so that:
-    #   A && B && C
-    # and
-    #   A && B && NOT(C)
-    # do NOT collapse into the same `...compress.*` Kconfig symbol.
+    # IMPORTANT: the compressed symbol name must be UNIQUE per *boolean expression*,
+    # not just per *set of referenced CONFIG symbols*.
     #
-    # We encode negated symbols as `not_<sym>` tokens in the suffix.
+    # The previous implementation built the suffix by de-duplicating referenced
+    # symbols. That collapses different expressions like:
+    #   (A || B) && A
+    # vs
+    #   (A || B) && B
+    # into the same suffix "A_B".
+    #
+    # Fix: derive the suffix from a canonicalized boolean expression and append a
+    # short stable hash. This keeps names readable while guaranteeing uniqueness.
     base_sym_pattern = r"CONFIG_MCUX_COMPONENT_middleware\.edgefast_open\.(\w+)"
     neg_sym_pattern = r"\bNOT\s*\(\s*CONFIG_MCUX_COMPONENT_middleware\.edgefast_open\.(\w+)\s*\)"
 
-    # Collect token occurrences in condition order.
-    # NOTE: remove base symbol occurrences that are inside NOT(...), otherwise the
-    # suffix would contain both `not_X` and `X`.
+    def _canonicalize_for_suffix(expr: str) -> str:
+        """Return a stable, compact canonical form of the condition for hashing.
+
+        We intentionally keep operator structure (AND/OR/NOT and parentheses) because
+        it differentiates expressions that reference the same symbols.
+
+        Also strip CMake-only MATCHES clauses so equivalent Kconfig expressions hash
+        the same.
+        """
+        expr = _strip_cmake_matches(expr)
+        expr = expr.strip()
+        expr = re.sub(r"\s+", " ", expr)
+        # normalize operators (case-insensitive)
+        expr = re.sub(r"\bAND\b", "AND", expr, flags=re.IGNORECASE)
+        expr = re.sub(r"\bOR\b", "OR", expr, flags=re.IGNORECASE)
+        expr = re.sub(r"\bNOT\b", "NOT", expr, flags=re.IGNORECASE)
+        # normalize spaces around parentheses
+        expr = re.sub(r"\(\s+", "(", expr)
+        expr = re.sub(r"\s+\)", ")", expr)
+        expr = re.sub(r"\s*\(\s*", "(", expr)
+        expr = re.sub(r"\s*\)\s*", ")", expr)
+        # normalize spaces around operators
+        expr = re.sub(r"\s*AND\s*", " AND ", expr)
+        expr = re.sub(r"\s*OR\s*", " OR ", expr)
+        expr = re.sub(r"\s*NOT\s*\(", "NOT(", expr)
+        expr = re.sub(r"\s+", " ", expr).strip()
+        return expr
+
+    def _short_hash(text: str) -> str:
+        # Avoid importing hashlib at module scope; import here to keep changes local.
+        import hashlib
+        return hashlib.sha1(text.encode('utf-8')).hexdigest()[:8]
+
+    # Collect token occurrences in condition order for a readable prefix.
+    # We keep `not_<sym>` for NOT(sym) and avoid double-counting the base symbol.
     tokens_with_pos = []  # list[(pos:int, token:str)]
     neg_spans = []        # list[(start:int, end:int)]
     for m in re.finditer(neg_sym_pattern, condition, flags=re.IGNORECASE):
@@ -2009,7 +2046,6 @@ def compress_condition_expression(condition):
     if not matches:
         return None, None
 
-    # Remove duplicates while preserving order
     seen = set()
     unique_matches = []
     for match in matches:
@@ -2017,8 +2053,12 @@ def compress_condition_expression(condition):
             seen.add(match)
             unique_matches.append(match)
 
-    # Build compressed name
+    # Build compressed name: readable token prefix + hash of canonical expression
+    canonical = _canonicalize_for_suffix(condition)
+    if not canonical:
+        return None, None
     compressed_suffix = "_".join(unique_matches)
+    compressed_suffix = f"{compressed_suffix}__{_short_hash(canonical)}"
 
     # Requirement: all generated compressed Kconfig symbols must start with
     #   CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.
