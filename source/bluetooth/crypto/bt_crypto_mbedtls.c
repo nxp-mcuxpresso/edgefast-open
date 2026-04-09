@@ -7,6 +7,8 @@
 
 #include <zephyr/kernel.h>
 
+#include "common/bt_str.h"
+
 #include "mbedtls/aes.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
