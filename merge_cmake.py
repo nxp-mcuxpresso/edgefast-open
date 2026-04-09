@@ -1508,6 +1508,9 @@ class CMakeConditionParser:
         self.results = []
         self.seen_conditions = {}  # Track seen condition-command combinations
 
+        # Lines to preserve verbatim in expanded output (e.g. function() blocks at top)
+        self.preserved_prefix_lines = []
+
     def _skip_function_definitions(self, lines):
         """
         Skip all function definitions at the beginning of the file.
@@ -1560,8 +1563,22 @@ class CMakeConditionParser:
         with open(self.filepath, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
-        # Skip function definitions at the beginning
+        # Skip function definitions at the beginning for parsing purposes,
+        # but preserve them verbatim in the expanded output.
         start_idx = self._skip_function_definitions(lines)
+        if start_idx > 0:
+            # Preserve only the function() blocks themselves.
+            # Drop any trailing comments/blank-lines that appear after the last endfunction()
+            # (these are typically the merge markers for conditional add_subdirectory sections).
+            prefix = lines[:start_idx]
+            last_endfunction = -1
+            for idx, ln in enumerate(prefix):
+                if self.ENDFUNCTION_PATTERN.match(ln.strip()):
+                    last_endfunction = idx
+            if last_endfunction >= 0:
+                self.preserved_prefix_lines = prefix[:last_endfunction + 1]
+            else:
+                self.preserved_prefix_lines = prefix
 
         print(f"Skipping function definitions (lines 0-{start_idx-1})")
         print(f"Starting parsing from line {start_idx}")
@@ -1709,6 +1726,11 @@ class CMakeConditionParser:
         output_lines.append("# Duplicate condition-command combinations have been removed.")
         output_lines.append("# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         output_lines.append("")
+
+        # Preserve verbatim prefix lines from input (typically function() definitions).
+        if self.preserved_prefix_lines:
+            output_lines.extend([ln.rstrip('\n') for ln in self.preserved_prefix_lines])
+            output_lines.append("")
 
         for command, condition, full_command, line_num in self.results:
             # Add comment showing original line number
