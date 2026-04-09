@@ -8,6 +8,7 @@ import re
 import stat
 from pathlib import Path
 from collections import OrderedDict
+from datetime import date
 
 def extract_subdirectories(cmake_content):
     """
@@ -313,6 +314,115 @@ def process_source_paths(line, current_dir, base_dir):
 
     # Reassemble line, preserving original indentation
     return ' ' * leading_spaces + ' '.join(processed_words)
+
+def _get_current_year() -> int:
+    return date.today().year
+
+
+def _normalize_years_to_with_current_year(years_text: str) -> str:
+    """Normalize a years string and ensure it includes the current year.
+
+    Accepts patterns like:
+      - "2025"
+      - "2020-2024"
+      - "2020, 2022"
+      - "2020,2022-2023"
+
+    Returns a canonical string like:
+      - "2025" or "2020-2026" or "2020, 2022-2026"
+
+    We keep it simple: parse all years/ranges, merge, then emit a minimal
+    range-based representation.
+    """
+    current_year = _get_current_year()
+    if not years_text:
+        return str(current_year)
+
+    s = years_text.strip()
+    s = re.sub(r"\s+", "", s)
+
+    years = set()
+    for part in filter(None, s.split(',')):
+        if '-' in part:
+            a, b = part.split('-', 1)
+            if a.isdigit() and b.isdigit():
+                start = int(a)
+                end = int(b)
+                if start > end:
+                    start, end = end, start
+                for y in range(start, end + 1):
+                    years.add(y)
+        else:
+            if part.isdigit():
+                years.add(int(part))
+
+    years.add(current_year)
+    if not years:
+        return str(current_year)
+
+    ordered = sorted(years)
+
+    # Convert to merged ranges
+    ranges = []
+    start = prev = ordered[0]
+    for y in ordered[1:]:
+        if y == prev + 1:
+            prev = y
+            continue
+        ranges.append((start, prev))
+        start = prev = y
+    ranges.append((start, prev))
+
+    def _fmt(r):
+        return str(r[0]) if r[0] == r[1] else f"{r[0]}-{r[1]}"
+
+    return ", ".join(_fmt(r) for r in ranges)
+
+
+def _extract_existing_copyright_years(text: str):
+    """Extract (years_text, owner) from an existing copyright line.
+
+    Supports forms like:
+      - "# Copyright 2025 NXP"
+      - "# Copyright (c) 2020-2024 NXP"
+      - "# Copyright 2019-2021 Foo Bar"
+
+    Returns (years_text, owner) or (None, None) if not found.
+    """
+    # Only look at the first ~30 lines to avoid accidental matches in body.
+    header = "\n".join(text.splitlines()[:30])
+
+    # Capture years in group 1 and owner in group 2.
+    m = re.search(
+        r"^\s*#\s*Copyright\s*(?:\(c\)\s*)?([0-9]{4}(?:\s*[-,]\s*[0-9]{4})*)\s+(.+?)\s*$",
+        header,
+        flags=re.IGNORECASE | re.MULTILINE,
+    )
+    if not m:
+        return None, None
+
+    years_text = m.group(1)
+    owner = m.group(2).strip()
+    return years_text, owner
+
+
+def _build_copyright_header(source_path: Path) -> str:
+    """Build a copyright header line based on an existing file, adding current year."""
+    current_year = _get_current_year()
+
+    try:
+        existing_text = source_path.read_text(encoding='utf-8', errors='ignore')
+    except Exception:
+        existing_text = ""
+
+    years_text, owner = _extract_existing_copyright_years(existing_text)
+    if owner:
+        years_norm = _normalize_years_to_with_current_year(years_text)
+        return f"# Copyright {years_norm} {owner}"
+
+    # Fallback: keep existing script convention.
+    return f"# Copyright {current_year} NXP"
+
 
 def is_inside_function(lines, line_index):
     """
@@ -666,8 +776,8 @@ def merge_cmake_files(root_cmake_path, output_path):
     processed_files = set()
     output_lines = []
 
-    # Add file header
-    output_lines.append("# Copyright 2025 NXP")
+    # Add file header (respect original file copyright when possible)
+    output_lines.append(_build_copyright_header(root_path))
     output_lines.append("#")
     output_lines.append("# SPDX-License-Identifier: BSD-3-Clause")
     output_lines.append("#")
@@ -1316,8 +1426,8 @@ def generate_kconfig_file(replacements, output_path):
 
     kconfig_lines = []
 
-    # Add file header
-    kconfig_lines.append("# Copyright 2025 NXP")
+    # Add file header (respect original file copyright when possible)
+    kconfig_lines.append(_build_copyright_header(Path("Kconfig.ecosystem")))
     kconfig_lines.append("#")
     kconfig_lines.append("# SPDX-License-Identifier: BSD-3-Clause")
     kconfig_lines.append("#")
@@ -1712,8 +1822,8 @@ class CMakeConditionParser:
         """Generate the expanded output with all conditions"""
         output_lines = []
 
-        # Add header
-        output_lines.append("# Copyright 2025 NXP")
+        # Add header (respect original file copyright when possible)
+        output_lines.append(_build_copyright_header(self.filepath))
         output_lines.append("#")
         output_lines.append("# SPDX-License-Identifier: BSD-3-Clause")
         output_lines.append("#")
@@ -2164,8 +2274,8 @@ def generate_compressed_kconfig(expanded_file, output_file):
     # Generate Kconfig file
     kconfig_lines = []
 
-    # Add header
-    kconfig_lines.append("# Copyright 2025 NXP")
+    # Add header (respect existing file copyright when possible)
+    kconfig_lines.append(_build_copyright_header(Path(output_file)))
     kconfig_lines.append("#")
     kconfig_lines.append("# SPDX-License-Identifier: BSD-3-Clause")
     kconfig_lines.append("#")
