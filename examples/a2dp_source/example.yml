@@ -12,19 +12,6 @@ a2dp_source:
       - middleware/edgefast_open/examples/_boards/${board}/a2dp_source/example_board_readme.md
       - ${board_root}/${board}/examples_shared_readme.md
   boards:
-    evkbmimxrt1170@cm7:
-      - -armgcc@debug
-      - -armgcc@release
-      - -armgcc@sdram_debug
-      - -armgcc@sdram_release
-      - -iar@debug
-      - -iar@release
-      - -iar@sdram_debug
-      - -iar@sdram_release
-      - -mdk@debug
-      - -mdk@release
-      - -mdk@sdram_debug
-      - -mdk@sdram_release
     evkbmimxrt1170@cm4:
       - -armgcc@debug
       - -armgcc@release
@@ -38,7 +25,32 @@ a2dp_source:
       - -mdk@release
       - -mdk@sdram_debug
       - -mdk@sdram_release
-
+    evkbmimxrt1170@cm7:
+      - -armgcc@debug
+      - -armgcc@release
+      - -armgcc@sdram_debug
+      - -armgcc@sdram_release
+      - -iar@debug
+      - -iar@release
+      - -iar@sdram_debug
+      - -iar@sdram_release
+      - -mdk@debug
+      - -mdk@release
+      - -mdk@sdram_debug
+      - -mdk@sdram_release
+    evkbimxrt1050:
+      - -armgcc@debug
+      - -armgcc@release
+      - -armgcc@sdram_debug
+      - -armgcc@sdram_release
+      - -iar@debug
+      - -iar@release
+      - -iar@sdram_debug
+      - -iar@sdram_release
+      - -mdk@debug
+      - -mdk@release
+      - -mdk@sdram_debug
+      - -mdk@sdram_release
 a2dp_source@dual:
   section-type: custom_application
   contents:
@@ -59,17 +71,3 @@ a2dp_source@dual:
       - -DCONFIG_BT_A2DP_SOURCE_DATA_BUF_COUNT=10
       - -DCONFIG_BT_BUF_ACL_TX_COUNT=10
       - -DCONFIG_BT_BUF_EVT_RX_COUNT=20
-  boards:
-    evkbmimxrt1170@cm7:
-      - -armgcc@debug
-      - -armgcc@release
-      - -armgcc@sdram_debug
-      - -armgcc@sdram_release
-      - -iar@debug
-      - -iar@release
-      - -iar@sdram_debug
-      - -iar@sdram_release
-      - -mdk@debug
-      - -mdk@release
-      - -mdk@sdram_debug
-      - -mdk@sdram_release
