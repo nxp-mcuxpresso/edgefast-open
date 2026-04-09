@@ -14,15 +14,26 @@ The stack runs on the MCU host processor, positioned below the application layer
 and is responsible for the complete Bluetooth Classic and BLE host-side protocol functionality,
 including GAP, GATT, L2CAP, ATT, SM, RFCOMM, HFP, A2DP, AVRCP, etc.
 
-![](../images/architecture_of_mcux_sdk_edgefast_open.png "Architecture of EdgeFast Open")
+![](../images/architecture_of_edgefast_open.png "Architecture of EdgeFast Open")
 
 Its architecture consists of two main parts:
-the EdgeFast Open Host Stack itself, which contains the Bluetooth host protocol implementation ported from Zephyr,
+
+The EdgeFast Open Host Stack itself, which contains the Bluetooth host protocol implementation ported from Zephyr,
 and a Porting Layer (abstraction layer) that maps Zephyr’s required kernel and system services—such as threads,
 mutexes, semaphores, queues, FIFOs, work queues, heaps, settings, shell, and logging—to the MCUXpresso SDK environment
 based on FreeRTOS and NXP platforms. Through this porting layer, the originally Zephyr-oriented Bluetooth stack can
 run seamlessly on FreeRTOS. EdgeFast Open communicates with the underlying Bluetooth Controller (Link Layer), typically
 an external BT/BLE module or wireless SoC, via a standard HCI interface (for example, UART, SPI, or PCM).
+
+**Note:** The porting layer source code is located in the `middleware/wireless/edgefast_open/source/porting` directory,
+which includes implementations for thread management, work queues, synchronization primitives, and other kernel services
+required to adapt the Zephyr Bluetooth stack to FreeRTOS and MCUXpresso SDK platforms.
+
+**Note:** The "ported" aspects of EdgeFast Open ensure compatibility with MCUXpresso SDK while maintaining the
+robustness and feature completeness of the original Zephyr Bluetooth Host Stack implementation. Therefore, the source
+code of Edgefast Open is consistent with the source code of the Zephyr Bluetooth protocol stack. This eliminates the
+need for any source code modifications to the core of the Zephyr Bluetooth protocol stack, thus facilitating maintenance
+and future updates.
 
 For details about the different components in MCUXpresso SDK, see *Getting Started with MCUXpresso SDK User’s Guide* \(document MCUXSDKGSUG\) at *root/docs/Getting Started with MCUXpresso SDK.pdf*. For details on possible hardware rework requirements, see the hardware rework guide document of the relative board.
 **Parent topic:**[Overview](../topics/overview.md)
