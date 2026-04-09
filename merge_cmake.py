@@ -2014,6 +2014,10 @@ def compress_condition_expression(condition):
     kconfig_expr = kconfig_expr.replace(" AND ", " && ")
     kconfig_expr = kconfig_expr.replace(" OR ", " || ")
 
+    # 2.1) Convert CMake-style NOT(...) to Kconfig-style !(...)
+    # Kconfig supports '!' with parentheses. This keeps expressions valid when used in `def_bool`.
+    kconfig_expr = re.sub(r"\bNOT\s*\(", "!(", kconfig_expr, flags=re.IGNORECASE)
+
     # 3) Final cleanup for Kconfig operators
     kconfig_expr = re.sub(r"\s+", " ", kconfig_expr).strip()
 
