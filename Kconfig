@@ -37,6 +37,7 @@ if MCUX_COMPONENT_middleware.edgefast_open
 rsource "Kconfig.defconfig"
 
 rsource "Kconfig.ecosystem"
+rsource "Kconfig.ecosystem.compress"
 
 rsource "./*/Kconfig"
 

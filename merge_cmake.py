@@ -1391,24 +1391,657 @@ def generate_kconfig_file(replacements, output_path):
     # Set file to read-only
     set_file_readonly(output_path)
 
+class ConditionStack:
+    """Manages the stack of if/endif conditions"""
+
+    def __init__(self):
+        self.stack = []
+
+    def push(self, condition):
+        """Add a condition to the stack"""
+        self.stack.append(condition)
+
+    def pop(self):
+        """Remove the last condition from the stack"""
+        if self.stack:
+            self.stack.pop()
+
+    @staticmethod
+    def _normalize_condition(cond: str) -> str:
+        """Normalize a condition for dedup.
+
+        We keep this conservative to avoid changing semantics of complex
+        expressions. It mainly removes redundant whitespace and redundant outer
+        parentheses that wrap the entire expression.
+        """
+        if cond is None:
+            return ""
+        s = cond.strip()
+        s = re.sub(r"\s+", " ", s)
+
+        # Strip redundant outer parentheses repeatedly: "(((A)))" -> "A"
+        while True:
+            m = re.fullmatch(r"\(\s*(.*)\s*\)", s)
+            if not m:
+                break
+            inner = m.group(1).strip()
+
+            # Only strip when parentheses are balanced and wrap the whole string
+            depth = 0
+            balanced = True
+            for ch in inner:
+                if ch == '(':
+                    depth += 1
+                elif ch == ')':
+                    depth -= 1
+                    if depth < 0:
+                        balanced = False
+                        break
+            if not balanced or depth != 0:
+                break
+
+            s = inner
+
+        return s
+
+    def get_combined_condition(self):
+        """Get the combined condition from all stack levels.
+
+        Deduplicates identical conditions in nested `if()` blocks.
+        Example:
+            if((A))
+              if(A)
+                ...
+              endif()
+            endif()
+
+        becomes:
+            if(A)
+              ...
+            endif()
+        """
+        if not self.stack:
+            return None
+
+        # Remove duplicates while preserving order (after normalization)
+        seen = set()
+        unique = []
+        for cond in self.stack:
+            norm = self._normalize_condition(cond)
+            if norm in seen:
+                continue
+            seen.add(norm)
+            unique.append(cond)
+
+        if not unique:
+            return None
+        if len(unique) == 1:
+            return self._normalize_condition(unique[0])
+
+        return " AND ".join(f"({self._normalize_condition(cond)})" for cond in unique)
+
+    def __repr__(self):
+        return f"ConditionStack({self.stack})"
+
+class CMakeConditionParser:
+    """Parse CMakeLists.txt and extract mcux_add_* commands with conditions"""
+
+    # Regex patterns
+    IF_PATTERN = re.compile(r'^\s*if\s*\((.*?)\)\s*$', re.IGNORECASE)
+    ENDIF_PATTERN = re.compile(r'^\s*endif\s*\(\s*\)\s*$', re.IGNORECASE)
+    MCUX_ADD_PATTERN = re.compile(
+        r'^\s*(mcux_add_\w+)\s*\((.*?)$',
+        re.IGNORECASE
+    )
+    FUNCTION_PATTERN = re.compile(r'^\s*function\s*\(', re.IGNORECASE)
+    ENDFUNCTION_PATTERN = re.compile(r'^\s*endfunction\s*\(\s*\)\s*$', re.IGNORECASE)
+
+    def __init__(self, filepath):
+        self.filepath = Path(filepath)
+        self.condition_stack = ConditionStack()
+        self.results = []
+        self.seen_conditions = {}  # Track seen condition-command combinations
+
+    def _skip_function_definitions(self, lines):
+        """
+        Skip all function definitions at the beginning of the file.
+        Returns the index where actual content starts (after all function definitions).
+
+        Args:
+            lines: List of all lines in the file
+
+        Returns:
+            Index of first line after all function definitions
+        """
+        i = 0
+        in_function = False
+        last_endfunction_idx = -1
+
+        while i < len(lines):
+            line = lines[i].strip()
+
+            # Skip empty lines and comments
+            if not line or line.startswith('#'):
+                i += 1
+                continue
+
+            # Check for function start
+            if self.FUNCTION_PATTERN.match(line):
+                in_function = True
+                i += 1
+                continue
+
+            # Check for function end
+            if self.ENDFUNCTION_PATTERN.match(line):
+                in_function = False
+                last_endfunction_idx = i
+                i += 1
+                continue
+
+            # If we're not in a function and we've seen at least one function,
+            # and this line is not a comment or empty, we've reached actual content
+            if not in_function and last_endfunction_idx >= 0:
+                # Skip any remaining empty lines or comments after last function
+                if line and not line.startswith('#'):
+                    return i
+
+            i += 1
+
+        return 0  # If no functions found, start from beginning
+
+    def parse(self):
+        """Parse the CMakeLists.txt file"""
+        with open(self.filepath, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
+        # Skip function definitions at the beginning
+        start_idx = self._skip_function_definitions(lines)
+
+        print(f"Skipping function definitions (lines 0-{start_idx-1})")
+        print(f"Starting parsing from line {start_idx}")
+
+        i = start_idx
+        while i < len(lines):
+            line = lines[i].rstrip()
+
+            # Check for if statement
+            if_match = self.IF_PATTERN.match(line)
+            if if_match:
+                condition = if_match.group(1).strip()
+                self.condition_stack.push(condition)
+                i += 1
+                continue
+
+            # Check for endif statement
+            endif_match = self.ENDIF_PATTERN.match(line)
+            if endif_match:
+                self.condition_stack.pop()
+                i += 1
+                continue
+
+            # Check for mcux_add_* commands
+            mcux_match = self.MCUX_ADD_PATTERN.match(line)
+            if mcux_match:
+                command = mcux_match.group(1)
+                args_start = mcux_match.group(2)
+
+                # Collect multi-line command
+                full_command = line
+                j = i + 1
+                while j < len(lines) and not lines[j].strip().endswith(')'):
+                    full_command += '\n' + lines[j].rstrip()
+                    j += 1
+                if j < len(lines):
+                    full_command += '\n' + lines[j].rstrip()
+
+                # Get current condition
+                condition = self.condition_stack.get_combined_condition()
+
+                # Create a unique key for this condition-command combination
+                # Normalize the command by removing whitespace variations
+                normalized_command = ' '.join(full_command.split())
+                condition_key = f"{condition}||{normalized_command}"
+
+                # Only add if we haven't seen this exact combination before
+                if condition_key not in self.seen_conditions:
+                    self.seen_conditions[condition_key] = True
+                    self.results.append((command, condition, full_command, i + 1))  # +1 for 1-based line numbers
+                else:
+                    print(f"  Skipping duplicate at line {i + 1}: {command} with condition: {condition}")
+
+                i = j + 1
+                continue
+
+            i += 1
+
+    def generate_expanded_output(self):
+        """Generate the expanded output with all conditions"""
+        output_lines = []
+
+        # Add header
+        output_lines.append("# Copyright 2025 NXP")
+        output_lines.append("#")
+        output_lines.append("# SPDX-License-Identifier: BSD-3-Clause")
+        output_lines.append("#")
+        output_lines.append("# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        output_lines.append("# WARNING: This file is AUTO-GENERATED by merge_cmake.py script")
+        output_lines.append("# DO NOT MODIFY THIS FILE MANUALLY!")
+        output_lines.append("#")
+        output_lines.append("# This file contains all mcux_add_* commands with their full condition stack expanded.")
+        output_lines.append("# Each command is wrapped with its complete conditional dependencies.")
+        output_lines.append("# Duplicate condition-command combinations have been removed.")
+        output_lines.append("# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        output_lines.append("")
+
+        for command, condition, full_command, line_num in self.results:
+            # Add comment showing original line number
+            output_lines.append(f"# Line {line_num}: {command}")
+
+            if condition:
+                output_lines.append(f"if({condition})")
+                # Indent the command
+                indented_command = '\n'.join(
+                    '    ' + line if line.strip() else line
+                    for line in full_command.split('\n')
+                )
+                output_lines.append(indented_command)
+                output_lines.append("endif()")
+            else:
+                output_lines.append(full_command)
+
+            output_lines.append("")  # Empty line for readability
+
+        return '\n'.join(output_lines)
+
+    def generate_statistics(self):
+        """Generate statistics about conditions"""
+        stats = {
+            'total_commands': len(self.results),
+            'total_duplicates_removed': len(self.seen_conditions) - len(self.results),
+            'conditional_commands': sum(1 for _, cond, _, _ in self.results if cond),
+            'unconditional_commands': sum(1 for _, cond, _, _ in self.results if not cond),
+            'unique_conditions': set(),
+            'command_types': {},
+            'condition_usage': {}  # Track how many commands use each condition
+        }
+
+        for command, condition, _, line_num in self.results:
+            # Count command types
+            stats['command_types'][command] = stats['command_types'].get(command, 0) + 1
+
+            # Collect unique conditions
+            if condition:
+                stats['unique_conditions'].add(condition)
+                # Track condition usage
+                stats['condition_usage'][condition] = stats['condition_usage'].get(condition, 0) + 1
+
+        # Format output
+        output = []
+        output.append("=" * 80)
+        output.append("MCUX_ADD_* COMMANDS STATISTICS")
+        output.append("=" * 80)
+        output.append(f"Total mcux_add_* commands: {stats['total_commands']}")
+        output.append(f"  - Conditional: {stats['conditional_commands']}")
+        output.append(f"  - Unconditional: {stats['unconditional_commands']}")
+        output.append(f"  - Duplicates removed: {stats['total_duplicates_removed']}")
+        output.append(f"Unique conditions: {len(stats['unique_conditions'])}")
+        output.append("")
+
+        output.append("Command types distribution:")
+        for cmd, count in sorted(stats['command_types'].items(), key=lambda x: -x[1]):
+            percentage = (count / stats['total_commands']) * 100
+            output.append(f"  - {cmd}: {count} ({percentage:.1f}%)")
+        output.append("")
+
+        output.append("Top 20 most used conditions:")
+        sorted_conditions = sorted(stats['condition_usage'].items(), key=lambda x: -x[1])
+        for i, (cond, count) in enumerate(sorted_conditions[:20], 1):
+            output.append(f"  {i:2d}. {cond}")
+            output.append(f"      Used by {count} command(s)")
+        output.append("")
+
+        output.append("All unique conditions (sorted alphabetically):")
+        for cond in sorted(stats['unique_conditions']):
+            count = stats['condition_usage'][cond]
+            output.append(f"  - {cond} ({count} command(s))")
+        output.append("")
+
+        output.append("=" * 80)
+
+        return '\n'.join(output)
+
+    def generate_condition_to_sources_mapping(self):
+        """
+        Generate a mapping of conditions to source files/includes.
+        This helps understand what sources are controlled by each condition.
+
+        Returns:
+            Dictionary mapping conditions to lists of commands
+        """
+        condition_map = {}
+
+        for command, condition, full_command, line_num in self.results:
+            if condition:
+                if condition not in condition_map:
+                    condition_map[condition] = []
+
+                # Extract the main argument (SOURCES, INCLUDES, etc.)
+                lines = full_command.split('\n')
+                args = []
+                for line in lines[1:]:  # Skip first line (command name)
+                    stripped = line.strip()
+                    if stripped and not stripped.startswith(')'):
+                        args.append(stripped)
+
+                condition_map[condition].append({
+                    'command': command,
+                    'line': line_num,
+                    'args': args
+                })
+
+        return condition_map
+
+    def save_results(self, output_file, stats_file=None, mapping_file=None):
+        """Save the expanded output to a file"""
+        # Remove read-only attributes before writing
+        remove_readonly(output_file)
+        if stats_file:
+            remove_readonly(stats_file)
+        if mapping_file:
+            remove_readonly(mapping_file)
+
+        # Save expanded output
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(self.generate_expanded_output())
+        print(f"Expanded output saved to: {output_file}")
+
+        # Save statistics
+        if stats_file:
+            with open(stats_file, 'w', encoding='utf-8') as f:
+                f.write(self.generate_statistics())
+            print(f"Statistics saved to: {stats_file}")
+        else:
+            print("\n" + self.generate_statistics())
+
+        # Save condition to sources mapping
+        if mapping_file:
+            condition_map = self.generate_condition_to_sources_mapping()
+            with open(mapping_file, 'w', encoding='utf-8') as f:
+                f.write("# Condition to Sources/Includes Mapping\n")
+                f.write("# " + "=" * 78 + "\n\n")
+
+                for condition in sorted(condition_map.keys()):
+                    f.write(f"\n{'=' * 80}\n")
+                    f.write(f"Condition: {condition}\n")
+                    f.write(f"{'=' * 80}\n\n")
+
+                    commands = condition_map[condition]
+                    f.write(f"Total commands: {len(commands)}\n\n")
+
+                    for cmd_info in commands:
+                        f.write(f"  [{cmd_info['command']}] (Line {cmd_info['line']})\n")
+                        for arg in cmd_info['args']:
+                            f.write(f"    {arg}\n")
+                        f.write("\n")
+
+            print(f"Condition mapping saved to: {mapping_file}")
+
+        # Set output files to read-only after writing
+        set_file_readonly(output_file)
+        if stats_file:
+            set_file_readonly(stats_file)
+        if mapping_file:
+            set_file_readonly(mapping_file)
+
+
+def expand_cmake_conditions(input_file, output_file, stats_file=None, mapping_file=None):
+    """
+    Parse CMakeLists.txt and expand all mcux_add_* commands with their full condition stack.
+
+    Args:
+        input_file: Path to input CMakeLists.txt file
+        output_file: Path to output file for expanded commands
+        stats_file: Optional path to output file for statistics
+        mapping_file: Optional path to output file for condition-to-sources mapping
+    """
+    print(f"\nStarting condition expansion...")
+    print(f"Input file: {input_file}")
+    print(f"Output file: {output_file}")
+
+    # Parse the file
+    parser = CMakeConditionParser(input_file)
+    parser.parse()
+
+    # Save results (save_results now handles read-only attributes internally)
+    parser.save_results(output_file, stats_file, mapping_file)
+
+
+def compress_condition_expression(condition):
+    """
+    Compress a complex condition expression into a simplified name and Kconfig expression.
+
+    Args:
+        condition: Original condition like "(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.A) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.B)"
+
+    Returns:
+        tuple: (compressed_name, kconfig_expression)
+        - compressed_name: e.g., "CONFIG_MCUX_COMPONENT_middleware.edgefast_open.A_AND_B"
+        - kconfig_expression: e.g., "(MCUX_COMPONENT_middleware.edgefast_open.A) && (MCUX_COMPONENT_middleware.edgefast_open.B)"
+    """
+    if not condition:
+        return None, None
+
+    # Extract all CONFIG symbols from the condition
+    config_pattern = r'CONFIG_MCUX_COMPONENT_middleware\.edgefast_open\.(\w+)'
+    matches = re.findall(config_pattern, condition)
+
+    if not matches:
+        return None, None
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_matches = []
+    for match in matches:
+        if match not in seen:
+            seen.add(match)
+            unique_matches.append(match)
+
+    # Build compressed name
+    # Join all unique suffixes with _AND_ or _OR_ based on operators
+    compressed_suffix = '_'.join(unique_matches)
+
+    # Replace operators in the suffix to make it more readable
+    # This is a simplified approach - we just join all parts
+    # Requirement: all generated compressed Kconfig symbols must start with
+    #   CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.
+    compressed_name = f"CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.{compressed_suffix}"
+
+    # Build Kconfig expression
+    # Replace CONFIG_ prefix and convert operators
+    kconfig_expr = condition
+    kconfig_expr = kconfig_expr.replace('CONFIG_', '')
+    kconfig_expr = kconfig_expr.replace(' AND ', ' && ')
+    kconfig_expr = kconfig_expr.replace(' OR ', ' || ')
+
+    return compressed_name, kconfig_expr
+
+
+def generate_compressed_kconfig(expanded_file, output_file):
+    """
+    Generate compressed Kconfig file from expanded CMakeLists.txt.
+    Creates simplified Kconfig symbols for complex condition expressions.
+
+    Args:
+        expanded_file: Path to CMakeLists_expanded.txt
+        output_file: Path to output Kconfig.ecosystem.compress
+    """
+    print(f"\nGenerating compressed Kconfig file...")
+    print(f"Input file: {expanded_file}")
+    print(f"Output file: {output_file}")
+
+    # Remove read-only attribute
+    remove_readonly(output_file)
+
+    # Parse expanded file to extract all conditions
+    condition_map = {}  # {original_condition: (compressed_name, kconfig_expr)}
+
+    try:
+        with open(expanded_file, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except Exception as e:
+        print(f"Error: Unable to read file {expanded_file}: {e}")
+        return
+
+    # Extract conditions from if() statements
+    if_pattern = re.compile(r'^\s*if\s*\((.*?)\)\s*$', re.IGNORECASE)
+
+    for line in lines:
+        match = if_pattern.match(line)
+        if match:
+            condition = match.group(1).strip()
+
+            # Skip simple conditions (single CONFIG)
+            if condition.count('CONFIG_') <= 1:
+                continue
+
+            # Skip if already processed
+            if condition in condition_map:
+                continue
+
+            compressed_name, kconfig_expr = compress_condition_expression(condition)
+            if compressed_name and kconfig_expr:
+                condition_map[condition] = (compressed_name, kconfig_expr)
+
+    # Generate Kconfig file
+    kconfig_lines = []
+
+    # Add header
+    kconfig_lines.append("# Copyright 2025 NXP")
+    kconfig_lines.append("#")
+    kconfig_lines.append("# SPDX-License-Identifier: BSD-3-Clause")
+    kconfig_lines.append("#")
+    kconfig_lines.append("# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    kconfig_lines.append("# WARNING: This file is AUTO-GENERATED by merge_cmake.py script")
+    kconfig_lines.append("# DO NOT MODIFY THIS FILE MANUALLY!")
+    kconfig_lines.append("#")
+    kconfig_lines.append("# This file contains compressed Kconfig definitions for complex condition expressions.")
+    kconfig_lines.append("# Each configuration represents a combination of multiple conditions.")
+    kconfig_lines.append("# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    kconfig_lines.append("")
+
+    # Sort by compressed name for consistent output
+    sorted_conditions = sorted(condition_map.items(), key=lambda x: x[1][0])
+
+    for original_condition, (compressed_name, kconfig_expr) in sorted_conditions:
+        # Remove CONFIG_ prefix for Kconfig symbol name
+        kconfig_symbol = compressed_name[7:]  # Remove "CONFIG_"
+
+        kconfig_lines.append(f"# Original: {original_condition}")
+        kconfig_lines.append(f"config {kconfig_symbol}")
+        kconfig_lines.append(f"    def_bool {kconfig_expr}")
+        kconfig_lines.append("")
+
+    # Write file
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(kconfig_lines))
+    except Exception as e:
+        print(f"Error: Unable to write file {output_file}: {e}")
+        return
+
+    print(f"[OK] Compressed Kconfig file generated!")
+    print(f"  Generated {len(condition_map)} compressed configurations")
+    print(f"  Output file: {output_file}")
+
+    # Set file to read-only
+    set_file_readonly(output_file)
+
+    return condition_map
+
+
+def replace_conditions_in_expanded_file(expanded_file, condition_map, output_file):
+    """
+    Replace complex conditions in expanded file with compressed condition names.
+
+    Args:
+        expanded_file: Path to CMakeLists_expanded.txt
+        condition_map: Dictionary mapping original conditions to (compressed_name, kconfig_expr)
+        output_file: Path to output file (can be same as expanded_file)
+    """
+    print(f"\nReplacing conditions in expanded file...")
+    print(f"Input file: {expanded_file}")
+    print(f"Output file: {output_file}")
+
+    # Remove read-only attribute
+    remove_readonly(output_file)
+
+    try:
+        with open(expanded_file, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except Exception as e:
+        print(f"Error: Unable to read file {expanded_file}: {e}")
+        return
+
+    # Replace conditions
+    modified_lines = []
+    replacement_count = 0
+
+    if_pattern = re.compile(r'^(\s*)if\s*\((.*?)\)\s*$', re.IGNORECASE)
+
+    for line in lines:
+        match = if_pattern.match(line)
+        if match:
+            indent = match.group(1)
+            condition = match.group(2).strip()
+
+            # Check if this condition should be replaced
+            if condition in condition_map:
+                compressed_name, _ = condition_map[condition]
+                modified_lines.append(f"{indent}if({compressed_name})\n")
+                replacement_count += 1
+            else:
+                modified_lines.append(line)
+        else:
+            modified_lines.append(line)
+
+    # Write file
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.writelines(modified_lines)
+    except Exception as e:
+        print(f"Error: Unable to write file {output_file}: {e}")
+        return
+
+    print(f"[OK] Condition replacement completed!")
+    print(f"  Replaced {replacement_count} complex conditions")
+
+    # Set file to read-only
+    set_file_readonly(output_file)
+
+
 if __name__ == "__main__":
     # Current working directory should be C:\_DDM\sdk-next\mcuxsdk\middleware\edgefast_open
     # Root CMakeLists_root.txt is in current directory
     root_cmake = "CMakeLists_root.txt"
-    output_file = "CMakeLists.txt"
+    flat_file = "CMakeLists_flat.txt"
     kconfig_file = "Kconfig.ecosystem"
+    expanded_file = "CMakeLists_expanded.txt"
+    stats_file = "CMakeLists_stats.txt"
+    mapping_file = "CMakeLists_condition_mapping.txt"
+    compressed_kconfig_file = "Kconfig.ecosystem.compress"
+    output_file = "CMakeLists.txt"
 
     # Step 1: Merge all CMakeLists.txt files
     print("=" * 80)
     print("Step 1: Merge all CMakeLists.txt files")
     print("=" * 80)
-    merge_cmake_files(root_cmake, output_file)
+    merge_cmake_files(root_cmake, flat_file)
 
     # Step 2: Convert zephyr functions to mcux format
     print("\n" + "=" * 80)
     print("Step 2: Convert zephyr functions to mcux format")
     print("=" * 80)
-    convert_zephyr_functions_to_mcux(output_file)
+    convert_zephyr_functions_to_mcux(flat_file)
 
     # Step 3: Replace conditions and generate Kconfig file
     print("\n" + "=" * 80)
@@ -1417,16 +2050,38 @@ if __name__ == "__main__":
 
     # 3.1: Extract and replace conditions
     print("\n3.1: Extract and replace conditions in CMakeLists.txt...")
-    # Type-aware Kconfig generation now supports non-bool configs like CONFIG_BT_RX_PRIO.
-    replacements = replace_conditions_in_cmake(output_file, ignore_list=[])
+    replacements = replace_conditions_in_cmake(flat_file, ignore_list=[])
 
     # 3.2: Generate Kconfig.ecosystem file
     print("\n3.2: Generate Kconfig.ecosystem file...")
     generate_kconfig_file(replacements, kconfig_file)
+
+    # Step 4: Expand and compress conditions
+    print("\n" + "=" * 80)
+    print("Step 4: Expand and compress conditions for all mcux_add_* commands")
+    print("=" * 80)
+
+    # 4.1: Expand conditions
+    print("\n4.1: Expand conditions for all mcux_add_* commands...")
+    expand_cmake_conditions(flat_file, expanded_file, stats_file, mapping_file)
+
+    # 4.2: Generate compressed Kconfig and replace conditions
+    print("\n4.2: Generate compressed Kconfig and replace conditions...")
+    condition_map = generate_compressed_kconfig(expanded_file, compressed_kconfig_file)
+    if condition_map:
+        replace_conditions_in_expanded_file(expanded_file, condition_map, output_file)
+    else:
+        print("Error: Failed to generate compressed Kconfig file")
+        SystemExit(1)
 
     print("\n" + "=" * 80)
     print("All steps completed!")
     print("=" * 80)
     print(f"\nGenerated files:")
     print(f"  1. {Path(output_file).resolve()}")
-    print(f"  2. {Path(kconfig_file).resolve()}")
+    print(f"  2. {Path(flat_file).resolve()}")
+    print(f"  3. {Path(kconfig_file).resolve()}")
+    print(f"  4. {Path(expanded_file).resolve()}")
+    print(f"  5. {Path(stats_file).resolve()}")
+    print(f"  6. {Path(mapping_file).resolve()}")
+    print(f"  7. {Path(compressed_kconfig_file).resolve()}")
