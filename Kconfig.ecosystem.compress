@@ -385,14 +385,16 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa)
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) AND (NOT(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa))
-# NOTE: Multiple def_bool expressions collapsed into this symbol; using: (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto_bt_crypto_psa
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto_build_with_tfm
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) && (MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
+
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) AND (NOT(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa))
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto_not_bt_crypto_psa
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) && (NOT(MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa))
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ead)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_ead
@@ -543,10 +545,12 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_host_bt
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) && (MCUX_COMPONENT_middleware.edgefast_open.bt_conn) && (MCUX_COMPONENT_middleware.edgefast_open.bt_gatt_gap_svc_validate)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_smp)
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn) AND (NOT(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_smp))
-# NOTE: Multiple def_bool expressions collapsed into this symbol; using: (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) && (MCUX_COMPONENT_middleware.edgefast_open.bt_conn) && (MCUX_COMPONENT_middleware.edgefast_open.bt_smp)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_host_bt_conn_bt_smp
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) && (MCUX_COMPONENT_middleware.edgefast_open.bt_conn) && (MCUX_COMPONENT_middleware.edgefast_open.bt_smp)
+
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn) AND (NOT(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_smp))
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_host_bt_conn_not_bt_smp
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) && (MCUX_COMPONENT_middleware.edgefast_open.bt_conn) && (NOT(MCUX_COMPONENT_middleware.edgefast_open.bt_smp))
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_df)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_host_bt_df
@@ -683,8 +687,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_private_shell
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_private_shell)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_reboot_wdog)
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (NOT(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_reboot_wdog))
-# NOTE: Multiple def_bool expressions collapsed into this symbol; using: (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_reboot_wdog)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_reboot_wdog
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_reboot_wdog)
 
@@ -711,6 +713,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_libsbc
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.net_buf)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_net_buf
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.net_buf)
+
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (NOT(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_reboot_wdog))
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_not_bt_reboot_wdog
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (NOT(MCUX_COMPONENT_middleware.edgefast_open.bt_reboot_wdog))
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.port_shell)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_port_shell

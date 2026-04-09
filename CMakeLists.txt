@@ -222,7 +222,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_host
 endif()
 
 # Line 417: mcux_add_source
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_host_bt_conn_bt_smp)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_host_bt_conn_not_bt_smp)
           mcux_add_source(
               SOURCES ./source/bluetooth/host/smp_null.c
           )
@@ -1462,7 +1462,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto_bt_crypt
 endif()
 
 # Line 1639: mcux_add_source
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto_bt_crypto_psa)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto_not_bt_crypto_psa)
     mcux_add_source(
         SOURCES ./source/bluetooth/crypto/bt_crypto_mbedtls.c
     )
@@ -1683,7 +1683,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_reboot_wdog)
 endif()
 
 # Line 1942: mcux_add_source
-if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_reboot_wdog)
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.bt_not_bt_reboot_wdog)
      mcux_add_source(
          SOURCES ./source/porting/reboot/reboot_nvic.c
      )

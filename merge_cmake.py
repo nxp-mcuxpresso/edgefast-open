@@ -1955,9 +1955,34 @@ def compress_condition_expression(condition):
     if not condition:
         return None, None
 
-    # Extract all CONFIG symbols from the condition
-    config_pattern = r"CONFIG_MCUX_COMPONENT_middleware\.edgefast_open\.(\w+)"
-    matches = re.findall(config_pattern, condition)
+    # Extract all CONFIG symbols from the condition.
+    #
+    # IMPORTANT: preserve negation in the compressed symbol name so that:
+    #   A && B && C
+    # and
+    #   A && B && NOT(C)
+    # do NOT collapse into the same `...compress.*` Kconfig symbol.
+    #
+    # We encode negated symbols as `not_<sym>` tokens in the suffix.
+    base_sym_pattern = r"CONFIG_MCUX_COMPONENT_middleware\.edgefast_open\.(\w+)"
+    neg_sym_pattern = r"\bNOT\s*\(\s*CONFIG_MCUX_COMPONENT_middleware\.edgefast_open\.(\w+)\s*\)"
+
+    # Collect token occurrences in condition order.
+    # NOTE: remove base symbol occurrences that are inside NOT(...), otherwise the
+    # suffix would contain both `not_X` and `X`.
+    tokens_with_pos = []  # list[(pos:int, token:str)]
+    neg_spans = []        # list[(start:int, end:int)]
+    for m in re.finditer(neg_sym_pattern, condition, flags=re.IGNORECASE):
+        tokens_with_pos.append((m.start(), f"not_{m.group(1)}"))
+        neg_spans.append((m.start(), m.end()))
+
+    for m in re.finditer(base_sym_pattern, condition):
+        inside_neg = any(s <= m.start() < e for s, e in neg_spans)
+        if not inside_neg:
+            tokens_with_pos.append((m.start(), m.group(1)))
+
+    tokens_with_pos.sort(key=lambda x: x[0])
+    matches = [t for _, t in tokens_with_pos]
 
     if not matches:
         return None, None
