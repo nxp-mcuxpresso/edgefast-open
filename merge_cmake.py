@@ -2013,13 +2013,35 @@ def generate_compressed_kconfig(expanded_file, output_file):
     # Sort by compressed name for consistent output
     sorted_conditions = sorted(condition_map.items(), key=lambda x: x[1][0])
 
+    # De-duplicate output blocks. Different original conditions can collapse into the
+    # same symbol after stripping CMake-only MATCHES clauses.
+    #
+    # Kconfig cannot have multiple `config <symbol>` definitions, so we emit exactly
+    # one block per `kconfig_symbol`.
+    #
+    # If the same symbol is produced with multiple differing expressions, we select a
+    # deterministic one (lexicographically smallest) and keep all originals as comments.
+    emitted_by_symbol = {}  # {kconfig_symbol: {'exprs': set([expr, ...]), 'originals': [str, ...]}}
+
     for original_condition, (compressed_name, kconfig_expr) in sorted_conditions:
         # Remove CONFIG_ prefix for Kconfig symbol name
         kconfig_symbol = compressed_name[7:]  # Remove "CONFIG_"
 
-        kconfig_lines.append(f"# Original: {original_condition}")
+        entry = emitted_by_symbol.setdefault(kconfig_symbol, {'exprs': set(), 'originals': []})
+        entry['exprs'].add(kconfig_expr)
+        entry['originals'].append(original_condition)
+
+    for kconfig_symbol in sorted(emitted_by_symbol.keys()):
+        entry = emitted_by_symbol[kconfig_symbol]
+        chosen_expr = sorted(entry['exprs'])[0]
+
+        for original_condition in entry['originals']:
+            kconfig_lines.append(f"# Original: {original_condition}")
+        if len(entry['exprs']) > 1:
+            kconfig_lines.append(f"# NOTE: Multiple def_bool expressions collapsed into this symbol; using: {chosen_expr}")
+
         kconfig_lines.append(f"config {kconfig_symbol}")
-        kconfig_lines.append(f"    def_bool {kconfig_expr}")
+        kconfig_lines.append(f"    def_bool {chosen_expr}")
         kconfig_lines.append("")
 
     # Write file
