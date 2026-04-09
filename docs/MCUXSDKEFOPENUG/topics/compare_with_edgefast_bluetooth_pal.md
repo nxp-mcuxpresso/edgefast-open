@@ -73,9 +73,11 @@ The following table compares the available examples between EdgeFast Open Blueto
 The following workflow compares the key different of API between EdgeFast Open Bluetooth Host stack and EdgeFast Bluetooth PAL.
 
 The following diagram is a typical Egdefast Open workflow:
+
 ![](../images/workflow_of_mcux_sdk_edgefast_open.png "Workflow of EdgeFast Open")
 
 The following diagram is a typical EdgeFast Bluetooth PAL workflow:
+
 ![](../images/workflow_of_mcux_sdk_edgefast_bt_pal.png "Workflow of EdgeFast Bluetooth PAL")
 
 ### API Differences
