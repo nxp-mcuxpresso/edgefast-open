@@ -1817,22 +1817,69 @@ def expand_cmake_conditions(input_file, output_file, stats_file=None, mapping_fi
 
 
 def compress_condition_expression(condition):
-    """
-    Compress a complex condition expression into a simplified name and Kconfig expression.
+    """Compress a complex CMake condition into a simplified name and Kconfig expression.
+
+    Notes:
+      - Only CONFIG_* symbols are representable as Kconfig dependencies.
+      - CMake-only regex clauses like `W MATCHES "..."` / `NOT W MATCHES "..."` are not
+        valid Kconfig expressions, so they are stripped from the generated `def_bool`.
 
     Args:
-        condition: Original condition like "(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.A) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.B)"
+        condition: Original condition like
+            "(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.A) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.B)"
 
     Returns:
         tuple: (compressed_name, kconfig_expression)
-        - compressed_name: e.g., "CONFIG_MCUX_COMPONENT_middleware.edgefast_open.A_AND_B"
-        - kconfig_expression: e.g., "(MCUX_COMPONENT_middleware.edgefast_open.A) && (MCUX_COMPONENT_middleware.edgefast_open.B)"
     """
+
+    def _strip_cmake_matches(expr: str) -> str:
+        """Remove CMake `MATCHES` / `NOT ... MATCHES` clauses from an expression string."""
+        # The expanded CMake conditions use normal quotes, e.g.:
+        #   (NOT W MATCHES "3")
+        # Strip both parenthesized and non-parenthesized forms.
+        expr = re.sub(r"\(\s*NOT\s+\w+\s+MATCHES\s+\"[^\"]*\"\s*\)", "", expr, flags=re.IGNORECASE)
+        expr = re.sub(r"\(\s*\w+\s+MATCHES\s+\"[^\"]*\"\s*\)", "", expr, flags=re.IGNORECASE)
+        expr = re.sub(r"\bNOT\s+\w+\s+MATCHES\s+\"[^\"]*\"\b", "", expr, flags=re.IGNORECASE)
+        expr = re.sub(r"\b\w+\s+MATCHES\s+\"[^\"]*\"\b", "", expr, flags=re.IGNORECASE)
+
+        # Additionally, remove any remaining raw MATCHES fragments (defensive),
+        # including cases where the expression is already in Kconfig form with &&.
+        expr = re.sub(r"\bNOT\s+\w+\s+MATCHES\s+\"[^\"]*\"", "", expr, flags=re.IGNORECASE)
+        expr = re.sub(r"\b\w+\s+MATCHES\s+\"[^\"]*\"", "", expr, flags=re.IGNORECASE)
+
+        # Clean up now-empty parenthesis pairs and adjacent operators.
+        expr = re.sub(r"\(\s*\)", "", expr)
+
+        # Normalize whitespace around operators (CMake form).
+        expr = re.sub(r"\s+", " ", expr).strip()
+
+        # Remove dangling/duplicate CMake operators after stripping
+        expr = re.sub(r"\s+(AND|OR)\s+(AND|OR)\s+", r" \2 ", expr, flags=re.IGNORECASE)
+        expr = re.sub(r"^(AND|OR)\s+", "", expr, flags=re.IGNORECASE)
+        expr = re.sub(r"\s+(AND|OR)$", "", expr, flags=re.IGNORECASE)
+
+        # After removing MATCHES clauses, there can still be leftover parentheses like
+        #   (A) AND ()
+        # or
+        #   (A) AND ( )
+        # so do another normalization pass.
+        expr = re.sub(r"\(\s*\)", "", expr)
+        expr = re.sub(r"\s+", " ", expr).strip()
+        expr = re.sub(r"\s+(AND|OR)\s+(AND|OR)\s+", r" \2 ", expr, flags=re.IGNORECASE)
+        expr = re.sub(r"^(AND|OR)\s+", "", expr, flags=re.IGNORECASE)
+        expr = re.sub(r"\s+(AND|OR)$", "", expr, flags=re.IGNORECASE)
+
+        # If expression collapses to just parentheses/spaces, return empty
+        if not re.search(r"\w", expr):
+            return ""
+
+        return expr
+
     if not condition:
         return None, None
 
     # Extract all CONFIG symbols from the condition
-    config_pattern = r'CONFIG_MCUX_COMPONENT_middleware\.edgefast_open\.(\w+)'
+    config_pattern = r"CONFIG_MCUX_COMPONENT_middleware\.edgefast_open\.(\w+)"
     matches = re.findall(config_pattern, condition)
 
     if not matches:
@@ -1847,21 +1894,55 @@ def compress_condition_expression(condition):
             unique_matches.append(match)
 
     # Build compressed name
-    # Join all unique suffixes with _AND_ or _OR_ based on operators
-    compressed_suffix = '_'.join(unique_matches)
+    compressed_suffix = "_".join(unique_matches)
 
-    # Replace operators in the suffix to make it more readable
-    # This is a simplified approach - we just join all parts
     # Requirement: all generated compressed Kconfig symbols must start with
     #   CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.
     compressed_name = f"CONFIG_MCUX_COMPONENT_middleware.edgefast_open.compress.{compressed_suffix}"
 
     # Build Kconfig expression
-    # Replace CONFIG_ prefix and convert operators
-    kconfig_expr = condition
-    kconfig_expr = kconfig_expr.replace('CONFIG_', '')
-    kconfig_expr = kconfig_expr.replace(' AND ', ' && ')
-    kconfig_expr = kconfig_expr.replace(' OR ', ' || ')
+    # 1) Strip CMake-only regex conditions
+    filtered = _strip_cmake_matches(condition)
+    if not filtered:
+        return None, None
+
+    # 2) Replace CONFIG_ prefix and convert operators
+    kconfig_expr = filtered
+    kconfig_expr = kconfig_expr.replace("CONFIG_", "")
+    kconfig_expr = kconfig_expr.replace(" AND ", " && ")
+    kconfig_expr = kconfig_expr.replace(" OR ", " || ")
+
+    # 3) Final cleanup for Kconfig operators
+    kconfig_expr = re.sub(r"\s+", " ", kconfig_expr).strip()
+
+    # Drop empty parentheses that can be created after stripping MATCHES clauses
+    kconfig_expr = re.sub(r"\(\s*\)", "", kconfig_expr)
+
+    # If we ended up with something like `( && )`, remove it entirely
+    kconfig_expr = re.sub(r"\(\s*&&\s*\)", "", kconfig_expr)
+    kconfig_expr = re.sub(r"\(\s*\|\|\s*\)", "", kconfig_expr)
+
+    # Iteratively remove operator-group artifacts produced by stripping, e.g.
+    #   "... && ( && )"
+    #   "... && ()"
+    #   "... &&"
+    for _ in range(5):
+        prev = kconfig_expr
+        kconfig_expr = re.sub(r"\(\s*\)", "", kconfig_expr)
+        kconfig_expr = re.sub(r"\(\s*&&\s*\)", "", kconfig_expr)
+        kconfig_expr = re.sub(r"\(\s*\|\|\s*\)", "", kconfig_expr)
+
+        # remove operator followed by empty group
+        kconfig_expr = re.sub(r"\s+(&&|\|\|)\s+\(\s*\)", "", kconfig_expr)
+
+        # Collapse duplicate operators and trim dangling ones
+        kconfig_expr = re.sub(r"\s+(&&|\|\|)\s+(&&|\|\|)\s+", r" \2 ", kconfig_expr)
+        kconfig_expr = re.sub(r"^(&&|\|\|)\s+", "", kconfig_expr)
+        kconfig_expr = re.sub(r"\s+(&&|\|\|)$", "", kconfig_expr)
+
+        kconfig_expr = re.sub(r"\s+", " ", kconfig_expr).strip()
+        if kconfig_expr == prev:
+            break
 
     return compressed_name, kconfig_expr
 

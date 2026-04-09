@@ -728,15 +728,15 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_suppressed_warnings
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) AND (NOT W MATCHES "3")
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_suppressed_warnings
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) && (NOT W MATCHES "3")
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) AND (NOT W MATCHES "2" AND NOT W MATCHES "3")
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_suppressed_warnings
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) && (NOT W MATCHES "2" && NOT W MATCHES "3")
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) AND (NOT W MATCHES "1" AND NOT W MATCHES "2" AND NOT W MATCHES "3")
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_suppressed_warnings
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) && (NOT W MATCHES "1" && NOT W MATCHES "2" && NOT W MATCHES "3")
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.utf8)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_utf8
