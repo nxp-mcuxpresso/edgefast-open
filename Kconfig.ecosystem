@@ -569,6 +569,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings
     # Original type: bool
     def_bool EDGEFAST_OPEN_SUPPRESSED_WARNINGS
 
+config MCUX_COMPONENT_middleware.edgefast_open.bt_reboot_wdog
+    # Original type: bool
+    def_bool BT_REBOOT_WDOG
+
 config MCUX_COMPONENT_middleware.edgefast_open.port_shell
     # Original type: bool
     def_bool PORT_SHELL

@@ -1487,8 +1487,14 @@ class CMakeConditionParser:
     """Parse CMakeLists.txt and extract mcux_add_* commands with conditions"""
 
     # Regex patterns
-    IF_PATTERN = re.compile(r'^\s*if\s*\((.*?)\)\s*$', re.IGNORECASE)
-    ENDIF_PATTERN = re.compile(r'^\s*endif\s*\(\s*\)\s*$', re.IGNORECASE)
+    # Notes:
+    # - CMake allows: endif(), endif(<label>), endif (<label>)
+    # - Lines may have trailing comments: endif() # comment
+    # - Accept common whitespace variants.
+    IF_PATTERN = re.compile(r'^\s*if\s*\((.*?)\)\s*(?:#.*)?$', re.IGNORECASE)
+    ELSEIF_PATTERN = re.compile(r'^\s*elseif\s*\((.*?)\)\s*(?:#.*)?$', re.IGNORECASE)
+    ELSE_PATTERN = re.compile(r'^\s*else\s*(?:\(\s*\))?\s*(?:#.*)?$', re.IGNORECASE)
+    ENDIF_PATTERN = re.compile(r'^\s*endif\s*(?:\(\s*[^)]*\s*\))?\s*(?:#.*)?$', re.IGNORECASE)
     MCUX_ADD_PATTERN = re.compile(
         r'^\s*(mcux_add_\w+)\s*\((.*?)$',
         re.IGNORECASE
@@ -1560,26 +1566,97 @@ class CMakeConditionParser:
         print(f"Skipping function definitions (lines 0-{start_idx-1})")
         print(f"Starting parsing from line {start_idx}")
 
+        # Track branch-state for each `if()` level so we can correctly handle
+        # `else()` / `elseif()` without incorrectly inheriting conditions.
+        # Each frame corresponds 1:1 with ConditionStack.push() calls.
+        #
+        # frame = {
+        #   'if_cond': str,          # original if() condition
+        #   'taken_expr': str|None   # OR of conditions already taken in this chain
+        # }
+        branch_stack = []
+
+        def _neg(expr: str) -> str:
+            expr = (expr or "").strip()
+            if not expr:
+                return ""
+            return f"NOT({expr})"
+
         i = start_idx
         while i < len(lines):
             line = lines[i].rstrip()
 
-            # Check for if statement
+            # if(<cond>)
             if_match = self.IF_PATTERN.match(line)
             if if_match:
                 condition = if_match.group(1).strip()
                 self.condition_stack.push(condition)
+                branch_stack.append({'if_cond': condition, 'taken_expr': None})
                 i += 1
                 continue
 
-            # Check for endif statement
+            # elseif(<cond>)
+            elseif_match = self.ELSEIF_PATTERN.match(line)
+            if elseif_match:
+                new_cond = elseif_match.group(1).strip()
+
+                # CMake semantics: elseif() is part of the current if-chain.
+                # The active condition becomes:
+                #   (NOT(taken_expr)) AND (new_cond)
+                # where taken_expr is the OR of all previous branch conditions.
+                if branch_stack and self.condition_stack.stack:
+                    frame = branch_stack[-1]
+                    prev_taken = frame['taken_expr']
+
+                    # Pop current active branch condition (previous if/elseif)
+                    self.condition_stack.pop()
+
+                    guard = _neg(prev_taken) if prev_taken else None
+                    effective = new_cond if not guard else f"({guard}) AND ({new_cond})"
+
+                    self.condition_stack.push(effective)
+
+                    # Update taken_expr to include this branch's effective condition
+                    if prev_taken:
+                        frame['taken_expr'] = f"({prev_taken}) OR ({new_cond})"
+                    else:
+                        frame['taken_expr'] = new_cond
+                i += 1
+                continue
+
+            # else()
+            else_match = self.ELSE_PATTERN.match(line)
+            if else_match:
+                # CMake semantics: else() runs when none of the prior branches ran.
+                # Active condition becomes NOT(taken_expr). For a simple if/else,
+                # taken_expr is just the original if() condition.
+                if branch_stack and self.condition_stack.stack:
+                    frame = branch_stack[-1]
+
+                    # Pop current active branch condition
+                    self.condition_stack.pop()
+
+                    prev_taken = frame['taken_expr'] if frame['taken_expr'] else frame['if_cond']
+                    effective = _neg(prev_taken)
+                    self.condition_stack.push(effective)
+
+                    # Mark the full if-chain as fully covered so a later elseif()
+                    # (shouldn't happen) would be guarded out.
+                    frame['taken_expr'] = "TRUE"
+
+                i += 1
+                continue
+
+            # endif()
             endif_match = self.ENDIF_PATTERN.match(line)
             if endif_match:
                 self.condition_stack.pop()
+                if branch_stack:
+                    branch_stack.pop()
                 i += 1
                 continue
 
-            # Check for mcux_add_* commands
+            # mcux_add_*(...)
             mcux_match = self.MCUX_ADD_PATTERN.match(line)
             if mcux_match:
                 command = mcux_match.group(1)
