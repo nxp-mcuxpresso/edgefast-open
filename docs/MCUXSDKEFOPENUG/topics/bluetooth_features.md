@@ -4,7 +4,7 @@
 -   Protocol support
     -   L2CAP, GAP, GATT, RFCOMM, SDP, SM, and SPP
 -   Classic profile
-    -   SPP, A2DP, and HFP
+    -   A2DP, HFP, AVRCP, AVRCP Cover Art, GOEP, BIP, MAP, PBAP
 -   LE profile
     -   HTP, PXP, IPSP, HPS
 -   LE audio
