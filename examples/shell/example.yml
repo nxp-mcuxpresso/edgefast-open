@@ -25,3 +25,69 @@ edgefast_open_shell:
       - -mdk@release
       - -mdk@sdram_debug
       - -mdk@sdram_release
+
+edgefast_open_shell@classic:
+  section-type: custom_application
+  contents:
+    document:
+      category: edgefast_open_examples/
+      extra_build_args:
+      - -DCONF_FILE=middleware/edgefast_open/examples/shell/prj_br.conf
+  boards:
+    evkbmimxrt1170@cm7:
+    - -armgcc@debug
+    - -armgcc@release
+    - -armgcc@sdram_debug
+    - -armgcc@sdram_release
+    - -iar@debug
+    - -iar@release
+    - -iar@sdram_debug
+    - -iar@sdram_release
+    - -mdk@debug
+    - -mdk@release
+    - -mdk@sdram_debug
+    - -mdk@sdram_release
+
+edgefast_open_shell@multiple_conns:
+  section-type: custom_application
+  contents:
+    document:
+      category: edgefast_open_examples/
+      extra_build_args:
+      - -DCONF_FILE=middleware/edgefast_open/examples/shell/prj-br-ble-conns.conf
+  boards:
+    evkbmimxrt1170@cm7:
+    - -armgcc@debug
+    - -armgcc@release
+    - -armgcc@sdram_debug
+    - -armgcc@sdram_release
+    - -iar@debug
+    - -iar@release
+    - -iar@sdram_debug
+    - -iar@sdram_release
+    - -mdk@debug
+    - -mdk@release
+    - -mdk@sdram_debug
+    - -mdk@sdram_release
+
+edgefast_open_shell@le_audio:
+  section-type: custom_application
+  contents:
+    document:
+      category: edgefast_open_examples/
+      extra_build_args:
+      - -DCONF_FILE=middleware/edgefast_open/examples/shell/audio.conf
+  boards:
+    evkbmimxrt1170@cm7:
+    - -armgcc@debug
+    - -armgcc@release
+    - -armgcc@sdram_debug
+    - -armgcc@sdram_release
+    - -iar@debug
+    - -iar@release
+    - -iar@sdram_debug
+    - -iar@sdram_release
+    - -mdk@debug
+    - -mdk@release
+    - -mdk@sdram_debug
+    - -mdk@sdram_release
