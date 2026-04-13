@@ -23,6 +23,7 @@
 #include "common/bt_str.h"
 
 #include "fsl_debug_console.h"
+#include "fsl_cache.h"
 
 #define H4_RING_BUFFER_LENGTH 1024
 
@@ -458,6 +459,7 @@ static void hci_send(struct h4_data *h4)
 		h4->tx.buf = k_fifo_get(&h4->tx.fifo, K_NO_WAIT);
 
 		if (h4->tx.buf != NULL) {
+                        DCACHE_CleanByRange((uint32_t)h4->tx.buf->data, h4->tx.buf->len);
 			err = h4_uart_sending(h4->tx.buf->data, h4->tx.buf->len);
 			if (err != 0) {
 				LOG_ERR("Unable to write to UART (err %d)", err);
