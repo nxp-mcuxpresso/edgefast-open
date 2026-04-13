@@ -1,0 +1,96 @@
+mcux_add_source(
+  BASE_PATH ${SdkRootDirPath}
+  SOURCES
+    components/wifi_bt_module/incl/wifi_bt_module_config.h
+    ${board_root}/${board}/FreeRTOSConfigBoard.h
+    middleware/edgefast_open/examples/_boards/${board}/configs/freertos/FreeRTOSConfig.h
+    middleware/edgefast_open/examples/_boards/${board}/peripheral_ipsp/hardware_init.c
+    middleware/edgefast_open/examples/_boards/${board}/peripheral_ipsp/pin_mux.c
+    middleware/edgefast_open/examples/_boards/${board}/peripheral_ipsp/pin_mux.h
+    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_config_client.h
+)
+mcux_add_include(
+  BASE_PATH ${SdkRootDirPath}
+  INCLUDES
+    components/wifi_bt_module/incl
+    ${board_root}/${board}
+    middleware/edgefast_open/examples/_boards/${board}/configs/freertos
+    middleware/edgefast_open/examples/_boards/${board}/peripheral_ipsp
+    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls
+)
+mcux_add_macro(
+  CC "-DAPPL_USE_STANDARD_IO\
+      -DCONFIG_ARM=1\
+      -DEDGEFAST_BT_LITTLEFS_MFLASH\
+      -DFSL_DRIVER_TRANSFER_DOUBLE_WEAK_IRQ=0\
+      -DFSL_FEATURE_FLASH_PAGE_SIZE_BYTES=4096\
+      -DFSL_SDK_ENABLE_DRIVER_CACHE_CONTROL=1\
+      -DGATT_CLIENT\
+      -DGATT_DB\
+      -DHAL_UART_ADAPTER_FIFO=1\
+      -DIOT_WIFI_ENABLE_SAVE_NETWORK=1\
+      -DLFS_NO_ERROR=1\
+      -DLFS_NO_INTRINSICS=1\
+      -DSDIO_ENABLED=1\
+      -DgMemManagerLight=0\
+      -DMBEDTLS_USER_CONFIG_FILE=\\\"mbedtls_user_config.h\\\""
+)
+
+mcux_add_macro(
+  CC "-DFILE=void"
+  TOOLCHAINS iar
+)
+mcux_add_mdk_configuration(
+    LD "--keep=*(._bt_*)\
+       --keep=*(._net_buf_pool*)\
+       --keep=*(._settings_handler_static*)\
+       --keep=mflash_drv.o(*)\
+       --diag_suppress=6329\
+       --diag_suppress=6319\
+       --diag_suppress=6675\
+       --diag_suppress=6775\
+       --legacyalign\
+       --diag_suppress=3912"
+)
+mcux_remove_iar_linker_script(
+  BASE_PATH ${SdkRootDirPath}
+  LINKER ${device_root}/RT/RT500/MIMXRT595S/iar/MIMXRT595Sxxxx_cm33_flash.icf
+  TARGETS
+    flash_debug
+    flash_release
+)
+mcux_remove_mdk_linker_script(
+  BASE_PATH ${SdkRootDirPath}
+  LINKER ${device_root}/RT/RT500/MIMXRT595S/arm/MIMXRT595Sxxxx_cm33_flash.scf
+  TARGETS
+    flash_debug
+    flash_release
+)
+mcux_remove_armgcc_linker_script(
+  BASE_PATH ${SdkRootDirPath}
+  LINKER ${device_root}/RT/RT500/MIMXRT595S/gcc/MIMXRT595Sxxxx_cm33_flash.ld
+  TARGETS
+    flash_debug
+    flash_release
+)
+mcux_add_iar_linker_script(
+  BASE_PATH ${SdkRootDirPath}
+  LINKER middleware/edgefast_open/examples/_boards/${board}/peripheral_ipsp/linker/iar/MIMXRT595Sxxxx_cm33_flash.icf
+  TARGETS
+    flash_debug
+    flash_release
+)
+mcux_add_mdk_linker_script(
+  BASE_PATH ${SdkRootDirPath}
+  LINKER middleware/edgefast_open/examples/_boards/${board}/peripheral_ipsp/linker/arm/MIMXRT595Sxxxx_cm33_flash.scf
+  TARGETS
+    flash_debug
+    flash_release
+)
+mcux_add_armgcc_linker_script(
+  BASE_PATH ${SdkRootDirPath}
+  LINKER middleware/edgefast_open/examples/_boards/${board}/peripheral_ipsp/linker/gcc/MIMXRT595Sxxxx_cm33_flash.ld
+  TARGETS
+    flash_debug
+    flash_release
+)

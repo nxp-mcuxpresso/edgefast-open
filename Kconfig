@@ -16,8 +16,6 @@ menuconfig MCUX_COMPONENT_middleware.edgefast_open
 	select BT
 	select UTF8
 	select MCUX_COMPONENT_middleware.mbedtls if \
-						MCUX_HW_DEVICE_MIMXRT685S || \
-						MCUX_HW_DEVICE_MIMXRT595S || \
 						MCUX_HW_DEVICE_MIMXRT1166 || \
 						MCUX_HW_DEVICE_MCXN547    || \
 						MCUX_HW_DEVICE_MCXN947    || \
@@ -29,6 +27,8 @@ menuconfig MCUX_COMPONENT_middleware.edgefast_open
 						MCUX_HW_DEVICE_MIMXRT1176 || \
 						MCUX_HW_DEVICE_MIMXRT1187 || \
 						MCUX_HW_DEVICE_MIMXRT1189 || \
+						MCUX_HW_DEVICE_MIMXRT595S || \
+						MCUX_HW_DEVICE_MIMXRT685S || \
 						MCUX_HW_DEVICE_MIMXRT798S
 	select BT_CRYPTO_PSA if \
 				MCUX_HW_DEVICE_MIMXRT1042 || \
@@ -37,6 +37,8 @@ menuconfig MCUX_COMPONENT_middleware.edgefast_open
 				MCUX_HW_DEVICE_MIMXRT1176 || \
 				MCUX_HW_DEVICE_MIMXRT1187 || \
 				MCUX_HW_DEVICE_MIMXRT1189 || \
+				MCUX_HW_DEVICE_MIMXRT595S || \
+				MCUX_HW_DEVICE_MIMXRT685S || \
 				MCUX_HW_DEVICE_MIMXRT798S
 	select ATOMIC_OPERATIONS_BUILTIN
 	select MCUX_COMPONENT_component.psa_crypto_driver.dcp if \
