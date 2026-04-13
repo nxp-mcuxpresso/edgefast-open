@@ -23,6 +23,7 @@ board: IMXRT1050-EVKB
 
 #include "fsl_common.h"
 #include "fsl_iomuxc.h"
+#include "fsl_gpio.h"
 #include "pin_mux.h"
 
 /* FUNCTION ************************************************************************************************************
@@ -167,6 +168,8 @@ BOARD_InitArduinoUARTPins:
     pull_keeper_select: Keeper, pull_keeper_enable: Enable, open_drain: Disable, speed: MHZ_100, drive_strength: R0_6, slew_rate: Slow}
   - {pin_num: L12, peripheral: LPUART3, signal: CTS_B, pin_signal: GPIO_AD_B1_04, software_input_on: Disable, hysteresis_enable: Disable, pull_up_down_config: Pull_Down_100K_Ohm,
     pull_keeper_select: Keeper, pull_keeper_enable: Enable, open_drain: Disable, speed: MHZ_100, drive_strength: R0_6, slew_rate: Slow}
+  - {pin_num: L13, peripheral: GPIO1, signal: 'gpio_io, 26', pin_signal: GPIO_AD_B1_10, direction: OUTPUT, gpio_init_state: 'false', software_input_on: Disable}
+  - {pin_num: M12, peripheral: GPIO1, signal: 'gpio_io, 19', pin_signal: GPIO_AD_B1_03, direction: OUTPUT, gpio_init_state: 'false', software_input_on: Disable}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 
@@ -177,7 +180,27 @@ BOARD_InitArduinoUARTPins:
  *
  * END ****************************************************************************************************************/
 void BOARD_InitArduinoUARTPins(void) {
-  CLOCK_EnableClock(kCLOCK_Iomuxc);           
+  CLOCK_EnableClock(kCLOCK_Iomuxc);
+
+  /* GPIO configuration of SPDIF_IN on GPIO_AD_B1_03 (pin M12) */
+  gpio_pin_config_t SPDIF_IN_config = {
+      .direction = kGPIO_DigitalOutput,
+      .outputLogic = 0U,
+      .interruptMode = kGPIO_NoIntmode
+  };
+  /* Initialize GPIO functionality on GPIO_AD_B1_03 (pin M12) */
+  GPIO_PinInit(GPIO1, 19U, &SPDIF_IN_config);
+
+  /* GPIO configuration of CSI_D7 on GPIO_AD_B1_10 (pin L13) */
+  gpio_pin_config_t CSI_D7_config = {
+      .direction = kGPIO_DigitalOutput,
+      .outputLogic = 0U,
+      .interruptMode = kGPIO_NoIntmode
+  };
+  /* Initialize GPIO functionality on GPIO_AD_B1_10 (pin L13) */
+  GPIO_PinInit(GPIO1, 26U, &CSI_D7_config);
+  IOMUXC_SetPinMux(IOMUXC_GPIO_AD_B1_03_GPIO1_IO19, 0U);
+  IOMUXC_SetPinMux(IOMUXC_GPIO_AD_B1_10_GPIO1_IO26, 0U);
 
   IOMUXC_SetPinMux(IOMUXC_GPIO_AD_B1_04_LPUART3_CTS_B, 0U); 
   IOMUXC_SetPinMux(IOMUXC_GPIO_AD_B1_05_LPUART3_RTS_B, 0U); 

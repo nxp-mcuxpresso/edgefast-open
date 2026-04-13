@@ -14,6 +14,7 @@
     |BT\_UART\_RTS\_HOST|J8 \(pin 3\)|J23 \(pin 3\)|LPUART3\_CTS|GPIO\_AD\_B1\_04|
     |BT\_UART\_CTS\_HOST|J8 \(pin 4\)|J23 \(pin 4\)|LPUART3\_RTS|GPIO\_AD\_B1\_05|
     |GND|J7 \(pin 7\)|J25 \(pin 7\)|GND|GND|
+    |Reset|J9 \(pin 3\)|J23 \(pin 1\)|GPIO\_AD\_B1\_10|GPIO\_AD\_B1\_10|
 
 
 **Parent topic:**[Hardware Rework Guide for IMXRT1050-EVKB and Murata M.2 Module](../topics/hardware_rework_guide_for_imxrt1050_evkb_and_murata_m_2_module.md)

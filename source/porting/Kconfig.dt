@@ -120,6 +120,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_EXISTS
 config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_port
 	int "SDIO reset GPIO port"
 	default 9 if MCUX_HW_DEVICE_MIMXRT1176
+        default 1 if MCUX_HW_DEVICE_MIMXRT1052
 	default 0
 	help
 	  No prefix in generated macro
@@ -127,6 +128,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_port
 config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_pin
 	int "SDIO reset GPIO pin"
 	default 15 if MCUX_HW_DEVICE_MIMXRT1176
+	default 19 if MCUX_HW_DEVICE_MIMXRT1052
 	default 0
 	help
 	  No prefix in generated macro
@@ -134,6 +136,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_pin
 config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_flags
 	int "SDIO reset GPIO flags"
 	default 1 if MCUX_HW_DEVICE_MIMXRT1176
+        default 1 if MCUX_HW_DEVICE_MIMXRT1052
 	default 1
 	help
 	  No prefix in generated macro
@@ -148,6 +151,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_EXISTS
 config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_port
 	int "WIFI disable GPIO port"
 	default 9 if MCUX_HW_DEVICE_MIMXRT1176
+        default 1 if MCUX_HW_DEVICE_MIMXRT1052
 	default 0
 	help
 	  No prefix in generated macro
@@ -155,6 +159,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_port
 config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_pin
 	int "WIFI disable GPIO pin"
 	default 30 if MCUX_HW_DEVICE_MIMXRT1176
+        default 26 if MCUX_HW_DEVICE_MIMXRT1052
 	default 0
 	help
 	  No prefix in generated macro
@@ -162,6 +167,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_pin
 config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_flags
 	int "WIFI disable GPIO flags"
 	default 1 if MCUX_HW_DEVICE_MIMXRT1176
+        default 1 if MCUX_HW_DEVICE_MIMXRT1052
 	default 1
 	help
 	  No prefix in generated macro
