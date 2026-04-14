@@ -1,19 +1,19 @@
 ================================================================================
 MCUX_ADD_* COMMANDS STATISTICS
 ================================================================================
-Total mcux_add_* commands: 337
-  - Conditional: 337
+Total mcux_add_* commands: 316
+  - Conditional: 316
   - Unconditional: 0
   - Duplicates removed: 0
-Unique conditions: 187
+Unique conditions: 167
 
 Command types distribution:
-  - mcux_add_source: 289 (85.8%)
-  - mcux_add_include: 19 (5.6%)
-  - mcux_add_iar_configuration: 15 (4.5%)
-  - mcux_add_configuration: 5 (1.5%)
-  - mcux_add_mdk_configuration: 5 (1.5%)
-  - mcux_add_armgcc_configuration: 4 (1.2%)
+  - mcux_add_source: 268 (84.8%)
+  - mcux_add_include: 19 (6.0%)
+  - mcux_add_iar_configuration: 15 (4.7%)
+  - mcux_add_configuration: 5 (1.6%)
+  - mcux_add_mdk_configuration: 5 (1.6%)
+  - mcux_add_armgcc_configuration: 4 (1.3%)
 
 Top 20 most used conditions:
    1. CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt
@@ -158,7 +158,6 @@ All unique conditions (sorted alphabetically):
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) AND (NOT(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa)) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ead) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ambiq_hci) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) (7 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_a2dp) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_avctp) (1 command(s))
@@ -179,15 +178,9 @@ All unique conditions (sorted alphabetically):
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_goep) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_hf OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_ag) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rfcomm) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cyw208xx) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cyw43xx) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_da1453x) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_da1469x) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_esp32) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr AND CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h5) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) (7 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_broadcaster) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_channel_sounding) (1 command(s))
@@ -200,32 +193,19 @@ All unique conditions (sorted alphabetically):
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_host_crypto) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_iso) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_observer) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_ipc) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_raw) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_host_ccm) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_long_wq) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_monitor) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_nxp) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_psoc6_bless) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_settings) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_sf32lb) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_channel_sounding) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_iso) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_l2cap_dynamic_channel) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_efr32) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_siwx91x) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_spi_bluenrg) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_spi_zephyr) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32_ipm) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wb0) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wba) (1 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_userchan) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.lwip.config) (3 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.wifi.config) (3 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.soc_nrf5340_cpuapp) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_logging) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_logging) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_logging_async) (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_private_shell) (1 command(s))

@@ -410,10 +410,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_ead__2ebe9cb9
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci__8355877d
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci)
 
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ambiq_hci)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_ambiq_hci__27f4e3ae
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_ambiq_hci)
-
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic__419bb1e7
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_classic)
@@ -494,26 +490,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_shell_bt_rfcomm__b55861af
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_classic) && (MCUX_COMPONENT_middleware.edgefast_open.bt_shell) && (MCUX_COMPONENT_middleware.edgefast_open.bt_rfcomm)
 
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cyw208xx)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_cyw208xx__5e1de926
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_cyw208xx)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cyw43xx)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_cyw43xx__d3941c32
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_cyw43xx)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_da1453x)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_da1453x__7893c2b2
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_da1453x)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_da1469x)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_da1469x__c558827b
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_da1469x)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_esp32)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_esp32__86384c39
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_esp32)
-
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_h4__d8781529
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_h4)
@@ -525,10 +501,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_h4_nxp_ctlr
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr AND CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_h4_nxp_ctlr_bt_classic__045d93f7
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr && MCUX_COMPONENT_middleware.edgefast_open.bt_classic)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h5)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_h5__f98114f1
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_h5)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_host__518f149d
@@ -578,10 +550,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_host_bt
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_host_bt_observer__3ae74db1
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host) && (MCUX_COMPONENT_middleware.edgefast_open.bt_observer)
 
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_ipc)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_ipc__df09b755
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci_ipc)
-
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_raw)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_hci_raw__79735090
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci_raw)
@@ -598,21 +566,9 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_long_wq__d8
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_monitor__a990bdb0
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_monitor)
 
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_nxp)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_nxp__b3745a6a
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_nxp)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_psoc6_bless)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_psoc6_bless__548c259e
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_psoc6_bless)
-
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_settings)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_settings__5885fab0
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_settings)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_sf32lb)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_sf32lb__844ad7b4
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_sf32lb)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_shell__35397c28
@@ -634,38 +590,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_shell_bt_is
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_shell_bt_l2cap_dynamic_channel__8e90ab17
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_shell) && (MCUX_COMPONENT_middleware.edgefast_open.bt_l2cap_dynamic_channel)
 
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_efr32)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_silabs_efr32__f3acff45
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_efr32)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_siwx91x)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_silabs_siwx91x__a7b7a28d
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_siwx91x)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_spi_bluenrg)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_spi_bluenrg__17328842
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_spi_bluenrg)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_spi_zephyr)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_spi_zephyr__e435d9ca
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_spi_zephyr)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32_ipm)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_stm32_ipm__06c25103
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_stm32_ipm)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wb0)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_stm32wb0__e212f029
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wb0)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wba)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_stm32wba__0f92fa62
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wba)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_userchan)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_userchan__b9efbd2e
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_userchan)
-
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_build_with_tfm__5a3396ba
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
@@ -677,10 +601,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_controller__35
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.lwip.config)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_controller__f0b1252e
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.controller.lwip.config)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.soc_nrf5340_cpuapp)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_soc_nrf5340_cpuapp__d679b044
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.soc_nrf5340_cpuapp)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_logging)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_logging__096c9724

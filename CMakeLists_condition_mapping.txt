@@ -8,19 +8,19 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 5
 
-  [mcux_add_iar_configuration] (Line 2841)
+  [mcux_add_iar_configuration] (Line 2736)
     CC "--diag_suppress=Pa211"
 
-  [mcux_add_include] (Line 2845)
+  [mcux_add_include] (Line 2740)
     INCLUDES ./lib/asrc_sw/
 
-  [mcux_add_source] (Line 2849)
+  [mcux_add_source] (Line 2744)
     SOURCES ./lib/asrc_sw/downSmplAllRates.dat
 
-  [mcux_add_source] (Line 2852)
+  [mcux_add_source] (Line 2747)
     SOURCES ./lib/asrc_sw/upSmpl_32_32_rev.dat
 
-  [mcux_add_source] (Line 2855)
+  [mcux_add_source] (Line 2750)
     SOURCES ./lib/asrc_sw/srCvtFrm.c
 
 
@@ -30,7 +30,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1242)
+  [mcux_add_source] (Line 1137)
     SOURCES ./source/bluetooth/audio/audio.c
 
 
@@ -40,7 +40,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1258)
+  [mcux_add_source] (Line 1153)
     SOURCES ./source/bluetooth/audio/aics.c
 
 
@@ -50,7 +50,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1263)
+  [mcux_add_source] (Line 1158)
     SOURCES ./source/bluetooth/audio/aics_client.c
 
 
@@ -60,7 +60,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1353)
+  [mcux_add_source] (Line 1248)
     SOURCES ./source/bluetooth/audio/ascs.c
 
 
@@ -70,7 +70,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1374)
+  [mcux_add_source] (Line 1269)
     SOURCES ./source/bluetooth/audio/bap_base.c
 
 
@@ -80,7 +80,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1404)
+  [mcux_add_source] (Line 1299)
     SOURCES ./source/bluetooth/audio/bap_broadcast_assistant.c
 
 
@@ -90,7 +90,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1394)
+  [mcux_add_source] (Line 1289)
     SOURCES ./source/bluetooth/audio/bap_broadcast_sink.c
 
 
@@ -100,7 +100,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1389)
+  [mcux_add_source] (Line 1284)
     SOURCES ./source/bluetooth/audio/bap_broadcast_source.c
 
 
@@ -110,7 +110,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1399)
+  [mcux_add_source] (Line 1294)
     SOURCES ./source/bluetooth/audio/bap_scan_delegator.c
 
 
@@ -120,13 +120,13 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 3
 
-  [mcux_add_source] (Line 1363)
+  [mcux_add_source] (Line 1258)
     SOURCES ./source/bluetooth/audio/bap_stream.c
 
-  [mcux_add_source] (Line 1366)
+  [mcux_add_source] (Line 1261)
     SOURCES ./source/bluetooth/audio/codec.c
 
-  [mcux_add_source] (Line 1369)
+  [mcux_add_source] (Line 1264)
     SOURCES ./source/bluetooth/audio/bap_iso.c
 
 
@@ -136,7 +136,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1384)
+  [mcux_add_source] (Line 1279)
     SOURCES ./source/bluetooth/audio/bap_unicast_client.c
 
 
@@ -146,7 +146,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1379)
+  [mcux_add_source] (Line 1274)
     SOURCES ./source/bluetooth/audio/bap_unicast_server.c
 
 
@@ -156,7 +156,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1429)
+  [mcux_add_source] (Line 1324)
     SOURCES ./source/bluetooth/audio/cap_stream.c
 
 
@@ -166,7 +166,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1434)
+  [mcux_add_source] (Line 1329)
     SOURCES ./source/bluetooth/audio/cap_acceptor.c
 
 
@@ -176,7 +176,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1444)
+  [mcux_add_source] (Line 1339)
     SOURCES ./source/bluetooth/audio/cap_commander.c
 
 
@@ -186,7 +186,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1449)
+  [mcux_add_source] (Line 1344)
     SOURCES ./source/bluetooth/audio/cap_handover.c
 
 
@@ -196,7 +196,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1439)
+  [mcux_add_source] (Line 1334)
     SOURCES ./source/bluetooth/audio/cap_initiator.c
 
 
@@ -206,7 +206,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1454)
+  [mcux_add_source] (Line 1349)
     SOURCES ./source/bluetooth/audio/cap_common.c
 
 
@@ -216,7 +216,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1409)
+  [mcux_add_source] (Line 1304)
     SOURCES ./source/bluetooth/audio/ccp_call_control_client.c
 
 
@@ -226,7 +226,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1414)
+  [mcux_add_source] (Line 1309)
     SOURCES ./source/bluetooth/audio/ccp_call_control_server.c
 
 
@@ -236,7 +236,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1293)
+  [mcux_add_source] (Line 1188)
     SOURCES ./source/bluetooth/audio/ccid.c
 
 
@@ -246,7 +246,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1306)
+  [mcux_add_source] (Line 1201)
     SOURCES ./source/bluetooth/audio/csip_set_coordinator.c
 
 
@@ -256,7 +256,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1311)
+  [mcux_add_source] (Line 1206)
     SOURCES ./source/bluetooth/audio/csip_crypto.c
 
 
@@ -266,7 +266,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1301)
+  [mcux_add_source] (Line 1196)
     SOURCES ./source/bluetooth/audio/csip_set_member.c
 
 
@@ -276,10 +276,10 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 2
 
-  [mcux_add_source] (Line 1464)
+  [mcux_add_source] (Line 1359)
     SOURCES ./source/bluetooth/audio/gmap_client.c
 
-  [mcux_add_source] (Line 1467)
+  [mcux_add_source] (Line 1362)
     SOURCES ./source/bluetooth/audio/gmap_server.c
 
 
@@ -289,7 +289,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1419)
+  [mcux_add_source] (Line 1314)
     SOURCES ./source/bluetooth/audio/has.c
 
 
@@ -299,7 +299,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1424)
+  [mcux_add_source] (Line 1319)
     SOURCES ./source/bluetooth/audio/has_client.c
 
 
@@ -309,7 +309,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1329)
+  [mcux_add_source] (Line 1224)
     SOURCES ./source/bluetooth/audio/mcc.c
 
 
@@ -319,7 +319,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1335)
+  [mcux_add_source] (Line 1230)
     SOURCES ./source/bluetooth/audio/mcs.c
 
 
@@ -329,7 +329,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1285)
+  [mcux_add_source] (Line 1180)
     SOURCES ./source/bluetooth/audio/micp_mic_ctlr.c
 
 
@@ -339,7 +339,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1280)
+  [mcux_add_source] (Line 1175)
     SOURCES ./source/bluetooth/audio/micp_mic_dev.c
 
 
@@ -349,7 +349,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1341)
+  [mcux_add_source] (Line 1236)
     SOURCES ./source/bluetooth/audio/mpl.c
 
 
@@ -359,7 +359,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1358)
+  [mcux_add_source] (Line 1253)
     SOURCES ./source/bluetooth/audio/pacs.c
 
 
@@ -369,7 +369,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1472)
+  [mcux_add_source] (Line 1367)
     SOURCES ./source/bluetooth/audio/pbp.c
 
 
@@ -379,7 +379,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1610)
+  [mcux_add_source] (Line 1505)
     SOURCES ./source/bluetooth/audio/shell/bap_broadcast_assistant.c
 
 
@@ -389,7 +389,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1605)
+  [mcux_add_source] (Line 1500)
     SOURCES ./source/bluetooth/audio/shell/bap_scan_delegator.c
 
 
@@ -399,7 +399,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1595)
+  [mcux_add_source] (Line 1490)
     SOURCES ./source/bluetooth/audio/shell/bap.c
 
 
@@ -409,7 +409,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1563)
+  [mcux_add_source] (Line 1458)
     SOURCES ./source/bluetooth/audio/shell/cap_acceptor.c
 
 
@@ -419,7 +419,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1573)
+  [mcux_add_source] (Line 1468)
     SOURCES ./source/bluetooth/audio/shell/cap_commander.c
 
 
@@ -429,7 +429,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1568)
+  [mcux_add_source] (Line 1463)
     SOURCES ./source/bluetooth/audio/shell/cap_initiator.c
 
 
@@ -439,7 +439,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1498)
+  [mcux_add_source] (Line 1393)
     SOURCES ./source/bluetooth/audio/shell/ccp_call_control_client.c
 
 
@@ -449,7 +449,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1493)
+  [mcux_add_source] (Line 1388)
     SOURCES ./source/bluetooth/audio/shell/ccp_call_control_server.c
 
 
@@ -459,7 +459,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1528)
+  [mcux_add_source] (Line 1423)
     SOURCES ./source/bluetooth/audio/shell/csip_set_coordinator.c
 
 
@@ -469,7 +469,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1523)
+  [mcux_add_source] (Line 1418)
     SOURCES ./source/bluetooth/audio/shell/csip_set_member.c
 
 
@@ -479,7 +479,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1588)
+  [mcux_add_source] (Line 1483)
     SOURCES ./source/bluetooth/audio/shell/gmap.c
 
 
@@ -489,7 +489,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1578)
+  [mcux_add_source] (Line 1473)
     SOURCES ./source/bluetooth/audio/shell/has_client.c
 
 
@@ -499,7 +499,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1558)
+  [mcux_add_source] (Line 1453)
     SOURCES ./source/bluetooth/audio/shell/has.c
 
 
@@ -509,7 +509,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1548)
+  [mcux_add_source] (Line 1443)
     SOURCES ./source/bluetooth/audio/shell/mcc.c
 
 
@@ -519,7 +519,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1553)
+  [mcux_add_source] (Line 1448)
     SOURCES ./source/bluetooth/audio/shell/media_controller.c
 
 
@@ -529,7 +529,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1518)
+  [mcux_add_source] (Line 1413)
     SOURCES ./source/bluetooth/audio/shell/micp_mic_ctlr.c
 
 
@@ -539,7 +539,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1513)
+  [mcux_add_source] (Line 1408)
     SOURCES ./source/bluetooth/audio/shell/micp_mic_dev.c
 
 
@@ -549,7 +549,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1543)
+  [mcux_add_source] (Line 1438)
     SOURCES ./source/bluetooth/audio/shell/mpl.c
 
 
@@ -559,7 +559,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1615)
+  [mcux_add_source] (Line 1510)
     SOURCES ./source/bluetooth/audio/shell/pbp.c
 
 
@@ -569,7 +569,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1533)
+  [mcux_add_source] (Line 1428)
     SOURCES ./source/bluetooth/audio/shell/tbs.c
 
 
@@ -579,7 +579,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1538)
+  [mcux_add_source] (Line 1433)
     SOURCES ./source/bluetooth/audio/shell/tbs_client.c
 
 
@@ -589,7 +589,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1583)
+  [mcux_add_source] (Line 1478)
     SOURCES ./source/bluetooth/audio/shell/tmap.c
 
 
@@ -599,7 +599,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1508)
+  [mcux_add_source] (Line 1403)
     SOURCES ./source/bluetooth/audio/shell/vcp_vol_ctlr.c
 
 
@@ -609,7 +609,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1503)
+  [mcux_add_source] (Line 1398)
     SOURCES ./source/bluetooth/audio/shell/vcp_vol_rend.c
 
 
@@ -619,7 +619,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1600)
+  [mcux_add_source] (Line 1495)
     SOURCES ./source/bluetooth/audio/shell/bap_usb.c
 
 
@@ -629,7 +629,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1317)
+  [mcux_add_source] (Line 1212)
     SOURCES ./source/bluetooth/audio/tbs.c
 
 
@@ -639,7 +639,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1323)
+  [mcux_add_source] (Line 1218)
     SOURCES ./source/bluetooth/audio/tbs_client.c
 
 
@@ -649,7 +649,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1459)
+  [mcux_add_source] (Line 1354)
     SOURCES ./source/bluetooth/audio/tmap.c
 
 
@@ -659,7 +659,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1274)
+  [mcux_add_source] (Line 1169)
     SOURCES ./source/bluetooth/audio/vcp_vol_ctlr.c
 
 
@@ -669,7 +669,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1269)
+  [mcux_add_source] (Line 1164)
     SOURCES ./source/bluetooth/audio/vcp_vol_rend.c
 
 
@@ -679,7 +679,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1247)
+  [mcux_add_source] (Line 1142)
     SOURCES ./source/bluetooth/audio/vocs.c
 
 
@@ -689,7 +689,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1252)
+  [mcux_add_source] (Line 1147)
     SOURCES ./source/bluetooth/audio/vocs_client.c
 
 
@@ -699,7 +699,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1347)
+  [mcux_add_source] (Line 1242)
     SOURCES ./source/bluetooth/audio/media_proxy.c
 
 
@@ -709,7 +709,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 972)
+  [mcux_add_source] (Line 867)
     SOURCES ./source/bluetooth/services/ans.c
 
 
@@ -719,7 +719,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1071)
+  [mcux_add_source] (Line 966)
     SOURCES ./source/bluetooth/services/bas/bas.c
 
 
@@ -729,7 +729,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1081)
+  [mcux_add_source] (Line 976)
     SOURCES ./source/bluetooth/services/bas/bas_bcs.c
 
 
@@ -739,7 +739,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1076)
+  [mcux_add_source] (Line 971)
     SOURCES ./source/bluetooth/services/bas/bas_bls.c
 
 
@@ -749,7 +749,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 990)
+  [mcux_add_source] (Line 885)
     SOURCES ./source/bluetooth/services/cts.c
 
 
@@ -759,7 +759,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 978)
+  [mcux_add_source] (Line 873)
     SOURCES ./source/bluetooth/services/dis.c
 
 
@@ -769,7 +769,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 996)
+  [mcux_add_source] (Line 891)
     SOURCES ./source/bluetooth/services/ets.c
 
 
@@ -779,7 +779,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1020)
+  [mcux_add_source] (Line 915)
     SOURCES ./source/bluetooth/services/fmp.c
 
 
@@ -789,7 +789,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 984)
+  [mcux_add_source] (Line 879)
     SOURCES ./source/bluetooth/services/gap_svc.c
 
 
@@ -799,7 +799,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1026)
+  [mcux_add_source] (Line 921)
     SOURCES ./source/bluetooth/services/hps.c
 
 
@@ -809,7 +809,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1002)
+  [mcux_add_source] (Line 897)
     SOURCES ./source/bluetooth/services/hrs.c
 
 
@@ -819,7 +819,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1032)
+  [mcux_add_source] (Line 927)
     SOURCES ./source/bluetooth/services/hts.c
 
 
@@ -829,7 +829,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1148)
+  [mcux_add_source] (Line 1043)
     SOURCES ./source/bluetooth/services/ias/ias.c
 
 
@@ -839,7 +839,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1154)
+  [mcux_add_source] (Line 1049)
     SOURCES ./source/bluetooth/services/ias/ias_client.c
 
 
@@ -849,7 +849,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1173)
+  [mcux_add_source] (Line 1068)
     SOURCES ./source/bluetooth/services/ias/shell/ias.c
 
 
@@ -859,7 +859,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1178)
+  [mcux_add_source] (Line 1073)
     SOURCES ./source/bluetooth/services/ias/shell/ias_client.c
 
 
@@ -869,7 +869,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1038)
+  [mcux_add_source] (Line 933)
     SOURCES ./source/bluetooth/services/ipsp.c
 
 
@@ -879,19 +879,19 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 5
 
-  [mcux_add_source] (Line 1100)
+  [mcux_add_source] (Line 995)
     SOURCES ./source/bluetooth/services/ots/ots.c
 
-  [mcux_add_source] (Line 1103)
+  [mcux_add_source] (Line 998)
     SOURCES ./source/bluetooth/services/ots/ots_l2cap.c
 
-  [mcux_add_source] (Line 1106)
+  [mcux_add_source] (Line 1001)
     SOURCES ./source/bluetooth/services/ots/ots_obj_manager.c
 
-  [mcux_add_source] (Line 1109)
+  [mcux_add_source] (Line 1004)
     SOURCES ./source/bluetooth/services/ots/ots_oacp.c
 
-  [mcux_add_source] (Line 1112)
+  [mcux_add_source] (Line 1007)
     SOURCES ./source/bluetooth/services/ots/ots_olcp.c
 
 
@@ -901,10 +901,10 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 2
 
-  [mcux_add_source] (Line 1124)
+  [mcux_add_source] (Line 1019)
     SOURCES ./source/bluetooth/services/ots/ots_client.c
 
-  [mcux_add_source] (Line 1127)
+  [mcux_add_source] (Line 1022)
     SOURCES ./source/bluetooth/services/ots/ots_l2cap.c
 
 
@@ -914,7 +914,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1118)
+  [mcux_add_source] (Line 1013)
     SOURCES ./source/bluetooth/services/ots/ots_dir_list.c
 
 
@@ -924,7 +924,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1044)
+  [mcux_add_source] (Line 939)
     SOURCES ./source/bluetooth/services/pxr.c
 
 
@@ -934,7 +934,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1050)
+  [mcux_add_source] (Line 945)
     SOURCES ./source/bluetooth/services/tip.c
 
 
@@ -944,7 +944,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1008)
+  [mcux_add_source] (Line 903)
     SOURCES ./source/bluetooth/services/tps.c
 
 
@@ -954,7 +954,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1014)
+  [mcux_add_source] (Line 909)
     SOURCES ./source/bluetooth/services/wus.c
 
 
@@ -964,13 +964,13 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 3
 
-  [mcux_add_include] (Line 1200)
+  [mcux_add_include] (Line 1095)
     INCLUDES ./source/bluetooth/services/nus
 
-  [mcux_add_source] (Line 1203)
+  [mcux_add_source] (Line 1098)
     SOURCES ./source/bluetooth/services/nus/nus.c
 
-  [mcux_add_source] (Line 1206)
+  [mcux_add_source] (Line 1101)
     SOURCES ./source/bluetooth/services/nus/nus_inst.c
 
 
@@ -980,7 +980,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1211)
+  [mcux_add_source] (Line 1106)
     SOURCES ./source/bluetooth/services/nus/bt_nus_auto_start_bt.c
 
 
@@ -990,7 +990,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1636)
+  [mcux_add_source] (Line 1531)
     SOURCES ./source/bluetooth/crypto/bt_crypto.c
 
 
@@ -1000,7 +1000,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1641)
+  [mcux_add_source] (Line 1536)
     SOURCES ./source/bluetooth/crypto/bt_crypto_psa.c
 
 
@@ -1010,7 +1010,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_include] (Line 1652)
+  [mcux_add_include] (Line 1547)
     INCLUDES $<TARGET_PROPERTY:tfm,TFM_BINARY_DIR>/api_ns/interface/include
 
 
@@ -1020,7 +1020,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1645)
+  [mcux_add_source] (Line 1540)
     SOURCES ./source/bluetooth/crypto/bt_crypto_mbedtls.c
 
 
@@ -1030,7 +1030,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1676)
+  [mcux_add_source] (Line 1571)
     SOURCES ./source/bluetooth/lib/ead.c
 
 
@@ -1042,19 +1042,6 @@ Total commands: 1
 
   [mcux_add_include] (Line 719)
     INCLUDES ./source/bluetooth/controller
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ambiq_hci)
-================================================================================
-
-Total commands: 2
-
-  [mcux_add_source] (Line 776)
-    SOURCES ./source/bluetooth/controller/HCI/hci_ambiq.c
-
-  [mcux_add_source] (Line 779)
-    SOURCES ./source/bluetooth/controller/HCI/apollox_blue.c
 
 
 ================================================================================
@@ -1285,56 +1272,6 @@ Total commands: 1
 
 
 ================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cyw208xx)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 784)
-    SOURCES ./source/bluetooth/controller/HCI/hci_infineon_cyw208xx.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cyw43xx)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 789)
-    SOURCES ./source/bluetooth/controller/HCI/h4_infineon_cyw43xxx.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_da1453x)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 794)
-    SOURCES ./source/bluetooth/controller/HCI/hci_da1453x.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_da1469x)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 799)
-    SOURCES ./source/bluetooth/controller/HCI/hci_da1469x.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_esp32)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 804)
-    SOURCES ./source/bluetooth/controller/HCI/hci_esp32.c
-
-
-================================================================================
 Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4)
 ================================================================================
 
@@ -1344,7 +1281,7 @@ Total commands: 2
     CC "-DDEBUG_CONSOLE_TRANSFER_NON_BLOCKING -DSERIAL_PORT_TYPE_UART=1"
     CX "-DDEBUG_CONSOLE_TRANSFER_NON_BLOCKING -DSERIAL_PORT_TYPE_UART=1"
 
-  [mcux_add_source] (Line 809)
+  [mcux_add_source] (Line 776)
     SOURCES ./source/bluetooth/controller/HCI/h4.c
 
 
@@ -1354,7 +1291,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 893)
+  [mcux_add_source] (Line 788)
     SOURCES ./source/bluetooth/controller/HCI/hci_nxp_sco.c
 
 
@@ -1364,18 +1301,8 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 814)
+  [mcux_add_source] (Line 781)
     SOURCES ./source/bluetooth/controller/HCI/hci_nxp_setup.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h5)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 819)
-    SOURCES ./source/bluetooth/controller/HCI/h5.c
 
 
 ================================================================================
@@ -1532,16 +1459,6 @@ Total commands: 1
 
 
 ================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_ipc)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 824)
-    SOURCES ./source/bluetooth/controller/HCI/ipc.c
-
-
-================================================================================
 Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci_raw)
 ================================================================================
 
@@ -1585,26 +1502,6 @@ Total commands: 1
 
 
 ================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_nxp)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 829)
-    SOURCES ./source/bluetooth/controller/HCI/hci_nxp.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_psoc6_bless)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 834)
-    SOURCES ./source/bluetooth/controller/HCI/hci_infineon_psoc6_bless.c
-
-
-================================================================================
 Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_settings)
 ================================================================================
 
@@ -1612,16 +1509,6 @@ Total commands: 1
 
   [mcux_add_source] (Line 335)
     SOURCES ./source/bluetooth/host/settings.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_sf32lb)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 839)
-    SOURCES ./source/bluetooth/controller/HCI/hci_sf32lb.c
 
 
 ================================================================================
@@ -1675,86 +1562,6 @@ Total commands: 1
 
 
 ================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_efr32)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 844)
-    SOURCES ./source/bluetooth/controller/HCI/hci_silabs_efr32.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_siwx91x)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 849)
-    SOURCES ./source/bluetooth/controller/HCI/hci_silabs_siwx91x.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_spi_bluenrg)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 854)
-    SOURCES ./source/bluetooth/controller/HCI/hci_spi_st.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_spi_zephyr)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 859)
-    SOURCES ./source/bluetooth/controller/HCI/spi.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32_ipm)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 874)
-    SOURCES ./source/bluetooth/controller/HCI/ipm_stm32wb.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wb0)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 864)
-    SOURCES ./source/bluetooth/controller/HCI/hci_stm32wb0.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wba)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 869)
-    SOURCES ./source/bluetooth/controller/HCI/hci_stm32wba.c
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_userchan)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 886)
-    SOURCES ./source/bluetooth/controller/HCI/userchan.c
-
-
-================================================================================
 Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
 ================================================================================
 
@@ -1770,13 +1577,13 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 3
 
-  [mcux_add_include] (Line 922)
+  [mcux_add_include] (Line 817)
     INCLUDES ./source/bluetooth/controller/HCI/configs/lwip
 
-  [mcux_add_source] (Line 926)
+  [mcux_add_source] (Line 821)
     SOURCES ./source/bluetooth/controller/HCI/configs/lwip/*.c
 
-  [mcux_add_source] (Line 929)
+  [mcux_add_source] (Line 824)
     SOURCES ./source/bluetooth/controller/HCI/configs/lwip/*.h
 
 
@@ -1786,24 +1593,14 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 3
 
-  [mcux_add_include] (Line 946)
+  [mcux_add_include] (Line 841)
     INCLUDES ./source/bluetooth/controller/HCI/configs/wifi
 
-  [mcux_add_source] (Line 950)
+  [mcux_add_source] (Line 845)
     SOURCES ./source/bluetooth/controller/HCI/configs/wifi/*.c
 
-  [mcux_add_source] (Line 953)
+  [mcux_add_source] (Line 848)
     SOURCES ./source/bluetooth/controller/HCI/configs/wifi/*.h
-
-
-================================================================================
-Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.soc_nrf5340_cpuapp)
-================================================================================
-
-Total commands: 1
-
-  [mcux_add_source] (Line 879)
-    SOURCES ./source/bluetooth/controller/HCI/nrf53_support.c
 
 
 ================================================================================
@@ -1812,11 +1609,11 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 2
 
-  [mcux_add_configuration] (Line 1726)
+  [mcux_add_configuration] (Line 1621)
     CC "-DLOG_MAX_BUFF_LOG_COUNT=255 -DLOG_MAX_ARGUMENT_COUNT=8"
     CX "-DLOG_MAX_BUFF_LOG_COUNT=255 -DLOG_MAX_ARGUMENT_COUNT=8"
 
-  [mcux_add_configuration] (Line 1730)
+  [mcux_add_configuration] (Line 1625)
     CC "-DLOG_ENABLE_OVERWRITE=1"
     CX "-DLOG_ENABLE_OVERWRITE=1"
 
@@ -1827,7 +1624,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_configuration] (Line 1735)
+  [mcux_add_configuration] (Line 1630)
     CC "-DLOG_ENABLE_ASYNC_MODE=1"
     CX "-DLOG_ENABLE_ASYNC_MODE=1"
 
@@ -1848,7 +1645,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1944)
+  [mcux_add_source] (Line 1839)
     SOURCES ./source/porting/reboot/reboot_wdog.c
 
 
@@ -1868,7 +1665,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 2562)
+  [mcux_add_source] (Line 2457)
     SOURCES ./lib/crc/crc16_sw.c
 
 
@@ -1878,47 +1675,47 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 12
 
-  [mcux_add_iar_configuration] (Line 1744)
+  [mcux_add_iar_configuration] (Line 1639)
     CC "--diag_suppress=Pa093,Pa092"
 
-  [mcux_add_iar_configuration] (Line 1750)
+  [mcux_add_iar_configuration] (Line 1645)
     CC "--diag_suppress=Pa039"
 
-  [mcux_add_iar_configuration] (Line 1754)
+  [mcux_add_iar_configuration] (Line 1649)
     CC "--diag_suppress=Pa134"
 
-  [mcux_add_iar_configuration] (Line 1759)
+  [mcux_add_iar_configuration] (Line 1654)
     CC "--diag_suppress=Pe1901"
 
-  [mcux_add_armgcc_configuration] (Line 1763)
+  [mcux_add_armgcc_configuration] (Line 1658)
     CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
     CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
 
-  [mcux_add_armgcc_configuration] (Line 1771)
+  [mcux_add_armgcc_configuration] (Line 1666)
     CC "-Wno-unused-variable -Wno-unused-function"
     CX "-Wno-unused-variable -Wno-unused-function"
 
-  [mcux_add_armgcc_configuration] (Line 1777)
+  [mcux_add_armgcc_configuration] (Line 1672)
     CC "-Wno-char-subscripts"
     CX "-Wno-char-subscripts"
 
-  [mcux_add_mdk_configuration] (Line 1782)
+  [mcux_add_mdk_configuration] (Line 1677)
     CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
     CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
 
-  [mcux_add_mdk_configuration] (Line 1787)
+  [mcux_add_mdk_configuration] (Line 1682)
     CC "-Wno-unused-variable -Wno-unused-function"
     CX "-Wno-unused-variable -Wno-unused-function"
 
-  [mcux_add_mdk_configuration] (Line 1792)
+  [mcux_add_mdk_configuration] (Line 1687)
     CC "-Wno-char-subscripts"
     CX "-Wno-char-subscripts"
 
-  [mcux_add_mdk_configuration] (Line 1798)
+  [mcux_add_mdk_configuration] (Line 1693)
     CC "-Wno-typedef-redefinition"
     CX "-Wno-typedef-redefinition"
 
-  [mcux_add_mdk_configuration] (Line 1806)
+  [mcux_add_mdk_configuration] (Line 1701)
     CC "-Wno-tautological-constant-out-of-range-compare"
     CX "-Wno-tautological-constant-out-of-range-compare"
 
@@ -1929,49 +1726,49 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 15
 
-  [mcux_add_iar_configuration] (Line 2874)
+  [mcux_add_iar_configuration] (Line 2769)
     CC "--diag_suppress=Pa211"
 
-  [mcux_add_include] (Line 2878)
+  [mcux_add_include] (Line 2773)
     INCLUDES ./lib/liblc3/include
 
-  [mcux_add_include] (Line 2881)
+  [mcux_add_include] (Line 2776)
     INCLUDES ./lib/liblc3/src
 
-  [mcux_add_source] (Line 2885)
+  [mcux_add_source] (Line 2780)
     SOURCES ./lib/liblc3/src/attdet.c
 
-  [mcux_add_source] (Line 2888)
+  [mcux_add_source] (Line 2783)
     SOURCES ./lib/liblc3/src/bits.c
 
-  [mcux_add_source] (Line 2891)
+  [mcux_add_source] (Line 2786)
     SOURCES ./lib/liblc3/src/bwdet.c
 
-  [mcux_add_source] (Line 2894)
+  [mcux_add_source] (Line 2789)
     SOURCES ./lib/liblc3/src/energy.c
 
-  [mcux_add_source] (Line 2897)
+  [mcux_add_source] (Line 2792)
     SOURCES ./lib/liblc3/src/lc3.c
 
-  [mcux_add_source] (Line 2900)
+  [mcux_add_source] (Line 2795)
     SOURCES ./lib/liblc3/src/ltpf.c
 
-  [mcux_add_source] (Line 2903)
+  [mcux_add_source] (Line 2798)
     SOURCES ./lib/liblc3/src/mdct.c
 
-  [mcux_add_source] (Line 2906)
+  [mcux_add_source] (Line 2801)
     SOURCES ./lib/liblc3/src/plc.c
 
-  [mcux_add_source] (Line 2909)
+  [mcux_add_source] (Line 2804)
     SOURCES ./lib/liblc3/src/sns.c
 
-  [mcux_add_source] (Line 2912)
+  [mcux_add_source] (Line 2807)
     SOURCES ./lib/liblc3/src/spec.c
 
-  [mcux_add_source] (Line 2915)
+  [mcux_add_source] (Line 2810)
     SOURCES ./lib/liblc3/src/tables.c
 
-  [mcux_add_source] (Line 2918)
+  [mcux_add_source] (Line 2813)
     SOURCES ./lib/liblc3/src/tns.c
 
 
@@ -1981,88 +1778,88 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 28
 
-  [mcux_add_source] (Line 1681)
+  [mcux_add_source] (Line 1576)
     SOURCES ./source/bluetooth/lib/sbc.c
 
-  [mcux_add_iar_configuration] (Line 2741)
+  [mcux_add_iar_configuration] (Line 2636)
     CC "--diag_suppress=Pa211"
 
-  [mcux_add_include] (Line 2745)
+  [mcux_add_include] (Line 2640)
     INCLUDES ./lib/libsbc/encoder/include
 
-  [mcux_add_include] (Line 2749)
+  [mcux_add_include] (Line 2644)
     INCLUDES ./lib/libsbc/decoder/include
 
-  [mcux_add_include] (Line 2752)
+  [mcux_add_include] (Line 2647)
     INCLUDES ./lib/libsbc/decoder/srce
 
-  [mcux_add_source] (Line 2756)
+  [mcux_add_source] (Line 2651)
     SOURCES ./lib/libsbc/encoder/srce/sbc_analysis.c
 
-  [mcux_add_source] (Line 2759)
+  [mcux_add_source] (Line 2654)
     SOURCES ./lib/libsbc/encoder/srce/sbc_dct.c
 
-  [mcux_add_source] (Line 2762)
+  [mcux_add_source] (Line 2657)
     SOURCES ./lib/libsbc/encoder/srce/sbc_dct_coeffs.c
 
-  [mcux_add_source] (Line 2765)
+  [mcux_add_source] (Line 2660)
     SOURCES ./lib/libsbc/encoder/srce/sbc_enc_bit_alloc_mono.c
 
-  [mcux_add_source] (Line 2768)
+  [mcux_add_source] (Line 2663)
     SOURCES ./lib/libsbc/encoder/srce/sbc_enc_bit_alloc_ste.c
 
-  [mcux_add_source] (Line 2771)
+  [mcux_add_source] (Line 2666)
     SOURCES ./lib/libsbc/encoder/srce/sbc_enc_coeffs.c
 
-  [mcux_add_source] (Line 2774)
+  [mcux_add_source] (Line 2669)
     SOURCES ./lib/libsbc/encoder/srce/sbc_encoder.c
 
-  [mcux_add_source] (Line 2777)
+  [mcux_add_source] (Line 2672)
     SOURCES ./lib/libsbc/encoder/srce/sbc_packing.c
 
-  [mcux_add_source] (Line 2781)
+  [mcux_add_source] (Line 2676)
     SOURCES ./lib/libsbc/decoder/srce/alloc.c
 
-  [mcux_add_source] (Line 2784)
+  [mcux_add_source] (Line 2679)
     SOURCES ./lib/libsbc/decoder/srce/bitalloc.c
 
-  [mcux_add_source] (Line 2787)
+  [mcux_add_source] (Line 2682)
     SOURCES ./lib/libsbc/decoder/srce/bitalloc-sbc.c
 
-  [mcux_add_source] (Line 2790)
+  [mcux_add_source] (Line 2685)
     SOURCES ./lib/libsbc/decoder/srce/bitstream-decode.c
 
-  [mcux_add_source] (Line 2793)
+  [mcux_add_source] (Line 2688)
     SOURCES ./lib/libsbc/decoder/srce/decoder-oina.c
 
-  [mcux_add_source] (Line 2796)
+  [mcux_add_source] (Line 2691)
     SOURCES ./lib/libsbc/decoder/srce/decoder-private.c
 
-  [mcux_add_source] (Line 2799)
+  [mcux_add_source] (Line 2694)
     SOURCES ./lib/libsbc/decoder/srce/decoder-sbc.c
 
-  [mcux_add_source] (Line 2802)
+  [mcux_add_source] (Line 2697)
     SOURCES ./lib/libsbc/decoder/srce/dequant.c
 
-  [mcux_add_source] (Line 2805)
+  [mcux_add_source] (Line 2700)
     SOURCES ./lib/libsbc/decoder/srce/framing.c
 
-  [mcux_add_source] (Line 2808)
+  [mcux_add_source] (Line 2703)
     SOURCES ./lib/libsbc/decoder/srce/framing-sbc.c
 
-  [mcux_add_source] (Line 2811)
+  [mcux_add_source] (Line 2706)
     SOURCES ./lib/libsbc/decoder/srce/oi_codec_version.c
 
-  [mcux_add_source] (Line 2814)
+  [mcux_add_source] (Line 2709)
     SOURCES ./lib/libsbc/decoder/srce/readsamplesjoint.inc
 
-  [mcux_add_source] (Line 2817)
+  [mcux_add_source] (Line 2712)
     SOURCES ./lib/libsbc/decoder/srce/synthesis-8-generated.c
 
-  [mcux_add_source] (Line 2820)
+  [mcux_add_source] (Line 2715)
     SOURCES ./lib/libsbc/decoder/srce/synthesis-dct8.c
 
-  [mcux_add_source] (Line 2823)
+  [mcux_add_source] (Line 2718)
     SOURCES ./lib/libsbc/decoder/srce/synthesis-sbc.c
 
 
@@ -2072,10 +1869,10 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 2
 
-  [mcux_add_source] (Line 2540)
+  [mcux_add_source] (Line 2435)
     SOURCES ./lib/net_buf/buf.c
 
-  [mcux_add_source] (Line 2543)
+  [mcux_add_source] (Line 2438)
     SOURCES ./lib/net_buf/buf_simple.c
 
 
@@ -2085,13 +1882,13 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 3
 
-  [mcux_add_source] (Line 1984)
+  [mcux_add_source] (Line 1879)
     SOURCES ./source/porting/shell/*.*
 
-  [mcux_add_include] (Line 1989)
+  [mcux_add_include] (Line 1884)
     INCLUDES ./source/porting/shell
 
-  [mcux_add_configuration] (Line 1995)
+  [mcux_add_configuration] (Line 1890)
     CC "-DOSA_USED=1"
     CX "-DOSA_USED=1"
 
@@ -2102,7 +1899,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_iar_configuration] (Line 2449)
+  [mcux_add_iar_configuration] (Line 2344)
     CC "--diag_suppress=Pe068,Pe1143,Pe111,Pe1675,Pe054,Pe223"
     CX "--diag_suppress=Pe068,Pe1143,Pe111,Pe1675,Pe054,Pe223"
 
@@ -2113,7 +1910,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_iar_configuration] (Line 2489)
+  [mcux_add_iar_configuration] (Line 2384)
     CC "--diag_suppress=Pe054,Pe186,Pe546,Pe550,Pe128,Pe188,Pe144,Pe167"
     CX "--diag_suppress=Pe054,Pe186,Pe546,Pe550,Pe128,Pe188,Pe144,Pe167"
 
@@ -2124,7 +1921,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_iar_configuration] (Line 2472)
+  [mcux_add_iar_configuration] (Line 2367)
     CC "--diag_suppress=Pe513,Pe177,Pe144,Pe167,Pe185,Pa084,Pa082,Pe1097"
     CX "--diag_suppress=Pe513,Pe177,Pe144,Pe167,Pe185,Pa084,Pa082,Pe1097"
 
@@ -2135,7 +1932,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_iar_configuration] (Line 2456)
+  [mcux_add_iar_configuration] (Line 2351)
     CC "--diag_suppress=Pe381"
     CX "--diag_suppress=Pe381"
 
@@ -2146,7 +1943,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 2586)
+  [mcux_add_source] (Line 2481)
     SOURCES ./lib/utils/utf8.c
 
 
@@ -2156,7 +1953,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_source] (Line 2938)
+  [mcux_add_source] (Line 2833)
     SOURCES ./lib/uuid/uuid.c
 
 
@@ -2166,7 +1963,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (NOT(CONFIG_M
 
 Total commands: 1
 
-  [mcux_add_source] (Line 1948)
+  [mcux_add_source] (Line 1843)
     SOURCES ./source/porting/reboot/reboot_nvic.c
 
 
@@ -2191,114 +1988,114 @@ Total commands: 54
   [mcux_add_source] (Line 286)
     SOURCES ./source/bluetooth/common/bt_str.c
 
-  [mcux_add_include] (Line 1714)
+  [mcux_add_include] (Line 1609)
     INCLUDES ./source/porting
 
-  [mcux_add_source] (Line 1718)
+  [mcux_add_source] (Line 1613)
     SOURCES ./source/porting/*.c
 
-  [mcux_add_source] (Line 1721)
+  [mcux_add_source] (Line 1616)
     SOURCES ./source/porting/*.h
 
-  [mcux_add_source] (Line 1824)
+  [mcux_add_source] (Line 1719)
     SOURCES ./source/porting/condvar/*.*
 
-  [mcux_add_source] (Line 1841)
+  [mcux_add_source] (Line 1736)
     SOURCES ./source/porting/fifo/*.*
 
-  [mcux_add_source] (Line 1858)
+  [mcux_add_source] (Line 1753)
     SOURCES ./source/porting/heap/*.*
 
-  [mcux_add_source] (Line 1875)
+  [mcux_add_source] (Line 1770)
     SOURCES ./source/porting/lifo/*.*
 
-  [mcux_add_source] (Line 1892)
+  [mcux_add_source] (Line 1787)
     SOURCES ./source/porting/mutex/*.*
 
-  [mcux_add_source] (Line 1909)
+  [mcux_add_source] (Line 1804)
     SOURCES ./source/porting/poll/*.*
 
-  [mcux_add_source] (Line 1926)
+  [mcux_add_source] (Line 1821)
     SOURCES ./source/porting/queue/*.*
 
-  [mcux_add_source] (Line 1966)
+  [mcux_add_source] (Line 1861)
     SOURCES ./source/porting/sem/*.*
 
-  [mcux_add_source] (Line 2014)
+  [mcux_add_source] (Line 1909)
     SOURCES ./source/porting/settings/*.*
 
-  [mcux_add_source] (Line 2031)
+  [mcux_add_source] (Line 1926)
     SOURCES ./source/porting/slab/*.*
 
-  [mcux_add_source] (Line 2048)
+  [mcux_add_source] (Line 1943)
     SOURCES ./source/porting/thread/*.*
 
-  [mcux_add_source] (Line 2065)
+  [mcux_add_source] (Line 1960)
     SOURCES ./source/porting/work/*.*
 
-  [mcux_add_include] (Line 2092)
+  [mcux_add_include] (Line 1987)
     INCLUDES ./include
 
-  [mcux_add_source] (Line 2121)
+  [mcux_add_source] (Line 2016)
     SOURCES ./include/zephyr/*.*
 
-  [mcux_add_source] (Line 2139)
+  [mcux_add_source] (Line 2034)
     SOURCES ./include/zephyr/arch/*.*
 
-  [mcux_add_source] (Line 2157)
+  [mcux_add_source] (Line 2052)
     SOURCES ./include/zephyr/arch/common/*.*
 
-  [mcux_add_source] (Line 2182)
+  [mcux_add_source] (Line 2077)
     SOURCES ./include/zephyr/bluetooth/*.*
 
-  [mcux_add_source] (Line 2198)
+  [mcux_add_source] (Line 2093)
     SOURCES ./include/zephyr/bluetooth/services/*.*
 
-  [mcux_add_source] (Line 2214)
+  [mcux_add_source] (Line 2109)
     SOURCES ./include/zephyr/bluetooth/classic/*.*
 
-  [mcux_add_source] (Line 2230)
+  [mcux_add_source] (Line 2125)
     SOURCES ./include/zephyr/bluetooth/audio/*.*
 
-  [mcux_add_source] (Line 2246)
+  [mcux_add_source] (Line 2141)
     SOURCES ./include/zephyr/debug/*.*
 
-  [mcux_add_source] (Line 2262)
+  [mcux_add_source] (Line 2157)
     SOURCES ./include/zephyr/drivers/*.*
 
-  [mcux_add_include] (Line 2278)
+  [mcux_add_include] (Line 2173)
     INCLUDES ./include/zephyr/dt-bindings
 
-  [mcux_add_source] (Line 2294)
+  [mcux_add_source] (Line 2189)
     SOURCES ./include/zephyr/kernel/*.*
 
-  [mcux_add_source] (Line 2310)
+  [mcux_add_source] (Line 2205)
     SOURCES ./include/zephyr/linker/*.*
 
-  [mcux_add_source] (Line 2326)
+  [mcux_add_source] (Line 2221)
     SOURCES ./include/zephyr/logging/*.*
 
-  [mcux_add_source] (Line 2342)
+  [mcux_add_source] (Line 2237)
     SOURCES ./include/zephyr/settings/*.*
 
-  [mcux_add_source] (Line 2358)
+  [mcux_add_source] (Line 2253)
     SOURCES ./include/zephyr/shell/*.*
 
-  [mcux_add_source] (Line 2374)
+  [mcux_add_source] (Line 2269)
     SOURCES ./include/zephyr/sys/*.*
 
-  [mcux_add_source] (Line 2392)
+  [mcux_add_source] (Line 2287)
     SOURCES ./include/zephyr/toolchain/*.*
 
-  [mcux_add_source] (Line 2409)
+  [mcux_add_source] (Line 2304)
     SOURCES ./include/zephyr/toolchain/iar/*.*
     TOOLCHAINS iar
 
-  [mcux_add_iar_configuration] (Line 2414)
+  [mcux_add_iar_configuration] (Line 2309)
     CC "-e --language gnu --do_explicit_init_in_named_sections --macro_positions_in_diagnostics --no_wrap_diagnostics"
     CX "-e --language gnu --do_explicit_init_in_named_sections --macro_positions_in_diagnostics --no_wrap_diagnostics"
 
-  [mcux_add_iar_configuration] (Line 2419)
+  [mcux_add_iar_configuration] (Line 2314)
     CC "--diag_suppress=Ta184"  # Using zero sized arrays except for as last
     # member of a struct is discouraged and
     # dereferencing elements in such an array has
@@ -2308,58 +2105,58 @@ Total commands: 54
     # dereferencing elements in such an array has
     # undefined behavior
 
-  [mcux_add_iar_configuration] (Line 2430)
+  [mcux_add_iar_configuration] (Line 2325)
     CC "--vla"
     CX "--vla"
 
-  [mcux_add_iar_configuration] (Line 2435)
+  [mcux_add_iar_configuration] (Line 2330)
     CC "--diag_suppress=Pe1717"  # array of elements containing a flexible
     # array member is nonstandard
     CX "--diag_suppress=Pe1717"  # array of elements containing a flexible
     # array member is nonstandard
 
-  [mcux_add_source] (Line 2496)
+  [mcux_add_source] (Line 2391)
     TOOLCHAINS iar
     BASE_PATH ${SdkRootDirPath}
     SOURCES middleware/edgefast_open/include/zephyr/toolchain/iar/iar_missing_defs.h
     PREINCLUDE True
     PREINCLUDE_TYPE c_include cpp_include
 
-  [mcux_add_source] (Line 2578)
+  [mcux_add_source] (Line 2473)
     SOURCES ./lib/utils/dec.c
 
-  [mcux_add_source] (Line 2581)
+  [mcux_add_source] (Line 2476)
     SOURCES ./lib/utils/hex.c
 
-  [mcux_add_armgcc_configuration] (Line 2605)
+  [mcux_add_armgcc_configuration] (Line 2500)
     CC "-D__LINUX_ERRNO_EXTENSIONS__"
     CX "-D__LINUX_ERRNO_EXTENSIONS__"
 
-  [mcux_add_source] (Line 2638)
+  [mcux_add_source] (Line 2533)
     SOURCES ./lib/libc/iar/include/*.*
     TOOLCHAINS iar
 
-  [mcux_add_include] (Line 2645)
+  [mcux_add_include] (Line 2540)
     INCLUDES ./lib/libc/iar/include
     TOOLCHAINS iar
 
-  [mcux_add_source] (Line 2660)
+  [mcux_add_source] (Line 2555)
     SOURCES ./lib/libc/iar/include/sys/*.*
     TOOLCHAINS iar
 
-  [mcux_add_source] (Line 2675)
+  [mcux_add_source] (Line 2570)
     SOURCES ./lib/libc/iar/src/*.*
     TOOLCHAINS iar
 
-  [mcux_add_source] (Line 2702)
+  [mcux_add_source] (Line 2597)
     SOURCES ./lib/libc/arm/include/*.*
     TOOLCHAINS mdk
 
-  [mcux_add_include] (Line 2709)
+  [mcux_add_include] (Line 2604)
     INCLUDES ./lib/libc/arm/include
     TOOLCHAINS mdk
 
-  [mcux_add_source] (Line 2724)
+  [mcux_add_source] (Line 2619)
     SOURCES ./lib/libc/arm/include/sys/*.*
     TOOLCHAINS mdk
 

@@ -201,84 +201,9 @@ config MCUX_COMPONENT_middleware.edgefast_open.dt_has_infineon_bless_hci_enabled
 config MCUX_COMPONENT_middleware.edgefast_open.dt_has_renesas_bt_hci_da1469x_enabled
     def_bool DT_HAS_RENESAS_BT_HCI_DA1469X_ENABLED
 
-config MCUX_COMPONENT_middleware.edgefast_open.bt_ambiq_hci
-    # Original type: bool
-    def_bool BT_AMBIQ_HCI
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_cyw208xx
-    # Original type: bool
-    def_bool BT_CYW208XX
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_cyw43xx
-    def_bool BT_CYW43XX
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_da1453x
-    # Original type: bool
-    def_bool BT_DA1453X
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_da1469x
-    # Original type: bool
-    def_bool BT_DA1469X
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_esp32
-    # Original type: bool
-    def_bool BT_ESP32
-
 config MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr
     # Original type: bool
     def_bool BT_H4_NXP_CTLR
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_h5
-    # Original type: bool
-    def_bool BT_H5
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_hci_ipc
-    # Original type: bool
-    def_bool BT_HCI_IPC
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_nxp
-    # Original type: bool
-    def_bool BT_NXP
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_psoc6_bless
-    # Original type: bool
-    def_bool BT_PSOC6_BLESS
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_sf32lb
-    def_bool BT_SF32LB
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_efr32
-    def_bool BT_SILABS_EFR32
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_silabs_siwx91x
-    def_bool BT_SILABS_SIWX91X
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_spi_bluenrg
-    # Original type: bool
-    def_bool BT_SPI_BLUENRG
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_spi_zephyr
-    # Original type: bool
-    def_bool BT_SPI_ZEPHYR
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wb0
-    # Original type: bool
-    def_bool BT_STM32WB0
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_stm32wba
-    # Original type: bool
-    def_bool BT_STM32WBA
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_stm32_ipm
-    # Original type: bool
-    def_bool BT_STM32_IPM
-
-config MCUX_COMPONENT_middleware.edgefast_open.soc_nrf5340_cpuapp
-    def_bool SOC_NRF5340_CPUAPP
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_userchan
-    # Original type: bool
-    def_bool BT_USERCHAN
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ans
     # Original type: bool
