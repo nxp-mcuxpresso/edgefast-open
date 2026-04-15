@@ -619,7 +619,7 @@ static void audio_codec_config(void)
 		le_audio_sync_test_init(lc3_codec_info.sample_rate);
 	}
 
-	le_audio_sync_start(lc3_codec_info.sample_rate, lc3_codec_info.samples_per_frame);
+	le_audio_sync_start(lc3_codec_info.sample_rate, lc3_codec_info.samples_per_frame, lc3_codec_info.frame_duration_us);
 #endif
 
 	audio_codec_initialized = true;
@@ -1054,7 +1054,7 @@ void broadcast_media_receiver_task(void *param)
 				{
 					bis_stream_play_update = false;
 
-					le_audio_sync_start(lc3_codec_info.sample_rate, lc3_codec_info.samples_per_frame);
+					le_audio_sync_start(lc3_codec_info.sample_rate, lc3_codec_info.samples_per_frame, lc3_codec_info.frame_duration_us);
 
 					/* Enable stream. */
 					PRINTF("Syncing to broadcast\n");
@@ -1102,20 +1102,4 @@ void broadcast_media_receiver_task(void *param)
 			}
 		} while (0 == res);
 	}
-}
-
-
-void MemManage_Handler(void)
-{
-    return;
-}
-
-void BusFault_Handler(void)
-{
-    return;
-}
-
-void UsageFault_Handler(void)
-{
-    return;
 }

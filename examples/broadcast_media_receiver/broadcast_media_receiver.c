@@ -26,8 +26,6 @@
 #include "le_audio_shell.h"
 #include "broadcast_media_receiver.h"
 
-#include "common/bt_str.h"
-
 #ifndef printk
 #define printk PRINTF
 #endif
@@ -73,7 +71,7 @@ static OSA_MSGQ_HANDLE_DEFINE(sdu_fifo, PCM_BUFF_COUNT, sizeof(void *));
 NET_BUF_POOL_FIXED_DEFINE(sdu_pool,
 			  PCM_BUFF_COUNT,
 			  sizeof(sdu_packet_t),
-			  0, NULL);
+			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
 #if defined(LE_AUDIO_SYNC_ENABLE) && (LE_AUDIO_SYNC_ENABLE > 0)
 #include "le_audio_sync.h"
@@ -584,7 +582,7 @@ static void audio_codec_config(void)
 		le_audio_sync_test_init(lc3_codec_info.sample_rate);
 	}
 
-	le_audio_sync_start(lc3_codec_info.sample_rate, lc3_codec_info.samples_per_frame);
+	le_audio_sync_start(lc3_codec_info.sample_rate, lc3_codec_info.samples_per_frame, lc3_codec_info.frame_duration_us);
 #endif
 
 	audio_codec_initialized = true;
@@ -1030,7 +1028,7 @@ void broadcast_media_receiver_task(void *param)
 				{
 					bis_stream_play_update = false;
 
-					le_audio_sync_start(lc3_codec_info.sample_rate, lc3_codec_info.samples_per_frame);
+					le_audio_sync_start(lc3_codec_info.sample_rate, lc3_codec_info.samples_per_frame, lc3_codec_info.frame_duration_us);
 
 					/* Enable stream. */
 					PRINTF("Syncing to broadcast\n");

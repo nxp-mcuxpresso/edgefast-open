@@ -38,7 +38,6 @@ mcux_add_include(
   BASE_PATH ${SdkRootDirPath}
   INCLUDES
     middleware/edgefast_open/examples/call_gateway
-    middleware/edgefast_open/examples/call_gateway/modules
 )
 
 mcux_add_macro(

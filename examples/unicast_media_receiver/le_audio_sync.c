@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NXP
+ * Copyright 2024-2025 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -75,6 +75,7 @@ int le_audio_sync_test_mode(int mode)
 typedef struct _audio_sync_info {
     int sample_rate;
     int samples_per_frame;
+    int frame_duration_us;
     int bits_per_sample;
     uint32_t iso_interval_us;
     uint32_t sync_delay_us;
@@ -160,24 +161,6 @@ static double Resampler_GetFrc(void)
     return srCvtGetFrcSmpl(&upSrc);
 }
 
-/* This value is measured externaly. */
-static float System_Sync_offset(int sample_rate)
-{
-    float us;
-
-    switch (sample_rate)
-    {
-        case 8000:  us = 666.0;   break;
-        case 16000: us = 544.0;   break;
-        case 24000: us = 502.0;   break;
-        case 32000: us = 444.0;   break;
-        case 48000: us = 427.0;   break;
-        default:    us = 0.0;     break;
-    }
-
-    return us;
-}
-
 static uint64_t Sync_Signal_Index_Timestamp(uint32_t sync_signal_index)
 {
     return (uint64_t)sync_signal_index * (uint64_t)audio_sync_info.iso_interval_us + (uint64_t)audio_sync_info.sync_delay_us;
@@ -225,10 +208,11 @@ void le_audio_sync_init(void)
     BOARD_SyncTimer_Init(sync_timer_callback);
 }
 
-void le_audio_sync_start(int sample_rate, int samples_per_frame)
+void le_audio_sync_start(int sample_rate, int samples_per_frame, int frame_duration_us)
 {
     audio_sync_info.sample_rate           = sample_rate;
     audio_sync_info.samples_per_frame     = samples_per_frame;
+    audio_sync_info.frame_duration_us     = frame_duration_us;
     audio_sync_info.sample_duration_us    = (float)1000000.0 / (float)sample_rate;
 
     /* Start the sync timer. */
@@ -293,9 +277,9 @@ void le_audio_sync_process(frame_packet_t *frame)
         {
             /* calculate the start parameters. */
             /* The other parameters will affect the total system delay. */
-            audio_sync_info.system_delay_us = (float)(16 * audio_sync_info.sample_duration_us); /* Resampler have 16 samples delay. */
-            audio_sync_info.system_delay_us += 0.0f; /* LC3 delay, here we assume it is zero. */
-            audio_sync_info.system_delay_us += System_Sync_offset(audio_sync_info.sample_rate);
+            audio_sync_info.system_delay_us = 17 * audio_sync_info.sample_duration_us; /* Resampler have 17 samples delay. */
+            audio_sync_info.system_delay_us += lc3_delay_samples(audio_sync_info.sample_rate, audio_sync_info.frame_duration_us) * audio_sync_info.sample_duration_us;
+            audio_sync_info.system_delay_us += 0.0; /* add other modules delay here if needed.*/
 
             /* Timestamp + Presentation_Delay = Sync_Signal_Index * ISO_interval + BIG_CIG_Sync_Delay + Mute_Audio_Frame_Duration + Sync_Offset + system_delay_us.
                 Mute_Audio_Frame_Duration: less than ISO_interval.

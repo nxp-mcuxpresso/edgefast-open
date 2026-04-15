@@ -24,8 +24,6 @@
 #include "le_audio_shell.h"
 #include "broadcast_media_sender.h"
 
-#include "common/bt_str.h"
-
 /* Note: this include should be remove once audio api could get bt_iso_chan. */
 #include "audio/bap_endpoint.h"
 #include "audio/bap_iso.h"

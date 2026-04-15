@@ -132,6 +132,7 @@ struct sync_info
 {
     uint32_t iso_interval_us;
     uint32_t sample_rate;
+    uint32_t frame_duration_us;
     uint32_t bits_pre_sample;
     float cig_sync_delay_us;
     float sample_duration_us;
@@ -1555,24 +1556,6 @@ int unicast_client_stop_streams(void)
 }
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
-/* This value is measured externaly. */
-static float System_Sync_offset(int sample_rate)
-{
-    float us;
-
-    switch (sample_rate)
-    {
-        case 8000:  us = 666.0;   break;
-        case 16000: us = 544.0;   break;
-        case 24000: us = 502.0;   break;
-        case 32000: us = 444.0;   break;
-        case 48000: us = 427.0;   break;
-        default:    us = 0.0;     break;
-    }
-
-    return us;
-}
-
 static uint32_t get_cig_sync_delay(struct conn_state * connect)
 {
 	struct bt_iso_info iso_info;
@@ -1736,12 +1719,12 @@ static void sink_recv_stream_task(void *param)
                         /* Get iso_interval_us */
                         state->info.iso_interval_us = get_iso_interval(state);
 
-                        /* Resampler have 16 samples delay. */
-                        state->src[0].status.system_delay_us = (float)(state->info.bits_pre_sample * state->info.sample_duration_us);
-                        /* LC3 decode delay. 0 for default */
-                        state->src[0].status.system_delay_us += 0.0f;
+                        /* Resampler have 17 samples delay. */
+                        state->src[0].status.system_delay_us = 17 * state->info.sample_duration_us;
+                        /* LC3 decode delay. */
+                        state->src[0].status.system_delay_us += lc3_delay_samples(state->info.sample_rate, state->info.frame_duration_us) * state->info.sample_duration_us;
                         /* Addition delay */
-                        state->src[0].status.system_delay_us += System_Sync_offset(state->info.sample_rate);
+                        state->src[0].status.system_delay_us += 0.0;
 
                         state->src[0].status.start_ts = info->ts;
                         state->src[0].status.start_slot = (uint32_t)((info->ts + state->src[0].status.presentation_delay_us - state->src[0].status.system_delay_us - state->info.cig_sync_delay_us) / state->info.iso_interval_us);
@@ -2683,6 +2666,7 @@ static void unicast_client_stream_enabled(struct bt_bap_stream *stream)
                     BOARD_SyncTimer_Init(sync_timer_callback);
                     server_state[index].info.bits_pre_sample = BITS_RATES_OF_SAMPLE;
                     server_state[index].info.sample_rate = server_state[index].src_cap_required.frequency;
+                    server_state[index].info.frame_duration_us = server_state[index].src_cap_required.duration;
                     server_state[index].info.sample_duration_us = (float)1000000.0 / (float)server_state[index].info.sample_rate;
 
                     BORAD_SyncTimer_Start(server_state[index].info.sample_rate, server_state[index].info.bits_pre_sample * server_state[index].src_cap_required.channel_count);
