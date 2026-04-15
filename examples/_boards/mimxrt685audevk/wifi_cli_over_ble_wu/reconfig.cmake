@@ -4,6 +4,10 @@ mcux_add_source(
     components/wifi_bt_module/incl/wifi_bt_module_config.h
     ${board_root}/${board}/FlashIMXRT600_EVK_FLEXSPI_B_QSPI.board
     ${board_root}/${board}/FreeRTOSConfigBoard.h
+    ${board_root}/${board}/sdmmc_config.c
+    ${board_root}/${board}/sdmmc_config.h
+    ${board_root}/${board}/wifi_bt_config.c
+    ${board_root}/${board}/wifi_bt_config.h
     ${board_root}/${board}/wifi_examples/common/app.h
     middleware/edgefast_open/examples/_boards/${board}/wifi_cli_over_ble_wu/FreeRTOSConfig.h
     middleware/edgefast_open/examples/_boards/${board}/wifi_cli_over_ble_wu/hardware_init.c
