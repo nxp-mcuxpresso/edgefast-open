@@ -69,7 +69,7 @@ uint32_t EncPacking(SBC_ENC_PARAMS* pstrEncParams, uint8_t* output) {
   int32_t* ps32SbPtr;
   uint16_t u16Levels; /*to store levels*/
   int32_t s32Temp1;   /*used in 64-bit multiplication*/
-  int32_t s32Low;     /*used in 64-bit multiplicAation*/
+  int32_t s32Low;     /*used in 64-bit multiplication*/
 #if (SBC_IS_64_MULT_IN_QUANTIZER == TRUE)
   int32_t s32Hi1, s32Low1, s32Hi, s32Temp2;
 #if (SBC_ARM_ASM_OPT != TRUE)
