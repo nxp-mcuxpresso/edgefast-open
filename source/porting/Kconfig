@@ -16,6 +16,8 @@ config SYSTEM_WORKQUEUE_STACK_SIZE
 	int "System Workqueue Stack Size"
 	default 8192 if BT_CRYPTO_PSA
 	default 4096
+	range 8192 65535 if BT_CRYPTO_PSA
+	range 4096 65535
 	help
 	  Configure the stack size for the system workqueue used in Bluetooth stack processing
 
