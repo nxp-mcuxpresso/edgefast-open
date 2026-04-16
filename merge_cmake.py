@@ -895,6 +895,13 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
     """
     Convert zephyr functions to mcux format in CMakeLists file
 
+    Enhancement:
+      - When converting zephyr *_sources / *_sources_ifdef, also add the corresponding
+        header glob ("<same_dir>/*.h") in the merged output, emitted as a
+        `mcux_add_source(SOURCES <dir>/*.h ...)`.
+      - The header glob is emitted once per directory per TOOLCHAINS set, and respects
+        the same if(CONFIG)/endif() wrapping as the original sources_ifdef call.
+
     Args:
         input_path: Input file path
         output_path: Output file path, if None, overwrite input file
@@ -904,25 +911,33 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
        =>
        if(CONFIG_XXX)
            mcux_add_source(SOURCES file1 [TOOLCHAINS toolchains])
+           mcux_add_source(SOURCES <dir>/*.h [TOOLCHAINS toolchains])
            mcux_add_source(SOURCES file2 [TOOLCHAINS toolchains])
+           mcux_add_source(SOURCES <dir>/*.h [TOOLCHAINS toolchains])
        endif()
 
     2. zephyr_sources_ifdef(CONFIG_XXX file1 file2 [TOOLCHAINS toolchains])
        =>
        if(CONFIG_XXX)
            mcux_add_source(SOURCES file1 [TOOLCHAINS toolchains])
+           mcux_add_source(SOURCES <dir>/*.h [TOOLCHAINS toolchains])
            mcux_add_source(SOURCES file2 [TOOLCHAINS toolchains])
+           mcux_add_source(SOURCES <dir>/*.h [TOOLCHAINS toolchains])
        endif()
 
     3. zephyr_library_sources(file1 file2 [TOOLCHAINS toolchains])
        =>
        mcux_add_source(SOURCES file1 [TOOLCHAINS toolchains])
+       mcux_add_source(SOURCES <dir>/*.h [TOOLCHAINS toolchains])
        mcux_add_source(SOURCES file2 [TOOLCHAINS toolchains])
+       mcux_add_source(SOURCES <dir>/*.h [TOOLCHAINS toolchains])
 
     4. zephyr_sources(file1 file2 [TOOLCHAINS toolchains])
        =>
        mcux_add_source(SOURCES file1 [TOOLCHAINS toolchains])
+       mcux_add_source(SOURCES <dir>/*.h [TOOLCHAINS toolchains])
        mcux_add_source(SOURCES file2 [TOOLCHAINS toolchains])
+       mcux_add_source(SOURCES <dir>/*.h [TOOLCHAINS toolchains])
 
     5. zephyr_include_directories_ifdef(CONFIG_XXX path1 path2 [TOOLCHAINS toolchains])
        =>
@@ -998,6 +1013,56 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
         'zephyr_library_include_directories_ifdef': 0,
         'zephyr_library_include_directories': 0
     }
+
+    # Track which header globs we've already emitted to avoid duplicates.
+    # Keyed by (dir_path, toolchains_str, in_ifdef_block, condition)
+    emitted_header_globs = set()
+
+    def _is_c_family_source(p: str) -> bool:
+        """Return True for .c/.cc/.cpp/.cxx sources (not headers)."""
+        if not p:
+            return False
+        p = p.strip()
+        # Strip common surrounding punctuation
+        p = p.strip('"\'')
+        lower = p.lower()
+        return lower.endswith(('.c', '.cc', '.cpp', '.cxx'))
+
+    def _source_dir_and_header_glob(p: str) -> str | None:
+        """Given a (possibly relative) file path, return '<dir>/*.h' or None.
+
+        We keep the returned path in POSIX form. If the source has no directory part,
+        return None (can't infer where headers are).
+        """
+        if not p:
+            return None
+        p = p.strip().strip('"\'')
+        # Must look like a repo-relative ("./...") or relative path with slash.
+        dir_part = os.path.dirname(p.replace('\\', '/'))
+        if not dir_part or dir_part == '.':
+            return None
+        return f"{dir_part}/*.h"
+
+    def _emit_header_glob_if_needed(
+        *,
+        dir_glob: str | None,
+        indent_str: str,
+        toolchains_str: str | None,
+        in_ifdef_block: bool,
+        condition: str | None,
+    ) -> None:
+        if not dir_glob:
+            return
+        key = (dir_glob, toolchains_str or "", bool(in_ifdef_block), condition or "")
+        if key in emitted_header_globs:
+            return
+        emitted_header_globs.add(key)
+
+        result_lines.append(f'{indent_str}mcux_add_source(')
+        result_lines.append(f'{indent_str}    SOURCES {dir_glob}')
+        if toolchains_str:
+            result_lines.append(f'{indent_str}    TOOLCHAINS {toolchains_str}')
+        result_lines.append(f'{indent_str})')
 
     while i < len(lines):
         line = lines[i]
@@ -1077,6 +1142,17 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
                             result_lines.append(f'{indent_str}        TOOLCHAINS {toolchains_str}')
                         result_lines.append(f'{indent_str}    )')
 
+                        # Also emit header glob once per directory for source files
+                        if is_sources and _is_c_family_source(item):
+                            header_glob = _source_dir_and_header_glob(item)
+                            _emit_header_glob_if_needed(
+                                dir_glob=header_glob,
+                                indent_str=f'{indent_str}    ',
+                                toolchains_str=toolchains_str,
+                                in_ifdef_block=True,
+                                condition=condition,
+                            )
+
                     result_lines.append(f'{indent_str}endif()')
 
                     if func_name in conversion_stats:
@@ -1115,6 +1191,17 @@ def convert_zephyr_functions_to_mcux(input_path, output_path=None):
                         if toolchains_str:
                             result_lines.append(f'{indent_str}    TOOLCHAINS {toolchains_str}')
                         result_lines.append(f'{indent_str})')
+
+                        # Also emit header glob once per directory for source files
+                        if is_sources and _is_c_family_source(item):
+                            header_glob = _source_dir_and_header_glob(item)
+                            _emit_header_glob_if_needed(
+                                dir_glob=header_glob,
+                                indent_str=indent_str,
+                                toolchains_str=toolchains_str,
+                                in_ifdef_block=False,
+                                condition=None,
+                            )
 
                     if func_name in conversion_stats:
                         conversion_stats[func_name] += 1
