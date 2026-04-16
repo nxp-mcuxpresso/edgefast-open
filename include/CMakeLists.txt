@@ -5,3 +5,4 @@
 edgefast_open_add_subdirectory(zephyr)
 
 zephyr_include_directories(.)
+zephyr_library_sources(*.*)

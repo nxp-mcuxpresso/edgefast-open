@@ -1987,6 +1987,9 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
 mcux_add_include(
     INCLUDES ./include
 )
+mcux_add_source(
+    SOURCES ./include/*.*
+)
 
     # ----------------------------------------
     # Subdirectory: zephyr
