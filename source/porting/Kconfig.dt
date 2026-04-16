@@ -119,24 +119,48 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_EXISTS
 
 config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_port
 	int "SDIO reset GPIO port"
+	default 3 if MCUX_HW_DEVICE_MCXN547
+	default 3 if MCUX_HW_DEVICE_MCXN947
+	default 3 if MCUX_HW_DEVICE_MIMXRT1042
+	default 1 if MCUX_HW_DEVICE_MIMXRT1052
+	default 1 if MCUX_HW_DEVICE_MIMXRT1062
 	default 9 if MCUX_HW_DEVICE_MIMXRT1176
-        default 1 if MCUX_HW_DEVICE_MIMXRT1052
+	default 4 if MCUX_HW_DEVICE_MIMXRT1187 || MCUX_HW_DEVICE_MIMXRT1189
+	default 2 if MCUX_HW_DEVICE_MIMXRT595S
+	default 2 if MCUX_HW_DEVICE_MIMXRT685S
+	default 7 if MCUX_HW_DEVICE_MIMXRT798S
 	default 0
 	help
 	  No prefix in generated macro
 
 config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_pin
 	int "SDIO reset GPIO pin"
-	default 15 if MCUX_HW_DEVICE_MIMXRT1176
+	default 5 if MCUX_HW_DEVICE_MCXN547
+	default 5 if MCUX_HW_DEVICE_MCXN947
+	default 4 if MCUX_HW_DEVICE_MIMXRT1042
 	default 19 if MCUX_HW_DEVICE_MIMXRT1052
+	default 24 if MCUX_HW_DEVICE_MIMXRT1062
+	default 15 if MCUX_HW_DEVICE_MIMXRT1176
+	default 7 if MCUX_HW_DEVICE_MIMXRT1187 || MCUX_HW_DEVICE_MIMXRT1189
+	default 10 if MCUX_HW_DEVICE_MIMXRT595S
+	default 10 if MCUX_HW_DEVICE_MIMXRT685S
+	default 23 if MCUX_HW_DEVICE_MIMXRT798S
 	default 0
 	help
 	  No prefix in generated macro
 
 config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_flags
 	int "SDIO reset GPIO flags"
+	default 1 if MCUX_HW_DEVICE_MCXN547
+	default 1 if MCUX_HW_DEVICE_MCXN947
+	default 1 if MCUX_HW_DEVICE_MIMXRT1042
+	default 1 if MCUX_HW_DEVICE_MIMXRT1052
+	default 1 if MCUX_HW_DEVICE_MIMXRT1062
 	default 1 if MCUX_HW_DEVICE_MIMXRT1176
-        default 1 if MCUX_HW_DEVICE_MIMXRT1052
+	default 1 if MCUX_HW_DEVICE_MIMXRT1187 || MCUX_HW_DEVICE_MIMXRT1189
+	default 1 if MCUX_HW_DEVICE_MIMXRT595S
+	default 1 if MCUX_HW_DEVICE_MIMXRT685S
+	default 1 if MCUX_HW_DEVICE_MIMXRT798S
 	default 1
 	help
 	  No prefix in generated macro
@@ -150,24 +174,48 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_EXISTS
 
 config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_port
 	int "WIFI disable GPIO port"
+	default 0 if MCUX_HW_DEVICE_MCXN547
+	default 0 if MCUX_HW_DEVICE_MCXN947
+	default 3 if MCUX_HW_DEVICE_MIMXRT1042
+	default 1 if MCUX_HW_DEVICE_MIMXRT1052
+	default 1 if MCUX_HW_DEVICE_MIMXRT1062
 	default 9 if MCUX_HW_DEVICE_MIMXRT1176
-        default 1 if MCUX_HW_DEVICE_MIMXRT1052
+	default 4 if MCUX_HW_DEVICE_MIMXRT1187 || MCUX_HW_DEVICE_MIMXRT1189
+	default 0 if MCUX_HW_DEVICE_MIMXRT595S
+	default 0 if MCUX_HW_DEVICE_MIMXRT685S
+	default 3 if MCUX_HW_DEVICE_MIMXRT798S
 	default 0
 	help
 	  No prefix in generated macro
 
 config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_pin
 	int "WIFI disable GPIO pin"
+	default 8 if MCUX_HW_DEVICE_MCXN547
+	default 8 if MCUX_HW_DEVICE_MCXN947
+	default 2 if MCUX_HW_DEVICE_MIMXRT1042
+	default 26 if MCUX_HW_DEVICE_MIMXRT1052
+	default 19 if MCUX_HW_DEVICE_MIMXRT1062
+	default 31 if MCUX_HW_DEVICE_MIMXRT595S
+	default 12 if MCUX_HW_DEVICE_MIMXRT685S
+	default 7 if MCUX_HW_DEVICE_MIMXRT798S
 	default 30 if MCUX_HW_DEVICE_MIMXRT1176
-        default 26 if MCUX_HW_DEVICE_MIMXRT1052
+	default 17 if MCUX_HW_DEVICE_MIMXRT1187 || MCUX_HW_DEVICE_MIMXRT1189
 	default 0
 	help
 	  No prefix in generated macro
 
 config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_flags
 	int "WIFI disable GPIO flags"
+	default 1 if MCUX_HW_DEVICE_MCXN547
+	default 1 if MCUX_HW_DEVICE_MCXN947
+	default 1 if MCUX_HW_DEVICE_MIMXRT1042
+	default 1 if MCUX_HW_DEVICE_MIMXRT1052
+	default 1 if MCUX_HW_DEVICE_MIMXRT1062
+	default 1 if MCUX_HW_DEVICE_MIMXRT595S
+	default 1 if MCUX_HW_DEVICE_MIMXRT685S
+	default 1 if MCUX_HW_DEVICE_MIMXRT798S
 	default 1 if MCUX_HW_DEVICE_MIMXRT1176
-        default 1 if MCUX_HW_DEVICE_MIMXRT1052
+	default 1 if MCUX_HW_DEVICE_MIMXRT1187 || MCUX_HW_DEVICE_MIMXRT1189
 	default 1
 	help
 	  No prefix in generated macro

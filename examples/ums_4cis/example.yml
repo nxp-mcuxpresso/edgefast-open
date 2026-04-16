@@ -13,15 +13,18 @@ ums_4cis:
       - ${board_root}/${board}/examples_shared_readme.md
   boards:
     evkbmimxrt1170@cm7:
-      - -armgcc@debug
-      - -armgcc@release
-      - -armgcc@sdram_debug
-      - -armgcc@sdram_release
-      - -iar@debug
-      - -iar@release
-      - -iar@sdram_debug
-      - -iar@sdram_release
-      - -mdk@debug
-      - -mdk@release
-      - -mdk@sdram_debug
-      - -mdk@sdram_release
+    - -armgcc@debug
+    - -armgcc@release
+    - -armgcc@sdram_debug
+    - -armgcc@sdram_release
+    - -iar@debug
+    - -iar@release
+    - -iar@sdram_debug
+    - -iar@sdram_release
+    - -mdk@debug
+    - -mdk@release
+    - -mdk@sdram_debug
+    - -mdk@sdram_release
+    - -armgcc@flexspi_nor_debug
+    - -iar@flexspi_nor_debug
+    - -mdk@flexspi_nor_debug
