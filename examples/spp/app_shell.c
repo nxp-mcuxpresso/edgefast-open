@@ -239,6 +239,11 @@ static shell_status_t shell_spp(shell_handle_t shellHandle, int32_t argc, char *
                 /* failure to try to use 128 uuid*/
                 uuidstr = SPP_UUID_128_STR;
             }
+            else
+            {
+                /* successfully connected with 16-bit UUID, return here */
+                return kStatus_SHELL_Success;
+            }
         }
 
         if(spp_appl_connect_by_uuid(default_conn, uuidstr) < 0)
