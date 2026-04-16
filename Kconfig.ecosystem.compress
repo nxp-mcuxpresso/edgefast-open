@@ -394,10 +394,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto__d642a4ac
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto_bt_crypto_psa__74af39e8
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa)
 
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto_build_with_tfm__fc398f52
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) && (MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
-
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) AND (NOT(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa))
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_crypto_not_bt_crypto_psa__b3e5a349
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_crypto) && (!(MCUX_COMPONENT_middleware.edgefast_open.bt_crypto_psa))
@@ -589,10 +585,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_shell_bt_is
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_l2cap_dynamic_channel)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_shell_bt_l2cap_dynamic_channel__8e90ab17
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_shell) && (MCUX_COMPONENT_middleware.edgefast_open.bt_l2cap_dynamic_channel)
-
-# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
-config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_build_with_tfm__5a3396ba
-    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.wifi.config)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_controller__352e6ce5

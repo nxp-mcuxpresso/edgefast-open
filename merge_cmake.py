@@ -584,8 +584,13 @@ def find_matching_endif(lines, if_line_idx):
     return None
 
 def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, indent_level=0):
-    """
-    Recursively process CMakeLists.txt file
+    """Recursively process CMakeLists.txt file.
+
+    Note:
+      - When merging, we intentionally drop any `*_ifdef(CONFIG_BUILD_WITH_TFM ...)`
+        code blocks (e.g. zephyr_library_include_directories_ifdef) because those
+        refer to TFM build artifacts that are not available/meaningful in the
+        merged output context.
     """
     # Avoid duplicate processing
     abs_path = cmake_path.resolve()
@@ -654,6 +659,36 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
             for idx in range(info['if_idx'], info['endif_idx'] + 1):
                 skip_lines.add(idx)
 
+    def _is_config_build_with_tfm_ifdef_call_start(raw_line: str) -> bool:
+        """Return True if line starts a `*_ifdef(CONFIG_BUILD_WITH_TFM ...)` call.
+
+        Examples we want to ignore while merging:
+          - zephyr_library_include_directories_ifdef(CONFIG_BUILD_WITH_TFM ...)
+          - zephyr_include_directories_ifdef(CONFIG_BUILD_WITH_TFM ...)
+          - zephyr_library_sources_ifdef(CONFIG_BUILD_WITH_TFM ...)
+          - edgefast_open_add_subdirectory_ifdef(CONFIG_BUILD_WITH_TFM ...)
+          - add_subdirectory_ifdef(CONFIG_BUILD_WITH_TFM ...)
+        """
+        s = raw_line.strip()
+        # Skip comments
+        if not s or s.startswith('#'):
+            return False
+        return re.match(r'^\w+_ifdef\s*\(\s*CONFIG_BUILD_WITH_TFM\b', s) is not None
+
+    def _consume_multiline_paren_block(start_idx: int) -> int:
+        """Given a line index that begins a '(' block, return the index after the block."""
+        paren = 0
+        j = start_idx
+        while j < len(lines):
+            ln = lines[j]
+            # Remove trailing comments for paren counting robustness
+            code = ln.split('#', 1)[0]
+            paren += code.count('(') - code.count(')')
+            j += 1
+            if paren <= 0:
+                break
+        return j
+
     # Process file content
     i = 0
     while i < len(lines):
@@ -664,6 +699,16 @@ def process_cmake_file(cmake_path, base_dir, processed_files, output_lines, inde
 
         line = lines[i]
         stripped = line.strip()
+
+        # Drop CONFIG_BUILD_WITH_TFM-controlled *_ifdef(...) call blocks during merge
+        if _is_config_build_with_tfm_ifdef_call_start(line):
+            end_i = _consume_multiline_paren_block(i)
+            output_lines.append(f"{indent}# [IGNORED] CONFIG_BUILD_WITH_TFM block removed during merge")
+            # Optionally keep original lines commented for traceability
+            for k in range(i, end_i):
+                output_lines.append(f"{indent}# {lines[k]}")
+            i = end_i
+            continue
 
         # Check if it is any kind of add_subdirectory call
         is_add_subdir = (
@@ -2522,9 +2567,9 @@ if __name__ == "__main__":
     compressed_kconfig_file = "Kconfig.ecosystem.compress"
     output_file = "CMakeLists.txt"
 
-    # Step 1: Merge all CMakeLists.txt files
+    # Step 1: Merge all CMakeLists_flat.txt files
     print("=" * 80)
-    print("Step 1: Merge all CMakeLists.txt files")
+    print("Step 1: Merge all CMakeLists_flat.txt files")
     print("=" * 80)
     merge_cmake_files(root_cmake, flat_file)
 
@@ -2540,7 +2585,7 @@ if __name__ == "__main__":
     print("=" * 80)
 
     # 3.1: Extract and replace conditions
-    print("\n3.1: Extract and replace conditions in CMakeLists.txt...")
+    print("\n3.1: Extract and replace conditions in CMakeLists_flat.txt...")
     replacements = replace_conditions_in_cmake(flat_file, ignore_list=[])
 
     # 3.2: Generate Kconfig.ecosystem file

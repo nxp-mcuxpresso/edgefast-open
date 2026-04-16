@@ -116,9 +116,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_conn_disable_security
     # Original type: bool
     def_bool BT_CONN_DISABLE_SECURITY
 
-config MCUX_COMPONENT_middleware.edgefast_open.build_with_tfm
-    def_bool BUILD_WITH_TFM
-
 config MCUX_COMPONENT_middleware.edgefast_open.bt_mesh
     def_bool BT_MESH
 
