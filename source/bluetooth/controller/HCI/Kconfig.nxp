@@ -70,6 +70,9 @@ choice BT_NXP_MODULE
 	# All NXP Bluetooth modules controlled by BT_H4_NXP_CTLR should be added to this section
 	# similar with BT_NXP_NW612.
 	prompt "NXP Bluetooth Module"
+	default BT_NXP_IW610 if MCUX_COMPONENT_component.wifi_bt_module.IW610
+	default BT_NXP_IW416 if MCUX_COMPONENT_component.wifi_bt_module.IW416
+	default BT_NXP_88W8987 if MCUX_COMPONENT_component.wifi_bt_module.88W8987
 	default BT_NXP_NW612
 
 config BT_NXP_NW612
@@ -101,6 +104,13 @@ config BT_NXP_IW610
 	  wireless-connectivity/wi-fi-plus-bluetooth-plus-802-15-4/2-4-5ghz-
 	  dual-band-1x1-wi-fi-6-plus-bluetooth-low-energy-5-4-plus-802-15-4-tri-
 	  radio-solution:IW610
+
+config BT_NXP_88W8987
+	bool "88W8987 firmware for NXP 88W8987 Chipset"
+	help
+	  Details of the module could be found on https://www.nxp.com/products/
+	  wireless-connectivity/wi-fi-plus-bluetooth-plus-802-15-4/2-4-5-ghz-dual-
+	  band-1x1-wi-fi-5-802-11ac-plus-bluetooth-5-2-solution:88W8987
 
 endchoice # BT_NXP_MODULE
 
