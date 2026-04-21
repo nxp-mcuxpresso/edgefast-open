@@ -108,9 +108,6 @@ static struct bt_conn_auth_cb auth_cb_display = {
 };
 #endif
 
-#if defined(APP_MEM_POWER_OPT) && (APP_MEM_POWER_OPT > 0)
-extern mmc_card_t g_mmc;
-#endif /* APP_MEM_POWER_OPT */
 
 /*******************************************************************************
  * Code
@@ -202,10 +199,6 @@ static void bt_ready(int err)
 void peripheral_ht_task(void *pvParameters)
 {
     int err;
-
-#if defined(APP_MEM_POWER_OPT) && (APP_MEM_POWER_OPT > 0)
-    MMC_Init(&g_mmc);
-#endif /* APP_MEM_POWER_OPT */
 
     PRINTF("BLE Peripheral HT demo start...\n");
     err = bt_enable(bt_ready);

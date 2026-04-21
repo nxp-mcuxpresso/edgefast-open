@@ -44,10 +44,6 @@ static struct bt_gatt_subscribe_params subscribe_params;
 /* Bit shift definitions */
 #define BIT0              0x01U
 
-#if defined(APP_MEM_POWER_OPT) && (APP_MEM_POWER_OPT > 0)
-extern mmc_card_t g_mmc;
-#endif /* APP_MEM_POWER_OPT */
-
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -412,10 +408,6 @@ static void bt_ready(int err)
 void central_ht_task(void *pvParameters)
 {
     int err;
-
-#if defined(APP_MEM_POWER_OPT) && (APP_MEM_POWER_OPT > 0)
-    MMC_Init(&g_mmc);
-#endif /* APP_MEM_POWER_OPT */
 
     PRINTF("BLE Central HT demo start...\n");
     err = bt_enable(bt_ready);
