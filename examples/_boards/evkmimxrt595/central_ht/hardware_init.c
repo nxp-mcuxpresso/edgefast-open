@@ -10,6 +10,7 @@
 #include "pin_mux.h"
 #include "fsl_debug_console.h"
 #include "fsl_adapter_uart.h"
+#include "fsl_gpio.h"
 #include <zephyr/drivers/bluetooth.h>
 #include "fsl_power.h"
 #if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
@@ -38,9 +39,6 @@
 /*${macro:end}*/
 
 /*${variable:start}*/
-#if defined(APP_MEM_POWER_OPT) && (APP_MEM_POWER_OPT > 0)
-extern mmc_card_t g_mmc;
-#endif /* APP_MEM_POWER_OPT */
 /*${variable:end}*/
 
 /*${function:start}*/
@@ -67,6 +65,7 @@ void BOARD_InitHardware(void)
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
 
+    GPIO_PortSet(BOARD_INITPINSM2_M2_3V3_GPIO, BOARD_INITPINSM2_M2_3V3_PORT, BOARD_INITPINSM2_M2_3V3_PIN_MASK);
 #if defined(APP_LOWPOWER_ENABLED) && (APP_LOWPOWER_ENABLED > 0)
     BOARD_InitLowPowerPins();
     BOARD_InitPmicPins();
@@ -77,7 +76,6 @@ void BOARD_InitHardware(void)
     BOARD_InitEmmcPins();
     BOARD_InitPsRam();
     // PSRAM_EnterDeepPowerDowen();
-    BOARD_MMC_Config(&g_mmc, BOARD_SDMMC_MMC_HOST_IRQ_PRIORITY);
 #endif /* APP_MEM_POWER_OPT */
 
 #if defined(K32W061_TRANSCEIVER)

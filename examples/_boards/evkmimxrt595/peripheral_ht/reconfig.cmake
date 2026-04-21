@@ -5,6 +5,10 @@ mcux_add_source(
     ${board_root}/${board}/FreeRTOSConfigBoard.h
     ${board_root}/${board}/pmic_support.c
     ${board_root}/${board}/pmic_support.h
+    ${board_root}/${board}/sdmmc_config.c
+    ${board_root}/${board}/sdmmc_config.h
+    ${board_root}/${board}/fwk_board_lp.c
+    ${board_root}/${board}/fwk_board_lp.h
     middleware/edgefast_open/examples/_boards/${board}/configs/freertos/FreeRTOSConfig.h
     middleware/edgefast_open/examples/_boards/${board}/peripheral_ht/hardware_init.c
     middleware/edgefast_open/examples/_boards/${board}/peripheral_ht/pin_mux.c
@@ -35,7 +39,6 @@ mcux_add_macro(
       -DLFS_NO_INTRINSICS=1\
       -DMMC_DISK_ENABLE\
       -DMMC_ENABLED\
-      -DSDIO_ENABLED=1\
       -DgMemManagerLight=0\
       -DMBEDTLS_USER_CONFIG_FILE=\\\"mbedtls_user_config.h\\\""
 )

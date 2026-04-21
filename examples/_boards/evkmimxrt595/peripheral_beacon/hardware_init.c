@@ -10,6 +10,7 @@
 #include "pin_mux.h"
 #include "fsl_debug_console.h"
 #include "fsl_adapter_uart.h"
+#include "fsl_gpio.h"
 #include <zephyr/drivers/bluetooth.h>
 #include "fsl_power.h"
 #if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
@@ -58,6 +59,7 @@ void BOARD_InitHardware(void)
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
 
+    GPIO_PortSet(BOARD_INITPINSM2_M2_3V3_GPIO, BOARD_INITPINSM2_M2_3V3_PORT, BOARD_INITPINSM2_M2_3V3_PIN_MASK);
 #if defined(K32W061_TRANSCEIVER)
     BOARD_InitDebugConsole();
     BOARD_InitArduinoUARTPins();

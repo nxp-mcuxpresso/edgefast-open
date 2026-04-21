@@ -37,7 +37,6 @@
 #if defined(APP_LOWPOWER_ENABLED) && (APP_LOWPOWER_ENABLED > 0)
 /* Defines the low power mode of BLE host when scanning and connecting. */
 #define APP_LOW_POWER_MODE PWR_DeepSleep
-/* If low power is enabled, use BT UART to download controller firmware. */
 /* To achieve a better low power performance, optimize MEM_1V8 power domain. */
 #define APP_MEM_POWER_OPT 1
 /* If low power is enabled, force tickless idle enable in FreeRTOS. */

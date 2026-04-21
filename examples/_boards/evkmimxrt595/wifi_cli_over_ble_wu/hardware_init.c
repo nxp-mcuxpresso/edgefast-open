@@ -10,6 +10,7 @@
 #include "pin_mux.h"
 #include "fsl_debug_console.h"
 #include "fsl_adapter_uart.h"
+#include "fsl_gpio.h"
 #include <zephyr/drivers/bluetooth.h>
 // #include "fsl_power.h" /*moved due to sdk-generator merge-to-main known issue*/
 #if (defined(BUTTON_COUNT) && (BUTTON_COUNT > 0U))
@@ -53,6 +54,8 @@ void BOARD_InitHardware(void)
 
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
+
+    GPIO_PortSet(BOARD_INITPINSM2_M2_3V3_GPIO, BOARD_INITPINSM2_M2_3V3_PORT, BOARD_INITPINSM2_M2_3V3_PIN_MASK);
     DbgConsole_Init(0, 0, kSerialPort_BleWu, 0);
 
 #if defined(K32W061_TRANSCEIVER)
