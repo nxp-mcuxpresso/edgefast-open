@@ -1,0 +1,13 @@
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+config DT_HAS_NXP_HCI_BLE_ENABLED
+	bool
+	select DT_CHOSEN_zephyr_bt_hci_EXISTS
+	help
+	  No prefix in generated macro
+
+if DT_HAS_NXP_HCI_BLE_ENABLED
+
+endif # DT_HAS_NXP_HCI_BLE_ENABLED

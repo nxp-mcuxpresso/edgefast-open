@@ -59,8 +59,8 @@ config HEAP_MEM_POOL_ADD_SIZE_BT_NXP
 	int
 	default 256
 
-config FLASH
-	default y
+#config FLASH
+#	default y
 
 endif # BT_NXP
 

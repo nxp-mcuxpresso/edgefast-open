@@ -582,6 +582,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_long_wq__d8
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_monitor__a990bdb0
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_monitor)
 
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_nxp)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_nxp__b3745a6a
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_nxp)
+
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_settings)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_settings__5885fab0
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_settings)
@@ -653,6 +657,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_getopt__babc6636
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt_long)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_getopt_long__89aef2d2
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.getopt_long)
+
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.host_low_power)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_host_low_power__a7c7a4fe
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.host_low_power)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_liblc3__5011ecc2

@@ -27,7 +27,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 
-#if DT_HAS_CHOSEN(zephyr_bt_hci)
+#if DT_HAS_NXP_BT_HCI_UART_ENABLED
 
 extern struct device bt_hci_h4_device;
 
@@ -56,7 +56,16 @@ extern struct device bt_hci_h4_w_disable_gpio;
 // /** GPIO pin is active (has logical value '1') in high state. */
 // #define GPIO_ACTIVE_HIGH        (0 << 0)
 
-#endif /* DT_CHOSEN_zephyr_bt_hci_EXISTS */
+#endif /* DT_HAS_NXP_BT_HCI_UART_ENABLED */
+
+#if DT_HAS_NXP_HCI_BLE_ENABLED
+
+extern struct device DT_INST(0, nxp_hci_ble);
+
+#define __device_dts_ord_DT_N_INST_0_nxp_hci_ble_ORD (DT_INST(0, nxp_hci_ble))
+#define __device_dts_ord_DT_CHOSEN_zephyr_bt_hci_ORD (DT_INST(0, nxp_hci_ble))
+
+#endif /* DT_HAS_NXP_HCI_BLE_ENABLED */
 
 #define SYS_PORT_TRACING_FUNC(type, func, ...) do { } while (false)
 #define SYS_PORT_TRACING_FUNC_ENTER(type, func, ...) do { } while (false)

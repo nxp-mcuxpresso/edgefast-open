@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-rsource "Kconfig.dt"
+rsource "Kconfig.dt.hci"
 rsource "Kconfig.arch"
 rsource "Kconfig.toolchain"
 rsource "Kconfig.assert"

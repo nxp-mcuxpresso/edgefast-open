@@ -50,6 +50,7 @@ config MCUX_COMPONENT_middleware.edgefast_open.hci.transport.h4
 config MCUX_COMPONENT_middleware.edgefast_open.hci.transport.platform
 	bool "Platform Transport"
 	depends on MCUX_HW_DEVICE_RW612
+	select DT_HAS_NXP_HCI_BLE_ENABLED
 
 endchoice # MCUX_COMPONENT_middleware.edgefast_open.hci.transport
 

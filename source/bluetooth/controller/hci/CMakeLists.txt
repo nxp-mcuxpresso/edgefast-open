@@ -40,6 +40,7 @@ endif() # CONFIG_BUILD_ONLY_NO_BLOBS
 # zephyr-keep-sorted-start
 zephyr_library_sources_ifdef(CONFIG_BT_H4 h4.c)
 zephyr_library_sources_ifdef(CONFIG_BT_H4_NXP_CTLR hci_nxp_setup.c)
+zephyr_library_sources_ifdef(CONFIG_BT_NXP hci_nxp.c)
 # zephyr-keep-sorted-stop
 
 if (CONFIG_BT_H4_NXP_CTLR AND CONFIG_BT_CLASSIC)

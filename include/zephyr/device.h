@@ -58,4 +58,18 @@ static inline bool device_is_ready(const struct device * dev)
 #define DEVICE_DT_NAME_GET(node_id) DEVICE_NAME_GET(Z_DEVICE_DT_DEV_ID(node_id))
 #define DEVICE_DT_GET(node_id) (&DEVICE_DT_NAME_GET(node_id))
 
+#define DEVICE_DT_INST_DEFINE(_inst, _init_fn, _pm, _data, _config, _level, _prio, _api, ...) \
+struct device DT_INST(_inst, DT_DRV_COMPAT) = { \
+	.obj = (void *)&DT_INST(_inst, DT_DRV_COMPAT), \
+	.api = (void *)_api, \
+	.config = _config, \
+	.data = _data, \
+};\
+static int _CONCAT(_init_fn, __LINE__)(void) { \
+	int err; \
+	err = _init_fn(&DT_INST(_inst, DT_DRV_COMPAT)); \
+	return err; \
+} \
+SYS_INIT(_CONCAT(_init_fn, __LINE__), APPLICATION, 0);
+
 #endif /* __ZEPHYR_DEVICE_H__ */

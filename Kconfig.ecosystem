@@ -213,6 +213,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr
     # Original type: bool
     def_bool BT_H4_NXP_CTLR
 
+config MCUX_COMPONENT_middleware.edgefast_open.bt_nxp
+    # Original type: bool
+    def_bool BT_NXP
+
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ans
     # Original type: bool
     def_bool BT_ANS

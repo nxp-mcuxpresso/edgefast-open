@@ -4,19 +4,18 @@
 
 config DT_HAS_ZEPHYR_BT_HCI_UART_ENABLED
 	bool
+	help
+	  No prefix in generated macro
 
 config DT_HAS_NXP_BT_HCI_UART_ENABLED
 	bool
 	select DT_HAS_ZEPHYR_BT_HCI_UART_ENABLED
-
-if DT_HAS_NXP_BT_HCI_UART_ENABLED
-config DT_CHOSEN_zephyr_bt_hci_EXISTS
-	bool
-	default y
+	select DT_CHOSEN_zephyr_bt_hci_EXISTS
 	help
 	  No prefix in generated macro
 
-if DT_CHOSEN_zephyr_bt_hci_EXISTS
+if DT_HAS_NXP_BT_HCI_UART_ENABLED
+
 config DT_N_INST_0_hci_uart_P_instance
 	int "UART instance"
 	default 2 if MCUX_HW_DEVICE_MIMXRT1176
@@ -220,5 +219,4 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_flags
 	help
 	  No prefix in generated macro
 
-endif # DT_CHOSEN_zephyr_bt_hci_EXISTS
 endif # DT_HAS_NXP_BT_HCI_UART_ENABLED

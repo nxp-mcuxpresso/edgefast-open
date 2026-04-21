@@ -1,0 +1,11 @@
+# Copyright 2026 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+config DT_CHOSEN_zephyr_bt_hci_EXISTS
+	bool
+	help
+	  No prefix in generated macro
+
+rsource "Kconfig.dt.hci.h4"
+rsource "Kconfig.dt.hci.platform"
