@@ -2465,7 +2465,7 @@ endif()
             # ========================================
 # SPDX-License-Identifier: Apache-2.0
 
-if (CONFIG_MCUX_COMPONENT_middleware.edgefast_bluetooth.controller_low_power)
+if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller_low_power)
  mcux_add_include(
      INCLUDES ./source/porting/low_power/controller
  )
@@ -2493,7 +2493,7 @@ endif ()
 
 # SPDX-License-Identifier: Apache-2.0
 
-if (CONFIG_MCUX_COMPONENT_middleware.edgefast_bluetooth.host_low_power)
+if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.host_low_power)
  mcux_add_include(
      INCLUDES ./source/porting/low_power/host
  )

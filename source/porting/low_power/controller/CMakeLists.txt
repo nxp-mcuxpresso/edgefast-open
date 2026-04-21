@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-if (CONFIG_MCUX_COMPONENT_middleware.edgefast_bluetooth.controller_low_power)
+if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller_low_power)
 	zephyr_include_directories(.)
 
 	zephyr_library_sources(*.c)
