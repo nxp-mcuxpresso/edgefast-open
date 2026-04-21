@@ -14,6 +14,7 @@ edgefast_open_add_subdirectory_ifdef(CONFIG_BT settings)
 edgefast_open_add_subdirectory_ifdef(CONFIG_BT slab)
 edgefast_open_add_subdirectory_ifdef(CONFIG_BT thread)
 edgefast_open_add_subdirectory_ifdef(CONFIG_BT work)
+edgefast_open_add_subdirectory_ifdef(CONFIG_BT low_power)
 
 zephyr_include_directories(.)
 

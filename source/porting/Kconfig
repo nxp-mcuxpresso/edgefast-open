@@ -9,6 +9,7 @@ rsource "Kconfig.assert"
 rsource "Kconfig.freertos"
 rsource "Kconfig.logging"
 rsource "Kconfig.suppress"
+rsource "Kconfig.low_power"
 
 rsource "./*/Kconfig"
 
