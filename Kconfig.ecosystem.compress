@@ -10,6 +10,14 @@
 # Each configuration represents a combination of multiple conditions.
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_bluetooth.controller_low_power)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt__4fa91f27
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_bluetooth.controller_low_power)
+
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_bluetooth.host_low_power)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt__5b899e1b
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_bluetooth.host_low_power)
+
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_asrc_sw__1ebb2efd
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.asrc_sw)
