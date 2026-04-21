@@ -222,14 +222,12 @@ int bt_avrcp_tg_cover_art_init(uint16_t *psm)
 {
 	int err;
 
-	static bool initialized;
-
 	if (psm == NULL) {
 		return -EINVAL;
 	}
 
-	if (initialized) {
-		LOG_DBG("AVRCP Cover Art already initialized");
+	if (*psm != 0) {
+		LOG_DBG("AVRCP Cover Art already initialized (PSM 0x%04x)", *psm);
 		return 0;
 	}
 
@@ -243,7 +241,6 @@ int bt_avrcp_tg_cover_art_init(uint16_t *psm)
 	LOG_DBG("AVRCP Cover Art PSM 0x%04x", tg_cover_art_server.server.l2cap.psm);
 	*psm = tg_cover_art_server.server.l2cap.psm;
 
-	initialized = true;
 	return 0;
 }
 
