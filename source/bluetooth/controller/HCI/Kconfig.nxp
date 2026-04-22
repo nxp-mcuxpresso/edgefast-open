@@ -70,7 +70,7 @@ choice BT_NXP_MODULE
 	# All NXP Bluetooth modules controlled by BT_H4_NXP_CTLR should be added to this section
 	# similar with BT_NXP_NW612.
 	prompt "NXP Bluetooth Module"
-	default BT_NXP_IW610 if MCUX_COMPONENT_component.wifi_bt_module.IW610
+	default BT_NXP_IW610 if MCUX_COMPONENT_component.wifi_bt_module.board_murata_2ll_m2
 	default BT_NXP_IW416 if MCUX_COMPONENT_component.wifi_bt_module.IW416
 	default BT_NXP_88W8987 if MCUX_COMPONENT_component.wifi_bt_module.88W8987
 	default BT_NXP_NW612
