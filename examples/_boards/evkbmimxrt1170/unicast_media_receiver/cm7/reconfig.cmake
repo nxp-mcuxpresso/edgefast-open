@@ -12,6 +12,7 @@ mcux_add_source(
     middleware/edgefast_open/examples/_boards/${board}/unicast_media_receiver/${core_id}/pin_mux.c
     middleware/edgefast_open/examples/_boards/${board}/unicast_media_receiver/${core_id}/pin_mux.h
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_config_client.h
+    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
 )
 mcux_add_include(
   BASE_PATH ${SdkRootDirPath}

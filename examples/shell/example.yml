@@ -4,7 +4,7 @@ edgefast_open_shell:
     meta_path: middleware/edgefast_open/examples/shell
     project-root-path: boards/${board}/edgefast_open_examples/shell/${multicore_foldername}
     document:
-      name: shell${core_id_suffix_name}
+      name: edgefast_open_shell${core_id_suffix_name}
       category: edgefast_open_examples/
       brief: The Edgefast Bluetooth shell example with simplified application.
       example_readme:
