@@ -22,6 +22,7 @@ zephyr_library_sources(
   ${ZEPHYR_LIBLC3_MODULE_DIR}/src/spec.c
   ${ZEPHYR_LIBLC3_MODULE_DIR}/src/tables.c
   ${ZEPHYR_LIBLC3_MODULE_DIR}/src/tns.c
+  ${ZEPHYR_LIBLC3_MODULE_DIR}/include/*.h
   )
 
 endif()

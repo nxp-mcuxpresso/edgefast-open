@@ -13,6 +13,7 @@ edgefast_open_add_subdirectory(logging)
 edgefast_open_add_subdirectory(settings)
 edgefast_open_add_subdirectory(shell)
 edgefast_open_add_subdirectory(sys)
+edgefast_open_add_subdirectory(syscalls)
 edgefast_open_add_subdirectory(toolchain)
 
 zephyr_library_sources(*.*)

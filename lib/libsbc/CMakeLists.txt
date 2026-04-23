@@ -14,6 +14,14 @@ zephyr_include_directories(
   )
 
 zephyr_library_sources(
+    ${ZEPHYR_LIBSBC_MODULE_DIR}/encoder/include/*.h
+  )
+
+zephyr_library_sources(
+    ${ZEPHYR_LIBSBC_MODULE_DIR}/decoder/include/*.h
+  )
+
+zephyr_library_sources(
   ${ZEPHYR_LIBSBC_MODULE_DIR}/encoder/srce/sbc_analysis.c
   ${ZEPHYR_LIBSBC_MODULE_DIR}/encoder/srce/sbc_dct.c
   ${ZEPHYR_LIBSBC_MODULE_DIR}/encoder/srce/sbc_dct_coeffs.c
