@@ -29,32 +29,18 @@ edgefast_open_shell:
 edgefast_open_shell@classic:
   section-type: custom_application
   contents:
+    meta_path: middleware/edgefast_open/examples/shell
+    project-root-path: boards/${board}/edgefast_open_examples/shell/${multicore_foldername}
     document:
+      name: shell${core_id_suffix_name}
       category: edgefast_open_examples/
+      brief: The Edgefast Bluetooth shell example with simplified application.
       extra_build_args:
       - -DCONF_FILE=middleware/edgefast_open/examples/shell/prj_br.conf
-  boards:
-    evkbmimxrt1170@cm7:
-    - -armgcc@debug
-    - -armgcc@release
-    - -armgcc@sdram_debug
-    - -armgcc@sdram_release
-    - -iar@debug
-    - -iar@release
-    - -iar@sdram_debug
-    - -iar@sdram_release
-    - -mdk@debug
-    - -mdk@release
-    - -mdk@sdram_debug
-    - -mdk@sdram_release
-
-edgefast_open_shell@multiple_conns:
-  section-type: custom_application
-  contents:
-    document:
-      category: edgefast_open_examples/
-      extra_build_args:
-      - -DCONF_FILE=middleware/edgefast_open/examples/shell/prj-br-ble-conns.conf
+      example_readme:
+      - middleware/edgefast_open/examples/shell/readme.md
+      - middleware/edgefast_open/examples/_boards/${board}/shell/example_board_readme.md
+      - ${board_root}/${board}/examples_shared_readme.md
   boards:
     evkbmimxrt1170@cm7:
     - -armgcc@debug
@@ -73,10 +59,18 @@ edgefast_open_shell@multiple_conns:
 edgefast_open_shell@le_audio:
   section-type: custom_application
   contents:
+    meta_path: middleware/edgefast_open/examples/shell
+    project-root-path: boards/${board}/edgefast_open_examples/shell/${multicore_foldername}
     document:
+      name: shell${core_id_suffix_name}
       category: edgefast_open_examples/
+      brief: The Edgefast Bluetooth shell example with simplified application.
       extra_build_args:
       - -DCONF_FILE=middleware/edgefast_open/examples/shell/audio.conf
+      example_readme:
+      - middleware/edgefast_open/examples/shell/readme.md
+      - middleware/edgefast_open/examples/_boards/${board}/shell/example_board_readme.md
+      - ${board_root}/${board}/examples_shared_readme.md
   boards:
     evkbmimxrt1170@cm7:
     - -armgcc@debug
