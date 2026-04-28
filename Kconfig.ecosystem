@@ -147,6 +147,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_bip
     # Original type: bool
     def_bool BT_BIP
 
+config MCUX_COMPONENT_middleware.edgefast_open.bt_map
+    # Original type: bool
+    def_bool BT_MAP
+
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_hf
     # Original type: bool
     def_bool BT_HFP_HF
@@ -166,6 +170,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_did
 config MCUX_COMPONENT_middleware.edgefast_open.bt_avrcp_ct_cover_art
     # Original type: bool
     def_bool BT_AVRCP_CT_COVER_ART
+
+config MCUX_COMPONENT_middleware.edgefast_open.bt_pbap
+    # Original type: bool
+    def_bool BT_PBAP
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_shell
     # Original type: bool
@@ -197,6 +205,9 @@ config MCUX_COMPONENT_middleware.edgefast_open.dt_has_infineon_bless_hci_enabled
 
 config MCUX_COMPONENT_middleware.edgefast_open.dt_has_renesas_bt_hci_da1469x_enabled
     def_bool DT_HAS_RENESAS_BT_HCI_DA1469X_ENABLED
+
+config MCUX_COMPONENT_middleware.edgefast_open.bt_bflb
+    def_bool BT_BFLB
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr
     # Original type: bool
@@ -514,6 +525,14 @@ config MCUX_COMPONENT_middleware.edgefast_open.net_buf
 config MCUX_COMPONENT_middleware.edgefast_open.crc
     # Original type: bool
     def_bool CRC
+
+config MCUX_COMPONENT_middleware.edgefast_open.getopt
+    # Original type: bool
+    def_bool GETOPT
+
+config MCUX_COMPONENT_middleware.edgefast_open.getopt_long
+    # Original type: bool
+    def_bool GETOPT_LONG
 
 config MCUX_COMPONENT_middleware.edgefast_open.utf8
     # Original type: bool

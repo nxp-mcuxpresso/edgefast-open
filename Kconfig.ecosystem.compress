@@ -450,6 +450,14 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_hfp_hf__509dc304
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_classic) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_hf)
 
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_map)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_map__fc413f3d
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_classic) && (MCUX_COMPONENT_middleware.edgefast_open.bt_map)
+
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_pbap)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_pbap__813e4bdb
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_classic) && (MCUX_COMPONENT_middleware.edgefast_open.bt_pbap)
+
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rfcomm)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_rfcomm__fdd45ad7
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_classic) && (MCUX_COMPONENT_middleware.edgefast_open.bt_rfcomm)
@@ -481,6 +489,14 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_hf OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_ag)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_shell_bt_hfp_hf_bt_hfp_ag__9140adf8
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_classic) && (MCUX_COMPONENT_middleware.edgefast_open.bt_shell) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_hf || MCUX_COMPONENT_middleware.edgefast_open.bt_hfp_ag)
+
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_map)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_shell_bt_map__f61f27e3
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_classic) && (MCUX_COMPONENT_middleware.edgefast_open.bt_shell) && (MCUX_COMPONENT_middleware.edgefast_open.bt_map)
+
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_pbap)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_shell_bt_pbap__f946bc93
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_hci) && (MCUX_COMPONENT_middleware.edgefast_open.bt_classic) && (MCUX_COMPONENT_middleware.edgefast_open.bt_shell) && (MCUX_COMPONENT_middleware.edgefast_open.bt_pbap)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rfcomm)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_hci_bt_classic_bt_shell_bt_rfcomm__b55861af
@@ -621,6 +637,14 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_crc__8190f05c
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_edgefast_open_suppressed_warnings__d4957269
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings)
+
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_getopt__babc6636
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.getopt)
+
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt_long)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_getopt_long__89aef2d2
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.getopt_long)
 
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_liblc3__5011ecc2
