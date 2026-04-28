@@ -59,4 +59,13 @@ config SHELL_AUTO_FLUSH
 	  Auto flush all print message.
 	  No prefix in generated macro
 
+config SHELL_GETOPT
+	bool "Threadsafe getopt support in shell"
+	select GETOPT
+	help
+	  This config creates a separate getopt_state for the shell instance.
+	  It ensures that using getopt with shell is thread safe.
+	  When more threads are using sys_getopt please call sys_getopt_state_get to
+	  get getopt state of the shell thread.
+
 endif # PORT_SHELL

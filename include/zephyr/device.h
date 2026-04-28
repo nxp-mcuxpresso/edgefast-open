@@ -26,6 +26,16 @@
  */
 #define DEVICE_API(_class, _name) const STRUCT_SECTION_ITERABLE(Z_DEVICE_API_TYPE(_class), _name)
 
+/**
+ * @brief Expands to the pointer of a device's API for a given class.
+ *
+ * @param _class The device API class.
+ * @param _dev The device instance pointer.
+ *
+ * @return the pointer to the device API.
+ */
+#define DEVICE_API_GET(_class, _dev) ((const struct Z_DEVICE_API_TYPE(_class) *)_dev->api)
+
 struct device {
 	void *obj;
 	void *api;

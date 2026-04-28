@@ -7,4 +7,19 @@ config UTF8
 	  Enable the utf8 API. The API implements functions to specifically
 	  handle UTF-8 encoded strings.
 
+config GETOPT
+	bool "Getopt library support"
+	help
+	  This option adds support of the sys_getopt API.
 
+config GETOPT_LONG
+	bool "Getopt long library support"
+	depends on GETOPT
+	help
+	  This option adds support of the getopt long.
+	  Different shell backends are using their own instance of getopt to
+	  not interfere with each other.
+	  All not shell threads share one global instance of getopt state, hence
+	  apart from shell this library is not thread safe. User can add support
+	  for other threads by extending function sys_getopt_state_get in
+	  getopt_common.c file.
