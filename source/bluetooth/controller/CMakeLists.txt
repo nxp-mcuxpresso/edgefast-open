@@ -3,7 +3,7 @@
 zephyr_library()
 zephyr_library_property(ALLOW_EMPTY TRUE)
 zephyr_library_include_directories(.)
-edgefast_open_add_subdirectory(HCI)
+add_subdirectory(hci)
 
 if(CONFIG_BT_H4)
   mcux_add_configuration(

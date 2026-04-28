@@ -31,6 +31,10 @@ if(CONFIG_DT_HAS_RENESAS_BT_HCI_DA1469X_ENABLED)
   zephyr_blobs_verify(MODULE hal_renesas REQUIRED)
 endif()
 
+if(CONFIG_BT_BFLB)
+  zephyr_blobs_verify(MODULE hal_bouffalolab REQUIRED)
+endif()
+
 endif() # CONFIG_BUILD_ONLY_NO_BLOBS
 
 # zephyr-keep-sorted-start

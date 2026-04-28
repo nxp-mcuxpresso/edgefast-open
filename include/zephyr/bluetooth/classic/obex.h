@@ -481,11 +481,6 @@ enum __packed bt_obex_state {
 	BT_OBEX_DISCONNECTING,
 };
 
-/* bt_obex flags */
-enum {
-	BT_OBEX_HAS_TARGET, /* Has target_header */
-};
-
 union bt_obex_uuid {
 	struct bt_uuid uuid;
 	struct bt_uuid_16 u16;
@@ -508,11 +503,13 @@ struct bt_obex_server {
 	 */
 	const struct bt_obex_server_ops *ops;
 
+	/** @brief Receiving configurations */
 	struct {
 		/** @brief The Maximum OBEX Packet Length (MOPL) */
 		uint16_t mopl;
 	} rx;
 
+	/** @brief Transmission configurations */
 	struct {
 		/** @brief The Maximum OBEX Packet Length (MOPL) */
 		uint16_t mopl;
@@ -549,11 +546,13 @@ struct bt_obex_client {
 	 */
 	const struct bt_obex_client_ops *ops;
 
+	/** @brief Receiving configurations */
 	struct {
 		/** @brief The Maximum OBEX Packet Length (MOPL) */
 		uint16_t mopl;
 	} rx;
 
+	/** @brief Transmission configurations */
 	struct {
 		/** @brief The Maximum OBEX Packet Length (MOPL) */
 		uint16_t mopl;
@@ -583,11 +582,13 @@ struct bt_obex_client {
 
 /** @brief OBEX structure. */
 struct bt_obex {
+	/** @brief Receiving configurations */
 	struct {
 		/** @brief MTU of OBEX transport */
 		uint16_t mtu;
 	} rx;
 
+	/** @brief Transmission configurations */
 	struct {
 		/** @brief MTU of OBEX transport */
 		uint16_t mtu;
@@ -1272,12 +1273,16 @@ int bt_obex_add_header_app_param(struct net_buf *buf, size_t count,
  * String of bytes representing the nonce.
  */
 #define BT_OBEX_CHALLENGE_TAG_NONCE 0x00
+/** OBEX digest-challenge nonce length (16 bytes) */
+#define BT_OBEX_CHALLENGE_TAG_NONCE_LEN 16
 
 /**
  * OBEX digest-challenge tag: Options
  * Optional Challenge Information.
  */
 #define BT_OBEX_CHALLENGE_TAG_OPTIONS 0x01
+/** OBEX digest-challenge options length (1 byte) */
+#define BT_OBEX_CHALLENGE_TAG_OPTIONS_LEN 1
 
 /** Option BIT0: When set, the User Id must be sent in the authenticate response. */
 #define BT_OBEX_CHALLENGE_TAG_OPTION_REQ_USER_ID BIT(0)
@@ -1308,6 +1313,8 @@ int bt_obex_add_header_auth_challenge(struct net_buf *buf, size_t count,
  * String of bytes representing the request digest.
  */
 #define BT_OBEX_RESPONSE_TAG_REQ_DIGEST 0x00
+/** OBEX digest-response request-digest length (16 bytes) */
+#define BT_OBEX_RESPONSE_TAG_REQ_DIGEST_LEN 16
 
 /**
  * OBEX digest-Response tag: User Id
@@ -1320,6 +1327,8 @@ int bt_obex_add_header_auth_challenge(struct net_buf *buf, size_t count,
  * The nonce sent in the digest challenge string.
  */
 #define BT_OBEX_RESPONSE_TAG_NONCE 0x02
+/** OBEX digest-response nonce length (16 bytes) */
+#define BT_OBEX_RESPONSE_TAG_NONCE_LEN 16
 
 /** @brief Add Header: authentication digest-response.
  *

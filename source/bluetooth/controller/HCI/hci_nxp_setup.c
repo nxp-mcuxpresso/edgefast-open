@@ -195,7 +195,7 @@ struct change_speed_config {
 	uint32_t fcr_val;
 };
 
-#define SEND_BUFFER_MAX_LENGTH  4096U  /* Maximum 2 byte value */
+#define SEND_BUFFER_MAX_LENGTH  4096 /* The supported maximum FW chunk size is 4 KB */
 #define RECV_RING_BUFFER_LENGTH 1024
 
 struct nxp_ctlr_fw_upload_state {
@@ -204,7 +204,7 @@ struct nxp_ctlr_fw_upload_state {
 
 	uint8_t buffer[A6REQ_PAYLOAD_LEN + REQ_HEADER_LEN + 1];
 
-	uint8_t send_buffer[SEND_BUFFER_MAX_LENGTH + 1];
+	uint8_t send_buffer[SEND_BUFFER_MAX_LENGTH];
 
 	struct {
 		uint8_t buffer[RECV_RING_BUFFER_LENGTH];
@@ -1331,7 +1331,7 @@ static int bt_nxp_set_calibration_data_annex55(void)
 							/* BIT[1] Disable Pwr Ctrl for class 2=0 */
 							/* BIT[2] MiscFlg(to indicate ext.XTAL)=0 */
 							/* BIT[3] Used Internal Sleep Clock = 0 */
-							/* BIT[4] BT AOA localtion support = 0 */
+							/* BIT[4] BT AOA location support = 0 */
 							/* BIT[5] Force Class 1 mode = 0 */
 							/* BIT[7:6] Reserved */
 			0x00,        /* AOANumberOfAntennas: 0x00 */

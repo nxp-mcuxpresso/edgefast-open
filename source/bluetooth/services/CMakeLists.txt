@@ -29,17 +29,17 @@ zephyr_sources_ifdef(CONFIG_BT_PXR pxr.c)
 zephyr_sources_ifdef(CONFIG_BT_TIP tip.c)
 
 if(CONFIG_BT_BAS)
-  edgefast_open_add_subdirectory(bas)
+  add_subdirectory(bas)
 endif()
 
 if(CONFIG_BT_OTS OR CONFIG_BT_OTS_CLIENT)
-  edgefast_open_add_subdirectory(ots)
+  add_subdirectory(ots)
 endif()
 
 if(CONFIG_BT_IAS OR CONFIG_BT_IAS_CLIENT)
-  edgefast_open_add_subdirectory(ias)
+  add_subdirectory(ias)
 endif()
 
 if(CONFIG_BT_ZEPHYR_NUS)
-  edgefast_open_add_subdirectory(nus)
+  add_subdirectory(nus)
 endif()

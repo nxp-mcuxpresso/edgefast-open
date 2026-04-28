@@ -175,18 +175,20 @@ config BT_ESP32
 	select BT_CTLR_PRIVACY_SUPPORT
 	select BT_CTLR_EXT_SCAN_FP_SUPPORT
 	select BT_CTLR_DATA_LEN_UPDATE_SUPPORT
-	select BT_CTLR_ADV_EXT_SUPPORT if SOC_SERIES_ESP32S3 || SOC_SERIES_ESP32C3
-	select BT_CTLR_PHY_UPDATE_SUPPORT if SOC_SERIES_ESP32S3 || SOC_SERIES_ESP32C3
-	select BT_CTLR_EXT_REJ_IND_SUPPORT if SOC_SERIES_ESP32S3 || SOC_SERIES_ESP32C3
-	select BT_CTLR_PHY_2M_SUPPORT if SOC_SERIES_ESP32S3 || SOC_SERIES_ESP32C3
-	select BT_CTLR_CHAN_SEL_2_SUPPORT if SOC_SERIES_ESP32S3 || SOC_SERIES_ESP32C3
+	select BT_CTLR_CONN_RSSI_SUPPORT
+	select BT_CTLR_ADV_EXT_SUPPORT if !SOC_SERIES_ESP32
+	select BT_CTLR_PHY_UPDATE_SUPPORT if !SOC_SERIES_ESP32
+	select BT_CTLR_EXT_REJ_IND_SUPPORT if !SOC_SERIES_ESP32
+	select BT_CTLR_PHY_2M_SUPPORT if !SOC_SERIES_ESP32
+	select BT_CTLR_PHY_CODED_SUPPORT if !SOC_SERIES_ESP32
+	select BT_CTLR_CHAN_SEL_2_SUPPORT if !SOC_SERIES_ESP32
 	help
 	  Espressif HCI bluetooth interface
 
 config BT_PSOC6_BLESS
 	bool
 	default y
-	depends on DT_HAS_INFINEON_CAT1_BLESS_HCI_ENABLED
+	depends on DT_HAS_INFINEON_BLESS_HCI_ENABLED
 	depends on ZEPHYR_HAL_INFINEON_MODULE_BLOBS
 	select BT_HCI_SETUP
 	help
@@ -215,6 +217,7 @@ config BT_NXP
 	default y
 	depends on DT_HAS_NXP_HCI_BLE_ENABLED
 	select BT_HCI_SETUP
+	select CRC if BT_HCI_SET_PUBLIC_ADDR
 	help
 	  NXP HCI bluetooth interface
 
@@ -258,9 +261,10 @@ config BT_AIROC
 	select UART                          if BT_H4
 	select UART_USE_RUNTIME_CONFIGURE    if BT_H4
 	select BT_HCI_SETUP
+	select BT_HCI_SET_PUBLIC_ADDR
 	select USE_INFINEON_ABSTRACTION_RTOS if BT_CYW208XX
 	select EVENTS                        if BT_CYW208XX
-	depends on DT_HAS_INFINEON_CYW43XXX_BT_HCI_ENABLED || DT_HAS_INFINEON_CYW208XX_HCI_ENABLED
+	depends on DT_HAS_INFINEON_BT_HCI_UART_ENABLED || DT_HAS_INFINEON_CYW208XX_HCI_ENABLED
 	help
 	  Infineon's AIROC™ Wi-Fi & combos portfolio integrates
 	  IEEE 802.11a/b/g/n/ac/ax Wi-Fi and Bluetooth® 5.2 in a single-chip
@@ -318,9 +322,11 @@ config BT_DRV_TX_STACK_SIZE
 config BT_DRV_RX_STACK_SIZE
 	int
 	default 640 if (BT_SPI || BT_AMBIQ_HCI)
-	default 1200 if (BT_H4 || BT_HCI_RAW_H4)
+	default BT_RX_STACK_SIZE if (BT_H4 || BT_HCI_RAW_H4)
 	default BT_STM32_IPM_RX_STACK_SIZE if BT_STM32_IPM
 	default HCI_NXP_RX_STACK_SIZE if HCI_NXP_RX_THREAD
+	default 1024 if BT_SF32LB
+	default 1024 if BT_BFLB
 	default 512
 	help
 	  Stack size for the HCI driver's RX thread.
@@ -362,3 +368,12 @@ config BT_H4_NXP_CTLR_WAIT_TIME_AFTER_BAUDRATE_UPDATE
 	  Waiting time after controller baudrate is updated. Unit is millisecond.
 
 endif #BT_H4_NXP_CTLR
+
+config BT_SF32LB
+	bool "SiFli Bluetooth Controller"
+	default y
+	depends on DT_HAS_SIFLI_SF32LB_MAILBOX_ENABLED
+	select USE_SIFLI_IPC_QUEUE
+	select USE_SIFLI_HAL
+	help
+	  Bluetooth HCI over ipc mailbox in SiFli SF32LB chipsets.
