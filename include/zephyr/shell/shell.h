@@ -16,6 +16,10 @@
 #include "fsl_debug_console.h"
 #include "fsl_shell.h"
 
+#if defined CONFIG_GETOPT
+#include <zephyr/sys/sys_getopt.h>
+#endif
+
 #include <zephyr/shell/shell_types.h>
 #include <zephyr/shell/shell_string_conv.h>
 

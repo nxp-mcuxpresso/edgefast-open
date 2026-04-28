@@ -52,6 +52,10 @@
 
 #include "fsl_shell.h"
 
+#if CONFIG_GETOPT
+#include <zephyr/sys/sys_getopt.h>
+#endif
+
 /*
  * The OSA_USED macro can only be defined when the OSA component is used.
  * If the source code of the OSA component does not exist, the OSA_USED cannot be defined.
@@ -970,6 +974,9 @@ static void SHELL_ProcessCommand(shell_context_handle_t *shellContextHandle, con
 
     if (NULL !=  tmpCommand->pFuncCallBack)
     {
+#if CONFIG_GETOPT
+        sys_getopt_init();
+#endif
         ret = tmpCommand->pFuncCallBack(shellContextHandle, argc, argv);
     }
     else
