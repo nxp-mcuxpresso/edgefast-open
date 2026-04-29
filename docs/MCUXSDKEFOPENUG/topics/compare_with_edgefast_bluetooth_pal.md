@@ -102,11 +102,27 @@ The following compares the available Classic profiles between EdgeFast Open Blue
 
 ##### A2DP
 
+```{include} ../topics/compare_classic_a2dp.md
+:heading-offset: 1
+```
+
 ##### AVRCP
+
+```{include} ../topics/compare_classic_avrcp.md
+:heading-offset: 1
+```
 
 ##### HFP
 
+```{include} ../topics/compare_classic_hfp.md
+:heading-offset: 1
+```
+
 ##### MAP
+
+```{include} ../topics/compare_classic_map.md
+:heading-offset: 1
+```
 
 ##### PBAP
 
