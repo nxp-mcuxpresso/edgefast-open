@@ -398,15 +398,24 @@ static int bt_spp_uuid_from_str(const char *str, struct bt_uuid *uuid)
     }
     case BT_UUID_STR_LEN - 1:
     {
+
+        uint32_t b[BT_UUID_SIZE_128];
         uint8_t *p = BT_UUID_128(uuid)->val;
 
         if (sscanf(str,
-                   "%02hhx%02hhx%02hhx%02hhx-%02hhx%02hhx-%02hhx%02hhx"
-                   "-%02hhx%02hhx-%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx",
-                   &p[15], &p[14], &p[13], &p[12], &p[11], &p[10], &p[9], &p[8], &p[7],
-                   &p[6], &p[5], &p[4], &p[3], &p[2], &p[1], &p[0]) != BT_UUID_SIZE_128)
+                   "%02x%02x%02x%02x-%02x%02x-%02x%02x"
+                   "-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                   &b[15], &b[14], &b[13], &b[12],
+                   &b[11], &b[10], &b[9],  &b[8],
+                   &b[7],  &b[6],  &b[5],  &b[4],
+                   &b[3],  &b[2],  &b[1],  &b[0]) != BT_UUID_SIZE_128)
         {
             return -EINVAL;
+        }
+
+        for (int i = 0; i < BT_UUID_SIZE_128; i++)
+        {
+            p[i] = (uint8_t)(b[i] & 0xFFU);
         }
 
         uuid->type = BT_UUID_TYPE_128;
@@ -870,4 +879,3 @@ void spp_task(void *pvParameters) {
 
     vTaskDelete(NULL);
 }
-
