@@ -12,16 +12,6 @@
 
 ---
 
-| Count | Description |
-| --- | --- |
-| 1 | edgefast_bluetooth header `bluetooth/avrcp.h` |
-| 2 | edgefast_open headers `classic/avrcp.h` + `avrcp_cover_art.h` |
-| 30 | Functions only in edgefast_bluetooth |
-| 55+ | CT+TG functions only in edgefast_open |
-| 4 | Shared connect functions (identical or renamed) |
-|  | edgefast_open splits Controller vs Target roles |
-
-
 ## Contents
 
 - [1. Architecture & Design Philosophy](#1-architecture--design-philosophy)
@@ -50,7 +40,7 @@
 | Connection handle | `struct bt_conn *conn` (generic BT conn) | `struct bt_avrcp_ct *ct` / `struct bt_avrcp_tg *tg` (AVRCP-typed role objects) |
 | Role separation | Single unified API; send functions implicitly act as CT, responses handled in same callback | Explicit CT namespace (`bt_avrcp_ct_*`) and TG namespace (`bt_avrcp_tg_*`) |
 | Callback registration | Single `bt_avrcp_register_callback(struct bt_avrcp_cb *cb)` | Two separate: `bt_avrcp_ct_register_cb()` and `bt_avrcp_tg_register_cb()` |
-| Transaction labels | Implicit - library manages internally | Explicit `uint8_t tid` (0�?5) on every CT send and TG response call |
+| Transaction labels | Implicit - library manages internally | Explicit `uint8_t tid` (0-15) on every CT send and TG response call |
 | Command data passing | Typed structs per command (e.g. `struct bt_avrcp_get_folder_items_cmd *`) | Pre-serialized `struct net_buf *buf` for complex cmds; typed structs for simple ones |
 | Fragmentation / continuation | App calls `bt_avrcp_request_continuing_rsp()` / `bt_avrcp_abort_continuing_rsp()` explicitly | Library reassembles internally; no continuation API exposed to application |
 | Passthrough vendor-unique | Inline `uint8_t vendor_op_id` alongside op_id | Separate `struct bt_avrcp_passthrough_opvu_data *opvu_data` pointer (NULL for standard ops) |
@@ -119,6 +109,10 @@ int bt_avrcp_ct_register_cb(const struct bt_avrcp_ct_cb *cb)
 ```c
 int bt_avrcp_tg_register_cb(const struct bt_avrcp_tg_cb *cb)
 ```
+
+## 4. CT (Controller) Functions
+
+> ℹ️ edgefast_bluetooth sends CT commands via `struct bt_conn *` with implicit role edgefast_open uses explicit `struct bt_avrcp_ct *ct` typed objects with an explicit `uint8_t tid` on every call All TG response functions are in the separate [Section 5](#s5).
 
 > Both take `struct bt_conn *`. In edgefast_open the resulting typed `struct bt_avrcp_ct *` / `struct bt_avrcp_tg *` objects are delivered via `connected` callbacks. Callback registration is split into two role-specific calls in edgefast_open vs one combined call in edgefast_bluetooth.
 
@@ -270,7 +264,7 @@ struct bt_avrcp_vendor* bt_avrcp_vendor_rsp_parse(struct bt_avrcp_vendor_header 
 > edgefast_open **explodes** the generic vendor-dependent PDU into individual strongly-typed functions per PDU ID. No generic dispatcher; each command has its own function with typed parameters or `struct net_buf *`. `bt_avrcp_set_addressed_player` and `bt_avrcp_set_volume` from edgefast_bluetooth map to `bt_avrcp_ct_set_addressed_player` and `bt_avrcp_ct_set_absolute_volume` respectively.
 
 
-## 5. Control Channel - TG (Target) Functions
+## 5. TG (Target) Functions
 
 > ⚠️ edgefast_bluetooth has no explicit TG role The TG-side response functions (`bt_avrcp_response_info`, `bt_avrcp_response_passthrough`, `bt_avrcp_response_vendor_dependent`) are present but share the same `struct bt_conn *` and callback edgefast_open has a complete, separate TG API namespace.
 
@@ -734,7 +728,7 @@ bt_avrcp_browsing_disconnect(conn);
   CT
 
 
-Query the target's unit info. `tid` is the transaction label (0�?5); the same `tid` is echoed back in the `unit_info` response callback so requests and responses can be matched.
+Query the target's unit info. `tid` is the transaction label (0-15); the same `tid` is echoed back in the `unit_info` response callback so requests and responses can be matched.
 
 
 ```c

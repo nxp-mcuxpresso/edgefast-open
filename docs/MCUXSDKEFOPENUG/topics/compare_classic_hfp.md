@@ -73,7 +73,7 @@
 | AG main header | `include/bluetooth/hfp_ag.h` | `include/zephyr/bluetooth/classic/hfp_ag.h` |
 | HF AT command enum | `enum bt_hfp_hf_at_cmd { BT_HFP_HF_ATA, BT_HFP_HF_AT_CHUP, BT_HFP_HF_AT_BAC }` - raw AT commands exposed to app | No AT command enum - replaced by typed function calls |
 | Volume type | `typedef enum _hf_volume_type_t { hf_volume_type_speaker, hf_volume_type_mic }` (HF) and `typedef enum _hf_ag_volume_type_t` (AG) | No volume type enum - split into `vgm`/`vgs` functions |
-| Multiparty call options | `typedef enum _hf_multiparty_call_option_t` with options 1�? | No enum - individual named functions per CHLD value |
+| Multiparty call options | `typedef enum _hf_multiparty_call_option_t` with options 1–5 | No enum - individual named functions per CHLD value |
 | Call status (AG indicator) | `typedef enum hfp_ag_call_status_t { call_end, call_active, call_incoming, call_outgoing }` | `enum __packed bt_hfp_ag_call_status` with 7 values (ACTIVE, HELD, DIALING, ALERTING, INCOMING, WAITING, INCOMING_HELD) |
 | Call direction | No enum | `enum __packed bt_hfp_hf_call_dir` / `enum __packed bt_hfp_ag_call_dir` |
 | Call mode | No enum | `enum __packed bt_hfp_hf_call_mode { VOICE, DATA, FAX }` |
