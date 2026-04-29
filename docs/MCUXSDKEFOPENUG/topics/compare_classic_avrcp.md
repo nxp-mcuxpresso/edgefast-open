@@ -1,4 +1,4 @@
-# Edgefast Bluetooth vs Edgefast Open — AVRCP API Differences
+# Edgefast Bluetooth vs Edgefast Open - AVRCP API Differences
 
 > **Source:** `middleware/edgefast_bluetooth/include/bluetooth/avrcp.h`
 > vs `middleware/edgefast_open/include/zephyr/bluetooth/classic/avrcp.h` + `avrcp_cover_art.h`
@@ -24,23 +24,23 @@
 
 ## Contents
 
-- [1. Architecture & Design Philosophy](#s1)
-- [2. Header File Layout & Constants](#s2)
-- [3. Connection Management](#s3)
-- [4. CT (Controller) Functions](#s4)
-- [5. TG (Target) Functions](#s5)
-- [6. Browsing Channel Functions](#s6)
-- [7. Cover Art Functions](#s7)
-- [8. Callback Structures Comparison](#s8)
-- [9. Full Function Comparison Table](#s9)
-- [10. Architecture Summary](#s10)
-- [11. edgefast_open API Usage Examples](#s11)
-- [12. AVRCP Kconfig Configuration Comparison](#s12)
+- [1. Architecture & Design Philosophy](#1-architecture--design-philosophy)
+- [2. Header File Layout & Constants](#2-header-file-layout--constants)
+- [3. Connection Management](#3-connection-management)
+- [4. CT (Controller) Functions](#4-ct-controller-functions)
+- [5. TG (Target) Functions](#5-tg-target-functions)
+- [6. Browsing Channel Functions](#6-browsing-channel-functions)
+- [7. Cover Art Functions](#7-cover-art-functions)
+- [8. Callback Structures Comparison](#8-callback-structures-comparison)
+- [9. Full Function Comparison Table](#9-full-function-comparison-table)
+- [10. Architecture Summary](#10-architecture-summary)
+- [11. edgefast_open API Usage Examples](#11-edgefast_open-api-usage-examples)
+- [12. AVRCP Kconfig Configuration Comparison](#12-avrcp-kconfig-configuration-comparison)
 
 
 ## 1. Architecture & Design Philosophy
 
-> ⚠️ **Fundamental difference:** edgefast_bluetooth uses a **unified flat model** — a single `struct bt_conn *` handle covers all AVRCP operations and one `struct bt_avrcp_cb` handles all events edgefast_open uses a **role-split object model** — CT (Controller) and TG (Target) are distinct typed objects with separate callback structures and function namespaces.
+> ⚠️ **Fundamental difference:** edgefast_bluetooth uses a **unified flat model** - a single `struct bt_conn *` handle covers all AVRCP operations and one `struct bt_avrcp_cb` handles all events edgefast_open uses a **role-split object model** - CT (Controller) and TG (Target) are distinct typed objects with separate callback structures and function namespaces.
 
 > ℹ️ **Cover Art:** edgefast_bluetooth integrates cover art in `avrcp.h` using a numeric `uint8_t handle` edgefast_open puts cover art in a separate `avrcp_cover_art.h` using typed objects that embed BIP (Basic Imaging Profile), with explicit separate L2CAP and OBEX connection steps.
 
@@ -50,7 +50,7 @@
 | Connection handle | `struct bt_conn *conn` (generic BT conn) | `struct bt_avrcp_ct *ct` / `struct bt_avrcp_tg *tg` (AVRCP-typed role objects) |
 | Role separation | Single unified API; send functions implicitly act as CT, responses handled in same callback | Explicit CT namespace (`bt_avrcp_ct_*`) and TG namespace (`bt_avrcp_tg_*`) |
 | Callback registration | Single `bt_avrcp_register_callback(struct bt_avrcp_cb *cb)` | Two separate: `bt_avrcp_ct_register_cb()` and `bt_avrcp_tg_register_cb()` |
-| Transaction labels | Implicit — library manages internally | Explicit `uint8_t tid` (0–15) on every CT send and TG response call |
+| Transaction labels | Implicit - library manages internally | Explicit `uint8_t tid` (0�?5) on every CT send and TG response call |
 | Command data passing | Typed structs per command (e.g. `struct bt_avrcp_get_folder_items_cmd *`) | Pre-serialized `struct net_buf *buf` for complex cmds; typed structs for simple ones |
 | Fragmentation / continuation | App calls `bt_avrcp_request_continuing_rsp()` / `bt_avrcp_abort_continuing_rsp()` explicitly | Library reassembles internally; no continuation API exposed to application |
 | Passthrough vendor-unique | Inline `uint8_t vendor_op_id` alongside op_id | Separate `struct bt_avrcp_passthrough_opvu_data *opvu_data` pointer (NULL for standard ops) |
@@ -235,7 +235,7 @@ int bt_avrcp_ct_register_notification(struct bt_avrcp_ct *ct, uint8_t tid, uint8
 int bt_avrcp_tg_notification(struct bt_avrcp_tg *tg, uint8_t tid, uint8_t status, uint8_t event_id, struct bt_avrcp_event_data *data)
 ```
 
-> No continuation APIs — library handles fragmentation internally. `bt_avrcp_ct_register_notification` takes an optional per-registration `bt_avrcp_notify_changed_cb_t` callback (can be `NULL` to use the global CT callback). TG sends notifications via `bt_avrcp_tg_notification()` with a typed `struct bt_avrcp_event_data *` (not a `net_buf`); the library serializes it internally.
+> No continuation APIs - library handles fragmentation internally. `bt_avrcp_ct_register_notification` takes an optional per-registration `bt_avrcp_notify_changed_cb_t` callback (can be `NULL` to use the global CT callback). TG sends notifications via `bt_avrcp_tg_notification()` with a typed `struct bt_avrcp_event_data *` (not a `net_buf`); the library serializes it internally.
 
 
 #### Vendor Dependent / Player App Settings / Element Attributes
@@ -270,7 +270,7 @@ struct bt_avrcp_vendor* bt_avrcp_vendor_rsp_parse(struct bt_avrcp_vendor_header 
 > edgefast_open **explodes** the generic vendor-dependent PDU into individual strongly-typed functions per PDU ID. No generic dispatcher; each command has its own function with typed parameters or `struct net_buf *`. `bt_avrcp_set_addressed_player` and `bt_avrcp_set_volume` from edgefast_bluetooth map to `bt_avrcp_ct_set_addressed_player` and `bt_avrcp_ct_set_absolute_volume` respectively.
 
 
-## 5. Control Channel — TG (Target) Functions
+## 5. Control Channel - TG (Target) Functions
 
 > ⚠️ edgefast_bluetooth has no explicit TG role The TG-side response functions (`bt_avrcp_response_info`, `bt_avrcp_response_passthrough`, `bt_avrcp_response_vendor_dependent`) are present but share the same `struct bt_conn *` and callback edgefast_open has a complete, separate TG API namespace.
 
@@ -405,7 +405,7 @@ int bt_avrcp_tg_browsing_general_reject(struct bt_avrcp_tg *tg, uint8_t tid, uin
 | Get Item Attrs (CT) | `bt_avrcp_get_items_attribute(conn, struct bt_avrcp_get_item_attrs_cmd *)` | `bt_avrcp_ct_get_item_attrs(ct, tid, struct net_buf *)` | Name simplified in edgefast_open. |
 | Search (CT) | `bt_avrcp_search(conn, struct bt_avrcp_search_cmd *)` | `bt_avrcp_ct_search(ct, tid, struct net_buf *)` | Typed struct vs net_buf. |
 | Get Total Num Items (CT) | `bt_avrcp_get_total_num_of_items(conn, scope)` | `bt_avrcp_ct_get_total_number_of_items(ct, tid, scope)` | Name slightly different; tid added. |
-| Browsing response (TG) | `bt_avrcp_response_browsing(conn, pdu_id, tl, void*, len)` — one generic function | Per-PDU TG functions: `bt_avrcp_tg_get_folder_items`, `bt_avrcp_tg_change_path`, etc. | edgefast_open splits into per-PDU TG calls. |
+| Browsing response (TG) | `bt_avrcp_response_browsing(conn, pdu_id, tl, void*, len)` - one generic function | Per-PDU TG functions: `bt_avrcp_tg_get_folder_items`, `bt_avrcp_tg_change_path`, etc. | edgefast_open splits into per-PDU TG calls. |
 | General Reject (TG) | Not present | `bt_avrcp_tg_browsing_general_reject(tg, tid, status)` | New in edgefast_open. |
 
 
@@ -583,11 +583,11 @@ Every operation has a paired CT (initiator) and TG (responder) function. L2CAP t
 | Disconnected | `disconnected(conn, err)` | CT: `disconnected(ct)`   TG: `disconnected(tg)` |
 | Browsing connected | `browsing_connected(conn, err)` | CT: `browsing_connected(ct)`   TG: `browsing_connected(tg)` |
 | Browsing disconnected | `browsing_disconnected(conn, err)` | CT: `browsing_disconnected(ct)`   TG: `browsing_disconnected(tg)` |
-| Control received (TG) | `control_received(conn, bt_avrcp_control_msg*, err)` — all command types | TG: per-command callbacks — `unit_info(tg,tid)`, `subunit_info(tg,tid)`, `passthrough(tg,tid,cmd)`, etc. |
-| Control rsp received (CT) | `control_rsp_received(conn, bt_avrcp_control_msg*, err)` — all response types | CT: per-command response callbacks — `unit_info(ct,tid,rsp)`, `passthrough(ct,tid,rsp)`, `get_caps(ct,tid,rsp)`, etc. |
-| Vendor dep. continue (CT) | `vendor_dependent_continue_rsp(conn, header*, net_buf*)` | Not exposed — handled internally |
-| Browsing received (TG) | `browsing_received(conn, bt_avrcp_browsing_cmd*, err)` — all browsing command types in one callback | TG: per-command callbacks — `get_folder_items(tg,tid,cmd)`, `change_path(tg,tid,cmd)`, `search(tg,tid,cmd)`, etc. |
-| Browsing rsp received (CT) | `browsing_rsp_received(conn, bt_avrcp_browsing_rsp*, err)` — all browsing responses | CT: per-command response callbacks — `get_folder_items(ct,tid,rsp)`, `change_path(ct,tid,rsp)`, etc. |
+| Control received (TG) | `control_received(conn, bt_avrcp_control_msg*, err)` - all command types | TG: per-command callbacks - `unit_info(tg,tid)`, `subunit_info(tg,tid)`, `passthrough(tg,tid,cmd)`, etc. |
+| Control rsp received (CT) | `control_rsp_received(conn, bt_avrcp_control_msg*, err)` - all response types | CT: per-command response callbacks - `unit_info(ct,tid,rsp)`, `passthrough(ct,tid,rsp)`, `get_caps(ct,tid,rsp)`, etc. |
+| Vendor dep. continue (CT) | `vendor_dependent_continue_rsp(conn, header*, net_buf*)` | Not exposed - handled internally |
+| Browsing received (TG) | `browsing_received(conn, bt_avrcp_browsing_cmd*, err)` - all browsing command types in one callback | TG: per-command callbacks - `get_folder_items(tg,tid,cmd)`, `change_path(tg,tid,cmd)`, `search(tg,tid,cmd)`, etc. |
+| Browsing rsp received (CT) | `browsing_rsp_received(conn, bt_avrcp_browsing_rsp*, err)` - all browsing responses | CT: per-command response callbacks - `get_folder_items(ct,tid,rsp)`, `change_path(ct,tid,rsp)`, etc. |
 | Cover art callbacks | Single `struct bt_avrcp_cover_art_cb` with `connected`, `disconnected`, `cmd_received`, `rsp_received` | Separate `struct bt_avrcp_cover_art_ct_cb` and `struct bt_avrcp_cover_art_tg_cb`, each with `l2cap_connected`, `l2cap_disconnected`, `connect`, `disconnect`, `abort`, `get_image_properties`, `get_image`, `get_linked_thumbnail` |
 
 
@@ -612,12 +612,12 @@ Every operation has a paired CT (initiator) and TG (responder) function. L2CAP t
 | bt_avrcp_get_event_supported(conn) | bt_avrcp_ct_get_caps(ct, tid, BT_AVRCP_CAP_EVENTS_SUPPORTED) | Merged into single function with cap_id param |
 | bt_avrcp_get_play_status(conn) | bt_avrcp_ct_get_play_status(ct, tid) | Typed CT object + tid |
 | bt_avrcp_register_notification(conn, event, interval) | bt_avrcp_ct_register_notification(ct, tid, event_id, interval, cb) | Typed CT object + tid + per-registration callback added |
-| bt_avrcp_request_continuing_rsp(conn, pdu_id) | No equivalent — handled internally | Library manages fragmentation in edgefast_open |
-| bt_avrcp_abort_continuing_rsp(conn, pdu_id) | No equivalent — handled internally | Library manages fragmentation in edgefast_open |
+| bt_avrcp_request_continuing_rsp(conn, pdu_id) | No equivalent - handled internally | Library manages fragmentation in edgefast_open |
+| bt_avrcp_abort_continuing_rsp(conn, pdu_id) | No equivalent - handled internally | Library manages fragmentation in edgefast_open |
 | bt_avrcp_set_volume(conn, volume) | bt_avrcp_ct_set_absolute_volume(ct, tid, absolute_volume) | Renamed; typed CT object + tid |
 | bt_avrcp_set_addressed_player(conn, player_id) | bt_avrcp_ct_set_addressed_player(ct, tid, player_id) | Typed CT object + tid |
 | bt_avrcp_send_vendor_dependent(conn, pdu_id, void*) | Individual per-PDU functions: bt_avrcp_ct_list_player_app_setting_attrs, bt_avrcp_ct_get_element_attrs, etc. | Generic dispatcher replaced by per-PDU typed functions |
-| bt_avrcp_vendor_rsp_parse(header*, buf, len) | No equivalent — responses delivered via per-PDU callbacks | Not needed in edgefast_open due to per-operation callbacks |
+| bt_avrcp_vendor_rsp_parse(header*, buf, len) | No equivalent - responses delivered via per-PDU callbacks | Not needed in edgefast_open due to per-operation callbacks |
 | bt_avrcp_response_vendor_dependent(conn, pdu_id, rsp_type, pkt_type, tl, param*, len) | Individual per-PDU TG functions: bt_avrcp_tg_get_play_status, bt_avrcp_tg_get_element_attrs, etc. | Generic dispatcher replaced by per-PDU TG functions |
 | bt_avrcp_set_borwsed_player(conn, player_id) [typo] | bt_avrcp_ct_set_browsed_player(ct, tid, player_id) | Typo fixed; typed CT object + tid |
 | bt_avrcp_get_folder_items(conn, cmd*) | bt_avrcp_ct_get_folder_items(ct, tid, buf) | Typed struct replaced by net_buf |
@@ -628,9 +628,9 @@ Every operation has a paired CT (initiator) and TG (responder) function. L2CAP t
 | bt_avrcp_response_browsing(conn, pdu_id, tl, void*, len) | Per-PDU: bt_avrcp_tg_get_folder_items, bt_avrcp_tg_change_path, bt_avrcp_tg_search, etc. | Generic dispatcher split into per-PDU TG functions |
 | No equivalent | bt_avrcp_tg_browsing_general_reject(tg, tid, status) | New in edgefast_open |
 | bt_avrcp_register_cover_art_cb(cb) | bt_avrcp_cover_art_ct_cb_register(cb) + bt_avrcp_cover_art_tg_cb_register(cb) | Split into CT and TG |
-| bt_avrcp_cover_art_start_initiator(handle*) | Implicit — ct object created on l2cap_connected callback | Different lifecycle model |
+| bt_avrcp_cover_art_start_initiator(handle*) | Implicit - ct object created on l2cap_connected callback | Different lifecycle model |
 | bt_avrcp_cover_art_stop_initiator(handle) | No direct equivalent | Lifecycle managed by L2CAP disconnect |
-| bt_avrcp_cover_art_start_responder(handle*) | Implicit — tg object created on l2cap_connected callback | Different lifecycle model |
+| bt_avrcp_cover_art_start_responder(handle*) | Implicit - tg object created on l2cap_connected callback | Different lifecycle model |
 | bt_avrcp_cover_art_stop_responder(handle) | No direct equivalent | Lifecycle managed by L2CAP disconnect |
 | bt_avrcp_cover_art_connect(handle, conn, cmd*) | bt_avrcp_cover_art_ct_l2cap_connect(ct, cover_art_ct**, psm) then bt_avrcp_cover_art_ct_connect(ct) | L2CAP and OBEX connect are separate steps |
 | bt_avrcp_cover_art_disconnect(handle) | bt_avrcp_cover_art_ct_l2cap_disconnect(ct) | Typed CT object |
@@ -638,7 +638,7 @@ Every operation has a paired CT (initiator) and TG (responder) function. L2CAP t
 | bt_avrcp_get_image(handle, param*) | bt_avrcp_cover_art_ct_get_image(ct, final, buf) | Typed CT; net_buf; bool final |
 | bt_avrcp_get_linked_thumbnail(handle, param*) | bt_avrcp_cover_art_ct_get_linked_thumbnail(ct, final, buf) | Typed CT; net_buf; bool final |
 | bt_avrcp_abort(handle) | bt_avrcp_cover_art_ct_abort(ct, buf) | Typed CT; optional net_buf for abort data |
-| bt_avrcp_send_request(handle, wait, rsp*) | No equivalent — OBEX continuation handled via bool final parameter | Different continuation model |
+| bt_avrcp_send_request(handle, wait, rsp*) | No equivalent - OBEX continuation handled via bool final parameter | Different continuation model |
 | bt_avrcp_response_cover_art(handle, cmd, response, void*) | bt_avrcp_cover_art_tg_get_image_properties / _get_image / _get_linked_thumbnail / _abort | Generic response split into per-operation TG functions |
 
 
@@ -653,7 +653,7 @@ Every operation has a paired CT (initiator) and TG (responder) function. L2CAP t
 | Header location | `include/bluetooth/avrcp.h` (flat) | `include/zephyr/bluetooth/classic/avrcp.h` + `classic/avrcp_cover_art.h` |
 | Connection object | `struct bt_conn *conn` for all operations | Typed `struct bt_avrcp_ct *ct` / `struct bt_avrcp_tg *tg` |
 | Role model | Unified flat namespace; implicit role by function chosen | Explicit CT/TG namespaces; same operation has two typed functions |
-| Transaction IDs | Library-managed, not exposed to application | Explicit `uint8_t tid` on every call — app controls matching of request and response |
+| Transaction IDs | Library-managed, not exposed to application | Explicit `uint8_t tid` on every call - app controls matching of request and response |
 | Callback model | Single `struct bt_avrcp_cb` for all events | Separate `struct bt_avrcp_ct_cb` and `struct bt_avrcp_tg_cb`, each with per-operation members |
 | Vendor-dependent PDUs | Generic `bt_avrcp_send_vendor_dependent(pdu_id, void*)` dispatcher | Individual per-PDU typed functions (13+ CT functions) |
 | Browsing TG responses | Single `bt_avrcp_response_browsing(pdu_id, void*)` dispatcher | Per-PDU TG response functions; new `bt_avrcp_tg_browsing_general_reject()` |
@@ -665,7 +665,7 @@ Every operation has a paired CT (initiator) and TG (responder) function. L2CAP t
 | Total AVRCP functions | ~30 control + browsing + cover art functions | 55+ CT and TG functions across control, browsing, and cover art |
 
 
-## 11. edgefast_open API Usage Examples (Code Snapshots)
+## 11. edgefast_open API Usage Examples
 
 > ℹ️ Each snippet below shows a minimal but complete usage pattern for edgefast_open AVRCP APIs that differ from edgefast_bluetooth All snippets assume Zephyr RTOS conventions (`struct net_buf`, `sys_put_be*`, etc.).
 
@@ -714,7 +714,7 @@ Open and close the AVRCP control channel. Both take a plain `struct bt_conn *`. 
 
 
 ```c
-/* In BR/EDR connection callback – initiate AVRCP after ACL is up */
+/* In BR/EDR connection callback - initiate AVRCP after ACL is up */
 static void br_connected(struct bt_conn *conn, uint8_t err) {
     if (!err) {
         bt_avrcp_connect(conn);          /* triggers ct_cb.connected / tg_cb.connected */
@@ -734,7 +734,7 @@ bt_avrcp_browsing_disconnect(conn);
   CT
 
 
-Query the target's unit info. `tid` is the transaction label (0–15); the same `tid` is echoed back in the `unit_info` response callback so requests and responses can be matched.
+Query the target's unit info. `tid` is the transaction label (0�?5); the same `tid` is echoed back in the `unit_info` response callback so requests and responses can be matched.
 
 
 ```c
@@ -757,7 +757,7 @@ Send a passthrough command (e.g. PLAY, PAUSE). Pass `NULL`/`0` for `payload`/`le
 
 
 ```c
-/* Send PLAY key press — no vendor-unique payload */
+/* Send PLAY key press - no vendor-unique payload */
 bt_avrcp_ct_passthrough(my_ct, tid,
                         BT_AVRCP_OPID_PLAY,
                         BT_AVRCP_BUTTON_PRESSED,
@@ -1052,7 +1052,7 @@ cmd->direction   = BT_AVRCP_CHANGE_PATH_CHILD;    /* 0x01 = down into folder */
 memcpy(cmd->folder_uid, &folder_uid, sizeof(cmd->folder_uid));
 
 bt_avrcp_ct_change_path(my_ct, tid, buf);
-/* Response in ct_cb.change_path(ct, tid, rsp) — rsp contains new item count */
+/* Response in ct_cb.change_path(ct, tid, rsp) - rsp contains new item count */
 ```
 
 
@@ -1078,19 +1078,19 @@ cmd->search_str_len = sys_cpu_to_be16(slen);
 net_buf_add_mem(buf, term, slen);
 
 bt_avrcp_ct_search(my_ct, tid, buf);
-/* Response in ct_cb.search(ct, tid, rsp) — rsp.num_items = match count */
+/* Response in ct_cb.search(ct, tid, rsp) - rsp.num_items = match count */
 ```
 
 
   bt_avrcp_tg_browsing_general_reject
-  TG (Browsing) — new in edgefast_open
+  TG (Browsing) - new in edgefast_open
 
 
 New API with no equivalent in edgefast_bluetooth. Sends a GENERAL_REJECT browsing response when the TG cannot handle the incoming browsing PDU at all.
 
 
 ```c
-/* Inside tg_cb.browsing_received — reject an unsupported PDU */
+/* Inside tg_cb.browsing_received - reject an unsupported PDU */
 static void tg_browsing_received(struct bt_avrcp_tg *tg, uint8_t tid,
                                   const struct bt_avrcp_browsing_cmd *cmd) {
     if (cmd->pdu_id == UNSUPPORTED_PDU) {
@@ -1104,7 +1104,7 @@ static void tg_browsing_received(struct bt_avrcp_tg *tg, uint8_t tid,
 ```
 
 
-  bt_avrcp_cover_art_ct_l2cap_connect → bt_avrcp_cover_art_ct_connect
+  bt_avrcp_cover_art_ct_l2cap_connect - bt_avrcp_cover_art_ct_connect
   Cover Art CT
 
 
@@ -1122,7 +1122,7 @@ static void ca_ct_l2cap_connected(struct bt_avrcp_cover_art_ct *ct) {
     bt_avrcp_cover_art_ct_connect(ct);
 }
 
-/* Step 3: inside bt_avrcp_cover_art_ct_cb.connect() callback — ready */
+/* Step 3: inside bt_avrcp_cover_art_ct_cb.connect() callback - ready */
 static void ca_ct_connected(struct bt_avrcp_cover_art_ct *ct, uint8_t rsp_code) {
     if (rsp_code == 0x20) {  /* OBEX_RSP_SUCCESS */
         g_cover_art_ct = ct;  /* save for image requests */
@@ -1144,7 +1144,7 @@ struct net_buf *buf = bt_avrcp_cover_art_ct_create_pdu(g_cover_art_ct,
                                                           &cover_art_pdu_pool);
 if (!buf) { return -ENOMEM; }
 
-/* Add OBEX headers – e.g. image handle header (0x30) */
+/* Add OBEX headers - e.g. image handle header (0x30) */
 net_buf_add_u8(buf, 0x30);             /* ImgHandle header ID */
 net_buf_add_be16(buf, 2 + img_handle_len * 2);
 net_buf_add_mem(buf, img_handle_utf16, img_handle_len * 2);
@@ -1191,7 +1191,7 @@ net_buf_unref(buf);
 
 ## 12. AVRCP Kconfig Configuration Comparison
 
-> ⚠️ **Source files:** edgefast_bluetooth — `middleware/edgefast_bluetooth/include/Kconfig`  |  edgefast_open — `middleware/edgefast_open/source/bluetooth/host/classic/Kconfig`
+> ⚠️ **Source files:** edgefast_bluetooth - `middleware/edgefast_bluetooth/include/Kconfig`  |  edgefast_open - `middleware/edgefast_open/source/bluetooth/host/classic/Kconfig`
 
 > ℹ️ **Key naming difference:** edgefast_bluetooth uses short abbreviations (`BT_AVRCP_CT`, `BT_AVRCP_TG`) while edgefast_open uses full words (`BT_AVRCP_CONTROLLER`, `BT_AVRCP_TARGET`) edgefast_open also adds finer-grained cover art sub-operation symbols that are absent from edgefast_bluetooth.
 
@@ -1201,12 +1201,12 @@ net_buf_unref(buf);
 
 | Symbol | edgefast_bluetooth | edgefast_open | Notes |
 | --- | --- | --- | --- |
-| `BT_AVDTP` | bool, default n | bool (no default) | Audio/Video Distribution Transport Protocol — prerequisite for A2DP and AVRCP in both stacks |
-| `BT_AVCTP` | — not present — | bool (no default) | Audio/Video Control Transport Protocol layer. edgefast_open exposes this as a separate Kconfig knob; edgefast_bluetooth enables it implicitly when BT_AVRCP is set |
+| `BT_AVDTP` | bool, default n | bool (no default) | Audio/Video Distribution Transport Protocol - prerequisite for A2DP and AVRCP in both stacks |
+| `BT_AVCTP` | - not present - | bool (no default) | Audio/Video Control Transport Protocol layer. edgefast_open exposes this as a separate Kconfig knob; edgefast_bluetooth enables it implicitly when BT_AVRCP is set |
 | `BT_AVRCP` | bool, default n | bool (no default) | Master AVRCP enable. Both stacks gate all AVRCP sub-features on this symbol. edgefast_bluetooth forces an explicit `default n`; edgefast_open relies on Kconfig default (also disabled) |
 | `BT_AVRCP_BROWSING` | bool, default n | bool (no default) | Enables the AVRCP Browsing Channel (separate L2CAP PSM). Semantically identical in both stacks |
-| `BT_AVRCP_BROWSING_L2CAP_MTU` | — not present — | int, default 339 | edgefast_open lets the application tune the Browsing Channel L2CAP MTU. edgefast_bluetooth fixes this at compile time in source code |
-| `BT_AVRCP_VD_RX_SIZE` | — not present — | int, default 1024 | Vendor-dependent data receive buffer size (bytes). edgefast_open exposes this tunable; edgefast_bluetooth uses a hard-coded internal value |
+| `BT_AVRCP_BROWSING_L2CAP_MTU` | - not present - | int, default 339 | edgefast_open lets the application tune the Browsing Channel L2CAP MTU. edgefast_bluetooth fixes this at compile time in source code |
+| `BT_AVRCP_VD_RX_SIZE` | - not present - | int, default 1024 | Vendor-dependent data receive buffer size (bytes). edgefast_open exposes this tunable; edgefast_bluetooth uses a hard-coded internal value |
 
 
 ### 12.2 Role Enablement (Controller / Target)
@@ -1216,7 +1216,7 @@ net_buf_unref(buf);
 | --- | --- | --- | --- |
 | `BT_AVRCP_CT` | `BT_AVRCP_CONTROLLER` | bool | Enables the AVRCP Controller (CT) role. Symbol renamed: short form vs full word. No default in either |
 | `BT_AVRCP_TG` | `BT_AVRCP_TARGET` | bool | Enables the AVRCP Target (TG) role. Same rename pattern. No default in either |
-| `BT_AVRCP_MAX_CONN` | — not present — | int, default BT_MAX_CONN | edgefast_bluetooth caps simultaneous AVRCP connections. edgefast_open derives the limit from the underlying L2CAP/ACL connection pool instead |
+| `BT_AVRCP_MAX_CONN` | - not present - | int, default BT_MAX_CONN | edgefast_bluetooth caps simultaneous AVRCP connections. edgefast_open derives the limit from the underlying L2CAP/ACL connection pool instead |
 
 
 ### 12.3 Cover Art Kconfig Symbols
@@ -1226,12 +1226,12 @@ net_buf_unref(buf);
 
 | edgefast_bluetooth symbol | edgefast_open equivalent | Type | Notes |
 | --- | --- | --- | --- |
-| `BT_AVRCP_COVER_ART` | — no direct equivalent — | bool, default n | edgefast_bluetooth top-level cover art gate. Selecting this enables the shared cover art OBEX/BIP transport. edgefast_open replaces this with per-role enables (`BT_AVRCP_CT_COVER_ART` / `BT_AVRCP_TG_COVER_ART`) |
+| `BT_AVRCP_COVER_ART` | - no direct equivalent - | bool, default n | edgefast_bluetooth top-level cover art gate. Selecting this enables the shared cover art OBEX/BIP transport. edgefast_open replaces this with per-role enables (`BT_AVRCP_CT_COVER_ART` / `BT_AVRCP_TG_COVER_ART`) |
 | `BT_AVRCP_COVER_ART_INITIATOR` | `BT_AVRCP_CT_COVER_ART` | bool, default n | Cover art initiator (CT side). edgefast_open renames to `CT_COVER_ART` and additionally gates the fine-grained operation symbols below |
 | `BT_AVRCP_COVER_ART_RESPONDER` | `BT_AVRCP_TG_COVER_ART` | bool, default n | Cover art responder (TG side). Renamed in edgefast_open |
-| — not present — | `BT_AVRCP_CT_COVER_ART_GET_IMAGE` | bool | edgefast_open only — enables the CT Get Image OBEX operation individually. edgefast_bluetooth bundles all cover art CT operations under `BT_AVRCP_COVER_ART_INITIATOR` |
-| — not present — | `BT_AVRCP_CT_COVER_ART_GET_IMAGE_PROPERTIES` | bool | edgefast_open only — enables the CT Get Image Properties OBEX operation individually |
-| — not present — | `BT_AVRCP_CT_COVER_ART_GET_LINKED_THUMBNAIL` | bool | edgefast_open only — enables the CT Get Linked Thumbnail OBEX operation individually |
+| - not present - | `BT_AVRCP_CT_COVER_ART_GET_IMAGE` | bool | edgefast_open only - enables the CT Get Image OBEX operation individually. edgefast_bluetooth bundles all cover art CT operations under `BT_AVRCP_COVER_ART_INITIATOR` |
+| - not present - | `BT_AVRCP_CT_COVER_ART_GET_IMAGE_PROPERTIES` | bool | edgefast_open only - enables the CT Get Image Properties OBEX operation individually |
+| - not present - | `BT_AVRCP_CT_COVER_ART_GET_LINKED_THUMBNAIL` | bool | edgefast_open only - enables the CT Get Linked Thumbnail OBEX operation individually |
 
 
 ### 12.4 Side-by-Side Symbol Summary
@@ -1240,17 +1240,17 @@ net_buf_unref(buf);
 | Symbol | edgefast_bluetooth | edgefast_open |
 | --- | --- | --- |
 | `BT_AVDTP` | bool, default n | bool |
-| `BT_AVCTP` | — | bool |
+| `BT_AVCTP` | - | bool |
 | `BT_AVRCP` | bool, default n | bool |
 | `BT_AVRCP_BROWSING` | bool, default n | bool |
-| `BT_AVRCP_BROWSING_L2CAP_MTU` | — | int, default 339 |
-| `BT_AVRCP_VD_RX_SIZE` | — | int, default 1024 |
-| `BT_AVRCP_CT` | bool, default n | → BT_AVRCP_CONTROLLER |
-| `BT_AVRCP_TG` | bool, default n | → BT_AVRCP_TARGET |
-| `BT_AVRCP_MAX_CONN` | int, default BT_MAX_CONN | — |
-| `BT_AVRCP_COVER_ART` | bool, default n | — (split into CT/TG) |
-| `BT_AVRCP_COVER_ART_INITIATOR` | bool, default n | → BT_AVRCP_CT_COVER_ART |
-| `BT_AVRCP_COVER_ART_RESPONDER` | bool, default n | → BT_AVRCP_TG_COVER_ART |
-| `BT_AVRCP_CT_COVER_ART_GET_IMAGE` | — | bool |
-| `BT_AVRCP_CT_COVER_ART_GET_IMAGE_PROPERTIES` | — | bool |
-| `BT_AVRCP_CT_COVER_ART_GET_LINKED_THUMBNAIL` | — | bool |
+| `BT_AVRCP_BROWSING_L2CAP_MTU` | - | int, default 339 |
+| `BT_AVRCP_VD_RX_SIZE` | - | int, default 1024 |
+| `BT_AVRCP_CT` | bool, default n | - BT_AVRCP_CONTROLLER |
+| `BT_AVRCP_TG` | bool, default n | - BT_AVRCP_TARGET |
+| `BT_AVRCP_MAX_CONN` | int, default BT_MAX_CONN | - |
+| `BT_AVRCP_COVER_ART` | bool, default n | - (split into CT/TG) |
+| `BT_AVRCP_COVER_ART_INITIATOR` | bool, default n | - BT_AVRCP_CT_COVER_ART |
+| `BT_AVRCP_COVER_ART_RESPONDER` | bool, default n | - BT_AVRCP_TG_COVER_ART |
+| `BT_AVRCP_CT_COVER_ART_GET_IMAGE` | - | bool |
+| `BT_AVRCP_CT_COVER_ART_GET_IMAGE_PROPERTIES` | - | bool |
+| `BT_AVRCP_CT_COVER_ART_GET_LINKED_THUMBNAIL` | - | bool |
