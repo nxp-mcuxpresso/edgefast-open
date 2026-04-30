@@ -129,12 +129,12 @@ void umr_to_bms_vol_control(uint8_t volume, uint8_t mute)
 	k_sem_give(&sem);
 }
 
-int umr_to_bms_audio_codec_cfg(struct bt_audio_codec_cfg *cfg)
+int umr_to_bms_audio_codec_cfg(const struct bt_audio_codec_cfg *cfg)
 {
 	return bms_codec_cfg(cfg);
 }
 
-int umr_to_bms_audio_codec_qos(struct bt_bap_qos_cfg *qos)
+int umr_to_bms_audio_codec_qos(const struct bt_bap_qos_cfg *qos)
 {
 	return bms_qos(qos);
 }

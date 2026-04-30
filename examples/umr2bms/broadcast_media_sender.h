@@ -20,8 +20,8 @@ void broadcast_media_sender_task(void *param);
 
 int config_broadcast_code(uint8_t *data, int len);
 
-int bms_codec_cfg(struct bt_audio_codec_cfg *cfg);
-int bms_qos(struct bt_bap_qos_cfg *qos);
+int bms_codec_cfg(const struct bt_audio_codec_cfg *cfg);
+int bms_qos(const struct bt_bap_qos_cfg *qos);
 
 int bms_init(void);
 int bms_start(void);

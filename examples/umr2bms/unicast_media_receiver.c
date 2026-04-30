@@ -97,8 +97,8 @@ static OSA_SEMAPHORE_HANDLE_DEFINE(sem_mcs_server_discovered);
 
 
 extern void umr_to_bms_vol_control(uint8_t volume, uint8_t mute);
-extern int umr_to_bms_audio_codec_cfg(struct bt_audio_codec_cfg *cfg);
-extern int umr_to_bms_audio_codec_qos(struct bt_bap_qos_cfg *qos);
+extern int umr_to_bms_audio_codec_cfg(const struct bt_audio_codec_cfg *cfg);
+extern int umr_to_bms_audio_codec_qos(const struct bt_bap_qos_cfg *qos);
 extern int umr_to_bms_audio_enable(void);
 extern int umr_to_bms_audio_start(void);
 extern int umr_to_bms_audio_stop(void);

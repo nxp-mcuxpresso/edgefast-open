@@ -304,7 +304,7 @@ int config_broadcast_code(uint8_t *data, int len)
 	return 0;
 }
 
-int bms_codec_cfg(struct bt_audio_codec_cfg *cfg)
+int bms_codec_cfg(const struct bt_audio_codec_cfg *cfg)
 {
 	lc3_preset.codec_cfg = *cfg;
 	bt_audio_codec_cfg_unset_val(&lc3_preset.codec_cfg, BT_AUDIO_CODEC_CFG_CHAN_ALLOC);
@@ -314,7 +314,7 @@ int bms_codec_cfg(struct bt_audio_codec_cfg *cfg)
 	return 0;
 }
 
-int bms_qos(struct bt_bap_qos_cfg *qos)
+int bms_qos(const struct bt_bap_qos_cfg *qos)
 {
 	lc3_preset.qos = *qos;
 
