@@ -514,11 +514,11 @@ static void syncable_cb(struct bt_bap_broadcast_sink *sink, const struct bt_iso_
 	}
 
 	PRINTF("codec_qos - interval: %d, framing: %d, phy: %d, sdu: %d, rtn: %d\n",
-		sink->qos_cfg.interval,
-		sink->qos_cfg.framing,
-		sink->qos_cfg.phy,
-		sink->qos_cfg.sdu,
-		sink->qos_cfg.rtn
+		biginfo->iso_interval,
+		biginfo->framing,
+		biginfo->phy,
+		biginfo->max_pdu,
+		biginfo->rep_count
 		);
 
 	OSA_SemaphorePost(sem_syncable);
