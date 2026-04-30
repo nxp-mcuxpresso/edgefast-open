@@ -1,0 +1,113 @@
+## Multiple Conns + Dual mode tests
+Notes: The nRF Connect APP can be used to create BLE connection for the follow BLE connection.
+
+- BLE is derived from br/edr (tested with Phone)
+  - use the "prj-br-ble-conns.conf" config file to build the shell demo and run.
+  - bt init
+  - bt clear all
+  - br clear all
+  - a2dp register_cb
+  - a2dp register_ep sink sbc
+  - br pscan on
+  - br iscan on
+  - bt advertise on
+  - Scan and connect to the br/edr from Phone, verify that the paring is triggered.
+  - connect to the ble from Phone, and verify that the BLE doesn't trigger pairing and security success.
+  - clear the keys in the Phone
+  - Scan and connect to the br/edr from Phone again, verify that the paring is triggered.
+  - connect to the ble from Phone, and verify that the BLE doesn't trigger pairing and security success.
+  - Power down DUT and power up again, and do the same shell cmds initialization.
+  - input bt bond to check whether the bond information exist.
+  - Scan and connect to the br/edr from Phone again, verify that the paring is not triggered.
+  - connect to the ble from Phone, and verify that the BLE doesn't trigger pairing and security success.
+  - execute `bt clear all` and `br clear all` on one side.
+  - connect to the ble from Phone, and verify that the BLE security fail with "key miss".
+- BLE is derived from br/edr (board to board)
+  - use the "prj-br-ble-conns.conf" config file to build the shell demo and run.
+    - bt init
+    - bt clear all
+    - br clear all
+    - bt auth status
+    - a2dp register_cb
+    - a2dp register_ep sink sbc
+    - br pscan on
+    - br iscan on
+    - bt advertise on
+  - execute the follow shell cmds on the board A.
+    - bt init
+    - bt clear all
+    - br clear all
+    - bt auth status
+    - a2dp register_cb
+    - a2dp register_ep source sbc
+  - Scan and connect to the br/edr from A to B, execute `a2dp connect` on A, verify that the paring is triggered.
+  - connect to the ble from A to B, and verify that the BLE doesn't trigger pairing and security success.
+  - clear the keys in the A
+  - Scan and connect to the br/edr from Phone from A to B again, verify that the paring is triggered.
+  - connect to the ble from A to B, execute `bt security 2` on A, verify that the BLE doesn't trigger pairing and security success.
+  - Power down DUT and power up again, and do the same shell cmds initialization.
+  - input bt bond to check whether the bond information exist.
+  - Scan and connect to the br/edr from A to B again, verify that the paring is not triggered.
+  - connect to the ble from A to B, execute `bt security 2` on A, verify that the BLE doesn't trigger pairing and security success.
+  - execute `bt clear all` and `br clear all` on one side.
+  - connect to the ble from A to B, execute `bt security 2` on A, verify that the BLE security fail with "key miss".
+- BR is derived from BLE  (tested with Phone)
+  - use the "prj-br-ble-conns.conf" config file to build the shell demo and run.
+  - bt init
+  - bt clear all
+  - br clear all
+  - a2dp register_cb
+  - a2dp register_ep sink sbc
+  - br pscan on
+  - br iscan on
+  - bt advertise on
+  - connect to the ble from Phone, and pair.
+  - Connect br/edr from Phone.
+  - Connect br/edr from DUT: If the Phone side can't find the br/edr device to click to connect, input br discovery on to find the Phone, then br connect xx:xx:xx:xx:xx:xx to connect with the Phone, then `a2dp connect` to connect a2dp.
+  - verify that the br/edr doesn't trigger pairing and security success.
+  - clear the keys in the Phone
+  - connect to the ble from Phone, and pair again.
+  - Connect br/edr from Phone: Scan and connect to the br/edr from Phone again,
+  - Connect br/edr from DUT: If the Phone side can't find the br/edr device to click to connect, input br discovery on to find the Phone, then br connect xx:xx:xx:xx:xx:xx to connect with the Phone, then `a2dp connect` to connect a2dp.
+  - verify that the br/edr doesn't trigger pairing and security success again.
+  - Power down DUT and power up again, and do the same shell cmds initialization.
+  - input bt bond to check whether the bond information exist.
+  - connect to the ble from Phone, and pair again, verify that the paring is not triggered.
+  - Connect br/edr from Phone: Scan and connect to the br/edr from Phone again,
+  - Connect br/edr from DUT: If the Phone side can't find the br/edr device to click to connect, input br discovery on to find the Phone, then br connect xx:xx:xx:xx:xx:xx to connect with the Phone, then `a2dp connect` to connect a2dp.
+  - bt clear all
+  - connect to the ble from Phone, and verify that the BLE security fail.
+- BR is derived from BLE  (board to board)
+  - use the "prj-br-ble-conns.conf" config file to build the shell demo and run.
+    - bt init
+    - bt clear all
+    - br clear all
+    - bt auth status
+    - a2dp register_cb
+    - a2dp register_ep sink sbc
+    - br pscan on
+    - br iscan on
+    - bt advertise on
+  - execute the follow shell cmds on the board A.
+    - bt init
+    - bt clear all
+    - br clear all
+    - bt auth status
+    - a2dp register_cb
+    - a2dp register_ep source sbc
+  - connect to the ble from A to B, and pair (bt security 2).
+  - Connect br/edr from A to B.
+  - execute `a2dp connect` on A to connect a2dp.
+  - verify that the br/edr doesn't trigger pairing and security success.
+  - clear the keys in the A.
+  - connect to the ble from Phone, and pair again (bt security 2).
+  - Connect br/edr from A to B.
+  - execute `a2dp connect` on A to connect a2dp.
+  - verify that the br/edr doesn't trigger pairing and security success again.
+  - Power down DUT and power up again, and do the same shell cmds initialization.
+  - input bt bond to check whether the bond information exist.
+  - connect to the ble from A to B, and  again, verify that the paring is not triggered.
+  - Connect br/edr from Phone.
+  - execute `a2dp connect` on A to connect a2dp.
+  - bt clear all
+  - connect to the ble from A to B, execute `bt security 2` on A, verify that the BLE security fail with "key miss".
