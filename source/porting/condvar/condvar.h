@@ -96,7 +96,7 @@ int k_condvar_wait(struct k_condvar *condvar, struct k_mutex *mutex, k_timeout_t
  * @param name Name of the condition variable.
  */
 #define K_CONDVAR_DEFINE(name)                                                 \
-	STRUCT_SECTION_ITERABLE(k_condvar, name) =                             \
+	struct k_condvar name =                             \
 		Z_CONDVAR_INITIALIZER(name)
 /**
  * @}

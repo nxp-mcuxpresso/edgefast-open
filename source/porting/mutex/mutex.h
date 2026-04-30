@@ -116,7 +116,7 @@ int k_mutex_unlock(struct k_mutex *mutex);
  * @param name Name of the mutex.
  */
 #define K_MUTEX_DEFINE(name) \
-	STRUCT_SECTION_ITERABLE(k_mutex, name) = \
+	struct k_mutex name = \
 		Z_MUTEX_INITIALIZER(name)
 
 /** @} */
