@@ -6,7 +6,6 @@ Hardware requirements
 - Embedded Artists 1XK M.2 Module (EAR00385) - direct M2 connection.
 - Embedded Artists 1ZM M.2 Module (EAR00364) - direct M2 connection.
 - Embedded Artists 2EL M.2 Module (Rev-A1) - direct M2 connection.
-- Embedded Artists 2LL M.2 Module (EAR00500) - direct M2 connection.
 
 Jumper settings for RT1170-EVKB (enables external 5V supply):
 ========================================================

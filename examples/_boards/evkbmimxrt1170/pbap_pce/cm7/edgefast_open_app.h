@@ -9,15 +9,20 @@
 
 #define FLASH_ADAPTER_SIZE              0x10000
 #define OSA_USED                        1
-#define PCM_MODE_CONFIG_TX_CLK_SYNC     1
 
 #if (defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || \
-     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(WIFI_IW610_BOARD_MURATA_2LL_M2))
+     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD) || \
+     defined(WIFI_AW611_BOARD_UBX_JODY_W5_M2))
 #include "wifi_bt_module_config.h"
 #include "wifi_config.h"
 #else
 #error The transceiver module is unsupported
 #endif
+
+#if defined(BT_NW61X_BOARD_NXP_RD_USD)
+#define CONFIG_BT_IND_RESET 1
+#define CONFIG_BT_IND_DNLD 1
+#endif /*#define BT_NW61X_BOARD_NXP_RD_USD*/
 
 #if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
 #undef SD_TIMING_MAX
