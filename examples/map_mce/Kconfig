@@ -1,0 +1,53 @@
+#
+# Copyright 2025 NXP
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+mainmenu "Bluetooth: MAP MCE"
+
+config BT_MAP_MCE_DISCOVER_RESULT_COUNT
+	int "Maximum result count per device discovery"
+	default 10
+
+config BT_MAP_MCE_SUPPORTED_FEATURES
+	hex "MCE supported features"
+	default 0x0077FFFF
+
+config BT_MAP_MCE_MAS_DATA_BUF_SIZE
+	int "MCE MAS data buffer size (bytes)"
+	default BT_GOEP_RFCOMM_MTU
+
+config BT_MAP_MCE_MAS_DATA_BUF_COUNT
+	int "MCE MAS data buffer count"
+	default 1
+
+config BT_MAP_MCE_MNS_DATA_BUF_SIZE
+	int "MCE MNS data buffer size (bytes)"
+	default BT_GOEP_RFCOMM_MTU
+
+config BT_MAP_MCE_MNS_DATA_BUF_COUNT
+	int "MCE MNS data buffer count"
+	default 1
+
+config BT_MAP_MCE_NAME_MAX_LEN
+	int "Maximum name length"
+	default 17
+	range 17 255
+	help
+	  The minimal value is 17 to accommodate the longest message handle.
+
+config BT_MAP_MCE_WORKQ_STACK_SIZE
+	int "Data sending work queue stack size"
+	default 8192
+
+config BT_MAP_MCE_WORKQ_PRIORITY
+	int "Data sending work queue priority"
+	default SYSTEM_WORKQUEUE_PRIORITY
+
+config BT_MAP_MCE_TEST_PHONE_NUMBER
+	string "Test phone number"
+	default "\"0123456789\""
+
+source "middleware/edgefast_open/Kconfig"
+source "Kconfig.mcuxpresso"
