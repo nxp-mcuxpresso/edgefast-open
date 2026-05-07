@@ -10,6 +10,21 @@
 - Embedded Artists 2EL M.2 Module (Rev-A1) - direct M2 connection.
 - Embedded Artists 2LL M.2 Module (EAR00500) - direct M2 connection.
 
+## Supported Configurations per Module
+
+The shell example provides three build configurations. Not all M.2 modules support all
+configurations, as summarized below:
+
+| Configuration      | 1XK | 1ZM | 2EL | 2LL (IW610) |
+|--------------------|:---:|:---:|:---:|:-----------:|
+| `@default`         | ✓   | ✓   | ✓   | ✓           |
+| `@classic`         | ✓   | ✓   | ✓   | ✗           |
+| `@multiple_conns`  | ✓   | ✓   | ✓   | ✗           |
+
+> **Note:** The `@classic` and `@multiple_conns` configurations require Bluetooth Classic
+> (BR/EDR) support. The 2LL (IW610) module does not support Bluetooth Classic and cannot
+> be used with these configurations.
+
 ## Jumper settings for RT1170-EVKB (enables external 5V supply):
 
 remove  J38 5-6
