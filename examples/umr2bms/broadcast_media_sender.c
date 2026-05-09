@@ -115,6 +115,8 @@ static struct broadcast_source_stream {
 } streams[CONFIG_BT_BAP_BROADCAST_SRC_STREAM_COUNT];
 static struct bt_bap_broadcast_source *broadcast_source;
 
+static bool buffer_pending;
+
 NET_BUF_POOL_FIXED_DEFINE(tx_pool,
 			  TOTAL_BUF_NEEDED,
 			  BT_ISO_SDU_BUF_SIZE(CONFIG_BT_ISO_TX_MTU), CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
@@ -137,6 +139,7 @@ static void stream_started_cb(struct bt_bap_stream *stream)
 		BOARD_SyncSignal_Start(0);
 	}
 
+	buffer_pending = true;
 	source_stream->seq_num = 0U;
 	source_stream->sent_cnt = 0U;
 	atomic_set_bit(source_stream->flags, BMS_START);
@@ -597,6 +600,61 @@ static uint32_t get_sync_signal_timestamp(void)
 	return time_stamp;
 }
 
+#define TX_PENDING_MAX_CNT 2
+static sys_slist_t tx_pending_list;
+struct tx_pending_data {
+	sys_snode_t node;
+	enum bt_audio_location chan_allocation;
+};
+
+BUILD_ASSERT(sizeof(struct tx_pending_data) <= CONFIG_BT_CONN_TX_USER_DATA_SIZE, "sizeof(struct tx_pending_data) should be no more than CONFIG_BT_CONN_TX_USER_DATA_SIZE");
+
+static int bms_stream_pending(enum bt_audio_location chan_allocation, struct net_buf *buf)
+{
+	struct net_buf *tx_buf;
+	struct tx_pending_data *pending_data;
+
+	tx_buf = net_buf_alloc(&tx_pool, 0);
+	if (tx_buf == NULL) {
+		printk("BMS: Unable to allocate tx_buf for pending data\r\n");
+		return -ENOMEM;
+	}
+
+	if (buf->len > net_buf_tailroom(tx_buf)) {
+		printk("BMS: Not enough space in tx_buf to hold pending data\r\n");
+		net_buf_unref(tx_buf);
+		return -ENOMEM;
+	}
+
+	net_buf_add_mem(tx_buf, buf->data, buf->len);
+
+	pending_data = (struct tx_pending_data *)net_buf_user_data(tx_buf);
+	pending_data->chan_allocation = chan_allocation;
+
+	sys_slist_append(&tx_pending_list, &pending_data->node);
+
+	return 0;
+}
+
+static void bms_stream_send_pending(void)
+{
+	struct net_buf *tx_buf;
+	struct tx_pending_data *pending_data;
+
+	while (!sys_slist_is_empty(&tx_pending_list)) {
+		void *data_node = (void *)sys_slist_get(&tx_pending_list);
+
+		tx_buf = CONTAINER_OF(data_node, struct net_buf, user_data);
+		pending_data = (struct tx_pending_data *)net_buf_user_data(tx_buf);
+
+		int err = bms_stream_send(pending_data->chan_allocation, tx_buf);
+		if (err != 0) {
+			printk("BMS: Failed to send pending data: %d\r\n", err);
+		}
+		net_buf_unref(tx_buf);
+	}
+}
+
 int bms_stream_send(enum bt_audio_location chan_allocation, struct net_buf *buf)
 {
 	uint32_t sdu_time_stamp;
@@ -607,6 +665,15 @@ int bms_stream_send(enum bt_audio_location chan_allocation, struct net_buf *buf)
 
 	if (!started) {
 		return -EINVAL;
+	}
+
+	if (buffer_pending) {
+		if (sys_slist_len(&tx_pending_list) < TX_PENDING_MAX_CNT) {
+			return bms_stream_pending(chan_allocation, buf);
+		} else {
+			buffer_pending = false;
+			bms_stream_send_pending();
+		}
 	}
 
 	if(seq_num == 0)
