@@ -1013,7 +1013,7 @@ static int app_mse_mns_send_event(struct mse_mns_instance *inst)
 	struct net_buf *buf;
 	uint8_t inst_id;
 	struct bt_obex_tlv ap[1];
-	const char *body = MAP_EVENT_REPORT;
+	const uint8_t *body = (const uint8_t *)MAP_EVENT_REPORT;
 	uint16_t len = 0;
 	bool final;
 	int err;
@@ -2514,6 +2514,7 @@ static int app_mse_mas_get_mas_inst_info(struct mse_mas_instance *inst, struct m
 {
 	struct net_buf *buf;
 	uint8_t rsp_code = BT_OBEX_RSP_CODE_INTER_ERROR;
+	const uint8_t *body = (const uint8_t *)MAP_MSE_MAS_INSTANCE_INFO;
 	uint16_t actual = 0;
 	int err;
 
@@ -2540,7 +2541,7 @@ static int app_mse_mas_get_mas_inst_info(struct mse_mas_instance *inst, struct m
 
 	err = bt_obex_add_header_body_or_end_body(
 		buf, inst->mopl, sizeof(MAP_MSE_MAS_INSTANCE_INFO) - 1U - inst->tx_cnt,
-		MAP_MSE_MAS_INSTANCE_INFO + inst->tx_cnt, &actual);
+		body + inst->tx_cnt, &actual);
 	if (err != 0) {
 		goto rsp;
 	}
@@ -2694,6 +2695,7 @@ static int app_mse_mas_get_convo_listing(struct mse_mas_instance *inst, struct m
 {
 	struct net_buf *buf;
 	uint8_t rsp_code = BT_OBEX_RSP_CODE_INTER_ERROR;
+	const uint8_t *body = (const uint8_t *)MAP_CONVO_LISTING_BODY;
 	uint16_t actual = 0;
 	int err;
 
@@ -2735,7 +2737,7 @@ static int app_mse_mas_get_convo_listing(struct mse_mas_instance *inst, struct m
 
 	err = bt_obex_add_header_body_or_end_body(
 		buf, inst->mopl, sizeof(MAP_CONVO_LISTING_BODY) - 1U - inst->tx_cnt,
-		MAP_CONVO_LISTING_BODY + inst->tx_cnt, &actual);
+		body + inst->tx_cnt, &actual);
 	if (err != 0) {
 		goto rsp;
 	}
