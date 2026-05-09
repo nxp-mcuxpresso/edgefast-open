@@ -252,6 +252,7 @@ enum {
 
 static void connected(struct bt_conn *conn, uint8_t err);
 static void disconnected(struct bt_conn *conn, uint8_t reason);
+static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_security_err err);
 
 static void att_mtu_updated(struct bt_conn *conn, uint16_t tx, uint16_t rx);
 
@@ -321,6 +322,9 @@ static void sync_timer_callback(uint32_t sync_index, uint64_t bclk_count);
 static struct bt_conn_cb conn_callbacks = {
     .connected = connected,
     .disconnected = disconnected,
+#if CONFIG_BT_SMP
+    .security_changed = security_changed,
+#endif /* CONFIG_BT_SMP */
 };
 
 static struct bt_gatt_cb gatt_callbacks = {
@@ -3221,6 +3225,34 @@ static int unicast_client_discover_source(struct bt_conn * conn)
     return err;
 }
 
+#if CONFIG_BT_SMP
+static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_security_err err)
+{
+    int error;
+
+    if (err != 0) {
+        PRINTF("Security failed: %d.", err);
+        goto disconnect;
+    }
+
+    error = unicast_client_discover_sink(conn);
+    if (error != 0) {
+        PRINTF("Failed to discover sink: %d.", error);
+        goto disconnect;
+    }
+
+    return;
+
+disconnect:
+    PRINTF("Disconnecting %p from peer device.\n", conn);
+
+    error = bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+    if (error != 0) {
+        PRINTF("Failed to disconnect: %d\n", error);
+    }
+}
+#endif /* CONFIG_BT_SMP */
+
 static void connected(struct bt_conn *conn, uint8_t err)
 {
     if (0 == err)
@@ -3236,7 +3268,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
                 PRINTF("Get required Sink Capability from codec. ");
                 memcpy(&server_state[i].snk_codec_configuration, &codec_configuration, sizeof(server_state[i].snk_codec_configuration));
                 get_capability_from_codec(&server_state[i].snk_codec_configuration.codec_cfg, &server_state[i].snk_cap_required);
-                unicast_client_discover_sink(conn);
+                PRINTF("Wait for security changed event and then discover sink.\n");
                 break;
             }
         }

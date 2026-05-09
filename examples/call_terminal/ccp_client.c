@@ -28,10 +28,16 @@ static struct bt_conn *default_conn;
 
 static void connected(struct bt_conn *conn, uint8_t err);
 static void disconnected(struct bt_conn *conn, uint8_t reason);
+#if CONFIG_BT_SMP
+static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_security_err err);
+#endif /* CONFIG_BT_SMP */
 
 static struct bt_conn_cb conn_callbacks = {
     .connected = connected,
     .disconnected = disconnected,
+#if CONFIG_BT_SMP
+    .security_changed = security_changed,
+#endif /* CONFIG_BT_SMP */
 };
 
 extern int BOARD_VolSet(uint32_t vol);
@@ -201,19 +207,41 @@ static struct bt_tbs_client_cb s_btTbsClientCb =
 #endif /* defined(CONFIG_BT_TBS_CLIENT_CALL_FRIENDLY_NAME) */
 };
 
+#if CONFIG_BT_SMP
+static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_security_err err)
+{
+    int error;
+
+    if (err != 0) {
+        PRINTF("Security failed: %d.", err);
+        goto disconnect;
+    }
+
+    PRINTF("Starting TBS server discover.\n");
+
+    error = bt_tbs_client_discover(conn);
+    if (error != 0) {
+        PRINTF("Cannot start discover: %d.", error);
+        goto disconnect;
+    }
+
+    return;
+
+disconnect:
+    PRINTF("Disconnecting %p from peer device.\n", conn);
+
+    error = bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+    if (error != 0) {
+        PRINTF("Failed to disconnect: %d\n", error);
+    }
+}
+#endif /* CONFIG_BT_SMP */
+
 static void connected(struct bt_conn *conn, uint8_t err)
 {
-    int ret;
-
     default_conn = conn;
 
-    PRINTF("Starting TBS server discover\r\n");
-
-    ret = bt_tbs_client_discover(default_conn);
-    if (0 != ret)
-    {
-        PRINTF("Cannot start discover(err %d)\r\n", ret);
-    }
+    PRINTF("Wait for security change event and then discover TBS server.\n");
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
