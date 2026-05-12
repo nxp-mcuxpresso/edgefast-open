@@ -50,6 +50,70 @@ EF_BT_SOURCE = "source/bluetooth"
 EF_BT_INCLUDE = "include/zephyr/bluetooth"
 
 # ---------------------------------------------------------------------------
+# Shell example sync configuration
+# Zephyr: tests/bluetooth/shell/  →  EF: examples/shell/
+#
+# Merge strategy for .conf files:
+#   1. CONFIG_BT_CTLR_* lines → always skip (NXP uses its own controller)
+#   2. CONFIG_SETTINGS=y      → rename to CONFIG_BT_SETTINGS=y
+#   3. Keys in both files     → keep the larger value
+#                                (numeric: max(); bool: y > n)
+#   4. Keys only in Zephyr    → add to EF output
+#   5. Keys only in EF        → keep in EF output, but log a warning
+# ---------------------------------------------------------------------------
+
+ZEPHYR_SHELL_DIR = "tests/bluetooth/shell"
+EF_SHELL_DIR = "examples/shell"
+
+# Files in EF examples/shell/ that are EF-only (never sync from Zephyr)
+SHELL_EF_ONLY_FILES = {
+    "CMakeLists.txt",         # MCUXpresso-specific build file
+    "Kconfig",                # MCUXpresso Kconfig
+    "main.c",                 # EF FreeRTOS main (Zephyr src/main.c differs completely)
+    "shell.c",                # EF FSL_SHELL wrapper
+    "shell.h",                # EF FSL_SHELL header
+    "example.yml",            # EF example metadata
+    "readme.md",              # EF readme
+    "bluetooth-shell.rst",    # EF documentation
+    "prj-br-ble-conns.conf",  # EF-only config variant
+}
+
+# Keys that are renamed during merge (Zephyr key → EF key).
+# When building the EF map, both the old and new names are treated as present
+# so the renamed key is not double-appended as an EF-only entry.
+SHELL_CONF_KEY_RENAMES = {
+    "CONFIG_SETTINGS": "CONFIG_BT_SETTINGS",
+}
+
+# Keys that should be commented out in the output (not applicable to EF/NXP platform)
+# These lines are replaced with "# <original_line>" to document why they are absent.
+SHELL_CONF_COMMENT_OUT_KEYS = {
+    "CONFIG_FLASH",                        # NXP uses its own flash/NVS layer
+    "CONFIG_FLASH_MAP",
+    "CONFIG_NVS",
+    "CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE",  # Zephyr workqueue, not applicable to EF
+}
+
+# Files/dirs in Zephyr tests/bluetooth/shell/ that have no EF equivalent
+# (Zephyr-specific: board overlays, test framework, sysbuild, UART overlays, etc.)
+SHELL_ZEPHYR_ONLY_ENTRIES = {
+    "Kconfig.sysbuild",
+    "sysbuild.cmake",
+    "testcase.yaml",
+    "run-bsim.sh",
+    "cdc_acm.conf",
+    "log.conf",
+    "mesh.conf",
+    "xterm-native-shell.conf",
+    "xterm-native-shell.overlay",
+    "usb.overlay",
+    "usb_audio.overlay",
+    "boards",
+    "pytest",
+    "src",
+}
+
+# ---------------------------------------------------------------------------
 # Additional sync mappings outside source/bluetooth
 # Format: list of (zephyr_relative_path, ef_relative_path)
 # These are direct path mappings synced verbatim (no transformations needed)
@@ -1049,6 +1113,271 @@ class SyncEngine:
 
             self.sync_source_file(zf, ef)
 
+    # ------------------------------------------------------------------
+    # Shell example sync routines
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _parse_conf(content: str) -> list:
+        """Parse a .conf file into a list of (kind, data) tuples.
+
+        kind can be:
+          'blank'   - empty line, data = ''
+          'comment' - comment line, data = original line text (with newline)
+          'option'  - config option, data = (key, value, original_line)
+          'other'   - non-option non-comment line, data = original line text
+        """
+        entries = []
+        for line in content.splitlines(keepends=True):
+            stripped = line.strip()
+            if not stripped:
+                entries.append(('blank', ''))
+            elif stripped.startswith('#'):
+                entries.append(('comment', line))
+            elif '=' in stripped:
+                key, val = stripped.split('=', 1)
+                entries.append(('option', (key.strip(), val.strip(), line)))
+            else:
+                entries.append(('other', line))
+        return entries
+
+    @staticmethod
+    def _conf_value_max(val_a: str, val_b: str) -> str:
+        """Return the larger of two config values.
+
+        Rules:
+          bool (y/n/m): y > m > n
+          quoted string: keep val_a (Zephyr base) unchanged
+          integer/hex: numeric max
+        """
+        bool_order = {'n': 0, 'm': 1, 'y': 2}
+        if val_a in bool_order and val_b in bool_order:
+            return val_a if bool_order[val_a] >= bool_order[val_b] else val_b
+        # Try numeric comparison
+        def try_int(v):
+            try:
+                return int(v, 0)
+            except (ValueError, TypeError):
+                return None
+        ia, ib = try_int(val_a), try_int(val_b)
+        if ia is not None and ib is not None:
+            return val_a if ia >= ib else val_b
+        # Non-comparable (strings, etc.) — keep Zephyr value
+        return val_a
+
+    @staticmethod
+    def _extract_ef_header_block(ef_entries: list) -> tuple:
+        """Extract the leading EF-only header block from a parsed .conf file.
+
+        The header block is the run of lines at the start of the EF file that
+        belongs to the '# component' section (or any leading EF-only preamble).
+        It ends at the first blank line that follows an option line that is NOT
+        part of a MCUX/EF-platform-specific prefix group.
+
+        Returns:
+            (header_lines, header_keys, remaining_entries)
+            - header_lines: list of raw line strings to preserve verbatim
+            - header_keys:  set of config keys found in the header block
+            - remaining_entries: ef_entries with the header lines consumed
+        """
+        # Identify EF platform-specific key prefixes that belong to the header block
+        HEADER_KEY_PREFIXES = (
+            'CONFIG_MCUX_',
+            'CONFIG_DEBUG_CONSOLE_RX_ENABLE',
+        )
+
+        header_lines = []
+        header_keys: set = set()
+        idx = 0
+
+        # Scan forward collecting the preamble block.
+        # We collect lines as long as:
+        #   - they are blank/comment/option lines AND
+        #   - any option line has a key matching HEADER_KEY_PREFIXES
+        # We stop at the first option line whose key does NOT match the prefixes.
+        in_header = True
+        for i, (kind, data) in enumerate(ef_entries):
+            if not in_header:
+                break
+            if kind == 'blank':
+                header_lines.append('\n')
+                idx = i + 1
+            elif kind == 'comment':
+                header_lines.append(data)
+                idx = i + 1
+            elif kind == 'option':
+                key, val, orig_line = data
+                if any(key.startswith(p) or key == p for p in HEADER_KEY_PREFIXES):
+                    header_lines.append(orig_line)
+                    header_keys.add(key)
+                    idx = i + 1
+                else:
+                    # First non-header option: stop collecting
+                    in_header = False
+            else:
+                # 'other' line: stop
+                in_header = False
+
+        # Only treat the collected block as a real EF header if at least one
+        # MCUX/platform option key was actually found.  If no such keys exist
+        # (e.g. audio.conf and prj_br.conf which have no MCUX prefix block),
+        # return an empty header so leading Zephyr comments are not duplicated.
+        if not header_keys:
+            return [], set(), ef_entries
+
+        remaining = ef_entries[idx:]
+        return header_lines, header_keys, remaining
+
+    def _merge_shell_conf(self, zephyr_content: str, ef_content: str,
+                          conf_label: str) -> str:
+        """Merge a shell .conf file following the defined strategy.
+
+        1. Preserve EF '# component' header block verbatim at the top
+        2. CONFIG_BT_CTLR_* → silently discard (from both Zephyr and EF)
+        3. CONFIG_SETTINGS   → rename to CONFIG_BT_SETTINGS
+        4. SHELL_CONF_COMMENT_OUT_KEYS → emit as commented line (# KEY=val)
+        5. Key in both       → keep larger value
+        6. Key only in Zephyr → included in output
+        7. Key only in EF (non-CTLR, non-header, not a rename source) → appended at end
+        """
+        z_entries = self._parse_conf(zephyr_content)
+        ef_entries = self._parse_conf(ef_content)
+
+        # Step 1: extract EF header block (preserved verbatim)
+        header_lines, header_keys, ef_remaining = self._extract_ef_header_block(ef_entries)
+
+        # Build EF map from the non-header portion (excluding CTLR configs)
+        ef_map: dict = {}
+        for kind, data in ef_remaining:
+            if kind == 'option':
+                key, val, _ = data
+                if key.startswith('CONFIG_BT_CTLR_'):
+                    continue
+                ef_map[key] = val
+
+        # Build Zephyr key map (after filtering and renaming).
+        # Also record the set of rename-source keys so they are not treated
+        # as EF-only even if the EF file still has the old name.
+        z_map: dict = {}
+        rename_sources = set(SHELL_CONF_KEY_RENAMES.keys())       # e.g. {"CONFIG_SETTINGS"}
+        rename_targets = set(SHELL_CONF_KEY_RENAMES.values())     # e.g. {"CONFIG_BT_SETTINGS"}
+        for kind, data in z_entries:
+            if kind == 'option':
+                key, val, _ = data
+                if key.startswith('CONFIG_BT_CTLR_'):
+                    continue
+                if key in SHELL_CONF_KEY_RENAMES:
+                    key = SHELL_CONF_KEY_RENAMES[key]
+                z_map[key] = val
+
+        # Detect EF-only keys: in EF (non-header) but not in Zephyr (after rename).
+        # Exclude:
+        #   - rename source keys (e.g. CONFIG_SETTINGS) — already covered by rename target
+        #   - keys that are in comment-out list (they will be commented out from Zephyr side)
+        ef_only_keys = {
+            k: ef_map[k] for k in ef_map
+            if k not in z_map
+            and k not in rename_sources
+            and k not in rename_targets  # already emitted via rename
+            and k not in SHELL_CONF_COMMENT_OUT_KEYS
+        }
+        if ef_only_keys:
+            for k in sorted(ef_only_keys):
+                logging.info(
+                    f"[shell/{conf_label}] EF-only config (not in Zephyr): "
+                    f"{k}={ef_only_keys[k]}"
+                )
+
+        # Build output body: walk Zephyr entries
+        body_lines = []
+        for kind, data in z_entries:
+            if kind in ('blank', 'comment', 'other'):
+                body_lines.append(data if data else '\n')
+                continue
+            # kind == 'option'
+            key, val, orig_line = data
+
+            # Discard controller configs silently
+            if key.startswith('CONFIG_BT_CTLR_'):
+                continue
+
+            # Comment-out keys: emit as a comment to document their absence
+            if key in SHELL_CONF_COMMENT_OUT_KEYS:
+                body_lines.append(f"# {key}={val}\n")
+                continue
+
+            # Rename (e.g. CONFIG_SETTINGS → CONFIG_BT_SETTINGS)
+            if key in SHELL_CONF_KEY_RENAMES:
+                key = SHELL_CONF_KEY_RENAMES[key]
+
+            # Use larger value if key also exists in EF
+            if key in ef_map:
+                val = self._conf_value_max(val, ef_map[key])
+
+            body_lines.append(f"{key}={val}\n")
+
+        # Append EF-only keys at the end
+        if ef_only_keys:
+            if body_lines and body_lines[-1] != '\n':
+                body_lines.append('\n')
+            for k in sorted(ef_only_keys):
+                body_lines.append(f"{k}={ef_only_keys[k]}\n")
+
+        return ''.join(header_lines) + ''.join(body_lines)
+
+    def sync_shell_example(self):
+        """Sync examples/shell .conf files from Zephyr tests/bluetooth/shell.
+
+        Only .conf files are synced; all other files in examples/shell are
+        either EF-only platform files or Zephyr-specific infrastructure.
+
+        File mapping:
+          tests/bluetooth/shell/prj.conf      → examples/shell/prj.conf
+          tests/bluetooth/shell/prj_br.conf   → examples/shell/prj_br.conf
+          tests/bluetooth/shell/audio.conf    → examples/shell/audio.conf
+        """
+        z_shell = os.path.join(self.zephyr_dir, ZEPHYR_SHELL_DIR.replace('/', os.sep))
+        ef_shell = os.path.join(self.ef_dir, EF_SHELL_DIR.replace('/', os.sep))
+
+        if not os.path.isdir(z_shell):
+            logging.warning(f"Zephyr shell dir not found, skipping: {z_shell}")
+            return
+        if not os.path.isdir(ef_shell):
+            logging.warning(f"EF shell dir not found, skipping: {ef_shell}")
+            return
+
+        conf_files = ["prj.conf", "prj_br.conf", "audio.conf"]
+
+        for fname in conf_files:
+            zf = os.path.join(z_shell, fname)
+            ef = os.path.join(ef_shell, fname)
+
+            if not os.path.exists(zf):
+                logging.warning(f"Zephyr shell file not found: {zf}")
+                continue
+            if not os.path.exists(ef):
+                self.log(f"SKIP (not in EF shell): examples/shell/{fname}")
+                self.stats['skipped'] += 1
+                continue
+
+            try:
+                z_content = read_text(zf)
+                ef_content = read_text(ef)
+                merged = self._merge_shell_conf(z_content, ef_content, fname)
+                changed = write_text(ef, merged, self.dry_run)
+                if changed:
+                    self.log_change("TRANSFORM-CONF", f"examples/shell/{fname}")
+                    self.stats['transformed'] += 1
+                else:
+                    self.stats['unchanged'] += 1
+            except Exception as e:
+                logging.error(f"Error merging examples/shell/{fname}: {e}")
+                self.stats['errors'] += 1
+
+        # Log EF-only files for transparency
+        for fname in sorted(SHELL_EF_ONLY_FILES):
+            self.log(f"SKIP (EF-only): examples/shell/{fname}")
+
     def run(self, subsystem_filter: Optional[str] = None):
         """Run the full sync."""
         logging.info("=" * 70)
@@ -1079,6 +1408,10 @@ class SyncEngine:
 
             logging.info("--- Syncing include/zephyr/ non-bluetooth headers ---")
             self.sync_include_zephyr()
+
+        if subsystem_filter is None or subsystem_filter == 'shell':
+            logging.info("--- Syncing examples/shell conf files from tests/bluetooth/shell ---")
+            self.sync_shell_example()
 
         logging.info("")
         logging.info("=" * 70)
@@ -1139,7 +1472,8 @@ def main():
     )
     parser.add_argument(
         '--subsystem',
-        choices=['host', 'audio', 'services', 'common', 'crypto', 'mesh', 'controller', 'lib'],
+        choices=['host', 'audio', 'services', 'common', 'crypto', 'mesh', 'controller', 'lib',
+                 'shell'],
         default=None,
         help='Only sync a specific subsystem'
     )
