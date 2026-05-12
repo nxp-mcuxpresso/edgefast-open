@@ -531,7 +531,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn_disable_security)
     )
 endif()
 
-zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS mbedTLS)
+zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS_BUILTIN mbedTLS)
             # [IGNORED] CONFIG_BUILD_WITH_TFM block removed during merge
             # zephyr_library_include_directories_ifdef(CONFIG_BUILD_WITH_TFM
             #   $<TARGET_PROPERTY:tfm,TFM_BINARY_DIR>/api_ns/interface/include
@@ -541,7 +541,7 @@ zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS mbedTLS)
 # In order to compile Bsim tests with these test features
 # and PSA enabled, the libraries must be linked.
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_mesh AND CONFIG_BT_TESTING)
-  zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS mbedTLS)
+  zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS_BUILTIN mbedTLS)
 endif()
 
             # ----------------------------------------
@@ -708,7 +708,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_pbap)
     )
 endif()
 
-zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS mbedTLS)
+zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS_BUILTIN mbedTLS)
 
                 # ----------------------------------------
                 # Conditional subdirectory: shell
@@ -731,7 +731,7 @@ mcux_add_source(
 )
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rfcomm)
     mcux_add_source(
-        SOURCES ./source/bluetooth/host/classic/shell/rfcomm.c
+        SOURCES ./source/bluetooth/host/classic/shell/spp.c
     )
     mcux_add_source(
         SOURCES ./source/bluetooth/host/classic/shell/*.h
@@ -1096,7 +1096,6 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tps)
         SOURCES ./source/bluetooth/services/*.h
     )
 endif()
-
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_wus)
     mcux_add_source(
         SOURCES ./source/bluetooth/services/wus.c
@@ -1159,6 +1158,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_tip)
         SOURCES ./source/bluetooth/services/*.h
     )
 endif()
+
 
 
 
@@ -1880,6 +1880,14 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_commander)
         SOURCES ./source/bluetooth/audio/shell/*.h
     )
 endif()
+if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_handover)
+    mcux_add_source(
+        SOURCES ./source/bluetooth/audio/shell/cap_handover.c
+    )
+    mcux_add_source(
+        SOURCES ./source/bluetooth/audio/shell/*.h
+    )
+endif()
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_has_client)
     mcux_add_source(
         SOURCES ./source/bluetooth/audio/shell/has_client.c
@@ -1980,7 +1988,7 @@ mcux_add_source(
 )
 endif()
 
-zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS mbedTLS)
+zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS_BUILTIN mbedTLS)
             # [IGNORED] CONFIG_BUILD_WITH_TFM block removed during merge
             # zephyr_library_include_directories_ifdef(CONFIG_BUILD_WITH_TFM
             #     $<TARGET_PROPERTY:tfm,TFM_BINARY_DIR>/api_ns/interface/include

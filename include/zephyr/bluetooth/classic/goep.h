@@ -89,25 +89,26 @@ enum __packed bt_goep_transport_state {
  * @note Transport version selection and lifetime rules:
  *       - Exactly one of @ref bt_goep::v1 or @ref bt_goep::v2 shall be set (non-NULL) for an
  *         active session.
- *       - The pointed-to @ref bt_goep_v1 / @ref bt_goep_v2 instance must remain valid (address
- *         stable) for the entire lifetime of the transport connection, because the Bluetooth host
- *         stack uses CONTAINER_OF() on the embedded RFCOMM/L2CAP objects in asynchronous callbacks.
- *       - The version-specific object must have its @ref bt_goep_v1::goep / @ref bt_goep_v2::goep
- *         back-pointer initialized to the parent @ref bt_goep before calling any of the GOEP
- *         transport connect/register APIs.
+ *       - The pointed-to @ref bt_goep_transport_v1 / @ref bt_goep_transport_v2 instance must
+ *         remain valid (address stable) for the entire lifetime of the transport connection,
+ *         because the Bluetooth host stack uses CONTAINER_OF() on the embedded RFCOMM/L2CAP
+ *         objects in asynchronous callbacks.
+ *       - The version-specific object must have its @ref bt_goep_transport_v1::goep /
+ *         @ref bt_goep_transport_v2::goep back-pointer initialized to the parent @ref bt_goep
+ *         before calling any of the GOEP transport connect/register APIs.
  */
 struct bt_goep {
 	/** @brief To be used for transport v1.
 	 *
 	 * Must be NULL when using transport v2.
 	 */
-	struct bt_goep_v1 *v1;
+	struct bt_goep_transport_v1 *v1;
 
 	/** @brief To be used for transport v2.
 	 *
 	 * Must be NULL when using transport v1.
 	 */
-	struct bt_goep_v2 *v2;
+	struct bt_goep_transport_v2 *v2;
 
 	/** @internal connection handle */
 	struct bt_conn *_acl;
@@ -127,7 +128,7 @@ struct bt_goep {
 };
 
 /** @brief GOEP v1.1 structure. */
-struct bt_goep_v1 {
+struct bt_goep_transport_v1 {
 	/** @brief RFCOMM DLC used for transport */
 	struct bt_rfcomm_dlc dlc;
 
@@ -142,7 +143,7 @@ struct bt_goep_v1 {
 };
 
 /** @brief GOEP v2 structure. */
-struct bt_goep_v2 {
+struct bt_goep_transport_v2 {
 	/** @brief L2CAP BR/EDR channel used for transport */
 	struct bt_l2cap_br_chan chan;
 
@@ -155,6 +156,64 @@ struct bt_goep_v2 {
 	 */
 	struct bt_goep *goep;
 };
+
+/** @brief GOEP transport structure. */
+struct bt_goep_transport {
+	/** @brief GOEP v1.1 transport */
+	struct bt_goep_transport_v1 v1;
+	/** @brief GOEP v2 transport */
+	struct bt_goep_transport_v2 v2;
+};
+
+/** @brief Initialize the GOEP and GOEP v1 (RFCOMM) transport structures.
+ *
+ *  Sets up the mutual back-pointer between a @ref bt_goep instance and its transport instance
+ *  @ref bt_goep_transport_v1, and clears the unused v2 pointer to avoid the goep version mismatch.
+ *
+ *  Equivalent to:
+ *  @code
+ *  (_v1)->goep = (_goep);
+ *  (_goep)->v1 = (_v1);
+ *  (_goep)->v2 = NULL;
+ *  @endcode
+ *
+ *  @param _goep Pointer to the @ref bt_goep structure to initialize.
+ *  @param _v1   Pointer to the @ref bt_goep_transport_v1 structure to associate.
+ */
+#define BT_GOEP_INIT_V1(_goep, _v1) \
+	do { \
+		BUILD_ASSERT(SAME_TYPE(*(_goep), struct bt_goep) && \
+			     SAME_TYPE(*(_v1), struct bt_goep_transport_v1), \
+			     "pointer type mismatch in BT_GOEP_INIT_V1"); \
+		(_v1)->goep = (_goep); \
+		(_goep)->v1 = (_v1); \
+		(_goep)->v2 = NULL; \
+	} while (0)
+
+/** @brief Initialize the GOEP and GOEP v2 (L2CAP) transport structures.
+ *
+ *  Sets up the mutual back-pointer between a @ref bt_goep instance and its transport instance
+ *  @ref bt_goep_transport_v2, and clears the unused v1 pointer to avoid the goep version mismatch.
+ *
+ *  Equivalent to:
+ *  @code
+ *  (_v2)->goep = (_goep);
+ *  (_goep)->v2 = (_v2);
+ *  (_goep)->v1 = NULL;
+ *  @endcode
+ *
+ *  @param _goep Pointer to the @ref bt_goep structure to initialize.
+ *  @param _v2   Pointer to the @ref bt_goep_transport_v2 structure to associate.
+ */
+#define BT_GOEP_INIT_V2(_goep, _v2) \
+	do { \
+		BUILD_ASSERT(SAME_TYPE(*(_goep), struct bt_goep) && \
+			     SAME_TYPE(*(_v2), struct bt_goep_transport_v2), \
+			     "pointer type mismatch in BT_GOEP_INIT_V2"); \
+		(_v2)->goep = (_goep); \
+		(_goep)->v2 = (_v2); \
+		(_goep)->v1 = NULL; \
+	} while (0)
 
 /**
  * @defgroup bt_goep_transport_rfcomm GOEP transport RFCOMM
@@ -191,11 +250,12 @@ struct bt_goep_transport_rfcomm_server {
 	 *
 	 *  @note The accept callback must initialize the returned GOEP instance as follows:
 	 *        - Set @ref bt_goep::transport_ops to a valid operations table.
-	 *        - The field @ref bt_goep::v1 should be passed with the pointed-to @ref bt_goep_v1
-	 *          instance must remain valid (address stable) for the entire lifetime of the
-	 *          transport connection. And @ref bt_goep::v2 should be set to NULL.
+	 *        - The field @ref bt_goep::v1 should be passed with the pointed-to
+	 *          @ref bt_goep_transport_v1 instance must remain valid (address stable) for the
+	 *          entire lifetime of the transport connection. And @ref bt_goep::v2 should be
+	 *          set to NULL.
 	 *        - Initialize the back-pointer in the version-specific object
-	 *          @ref bt_goep_v1::goep to point at the parent @ref bt_goep.
+	 *          @ref bt_goep_transport_v1::goep to point at the parent @ref bt_goep.
 	 *        The version-specific object must remain valid for the lifetime of the transport.
 	 *
 	 *  @param conn The connection that is requesting authorization.
@@ -248,11 +308,11 @@ int bt_goep_transport_rfcomm_server_register(struct bt_goep_transport_rfcomm_ser
  *
  *  @note The accept callback must initialize the returned GOEP instance as follows:
  *        - Set @ref bt_goep::transport_ops to a valid operations table.
- *        - The field @ref bt_goep::v1 should be passed with the pointed-to @ref bt_goep_v1
- *          instance must remain valid (address stable) for the entire lifetime of the
- *          transport connection. And @ref bt_goep::v2 should be set to NULL.
+ *        - The field @ref bt_goep::v1 should be passed with the pointed-to
+ *          @ref bt_goep_transport_v1 instance must remain valid (address stable) for the entire
+ *          lifetime of the transport connection. And @ref bt_goep::v2 should be set to NULL.
  *        - Initialize the back-pointer in the version-specific object
- *          @ref bt_goep_v1::goep to point at the parent @ref bt_goep.
+ *          @ref bt_goep_transport_v1::goep to point at the parent @ref bt_goep.
  *        The version-specific object must remain valid for the lifetime of the transport.
  *
  *  @param conn Connection object.
@@ -312,11 +372,12 @@ struct bt_goep_transport_l2cap_server {
 	 *
 	 *  @note The accept callback must initialize the returned GOEP instance as follows:
 	 *        - Set @ref bt_goep::transport_ops to a valid operations table.
-	 *        - The field @ref bt_goep::v2 should be passed with the pointed-to @ref bt_goep_v2
-	 *          instance must remain valid (address stable) for the entire lifetime of the
-	 *          transport connection. And @ref bt_goep::v1 should be set to NULL.
+	 *        - The field @ref bt_goep::v2 should be passed with the pointed-to
+	 *          @ref bt_goep_transport_v2 instance must remain valid (address stable) for the
+	 *          entire lifetime of the transport connection. And @ref bt_goep::v1 should be set
+	 *          to NULL.
 	 *        - Initialize the back-pointer in the version-specific object
-	 *          @ref bt_goep_v2::goep to point at the parent @ref bt_goep.
+	 *          @ref bt_goep_transport_v2::goep to point at the parent @ref bt_goep.
 	 *        The version-specific object must remain valid for the lifetime of the transport.
 	 *
 	 *  @param conn The connection that is requesting authorization.
@@ -373,11 +434,11 @@ int bt_goep_transport_l2cap_server_register(struct bt_goep_transport_l2cap_serve
  *
  *  @note The accept callback must initialize the returned GOEP instance as follows:
  *        - Set @ref bt_goep::transport_ops to a valid operations table.
- *        - The field @ref bt_goep::v2 should be passed with the pointed-to @ref bt_goep_v2
- *          instance must remain valid (address stable) for the entire lifetime of the
- *          transport connection. And @ref bt_goep::v1 should be set to NULL.
+ *        - The field @ref bt_goep::v2 should be passed with the pointed-to
+ *          @ref bt_goep_transport_v2 instance must remain valid (address stable) for the entire
+ *          lifetime of the transport connection. And @ref bt_goep::v1 should be set to NULL.
  *        - Initialize the back-pointer in the version-specific object
- *          @ref bt_goep_v2::goep to point at the parent @ref bt_goep.
+ *          @ref bt_goep_transport_v2::goep to point at the parent @ref bt_goep.
  *        The version-specific object must remain valid for the lifetime of the transport.
  *
  *  @param conn Connection object.

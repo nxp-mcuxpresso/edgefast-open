@@ -170,6 +170,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_audio_bt_shell_bt_
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_audio_bt_shell_bt_cap_commander__ecd4ef9e
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_audio) && (MCUX_COMPONENT_middleware.edgefast_open.bt_shell) && (MCUX_COMPONENT_middleware.edgefast_open.bt_cap_commander)
 
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_handover)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_audio_bt_shell_bt_cap_handover__efdd5b3e
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_audio) && (MCUX_COMPONENT_middleware.edgefast_open.bt_shell) && (MCUX_COMPONENT_middleware.edgefast_open.bt_cap_handover)
+
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_initiator)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_bt_audio_bt_shell_bt_cap_initiator__94d6febd
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.bt_audio) && (MCUX_COMPONENT_middleware.edgefast_open.bt_shell) && (MCUX_COMPONENT_middleware.edgefast_open.bt_cap_initiator)

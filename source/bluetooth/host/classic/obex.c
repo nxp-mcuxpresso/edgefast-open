@@ -43,10 +43,14 @@ enum {
 	BT_OBEX_REQ_F_BIT,  /* Request Final bit set */
 };
 
-/* Valid SRM value*/
-#define BT_OBEX_SRM_VALUE 1
-/* Valid SRMP value*/
-#define BT_OBEX_SRMP_VALUE 1
+/* SRM disable value */
+#define BT_OBEX_SRM_DISABLE 0
+
+/* SRM enable value */
+#define BT_OBEX_SRM_ENABLE 1
+
+/* SRMP wait value*/
+#define BT_OBEX_SRMP_WAIT 1
 
 static struct net_buf *obex_alloc_buf(struct bt_obex *obex)
 {
@@ -329,6 +333,28 @@ failed:
 	return err;
 }
 
+static bool obex_srm_is_valid(uint8_t srm)
+{
+	if (srm == BT_OBEX_SRM_DISABLE) {
+		return true;
+	}
+
+	if (srm == BT_OBEX_SRM_ENABLE) {
+		return true;
+	}
+
+	return false;
+}
+
+static bool obex_srm_is_enabled(uint8_t srm)
+{
+	if (srm == BT_OBEX_SRM_ENABLE) {
+		return true;
+	}
+
+	return false;
+}
+
 static int obex_server_parse_srm(struct bt_obex_server *server, struct net_buf *buf, bool first,
 				 int bit)
 {
@@ -341,9 +367,14 @@ static int obex_server_parse_srm(struct bt_obex_server *server, struct net_buf *
 		return 0;
 	}
 
-	if (srm != BT_OBEX_SRM_VALUE) {
+	if (!obex_srm_is_valid(srm)) {
 		LOG_ERR("SRM value is invalid");
 		return -EINVAL;
+	}
+
+	if (!obex_srm_is_enabled(srm)) {
+		/* SRM is disabled */
+		return 0;
 	}
 
 	if (!first) {
@@ -379,23 +410,28 @@ static int obex_server_parse_rsp_srm(struct bt_obex_server *server, struct net_b
 }
 
 static int obex_server_parse_srmp(struct bt_obex_server *server, struct net_buf *buf, bool first,
-				  int bit)
+				  int check_bit, int update_bit)
 {
 	int err;
 	uint8_t srmp;
 
 	err = bt_obex_get_header_srm_param(buf, &srmp);
-	if (err == 0 && srmp != BT_OBEX_SRMP_VALUE) {
+	if (err == 0 && srmp != BT_OBEX_SRMP_WAIT) {
 		LOG_WRN("SRMP value is invalid");
 		return -EINVAL;
 	}
 
-	if (!first && !atomic_test_bit(&server->_flags, bit) && err == 0) {
+	if (err == 0 && !atomic_test_bit(&server->_flags, check_bit)) {
+		LOG_WRN("BIT %d is not set", check_bit);
+		return -EINVAL;
+	}
+
+	if (!first && !atomic_test_bit(&server->_flags, update_bit) && err == 0) {
 		LOG_WRN("SRMP header should not be included");
 		return -EINVAL;
 	}
 
-	atomic_set_bit_to(&server->_flags, bit, err == 0);
+	atomic_set_bit_to(&server->_flags, update_bit, err == 0);
 
 	return 0;
 }
@@ -412,20 +448,21 @@ static int obex_server_rsp_check(struct bt_obex_server *server, bool first)
 			return 0;
 		}
 
-		LOG_ERR("SRM is not enabled, response is not received");
+		LOG_ERR("SRM is not enabled, request is not received");
 		return -EPROTO;
 	}
 
 	LOG_DBG("SRM is enabled");
 
 	if (atomic_test_bit(&server->_flags, BT_OBEX_REQ_SRMP) ||
+	    atomic_test_bit(&server->_flags, BT_OBEX_RSP_SRMP) ||
 	    !atomic_test_bit(&server->_flags, BT_OBEX_REQ_F_BIT)) {
 		if (atomic_test_bit(&server->_flags, BT_OBEX_REQ_RECV)) {
 			return 0;
 		}
 
 		LOG_ERR("SRM is enabled but waiting or final bit is not set, "
-			"response is not received");
+			"request is not received");
 		return -EPROTO;
 	}
 
@@ -489,7 +526,7 @@ static int obex_server_put_common(struct bt_obex_server *server, bool final, uin
 		LOG_WRN("Invalid SRM header received");
 	}
 
-	err = obex_server_parse_srmp(server, buf, opcode == 0, BT_OBEX_REQ_SRMP);
+	err = obex_server_parse_srmp(server, buf, opcode == 0, BT_OBEX_REQ_SRM, BT_OBEX_REQ_SRMP);
 	if (err != 0) {
 		LOG_WRN("Invalid SRMP header received");
 	}
@@ -586,7 +623,7 @@ static int obex_server_get_common(struct bt_obex_server *server, bool final, uin
 		LOG_WRN("Invalid SRM header received");
 	}
 
-	err = obex_server_parse_srmp(server, buf, opcode == 0, BT_OBEX_REQ_SRMP);
+	err = obex_server_parse_srmp(server, buf, opcode == 0, BT_OBEX_REQ_SRM, BT_OBEX_REQ_SRMP);
 	if (err != 0) {
 		LOG_WRN("Invalid SRMP header received");
 	}
@@ -1206,9 +1243,14 @@ static int obex_client_parse_srm(struct bt_obex_client *client, struct net_buf *
 		return 0;
 	}
 
-	if (srm != BT_OBEX_SRM_VALUE) {
+	if (!obex_srm_is_valid(srm)) {
 		LOG_ERR("SRM value is invalid");
 		return -EINVAL;
+	}
+
+	if (!obex_srm_is_enabled(srm)) {
+		/* SRM is disabled */
+		return 0;
 	}
 
 	if (!first) {
@@ -1247,23 +1289,28 @@ static int obex_client_parse_rsp_srm(struct bt_obex_client *client, struct net_b
 }
 
 static int obex_client_parse_srmp(struct bt_obex_client *client, struct net_buf *buf, bool first,
-				  int bit)
+				  int check_bit, int update_bit)
 {
 	int err;
 	uint8_t srmp;
 
 	err = bt_obex_get_header_srm_param(buf, &srmp);
-	if (err == 0 && srmp != BT_OBEX_SRMP_VALUE) {
+	if (err == 0 && srmp != BT_OBEX_SRMP_WAIT) {
 		LOG_WRN("SRMP value is invalid");
 		return -EINVAL;
 	}
 
-	if (!first && !atomic_test_bit(&client->_flags, bit) && err == 0) {
+	if (err == 0 && !atomic_test_bit(&client->_flags, check_bit)) {
+		LOG_WRN("BIT %d is not set", check_bit);
+		return -EINVAL;
+	}
+
+	if (!first && !atomic_test_bit(&client->_flags, update_bit) && err == 0) {
 		LOG_WRN("SRMP header should not be included");
 		return -EINVAL;
 	}
 
-	atomic_set_bit_to(&client->_flags, bit, err == 0);
+	atomic_set_bit_to(&client->_flags, update_bit, err == 0);
 
 	return 0;
 }
@@ -1300,7 +1347,7 @@ static int obex_client_put_common(struct bt_obex_client *client, uint8_t rsp_cod
 		LOG_WRN("Invalid SRM header received");
 	}
 
-	err = obex_client_parse_srmp(client, buf, first, BT_OBEX_RSP_SRMP);
+	err = obex_client_parse_srmp(client, buf, first, BT_OBEX_RSP_SRM, BT_OBEX_RSP_SRMP);
 	if (err != 0) {
 		LOG_WRN("Invalid SRMP header received");
 	}
@@ -1357,7 +1404,7 @@ static int obex_client_get_common(struct bt_obex_client *client, uint8_t rsp_cod
 		LOG_WRN("Invalid SRM header received");
 	}
 
-	err = obex_client_parse_srmp(client, buf, first, BT_OBEX_RSP_SRMP);
+	err = obex_client_parse_srmp(client, buf, first, BT_OBEX_RSP_SRM, BT_OBEX_RSP_SRMP);
 	if (err != 0) {
 		LOG_WRN("Invalid SRMP header received");
 	}
@@ -2101,12 +2148,19 @@ static int obex_client_req_check(struct bt_obex_client *client, bool first)
 
 	LOG_DBG("SRM is enabled");
 
-	if (atomic_test_bit(&client->_flags, BT_OBEX_RSP_SRMP)) {
+	if (atomic_test_bit(&client->_flags, BT_OBEX_RSP_SRMP) ||
+	    atomic_test_bit(&client->_flags, BT_OBEX_REQ_SRMP)) {
 		if (atomic_test_bit(&client->_flags, BT_OBEX_RSP_RECV)) {
 			return 0;
 		}
 
-		LOG_ERR("SRM is enabled but waiting, response is not received");
+		LOG_ERR("SRM is enabled but in wait state, response is not received");
+		return -EPROTO;
+	}
+
+	if (!atomic_test_bit(&client->_flags, BT_OBEX_REQ_SRMP) &&
+	    atomic_test_bit(&client->_flags, BT_OBEX_REQ_F_BIT)) {
+		LOG_ERR("SRM is enabled, no requests can be sent anymore");
 		return -EPROTO;
 	}
 
@@ -2189,7 +2243,7 @@ int bt_obex_put(struct bt_obex_client *client, bool final, struct net_buf *buf)
 		goto failed;
 	}
 
-	err = obex_client_parse_srmp(client, buf, opcode == 0, BT_OBEX_REQ_SRMP);
+	err = obex_client_parse_srmp(client, buf, opcode == 0, BT_OBEX_REQ_SRM, BT_OBEX_REQ_SRMP);
 	if (err != 0) {
 		goto failed;
 	}
@@ -2199,6 +2253,10 @@ int bt_obex_put(struct bt_obex_client *client, bool final, struct net_buf *buf)
 	hdr->len = sys_cpu_to_be16(buf->len);
 
 	atomic_clear_bit(&client->_flags, BT_OBEX_RSP_RECV);
+
+	if (final) {
+		atomic_set_bit(&client->_flags, BT_OBEX_REQ_F_BIT);
+	}
 
 	err = obex_send(client->obex, client->tx.mopl, buf);
 	if (err == 0) {
@@ -2274,7 +2332,7 @@ int bt_obex_put_rsp(struct bt_obex_server *server, uint8_t rsp_code, struct net_
 		goto failed;
 	}
 
-	err = obex_server_parse_srmp(server, buf, first, BT_OBEX_RSP_SRMP);
+	err = obex_server_parse_srmp(server, buf, first, BT_OBEX_RSP_SRM, BT_OBEX_RSP_SRMP);
 	if (err != 0) {
 		goto failed;
 	}
@@ -2380,7 +2438,7 @@ int bt_obex_get(struct bt_obex_client *client, bool final, struct net_buf *buf)
 		goto failed;
 	}
 
-	err = obex_client_parse_srmp(client, buf, opcode == 0, BT_OBEX_REQ_SRMP);
+	err = obex_client_parse_srmp(client, buf, opcode == 0, BT_OBEX_REQ_SRM, BT_OBEX_REQ_SRMP);
 	if (err != 0) {
 		goto failed;
 	}
@@ -2390,6 +2448,10 @@ int bt_obex_get(struct bt_obex_client *client, bool final, struct net_buf *buf)
 	hdr->len = sys_cpu_to_be16(buf->len);
 
 	atomic_clear_bit(&client->_flags, BT_OBEX_RSP_RECV);
+
+	if (final) {
+		atomic_set_bit(&client->_flags, BT_OBEX_REQ_F_BIT);
+	}
 
 	err = obex_send(client->obex, client->tx.mopl, buf);
 	if (err == 0) {
@@ -2465,7 +2527,7 @@ int bt_obex_get_rsp(struct bt_obex_server *server, uint8_t rsp_code, struct net_
 		goto failed;
 	}
 
-	err = obex_server_parse_srmp(server, buf, first, BT_OBEX_RSP_SRMP);
+	err = obex_server_parse_srmp(server, buf, first, BT_OBEX_RSP_SRM, BT_OBEX_RSP_SRMP);
 	if (err != 0) {
 		goto failed;
 	}
@@ -4040,7 +4102,7 @@ int bt_obex_tlv_parse(uint16_t len, const uint8_t *data,
 	uint16_t index = 0;
 	struct bt_obex_tlv tlv;
 
-	if (len == 0 || !data || func == NULL) {
+	if (len == 0 || data == NULL || func == NULL) {
 		LOG_WRN("Invalid parameter");
 		return -EINVAL;
 	}

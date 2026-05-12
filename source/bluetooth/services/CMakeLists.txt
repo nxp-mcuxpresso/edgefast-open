@@ -13,7 +13,6 @@ zephyr_sources_ifdef(CONFIG_BT_ETS ets.c)
 zephyr_sources_ifdef(CONFIG_BT_HRS hrs.c)
 
 zephyr_sources_ifdef(CONFIG_BT_TPS tps.c)
-
 zephyr_sources_ifdef(CONFIG_BT_WUS wus.c)
 
 zephyr_sources_ifdef(CONFIG_BT_FMP fmp.c)
@@ -27,6 +26,7 @@ zephyr_sources_ifdef(CONFIG_BT_IPSP ipsp.c)
 zephyr_sources_ifdef(CONFIG_BT_PXR pxr.c)
 
 zephyr_sources_ifdef(CONFIG_BT_TIP tip.c)
+
 
 if(CONFIG_BT_BAS)
   add_subdirectory(bas)

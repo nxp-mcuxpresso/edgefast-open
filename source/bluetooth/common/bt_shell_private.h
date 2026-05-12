@@ -10,6 +10,7 @@
 #include <zephyr/shell/shell.h>
 
 #if 0
+
 /**
  * @brief printf-like function which sends formatted data stream to the shell.
  * (Bluetooth context specific)
@@ -87,6 +88,6 @@ void bt_shell_hexdump(const uint8_t *data, size_t len);
  */
 #define bt_shell_error(_ft, ...) \
 	bt_shell_fprintf_error(_ft "\n", ##__VA_ARGS__)
-#endif
 
+#endif
 #endif /* __BT_SHELL_PRIVATE_H */

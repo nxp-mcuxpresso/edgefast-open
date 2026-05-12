@@ -110,11 +110,11 @@ config BT_BUF_ACL_RX_COUNT_EXTRA
 
 config BT_BUF_EVT_RX_SIZE
 	int "Maximum supported HCI Event buffer length"
-	default 255  if (BT_EXT_ADV && BT_OBSERVER) || BT_PER_ADV_SYNC || BT_DF_CONNECTION_CTE_RX || BT_CLASSIC || BT_CHANNEL_SOUNDING || BT_LE_EXTENDED_FEAT_SET
+	default 255 if (BT_EXT_ADV && BT_OBSERVER) || BT_PER_ADV_SYNC || BT_DF_CONNECTION_CTE_RX || BT_CLASSIC || BT_CHANNEL_SOUNDING || BT_LE_EXTENDED_FEAT_SET
 	# LE Read Supported Commands command complete event.
 	default 68
 	range 68 255
-	range 78 255  if BT_CHANNEL_SOUNDING
+	range 78 255 if BT_CHANNEL_SOUNDING
 	help
 	  Maximum supported HCI event buffer size. This value does not include
 	  the HCI Event header.
@@ -135,7 +135,7 @@ config BT_BUF_EVT_RX_COUNT
 
 config BT_BUF_CMD_TX_SIZE
 	int "Maximum support HCI Command buffer length"
-	default 255  if (BT_EXT_ADV || BT_CLASSIC || BT_ISO_CENTRAL || BT_CHANNEL_SOUNDING)
+	default 255 if (BT_EXT_ADV || BT_CLASSIC || BT_ISO_CENTRAL || BT_CHANNEL_SOUNDING)
 	# LE Set Connection CTE Receive Parameters. Value required to store max allowed number
 	# of antenna ids for platforms other than Nordic.
 	default 83 if (!BT_EXT_ADV && !BT_CLASSIC && BT_CTLR_DF && BT_CTLR_DF_CONN_CTE_REQ && !SOC_COMPATIBLE_NRF)

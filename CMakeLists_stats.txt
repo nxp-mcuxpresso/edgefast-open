@@ -1,18 +1,18 @@
 ================================================================================
 MCUX_ADD_* COMMANDS STATISTICS
 ================================================================================
-Total mcux_add_* commands: 476
-  - Conditional: 476
+Total mcux_add_* commands: 478
+  - Conditional: 478
   - Unconditional: 0
   - Duplicates removed: 0
-Unique conditions: 171
+Unique conditions: 172
 
 Command types distribution:
-  - mcux_add_source: 430 (90.3%)
+  - mcux_add_source: 432 (90.4%)
   - mcux_add_include: 17 (3.6%)
-  - mcux_add_iar_configuration: 15 (3.2%)
-  - mcux_add_configuration: 5 (1.1%)
-  - mcux_add_mdk_configuration: 5 (1.1%)
+  - mcux_add_iar_configuration: 15 (3.1%)
+  - mcux_add_configuration: 5 (1.0%)
+  - mcux_add_mdk_configuration: 5 (1.0%)
   - mcux_add_armgcc_configuration: 4 (0.8%)
 
 Top 20 most used conditions:
@@ -98,6 +98,7 @@ All unique conditions (sorted alphabetically):
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_bap_stream) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_acceptor) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_commander) (2 command(s))
+  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_handover) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_cap_initiator) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ccp_call_control_client) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_shell) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ccp_call_control_server) (2 command(s))

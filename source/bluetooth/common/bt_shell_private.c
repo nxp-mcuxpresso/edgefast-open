@@ -13,8 +13,8 @@
 
 #include <zephyr/shell/shell_backend.h>
 #include "bt_shell_private.h"
-
 #if 0
+
 static void wall_vfprintf(enum shell_vt100_color color, const char *fmt, va_list args)
 {
 	int count;
