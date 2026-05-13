@@ -9,12 +9,14 @@ Usage:
     python sync_zephyr_bt.py [options]
 
 Options:
-    --zephyr-dir PATH    Path to Zephyr root (default: C:/_DDM/zephyrproject/zephyr)
-    --ef-dir PATH        Path to Edgefast Open root (default: auto-detected from script location)
-    --dry-run            Show what would be changed without making changes
-    --verbose            Show detailed output
-    --subsystem SUBSYS   Only sync a specific subsystem (host, audio, services, common, crypto, mesh)
-    --help               Show this help message
+    --zephyr-dir PATH        Path to Zephyr root (default: C:/_DDM/zephyrproject/zephyr)
+    --ef-dir PATH            Path to Edgefast Open root (default: auto-detected from script location)
+    --ef-examples-dir PATH   Path to Edgefast Open examples root (default: auto-detected)
+    --dry-run                Show what would be changed without making changes
+    --verbose                Show detailed output
+    --subsystem SUBSYS       Only sync a specific subsystem (host, audio, services, common, crypto,
+                             mesh, tester)
+    --help                   Show this help message
 
 Porting rules applied:
     1. Source .c/.h files are copied verbatim (no modification needed)
@@ -65,6 +67,75 @@ EF_BT_INCLUDE = "include/zephyr/bluetooth"
 ZEPHYR_SHELL_DIR = "tests/bluetooth/shell"
 EF_SHELL_DIR = "examples/shell"
 
+# ---------------------------------------------------------------------------
+# Tester example sync configuration
+# Zephyr: tests/bluetooth/tester/  →  EF: <ef_examples_dir>/tester/
+#
+# The EF tester lives in a sibling repository (examples_int), so its root is
+# specified separately via --ef-examples-dir (default: auto-detected).
+#
+# Sync strategy:
+#   src/*.c / src/*.h          – copy verbatim, but SKIP EF-only NXP files
+#   src/btp/*.h                – copy verbatim, but SKIP EF-only NXP files
+#   src/audio/*.c / *.h        – copy verbatim, but SKIP EF-only NXP files
+#   src/audio/btp/*.h          – copy verbatim, but SKIP EF-only NXP files
+#   src/audio/CMakeLists.txt   – SKIP (EF-specific build file)
+#   boards/*                   – copy verbatim (only files already present in EF)
+#   prj.conf / prj_br.conf /
+#   overlay-*.conf / *.overlay – merge with same strategy as shell .conf files
+#   README.rst                 – copy verbatim
+#   CMakeLists.txt / Kconfig / Kconfig.sysbuild / sysbuild.cmake /
+#   testcase.yaml              – SKIP (EF has custom versions)
+#   example.yml + EF-only .conf – SKIP (EF-only)
+# ---------------------------------------------------------------------------
+
+ZEPHYR_TESTER_DIR = "tests/bluetooth/tester"
+# Relative to ef_examples_dir (the examples root, NOT ef_dir)
+EF_TESTER_DIR = "tester"
+
+DEFAULT_EF_EXAMPLES_DIR = r"C:\_DDM\sdk-next\mcuxsdk\examples_int\edgefast_open_examples"
+
+# Top-level files in EF tester/ that are EF-only (never sync from Zephyr)
+TESTER_EF_ONLY_FILES = {
+    "CMakeLists.txt",           # MCUXpresso-specific build file
+    "Kconfig",                  # MCUXpresso Kconfig
+    "Kconfig.sysbuild",         # MCUXpresso sysbuild Kconfig
+    "sysbuild.cmake",           # MCUXpresso sysbuild cmake
+    "testcase.yaml",            # EF test framework metadata
+    "example.yml",              # EF example metadata
+    # EF-only config variants
+    "br_l2cap_cls.conf",
+    "br_sec_sc_only.conf",
+    "gap_iso.conf",
+    "gap_le_sec_mode3_bis.conf",
+    "hci_ipc.conf",
+}
+
+# src/ files in EF tester/src/ that are EF-only (NXP BT classic protocols)
+TESTER_SRC_EF_ONLY_FILES = {
+    "main.c",           # EF FreeRTOS main entry point
+    "btp.c",            # EF porting layer (differs from Zephyr due to porting changes)
+}
+
+# src/btp/ header files that are EF-only (NXP BT classic protocol headers)
+TESTER_SRC_BTP_EF_ONLY_FILES = {
+}
+
+# .conf and .overlay files at the tester root that should be merged (not blindly copied)
+# Uses the same merge strategy as shell .conf files
+TESTER_CONF_MERGE_FILES = {
+    "prj.conf",
+    "prj_br.conf",
+    "overlay-bt_ll_sw_split.conf",
+    "overlay-le-audio.conf",
+    "overlay-mesh.conf",
+}
+
+# .overlay files copied verbatim (board-specific device tree overlays, no CONFIG_ lines)
+TESTER_OVERLAY_VERBATIM_FILES = {
+    "rd_rw612_bga.overlay",
+}
+
 # Files in EF examples/shell/ that are EF-only (never sync from Zephyr)
 SHELL_EF_ONLY_FILES = {
     "CMakeLists.txt",         # MCUXpresso-specific build file
@@ -96,6 +167,19 @@ SHELL_CONF_COMMENT_OUT_KEYS = {
 
 # Files/dirs in Zephyr tests/bluetooth/shell/ that have no EF equivalent
 # (Zephyr-specific: board overlays, test framework, sysbuild, UART overlays, etc.)
+# Keys that should be commented out in tester .conf merge (not applicable to EF/NXP)
+TESTER_CONF_COMMENT_OUT_KEYS = {
+    "CONFIG_FLASH",
+    "CONFIG_FLASH_MAP",
+    "CONFIG_NVS",
+    "CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE",
+}
+
+# Keys renamed during tester .conf merge (Zephyr key → EF key)
+TESTER_CONF_KEY_RENAMES = {
+    "CONFIG_SETTINGS": "CONFIG_BT_SETTINGS",
+}
+
 SHELL_ZEPHYR_ONLY_ENTRIES = {
     "Kconfig.sysbuild",
     "sysbuild.cmake",
@@ -577,7 +661,8 @@ def normalize_path(path: str) -> str:
 # ---------------------------------------------------------------------------
 
 class SyncEngine:
-    def __init__(self, zephyr_dir: str, ef_dir: str, dry_run: bool = False, verbose: bool = False):
+    def __init__(self, zephyr_dir: str, ef_dir: str, dry_run: bool = False, verbose: bool = False,
+                 ef_examples_dir: Optional[str] = None):
         self.zephyr_dir = os.path.normpath(zephyr_dir)
         self.ef_dir = os.path.normpath(ef_dir)
         self.dry_run = dry_run
@@ -588,6 +673,13 @@ class SyncEngine:
         self.zephyr_inc = os.path.join(self.zephyr_dir, ZEPHYR_BT_INCLUDE.replace('/', os.sep))
         self.ef_bt = os.path.join(self.ef_dir, EF_BT_SOURCE.replace('/', os.sep))
         self.ef_inc = os.path.join(self.ef_dir, EF_BT_INCLUDE.replace('/', os.sep))
+
+        # ef_examples_dir is the root of the EF examples repository (examples_int).
+        # It is separate from ef_dir because the tester example lives in a sibling repo.
+        if ef_examples_dir is not None:
+            self.ef_examples_dir = os.path.normpath(ef_examples_dir)
+        else:
+            self.ef_examples_dir = os.path.normpath(DEFAULT_EF_EXAMPLES_DIR)
 
     def log(self, msg: str):
         if self.verbose:
@@ -1288,11 +1380,19 @@ class SyncEngine:
                     f"{k}={ef_only_keys[k]}"
                 )
 
+        # Build a set of header line texts so we can skip Zephyr body comment/blank
+        # lines that are already present in the EF header block (avoiding duplicates).
+        header_line_set = set(header_lines)
+
         # Build output body: walk Zephyr entries
         body_lines = []
         for kind, data in z_entries:
             if kind in ('blank', 'comment', 'other'):
-                body_lines.append(data if data else '\n')
+                line_text = data if data else '\n'
+                # Skip if this comment/blank line is already in the EF header block
+                if line_text in header_line_set:
+                    continue
+                body_lines.append(line_text)
                 continue
             # kind == 'option'
             key, val, orig_line = data
@@ -1303,7 +1403,11 @@ class SyncEngine:
 
             # Comment-out keys: emit as a comment to document their absence
             if key in SHELL_CONF_COMMENT_OUT_KEYS:
-                body_lines.append(f"# {key}={val}\n")
+                commented = f"# {key}={val}\n"
+                # Skip if this commented line is already in the EF header block
+                if commented in header_line_set:
+                    continue
+                body_lines.append(commented)
                 continue
 
             # Rename (e.g. CONFIG_SETTINGS → CONFIG_BT_SETTINGS)
@@ -1324,6 +1428,300 @@ class SyncEngine:
                 body_lines.append(f"{k}={ef_only_keys[k]}\n")
 
         return ''.join(header_lines) + ''.join(body_lines)
+
+    # ------------------------------------------------------------------
+    # Tester example sync routines
+    # ------------------------------------------------------------------
+
+    def _merge_tester_conf(self, zephyr_content: str, ef_content: str,
+                           conf_label: str) -> str:
+        """Merge a tester .conf file following the same strategy as shell .conf files.
+
+        Rules (same as _merge_shell_conf but using TESTER_CONF_* tables):
+          1. Preserve EF header block verbatim at the top
+          2. CONFIG_BT_CTLR_* → discard silently
+          3. TESTER_CONF_KEY_RENAMES → rename key (CONFIG_SETTINGS → CONFIG_BT_SETTINGS)
+          4. TESTER_CONF_COMMENT_OUT_KEYS → emit as commented line (# KEY=val)
+          5. Key in both files → keep larger value
+          6. Key only in Zephyr → included in output
+          7. Key only in EF (non-CTLR, non-header) → appended at end with warning
+        """
+        z_entries = self._parse_conf(zephyr_content)
+        ef_entries = self._parse_conf(ef_content)
+
+        # Extract EF header block (preserved verbatim)
+        header_lines, header_keys, ef_remaining = self._extract_ef_header_block(ef_entries)
+
+        # Build EF map (excluding CTLR configs)
+        ef_map: dict = {}
+        for kind, data in ef_remaining:
+            if kind == 'option':
+                key, val, _ = data
+                if key.startswith('CONFIG_BT_CTLR_'):
+                    continue
+                ef_map[key] = val
+
+        rename_sources = set(TESTER_CONF_KEY_RENAMES.keys())
+
+        # Build EF-only keys (present in EF but not in Zephyr after rename)
+        # Build Zephyr effective key set first
+        z_effective_keys: set = set()
+        for kind, data in z_entries:
+            if kind == 'option':
+                key, val, _ = data
+                if key.startswith('CONFIG_BT_CTLR_'):
+                    continue
+                if key in TESTER_CONF_KEY_RENAMES:
+                    key = TESTER_CONF_KEY_RENAMES[key]
+                z_effective_keys.add(key)
+
+        ef_only_keys = {
+            k: ef_map[k] for k in ef_map
+            if k not in z_effective_keys
+            and k not in rename_sources
+            and k not in TESTER_CONF_COMMENT_OUT_KEYS
+        }
+        if ef_only_keys:
+            for k in sorted(ef_only_keys):
+                logging.info(
+                    f"[tester/{conf_label}] EF-only config (not in Zephyr): "
+                    f"{k}={ef_only_keys[k]}"
+                )
+
+        # Build a set of header line texts to skip duplicated comment/blank lines
+        header_line_set = set(header_lines)
+
+        # Build output body: walk Zephyr entries
+        body_lines = []
+        for kind, data in z_entries:
+            if kind in ('blank', 'comment', 'other'):
+                line_text = data if data else '\n'
+                if line_text in header_line_set:
+                    continue
+                body_lines.append(line_text)
+                continue
+            key, val, orig_line = data
+
+            if key.startswith('CONFIG_BT_CTLR_'):
+                continue
+
+            if key in TESTER_CONF_COMMENT_OUT_KEYS:
+                commented = f"# {key}={val}\n"
+                if commented in header_line_set:
+                    continue
+                body_lines.append(commented)
+                continue
+
+            if key in TESTER_CONF_KEY_RENAMES:
+                key = TESTER_CONF_KEY_RENAMES[key]
+
+            if key in ef_map:
+                val = self._conf_value_max(val, ef_map[key])
+
+            body_lines.append(f"{key}={val}\n")
+
+        # Append EF-only keys at the end
+        if ef_only_keys:
+            if body_lines and body_lines[-1] != '\n':
+                body_lines.append('\n')
+            for k in sorted(ef_only_keys):
+                body_lines.append(f"{k}={ef_only_keys[k]}\n")
+
+        return ''.join(header_lines) + ''.join(body_lines)
+
+    def _sync_tester_file_verbatim(self, zf: str, ef: str, display_rel: str):
+        """Copy a tester file verbatim (if it already exists in EF)."""
+        if not os.path.exists(ef):
+            self.log(f"SKIP (not in EF tester): {display_rel}")
+            self.stats['skipped'] += 1
+            return
+        try:
+            changed = copy_file(zf, ef, self.dry_run)
+            if changed:
+                self.log_change("COPY", display_rel)
+                self.stats['copied'] += 1
+            else:
+                self.stats['unchanged'] += 1
+        except Exception as e:
+            logging.error(f"Error copying tester file {zf}: {e}")
+            self.stats['errors'] += 1
+
+    def sync_tester(self):
+        """Sync the tester example from Zephyr tests/bluetooth/tester to EF tester/.
+
+        Source:      <zephyr_dir>/tests/bluetooth/tester/
+        Destination: <ef_examples_dir>/tester/
+
+        Sync rules:
+          Top-level:
+            - README.rst                       → copy verbatim (only if exists in EF)
+            - prj.conf, prj_br.conf,
+              overlay-*.conf                   → merge (same strategy as shell .conf)
+            - rd_rw612_bga.overlay             → copy verbatim
+            - boards/*                         → copy verbatim (only files already in EF)
+            - CMakeLists.txt, Kconfig,
+              Kconfig.sysbuild, sysbuild.cmake,
+              testcase.yaml, example.yml,
+              EF-only .conf variants           → SKIP (EF-specific)
+          src/:
+            - *.c files not in
+              TESTER_SRC_EF_ONLY_FILES         → copy verbatim
+            - main.c + NXP-specific *.c        → SKIP (EF-only)
+          src/btp/:
+            - *.h files not in
+              TESTER_SRC_BTP_EF_ONLY_FILES     → copy verbatim (only if in EF)
+            - NXP-specific *.h                 → SKIP (EF-only)
+          src/audio/:
+            - *.c / *.h files                  → copy verbatim (only if in EF)
+            - CMakeLists.txt                   → SKIP (EF-specific build file)
+          src/audio/btp/:
+            - *.h files                        → copy verbatim (only if in EF)
+        """
+        z_tester = os.path.join(self.zephyr_dir, ZEPHYR_TESTER_DIR.replace('/', os.sep))
+        ef_tester = os.path.join(self.ef_examples_dir, EF_TESTER_DIR.replace('/', os.sep))
+
+        if not os.path.isdir(z_tester):
+            logging.warning(f"Zephyr tester dir not found, skipping: {z_tester}")
+            return
+        if not os.path.isdir(ef_tester):
+            logging.warning(f"EF tester dir not found, skipping: {ef_tester}")
+            return
+
+        logging.info(f"  Zephyr tester: {z_tester}")
+        logging.info(f"  EF tester:     {ef_tester}")
+
+        # ----------------------------------------------------------------
+        # 1. Top-level files
+        # ----------------------------------------------------------------
+        # README.rst – verbatim
+        for fname in ("README.rst",):
+            zf = os.path.join(z_tester, fname)
+            ef = os.path.join(ef_tester, fname)
+            if os.path.exists(zf):
+                self._sync_tester_file_verbatim(zf, ef, f"tester/{fname}")
+
+        # .conf files that need merging
+        for fname in sorted(TESTER_CONF_MERGE_FILES):
+            zf = os.path.join(z_tester, fname)
+            ef = os.path.join(ef_tester, fname)
+            if not os.path.exists(zf):
+                logging.warning(f"Zephyr tester file not found: {zf}")
+                continue
+            if not os.path.exists(ef):
+                self.log(f"SKIP (not in EF tester): tester/{fname}")
+                self.stats['skipped'] += 1
+                continue
+            try:
+                z_content = read_text(zf)
+                ef_content = read_text(ef)
+                merged = self._merge_tester_conf(z_content, ef_content, fname)
+                changed = write_text(ef, merged, self.dry_run)
+                if changed:
+                    self.log_change("TRANSFORM-CONF", f"tester/{fname}")
+                    self.stats['transformed'] += 1
+                else:
+                    self.stats['unchanged'] += 1
+            except Exception as e:
+                logging.error(f"Error merging tester/{fname}: {e}")
+                self.stats['errors'] += 1
+
+        # .overlay files – verbatim copy
+        for fname in sorted(TESTER_OVERLAY_VERBATIM_FILES):
+            zf = os.path.join(z_tester, fname)
+            ef = os.path.join(ef_tester, fname)
+            if os.path.exists(zf):
+                self._sync_tester_file_verbatim(zf, ef, f"tester/{fname}")
+
+        # EF-only top-level files – log skip for transparency
+        for fname in sorted(TESTER_EF_ONLY_FILES):
+            self.log(f"SKIP (EF-only): tester/{fname}")
+
+        # ----------------------------------------------------------------
+        # 2. boards/ – verbatim copy (only files already present in EF)
+        # ----------------------------------------------------------------
+        z_boards = os.path.join(z_tester, 'boards')
+        ef_boards = os.path.join(ef_tester, 'boards')
+        if os.path.isdir(z_boards) and os.path.isdir(ef_boards):
+            for fname in sorted(os.listdir(z_boards)):
+                zf = os.path.join(z_boards, fname)
+                ef = os.path.join(ef_boards, fname)
+                if not os.path.isfile(zf):
+                    continue
+                self._sync_tester_file_verbatim(zf, ef, f"tester/boards/{fname}")
+        elif os.path.isdir(z_boards) and not os.path.isdir(ef_boards):
+            self.log(f"SKIP (boards/ not in EF tester): tester/boards/")
+
+        # ----------------------------------------------------------------
+        # 3. src/ top-level .c and .h files
+        # ----------------------------------------------------------------
+        z_src = os.path.join(z_tester, 'src')
+        ef_src = os.path.join(ef_tester, 'src')
+        if os.path.isdir(z_src) and os.path.isdir(ef_src):
+            for fname in sorted(os.listdir(z_src)):
+                zf = os.path.join(z_src, fname)
+                if not os.path.isfile(zf):
+                    continue
+                if not (fname.endswith('.c') or fname.endswith('.h')):
+                    continue
+                if fname in TESTER_SRC_EF_ONLY_FILES:
+                    self.log(f"SKIP (EF-only): tester/src/{fname}")
+                    self.stats['skipped'] += 1
+                    continue
+                ef = os.path.join(ef_src, fname)
+                self._sync_tester_file_verbatim(zf, ef, f"tester/src/{fname}")
+
+        # ----------------------------------------------------------------
+        # 4. src/btp/ header files
+        # ----------------------------------------------------------------
+        z_btp = os.path.join(z_tester, 'src', 'btp')
+        ef_btp = os.path.join(ef_tester, 'src', 'btp')
+        if os.path.isdir(z_btp) and os.path.isdir(ef_btp):
+            for fname in sorted(os.listdir(z_btp)):
+                zf = os.path.join(z_btp, fname)
+                if not os.path.isfile(zf):
+                    continue
+                if not fname.endswith('.h'):
+                    continue
+                if fname in TESTER_SRC_BTP_EF_ONLY_FILES:
+                    self.log(f"SKIP (EF-only): tester/src/btp/{fname}")
+                    self.stats['skipped'] += 1
+                    continue
+                ef = os.path.join(ef_btp, fname)
+                self._sync_tester_file_verbatim(zf, ef, f"tester/src/btp/{fname}")
+
+        # ----------------------------------------------------------------
+        # 5. src/audio/ .c and .h files (excluding CMakeLists.txt)
+        # ----------------------------------------------------------------
+        z_audio = os.path.join(z_tester, 'src', 'audio')
+        ef_audio = os.path.join(ef_tester, 'src', 'audio')
+        if os.path.isdir(z_audio) and os.path.isdir(ef_audio):
+            for fname in sorted(os.listdir(z_audio)):
+                zf = os.path.join(z_audio, fname)
+                if not os.path.isfile(zf):
+                    continue
+                if fname == 'CMakeLists.txt':
+                    self.log(f"SKIP (EF-only cmake): tester/src/audio/CMakeLists.txt")
+                    self.stats['skipped'] += 1
+                    continue
+                if not (fname.endswith('.c') or fname.endswith('.h')):
+                    continue
+                ef = os.path.join(ef_audio, fname)
+                self._sync_tester_file_verbatim(zf, ef, f"tester/src/audio/{fname}")
+
+        # ----------------------------------------------------------------
+        # 6. src/audio/btp/ header files
+        # ----------------------------------------------------------------
+        z_audio_btp = os.path.join(z_tester, 'src', 'audio', 'btp')
+        ef_audio_btp = os.path.join(ef_tester, 'src', 'audio', 'btp')
+        if os.path.isdir(z_audio_btp) and os.path.isdir(ef_audio_btp):
+            for fname in sorted(os.listdir(z_audio_btp)):
+                zf = os.path.join(z_audio_btp, fname)
+                if not os.path.isfile(zf):
+                    continue
+                if not fname.endswith('.h'):
+                    continue
+                ef = os.path.join(ef_audio_btp, fname)
+                self._sync_tester_file_verbatim(zf, ef, f"tester/src/audio/btp/{fname}")
 
     def sync_shell_example(self):
         """Sync examples/shell .conf files from Zephyr tests/bluetooth/shell.
@@ -1413,6 +1811,11 @@ class SyncEngine:
             logging.info("--- Syncing examples/shell conf files from tests/bluetooth/shell ---")
             self.sync_shell_example()
 
+        if subsystem_filter is None or subsystem_filter == 'tester':
+            logging.info("--- Syncing tester example from tests/bluetooth/tester ---")
+            logging.info(f"    EF examples dir: {self.ef_examples_dir}")
+            self.sync_tester()
+
         logging.info("")
         logging.info("=" * 70)
         logging.info("Summary:")
@@ -1471,9 +1874,16 @@ def main():
         help='Show detailed output including unchanged files'
     )
     parser.add_argument(
+        '--ef-examples-dir',
+        default=None,
+        help=f'Path to Edgefast Open examples root directory '
+             f'(default: {DEFAULT_EF_EXAMPLES_DIR}). '
+             f'This is the parent of the tester/ example directory.'
+    )
+    parser.add_argument(
         '--subsystem',
         choices=['host', 'audio', 'services', 'common', 'crypto', 'mesh', 'controller', 'lib',
-                 'shell'],
+                 'shell', 'tester'],
         default=None,
         help='Only sync a specific subsystem'
     )
@@ -1498,6 +1908,9 @@ def main():
         except RuntimeError as e:
             logging.error(str(e))
             sys.exit(1)
+
+    ef_examples_dir = os.path.normpath(args.ef_examples_dir) if args.ef_examples_dir \
+        else os.path.normpath(DEFAULT_EF_EXAMPLES_DIR)
 
     # Validate paths
     if not os.path.isdir(zephyr_dir):
@@ -1529,7 +1942,8 @@ def main():
         zephyr_dir=zephyr_dir,
         ef_dir=ef_dir,
         dry_run=args.dry_run,
-        verbose=args.verbose
+        verbose=args.verbose,
+        ef_examples_dir=ef_examples_dir,
     )
 
     exit_code = engine.run(subsystem_filter=args.subsystem)
