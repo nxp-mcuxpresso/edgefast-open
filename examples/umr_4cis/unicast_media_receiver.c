@@ -122,7 +122,7 @@ static lc3_decoder_mem_48k_t decoder_mem[CONFIG_BT_ASCS_MAX_ASE_SNK_COUNT];
 #else
 SDK_ALIGN(static uint8_t audio_buff[MAX_AUDIO_CHANNEL_COUNT][PCM_AUDIO_BUFF_SIZE], 4);
 #endif
-static OSA_MSGQ_HANDLE_DEFINE(sdu_fifo, PCM_BUFF_COUNT, sizeof(void *));
+static K_FIFO_DEFINE(sdu_fifo);
 NET_BUF_POOL_FIXED_DEFINE(sdu_pool,
 			  PCM_BUFF_COUNT,
 			  sizeof(sdu_packet_t)*MAX_AUDIO_CHANNEL_COUNT,
@@ -135,10 +135,10 @@ static frame_packet_t frame;
 
 static lc3_codec_info_t lc3_codec_info;
 
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_disconnected);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_stream_enabled);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_security_changed);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_mcs_server_discovered);
+static K_SEM_DEFINE(sem_disconnected, 0, 1);
+static K_SEM_DEFINE(sem_stream_enabled, 0, 1);
+static K_SEM_DEFINE(sem_security_changed, 0, 1);
+static K_SEM_DEFINE(sem_mcs_server_discovered, 0, 1);
 
 static bool stream_stop = false;
 
@@ -190,8 +190,8 @@ static int audio_stream_decode(void)
 	int plc_flag[MAX_AUDIO_CHANNEL_COUNT] = {1};
 	int lc3_res;
 
-	osa_status_t status = OSA_MsgQGet(sdu_fifo, &sdu_buf, osaWaitForever_c);
-	if(KOSA_StatusSuccess != status)
+	sdu_buf = k_fifo_get(&sdu_fifo, K_FOREVER);
+	if(NULL == sdu_buf)
 	{
 		return -1;
 	}
@@ -265,7 +265,7 @@ static int audio_stream_decode(void)
 		if(res)
 		{
 			PRINTF("\naudio_i2s_write err %d\n", res);
-			OSA_TimeDelay(2);
+			k_msleep(2);
 		}
 	} while(res != 0);
 
@@ -503,7 +503,7 @@ static int lc3_enable(struct bt_bap_stream *stream, const uint8_t meta[], size_t
 		}
 	}
 
-	OSA_SemaphorePost(sem_stream_enabled);
+	k_sem_give(&sem_stream_enabled);
 
 	return 0;
 }
@@ -598,7 +598,7 @@ static void stream_recv_lc3_codec(struct bt_bap_stream *stream,
 	(sdu_packets[0].info.ts != 0))
 	{
 		/* alloc sdu buf from sdu pool */
-		sdu_buf = net_buf_alloc(&sdu_pool, osaWaitForever_c);
+		sdu_buf = net_buf_alloc(&sdu_pool, K_FOREVER);
 		if(!sdu_buf)
 		{
 			PRINTF("sdu buf alloc failed!\n");
@@ -612,12 +612,7 @@ static void stream_recv_lc3_codec(struct bt_bap_stream *stream,
 		memcpy(sdu+1, &sdu_packets[0], sizeof(sdu_packet_t));
 
 		/* put sdu buf to sdu fifo */
-		osa_status_t status = OSA_MsgQPut(sdu_fifo, &sdu_buf);
-		if(status != KOSA_StatusSuccess)
-		{
-			net_buf_unref(sdu_buf);
-			PRINTF("Put sdu to sdu_fifo failed!\n");
-		}
+		k_fifo_put(&sdu_fifo, sdu_buf);
 	}
 
 	/* Check index 0 and 2 have the same timestamp and it's not zero */
@@ -625,7 +620,7 @@ static void stream_recv_lc3_codec(struct bt_bap_stream *stream,
 	(sdu_packets[0].info.ts != 0))
 	{
 		/* alloc sdu buf from sdu pool */
-		sdu_buf = net_buf_alloc(&sdu_pool, osaWaitForever_c);
+		sdu_buf = net_buf_alloc(&sdu_pool, K_FOREVER);
 		if(!sdu_buf)
 		{
 			PRINTF("sdu buf alloc failed!\n");
@@ -639,12 +634,7 @@ static void stream_recv_lc3_codec(struct bt_bap_stream *stream,
 		memcpy(sdu+1, &sdu_packets[0], sizeof(sdu_packet_t));
 
 		/* put sdu buf to sdu fifo */
-		osa_status_t status = OSA_MsgQPut(sdu_fifo, &sdu_buf);
-		if(status != KOSA_StatusSuccess)
-		{
-			net_buf_unref(sdu_buf);
-			PRINTF("Put sdu to sdu_fifo failed!\n");
-		}
+		k_fifo_put(&sdu_fifo, sdu_buf);
 	}
 }
 
@@ -734,7 +724,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	bt_conn_unref(default_conn);
 	default_conn = NULL;
 
-	OSA_SemaphorePost(sem_disconnected);
+	k_sem_give(&sem_disconnected);
 }
 
 #if CONFIG_BT_SMP
@@ -746,7 +736,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     PRINTF("Security changed: %s level %u (error %d)\n", addr, level, err);
 
-	(void)OSA_SemaphorePost(sem_security_changed);
+	(void)k_sem_give(&sem_security_changed);
 }
 
 static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
@@ -856,7 +846,7 @@ static int set_available_contexts(void)
 
 static void mcs_server_discover_cb(struct bt_conn *conn)
 {
-	OSA_SemaphorePost(sem_mcs_server_discovered);
+	k_sem_give(&sem_mcs_server_discovered);
 }
 
 static void vcs_server_vol_callback(uint8_t volume, uint8_t mute)
@@ -891,13 +881,6 @@ void unicast_media_receiver_task(void *param)
 	extern void bt_psa_crypto_init(void);
 	bt_psa_crypto_init();
 #endif /* CONFIG_BT_SMP */
-
-	(void)OSA_SemaphoreCreate(sem_stream_enabled, 0);
-	(void)OSA_SemaphoreCreate(sem_disconnected, 0);
-	(void)OSA_SemaphoreCreate(sem_mcs_server_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_security_changed, 0);
-
-	OSA_MsgQCreate((osa_msgq_handle_t)sdu_fifo, PCM_BUFF_COUNT, sizeof(void *));
 
 	/* shell init. */
 	le_audio_shell_init();
@@ -1005,7 +988,7 @@ void unicast_media_receiver_task(void *param)
 
 		PRINTF("Advertising successfully started\n");
 
-		err = OSA_SemaphoreWait(sem_security_changed, osaWaitForever_c);
+		err = k_sem_take(&sem_security_changed, K_FOREVER);
 		if (err != 0) {
 			PRINTF("failed to take sem_security_changed (err %d)\n", err);
 			while(1);
@@ -1015,14 +998,14 @@ void unicast_media_receiver_task(void *param)
 
 		(void)le_audio_mcs_discover(default_conn);
 
-		err = OSA_SemaphoreWait(sem_mcs_server_discovered, osaWaitForever_c);
+		err = k_sem_take(&sem_mcs_server_discovered, K_FOREVER);
 		if (err != 0) {
 			PRINTF("failed to take sem_mcs_server_discovered (err %d)\n", err);
 			while(1);
 		}
 		PRINTF("MCS server discovered.\n");
 
-		err = OSA_SemaphoreWait(sem_stream_enabled, osaWaitForever_c);
+		err = k_sem_take(&sem_stream_enabled, K_FOREVER);
 		if (err != 0) {
 			PRINTF("failed to take sem_stream_enabled (err %d)\n", err);
 			while(1);
@@ -1039,7 +1022,7 @@ void unicast_media_receiver_task(void *param)
 
 		PRINTF("Unicast stream stoped\n");
 
-		err = OSA_SemaphoreWait(sem_disconnected, osaWaitForever_c);
+		err = k_sem_take(&sem_disconnected, K_FOREVER);
 		if (err != 0) {
 			PRINTF("failed to take sem_disconnected (err %d)\n", err);
 			break;

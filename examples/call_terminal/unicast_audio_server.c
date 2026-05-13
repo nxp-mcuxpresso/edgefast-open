@@ -84,8 +84,7 @@ struct stream_state
 {
     struct bt_bap_stream stream;
 #if 0
-    OSA_SEMAPHORE_HANDLE_DEFINE(sem_handle);
-    osa_semaphore_handle_t sem;
+    struct k_sem sem;
 #endif
     uint16_t max_sdu;
     uint16_t pd;
@@ -322,8 +321,7 @@ NET_BUF_POOL_FIXED_DEFINE(rx_pool, STREAM_RX_BUF_COUNT,
 			  LC3_INPUT_FRAME_SIZE_MAX * MAX_AUDIO_CHANNEL_COUNT * BITS_RATES_OF_SAMPLE / 8,
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
-osa_msgq_handle_t rx_stream_queue;
-OSA_MSGQ_HANDLE_DEFINE(rx_stream_queue_handle, STREAM_RX_BUF_COUNT, sizeof(void *));
+K_FIFO_DEFINE(rx_stream_queue);
 
 static struct codec_capability snk_config_cap;
 static struct codec_capability src_config_cap;
@@ -333,16 +331,14 @@ NET_BUF_POOL_FIXED_DEFINE(tx_pool, STREAM_TX_BUF_COUNT,
 			  LC3_INPUT_FRAME_SIZE_MAX * MAX_AUDIO_CHANNEL_COUNT * BITS_RATES_OF_SAMPLE / 8,
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
-osa_msgq_handle_t tx_stream_queue;
-OSA_MSGQ_HANDLE_DEFINE(tx_stream_queue_handle, STREAM_TX_BUF_COUNT, sizeof(void *));
+K_FIFO_DEFINE(tx_stream_queue);
 
 struct ringtone_prime_work ringtone_work;
 
 volatile uint8_t sync_timer_started;
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE_TX) && (UNICAST_AUDIO_SYNC_MODE_TX > 0))
-osa_semaphore_handle_t sync_sem;
-OSA_SEMAPHORE_HANDLE_DEFINE(sync_sem_handle);
+K_SEM_DEFINE(sync_sem, 0, 1);
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
@@ -362,7 +358,6 @@ int unicast_audio_server_init(void)
 		.src_pac = true,
 		.src_loc = true,
 	};
-    osa_status_t err;
 
     if (xTaskCreate(sink_recv_stream_task, "sink_recv_stream_task", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, NULL) != pdPASS)
     {
@@ -370,34 +365,11 @@ int unicast_audio_server_init(void)
         return ret;
     }
 
-    err = OSA_MsgQCreate((osa_msgq_handle_t)rx_stream_queue_handle, STREAM_RX_BUF_COUNT, sizeof(void*));
-    if (KOSA_StatusSuccess != err)
-    {
-        return -ENOMEM;
-    }
-    rx_stream_queue = (osa_msgq_handle_t)rx_stream_queue_handle;
-
     if (xTaskCreate(source_send_stream_task, "source_send_stream_task", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, NULL) != pdPASS)
     {
         PRINTF("Source stream send task creation failed!\r\n");
         return ret;
     }
-
-    err = OSA_MsgQCreate((osa_msgq_handle_t)tx_stream_queue_handle, STREAM_TX_BUF_COUNT, sizeof(void*));
-    if (KOSA_StatusSuccess != err)
-    {
-        return -ENOMEM;
-    }
-    tx_stream_queue = (osa_msgq_handle_t)tx_stream_queue_handle;
-
-#if (defined(UNICAST_AUDIO_SYNC_MODE_TX) && (UNICAST_AUDIO_SYNC_MODE_TX > 0))
-    err = OSA_SemaphoreCreate((osa_semaphore_handle_t)sync_sem_handle, 0);
-    if (KOSA_StatusSuccess != err)
-    {
-        return -ENOMEM;
-    }
-    sync_sem = (osa_semaphore_handle_t)sync_sem_handle;
-#endif /* UNICAST_AUDIO_SYNC_MODE_TX */
 
     k_work_init_delayable(&ringtone_work.work, ringtone_prime_timeout);
 
@@ -405,9 +377,9 @@ int unicast_audio_server_init(void)
 
     bt_gatt_cb_register(&gatt_callbacks);
 
-    err = bt_pacs_register(&pacs_param);
-    if (err) {
-        printk("Could not register PACS (err %d)\n", err);
+    ret = bt_pacs_register(&pacs_param);
+    if (ret) {
+        printk("Could not register PACS (err %d)\n", ret);
         return 0;
     }
 
@@ -484,7 +456,6 @@ static void ringtone_prime_timeout(struct k_work *work)
     struct ringtone_prime_work *ring = (struct ringtone_prime_work *)CONTAINER_OF(work, struct k_work_delayable, work);
     struct net_buf *buf;
     size_t tx_len = 0;
-    osa_status_t ret;
 
     k_work_schedule(&ring->work, K_MSEC(1));
     do
@@ -501,15 +472,8 @@ static void ringtone_prime_timeout(struct k_work *work)
         }
         net_buf_add_mem(buf, &ring->pcm[ring->prime_index], tx_len);
 
-        ret = OSA_MsgQPut(tx_stream_queue, &buf);
-        if (KOSA_StatusSuccess != ret)
-        {
-            net_buf_unref(buf);
-        }
-        else
-        {
-            ring->prime_index = ring->prime_index + tx_len;
-        }
+        k_fifo_put(&tx_stream_queue, buf);
+        ring->prime_index = ring->prime_index + tx_len;
         buf = NULL;
     } while (true);
 }
@@ -898,7 +862,6 @@ static void sink_recv_stream_task(void *param)
 {
     struct net_buf *buf;
     struct bt_iso_recv_info * info;
-    osa_status_t ret;
     int32_t plc_flag[MAX_AUDIO_CHANNEL_COUNT];
     int32_t dec_byte_count[MAX_AUDIO_CHANNEL_COUNT];
     int lc3_ret;
@@ -918,18 +881,13 @@ static void sink_recv_stream_task(void *param)
     uint32_t handled_sync_index_current = 0;
     uint32_t handled_flag_last = 0;
 
-    OSA_SR_ALLOC();
+    unsigned int key;
 
     while (true)
     {
-        ret = OSA_MsgQGet(rx_stream_queue, &buf, osaWaitForever_c);
-        if ( KOSA_StatusSuccess == ret )
+        buf = k_fifo_get(&rx_stream_queue, K_FOREVER);
+        if ( NULL != buf )
         {
-            if (NULL == buf)
-            {
-                continue;
-            }
-
             info = (struct bt_iso_recv_info * ) buf->data;
             ts = info->ts;
             seq = info->seq_num;
@@ -1002,7 +960,7 @@ static void sink_recv_stream_task(void *param)
                 }
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
-                OSA_ENTER_CRITICAL();
+                key = irq_lock();
                 if (0 == connection.snk.status.start_slot)
                 {
                     /* Get cig_sync_delay_us */
@@ -1034,7 +992,7 @@ static void sink_recv_stream_task(void *param)
                     connection.src.status.start_slot = connection.snk.status.start_slot + 4;
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
                 }
-                OSA_EXIT_CRITICAL();
+                irq_unlock(key);
 
                 srCvtUpdateFreqOffset(&connection.snk.resampler[i].upSrc, update_delta);
 
@@ -1053,13 +1011,13 @@ static void sink_recv_stream_task(void *param)
             pcm = (int16_t *)connection.snk.in_buffer;
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
-            OSA_ENTER_CRITICAL();
+            key = irq_lock();
             connection.snk.status.output_length += output_length;
             connection.snk.status.received_length += received_length;
             connection.snk.status.received_count ++;
             connection.snk.status.resampler_added_samples += resampler_added_samples;
             connection.snk.status.resampler_internal_samples = resampler_internal_samples;
-            OSA_EXIT_CRITICAL();
+            irq_unlock(key);
 
             channel_delta = connection.snk.resampler[0].out_length - connection.snk.resampler[1].out_length;
 
@@ -1174,7 +1132,6 @@ static void source_send_stream_task(void *param)
 {
     struct net_buf *buf;
     uint8_t * buffer = NULL;
-    osa_status_t ret;
     int err;
 #if (defined(UNICAST_AUDIO_SYNC_MODE_TX) && (UNICAST_AUDIO_SYNC_MODE_TX > 0))
     double update_delta = 0.0;
@@ -1188,14 +1145,13 @@ static void source_send_stream_task(void *param)
     double resampler_added_samples;
     double resampler_internal_samples;
 
-    OSA_SR_ALLOC();
+    unsigned int key;
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
 
     while (true)
     {
 #if (defined(UNICAST_AUDIO_SYNC_MODE_TX) && (UNICAST_AUDIO_SYNC_MODE_TX > 0))
-        ret = OSA_SemaphoreWait(sync_sem, osaWaitForever_c);
-        if ( KOSA_StatusSuccess != ret )
+        if ( 0 != k_sem_take(&sync_sem, K_FOREVER) )
         {
             continue;
         }
@@ -1242,17 +1198,17 @@ static void source_send_stream_task(void *param)
                 connection.src.resampler[i].out_length += length;
                 out_length += connection.src.resampler[i].out_length;
             }
-            OSA_ENTER_CRITICAL();
+            key = irq_lock();
             connection.src.status.output_length += output_length;
             connection.src.status.received_length += received_length;
             connection.src.status.resampler_added_samples += resampler_added_samples;
             connection.src.status.resampler_internal_samples = resampler_internal_samples;
-            OSA_EXIT_CRITICAL();
+            irq_unlock(key);
         }
 
         if (out_length >= (tx_len * snk_config_cap.channel_count))
         {
-            buf = net_buf_alloc(&tx_pool, osaWaitForever_c);
+            buf = net_buf_alloc(&tx_pool, K_FOREVER);
             src = (int16_t *)buf->data;
             for (int j = 0; j < tx_len; j++)
             {
@@ -1320,12 +1276,8 @@ static void source_send_stream_task(void *param)
 #endif
         }
 #else
-        ret = OSA_MsgQGet(tx_stream_queue, &buf, osaWaitForever_c);
-        if ( KOSA_StatusSuccess != ret )
-        {
-            continue;
-        }
-        if (NULL == buf)
+        buf = k_fifo_get(&tx_stream_queue, K_FOREVER);
+        if ( NULL == buf )
         {
             continue;
         }
@@ -1360,16 +1312,13 @@ static void codec_rx_callback(uint8_t *rx_buffer)
 #if 0
     static uint32_t sem_post_count = 0;
 
-    osa_status_t ret;
-
     if (connection.src.status.current_slot >= connection.src.status.start_slot)
     {
         sem_post_count ++;
 
         while (sem_post_count > 0)
         {
-            ret = OSA_SemaphorePost(sync_sem);
-            if (KOSA_StatusSuccess != ret)
+            if (0 != k_sem_give(&sync_sem))
             {
 #if 0
                 PRINTF("Post sem failed!\n");
@@ -1383,7 +1332,6 @@ static void codec_rx_callback(uint8_t *rx_buffer)
 #else
     struct net_buf *buf;
     size_t tx_len = 0;
-    osa_status_t ret;
     uint16_t *src = (uint16_t *)rx_buffer;
     uint16_t *dst = NULL;
 
@@ -1405,11 +1353,7 @@ static void codec_rx_callback(uint8_t *rx_buffer)
     }
     buf->len = tx_len * src_config_cap.channel_count * 2;
 
-    ret = OSA_MsgQPut(tx_stream_queue, &buf);
-    if (KOSA_StatusSuccess != ret)
-    {
-        net_buf_unref(buf);
-    }
+    k_fifo_put(&tx_stream_queue, buf);
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
 }
 
@@ -1418,12 +1362,11 @@ static void unicast_server_stream_recv(struct bt_bap_stream *stream,
             struct net_buf *buf)
 {
     struct net_buf *rx_buf;
-    osa_status_t ret;
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
     uint32_t sync_index = current_sync_index;
 #endif /* UNICAST_AUDIO_SYNC_MODE */
 
-    rx_buf = net_buf_alloc(&rx_pool, osaWaitForever_c);
+    rx_buf = net_buf_alloc(&rx_pool, K_FOREVER);
     if (NULL == rx_buf)
     {
         PRINTF("Fail to alloc rx buffer\n");
@@ -1435,13 +1378,7 @@ static void unicast_server_stream_recv(struct bt_bap_stream *stream,
     net_buf_add_mem(rx_buf, &sync_index, sizeof(sync_index));
 #endif /* UNICAST_AUDIO_SYNC_MODE */
     net_buf_add_mem(rx_buf, buf->data, buf->len);
-    ret = OSA_MsgQPut(rx_stream_queue, &rx_buf);
-    if (KOSA_StatusSuccess != ret)
-    {
-        net_buf_unref(rx_buf);
-        PRINTF(" Fail to put the rx buf %p to queue\n", rx_buf);
-        return;
-    }
+    k_fifo_put(&rx_stream_queue, rx_buf);
 
     /* TODO: Handle the received stream data. */
 }
@@ -1623,8 +1560,6 @@ static void sync_timer_callback(uint32_t sync_index, uint64_t bclk_count)
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE_TX) && (UNICAST_AUDIO_SYNC_MODE_TX > 0))
     static uint32_t sem_post_count = 0;
-
-    osa_status_t ret;
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
 
     current_sync_index = sync_index;
@@ -1766,8 +1701,7 @@ static void sync_timer_callback(uint32_t sync_index, uint64_t bclk_count)
 
             while (sem_post_count > 0)
             {
-                ret = OSA_SemaphorePost(sync_sem);
-                if (KOSA_StatusSuccess != ret)
+                if (0 != k_sem_give(&sync_sem))
                 {
 #if 0
                     PRINTF("Post sem failed!\n");

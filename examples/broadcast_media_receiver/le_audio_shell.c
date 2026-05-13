@@ -29,7 +29,7 @@ extern serial_handle_t g_serialHandle;
 
 extern int config_broadcast_code(uint8_t *data, int len);
 
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_mode_role_selected);
+static K_SEM_DEFINE(sem_mode_role_selected, 0, 1);
 
 static shell_status_t sink_init(shell_handle_t shellHandle, int32_t argc, char **argv)
 {
@@ -55,7 +55,7 @@ static shell_status_t sink_init(shell_handle_t shellHandle, int32_t argc, char *
 		return kStatus_SHELL_RetUsage;
 	}
 
-	OSA_SemaphorePost(sem_mode_role_selected);
+	k_sem_give(&sem_mode_role_selected);
 
 	SHELL_ChangePrompt(shellHandle, new_prompt);
 
@@ -263,6 +263,5 @@ void le_audio_shell_init(void)
 	SHELL_Printf(s_shellHandle, "\r\nBroadcast Media Receiver.\r\n");
 	SHELL_Printf(s_shellHandle, "\r\nPlease select sink role \"left\"|\"right\" use \"init\" command.\r\n");
 	SHELL_PrintPrompt(s_shellHandle);
-	(void)OSA_SemaphoreCreate(sem_mode_role_selected, 0);
-	(void)OSA_SemaphoreWait(sem_mode_role_selected, osaWaitForever_c);
+	(void)k_sem_take(&sem_mode_role_selected, K_FOREVER);
 }

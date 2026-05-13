@@ -91,9 +91,9 @@ static const struct bt_data ad[] = {
 static frame_packet_t frame;
 #endif
 
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_disconnected);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_security_changed);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_mcs_server_discovered);
+static K_SEM_DEFINE(sem_disconnected, 0, 1);
+static K_SEM_DEFINE(sem_security_changed, 0, 1);
+static K_SEM_DEFINE(sem_mcs_server_discovered, 0, 1);
 
 
 extern void umr_to_bms_vol_control(uint8_t volume, uint8_t mute);
@@ -438,7 +438,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	bt_conn_unref(default_conn);
 	default_conn = NULL;
 
-	OSA_SemaphorePost(sem_disconnected);
+	k_sem_give(&sem_disconnected);
 }
 
 #if CONFIG_BT_SMP
@@ -450,7 +450,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     printk("UMR: Security changed: %s level %u (error %d)\r\n", addr, level, err);
 
-	(void)OSA_SemaphorePost(sem_security_changed);
+	(void)k_sem_give(&sem_security_changed);
 }
 
 static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
@@ -559,7 +559,7 @@ static void mcc_discover_mcs_cb(struct bt_conn *conn, int err)
 		return;
 	}
 
-	OSA_SemaphorePost(sem_mcs_server_discovered);
+	k_sem_give(&sem_mcs_server_discovered);
 	mcs_server_conn = conn;
 
 	(void)mcs_server_conn;
@@ -648,10 +648,6 @@ void unicast_media_receiver_task(void *param)
 	};
 	int err;
 
-	(void)OSA_SemaphoreCreate(sem_disconnected, 0);
-	(void)OSA_SemaphoreCreate(sem_mcs_server_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_security_changed, 0);
-
 	bt_conn_cb_register(&conn_callbacks);
 #if CONFIG_BT_SMP
 	bt_conn_auth_cb_register(&auth_cb_display);
@@ -715,7 +711,7 @@ void unicast_media_receiver_task(void *param)
 
 		printk("UMR: Advertising successfully started\r\n");
 
-		err = OSA_SemaphoreWait(sem_security_changed, osaWaitForever_c);
+		err = k_sem_take(&sem_security_changed, K_FOREVER);
 		if (err != 0) {
 			printk("UMR: failed to take sem_security_changed (err %d)\r\n", err);
 			while(1);
@@ -725,14 +721,14 @@ void unicast_media_receiver_task(void *param)
 
 		(void)le_audio_mcs_discover(default_conn);
 
-		err = OSA_SemaphoreWait(sem_mcs_server_discovered, osaWaitForever_c);
+		err = k_sem_take(&sem_mcs_server_discovered, K_FOREVER);
 		if (err != 0) {
 			printk("UMR: failed to take sem_mcs_server_discovered (err %d)\r\n", err);
 			while(1);
 		}
 		printk("UMR: MCS server discovered.\r\n");
 
-		err = OSA_SemaphoreWait(sem_disconnected, osaWaitForever_c);
+		err = k_sem_take(&sem_disconnected, K_FOREVER);
 		if (err != 0) {
 			printk("UMR: failed to take sem_disconnected (err %d)\r\n", err);
 			break;

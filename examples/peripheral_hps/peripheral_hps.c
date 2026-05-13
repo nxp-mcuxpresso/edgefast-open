@@ -21,7 +21,7 @@
 #include <zephyr/bluetooth/services/hps.h>
 
 
-OSA_MSGQ_HANDLE_DEFINE(app_queue, 10, sizeof(void*));
+K_FIFO_DEFINE(app_queue);
 
 struct bt_conn *default_conn;
 
@@ -155,7 +155,7 @@ static void bt_ready(int err)
 
 	printk("Bluetooth initialized\n");
 
-	bt_hps_init(app_queue);
+	bt_hps_init(&app_queue);
 
 	bt_conn_cb_register(&conn_callbacks);
 
@@ -187,18 +187,9 @@ static void hps_process_request(void *data)
 void peripheral_hps_task(void *pvParameters)
 {
     void *rx_data;
-    osa_status_t ret;
-
     int err;
 
     printk("BLE Peripheral HPS demo start...\n");
-
-    ret = OSA_MsgQCreate(app_queue, 10, sizeof(void *));
-    if (ret)
-    {
-		printk("Failed to create app msg queue (err %d)\n", ret);
-		return;
-	}
 
     err = bt_enable(bt_ready);
 	if (err)
@@ -212,8 +203,8 @@ void peripheral_hps_task(void *pvParameters)
 
     while(1)
     {
-        ret = OSA_MsgQGet(app_queue, &rx_data, 1000);
-        if (ret == KOSA_StatusSuccess)
+        rx_data = k_fifo_get(&app_queue, 1000);
+        if (NULL != rx_data)
         {
             hps_process_request(rx_data);
         }

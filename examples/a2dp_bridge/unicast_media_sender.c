@@ -170,24 +170,24 @@ static struct bt_le_conn_param conn_param = {
 	.timeout = 30,
 };
 
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_lc3_preset);
-OSA_SEMAPHORE_HANDLE_DEFINE(sem_scan);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_device_selected);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_connected);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_csip_discovered);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_member_discovered);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_disconnected);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_mtu_exchanged);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_security_updated);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_sinks_discovered);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_vcs_discovered);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_sources_discovered);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_stream_configured);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_stream_qos);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_stream_enabled);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_stream_disabled);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_stream_started);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_stream_connected);
+static K_SEM_DEFINE(sem_lc3_preset, 0, 1);
+K_SEM_DEFINE(sem_scan, 0, 1);
+static K_SEM_DEFINE(sem_device_selected, 0, 1);
+static K_SEM_DEFINE(sem_connected, 0, 1);
+static K_SEM_DEFINE(sem_csip_discovered, 0, 1);
+static K_SEM_DEFINE(sem_member_discovered, 0, 1);
+static K_SEM_DEFINE(sem_disconnected, 0, 1);
+static K_SEM_DEFINE(sem_mtu_exchanged, 0, 1);
+static K_SEM_DEFINE(sem_security_updated, 0, 1);
+static K_SEM_DEFINE(sem_sinks_discovered, 0, 1);
+static K_SEM_DEFINE(sem_vcs_discovered, 0, 1);
+static K_SEM_DEFINE(sem_sources_discovered, 0, 1);
+static K_SEM_DEFINE(sem_stream_configured, 0, 1);
+static K_SEM_DEFINE(sem_stream_qos, 0, 1);
+static K_SEM_DEFINE(sem_stream_enabled, 0, 1);
+static K_SEM_DEFINE(sem_stream_disabled, 0, 1);
+static K_SEM_DEFINE(sem_stream_started, 0, 1);
+static K_SEM_DEFINE(sem_stream_connected, 0, 1);
 
 static bool cis_stream_play = true;
 static bool cis_stream_play_update = false;
@@ -499,7 +499,7 @@ int select_lc3_preset(char *preset_name)
 
 	print_lc3_preset("a2dp_bridge_limit_rtn=1", &lc3_preset);
 
-	(void)OSA_SemaphorePost(sem_lc3_preset);
+	(void)k_sem_give(&sem_lc3_preset);
 
 	return 0;
 }
@@ -690,14 +690,14 @@ static void stream_configured(struct bt_bap_stream *stream,
 {
 	PRINTF("Audio Stream %p configured\n", stream);
 
-	OSA_SemaphorePost(sem_stream_configured);
+	k_sem_give(&sem_stream_configured);
 }
 
 static void stream_qos_set(struct bt_bap_stream *stream)
 {
 	PRINTF("Audio Stream %p QoS set\n", stream);
 
-	OSA_SemaphorePost(sem_stream_qos);
+	k_sem_give(&sem_stream_qos);
 }
 
 static void stream_enabled(struct bt_bap_stream *stream)
@@ -710,14 +710,14 @@ static void stream_enabled(struct bt_bap_stream *stream)
 		BOARD_SyncSignal_Start(0);
 	}
 
-	OSA_SemaphorePost(sem_stream_enabled);
+	k_sem_give(&sem_stream_enabled);
 }
 
 static void stream_connected(struct bt_bap_stream *stream)
 {
 	PRINTF("Audio Stream %p started\n", stream);
 
-	OSA_SemaphorePost(sem_stream_connected);
+	k_sem_give(&sem_stream_connected);
 }
 
 static void stream_started(struct bt_bap_stream *stream)
@@ -732,7 +732,7 @@ static void stream_started(struct bt_bap_stream *stream)
 		}
 	}
 
-	OSA_SemaphorePost(sem_stream_started);
+	k_sem_give(&sem_stream_started);
 }
 
 static void stream_metadata_updated(struct bt_bap_stream *stream)
@@ -744,7 +744,7 @@ static void stream_disabled(struct bt_bap_stream *stream)
 {
 	PRINTF("Audio Stream %p disabled\n", stream);
 
-	OSA_SemaphorePost(sem_stream_disabled);
+	k_sem_give(&sem_stream_disabled);
 }
 
 static void stream_stopped(struct bt_bap_stream *stream, uint8_t reason)
@@ -803,7 +803,7 @@ static void discover_sinks_cb(struct bt_conn *conn, int err, enum bt_audio_dir d
 		PRINTF("Discover sinks complete: err %d\n", err);
 	}
 
-	OSA_SemaphorePost(sem_sinks_discovered);
+	k_sem_give(&sem_sinks_discovered);
 
 }
 
@@ -834,7 +834,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 		PRINTF("LE Connected: %s\n", addr);
 
-		OSA_SemaphorePost(sem_connected);
+		k_sem_give(&sem_connected);
 	}
 }
 
@@ -875,7 +875,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 		bt_conn_unref(default_conn[i]);
 		default_conn[i] = NULL;
 
-		OSA_SemaphorePost(sem_disconnected);
+		k_sem_give(&sem_disconnected);
 	}
 }
 
@@ -889,7 +889,7 @@ static void security_changed_cb(struct bt_conn *conn, bt_security_t level,
     	if(info.type == BT_CONN_TYPE_LE)
 	{
 		if (err == 0) {
-			OSA_SemaphorePost(sem_security_updated);
+			k_sem_give(&sem_security_updated);
 		} else {
 			PRINTF("LE Failed to set security level: %u", err);
 		}
@@ -905,7 +905,7 @@ static struct bt_conn_cb conn_callbacks = {
 static void att_mtu_updated(struct bt_conn *conn, uint16_t tx, uint16_t rx)
 {
 	PRINTF("MTU exchanged: %u/%u\n", tx, rx);
-	OSA_SemaphorePost(sem_mtu_exchanged);
+	k_sem_give(&sem_mtu_exchanged);
 }
 
 static struct bt_gatt_cb gatt_callbacks = {
@@ -967,25 +967,6 @@ static struct bt_bap_unicast_client_cb unicast_client_cbs = {
 
 static int init(void)
 {
-	(void)OSA_SemaphoreCreate(sem_lc3_preset, 0);
-	(void)OSA_SemaphoreCreate(sem_scan, 0);
-	(void)OSA_SemaphoreCreate(sem_device_selected, 0);
-	(void)OSA_SemaphoreCreate(sem_connected, 0);
-	(void)OSA_SemaphoreCreate(sem_csip_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_member_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_disconnected, 0);
-	(void)OSA_SemaphoreCreate(sem_mtu_exchanged, 0);
-	(void)OSA_SemaphoreCreate(sem_security_updated, 0);
-	(void)OSA_SemaphoreCreate(sem_sinks_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_vcs_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_sources_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_configured, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_qos, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_enabled, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_disabled, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_started, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_connected, 0);
-
 	bt_conn_cb_register(&conn_callbacks);
 
 	for (size_t i = 0; i < ARRAY_SIZE(streams); i++) {
@@ -1119,7 +1100,7 @@ int device_select(int index)
 		PRINTF("scan stop fail with err %d\n", err);
 	}
 
-	(void)OSA_SemaphorePost(sem_device_selected);
+	(void)k_sem_give(&sem_device_selected);
 
 	return 0;
 }
@@ -1164,7 +1145,7 @@ static void member_scan_cb(const bt_addr_le_t *addr, int8_t rssi, uint8_t adv_ty
 		PRINTF("scan stop fail with err %d\n", err);
 	}
 
-	(void)OSA_SemaphorePost(sem_member_discovered);
+	(void)k_sem_give(&sem_member_discovered);
 }
 
 static int member_scan(void)
@@ -1211,13 +1192,13 @@ static int device_connect(int index)
 		return err;
 	}
 
-	err = OSA_SemaphoreWait(sem_connected, osaWaitForever_c);
+	err = k_sem_take(&sem_connected, K_FOREVER);
 	if (err != 0) {
 		PRINTF("failed to take sem_connected (err %d)\n", err);
 		return err;
 	}
 
-	err = OSA_SemaphoreWait(sem_mtu_exchanged, osaWaitForever_c);
+	err = k_sem_take(&sem_mtu_exchanged, K_FOREVER);
 	if (err != 0) {
 		PRINTF("failed to take sem_mtu_exchanged (err %d)\n", err);
 		return err;
@@ -1228,7 +1209,7 @@ static int device_connect(int index)
 		PRINTF("failed to set security (err %d)\n", err);
 	}
 
-	err = OSA_SemaphoreWait(sem_security_updated, osaWaitForever_c);
+	err = k_sem_take(&sem_security_updated, K_FOREVER);
 	if (err != 0) {
 		PRINTF("failed to take sem_security_updated (err %d)\n", err);
 		return err;
@@ -1245,7 +1226,7 @@ static void vcs_client_discover_callback(struct bt_conn *conn, int err)
 		return;
 	}
 
-	(void)OSA_SemaphorePost(sem_vcs_discovered);
+	(void)k_sem_give(&sem_vcs_discovered);
 }
 
 static int discover_vcs(int index)
@@ -1258,7 +1239,7 @@ static int discover_vcs(int index)
 		return -1;
 	}
 
-	(void)OSA_SemaphoreWait(sem_vcs_discovered, osaWaitForever_c);
+	(void)k_sem_take(&sem_vcs_discovered, K_FOREVER);
 
         return 0;
 }
@@ -1275,7 +1256,7 @@ static int discover_sinks(int index)
 		return err;
 	}
 
-	err = OSA_SemaphoreWait(sem_sinks_discovered, osaWaitForever_c);
+	err = k_sem_take(&sem_sinks_discovered, K_FOREVER);
 	if (err != 0) {
 		PRINTF("failed to take sem_sinks_discovered (err %d)\n", err);
 		return err;
@@ -1313,7 +1294,7 @@ static int configure_stream(struct bt_bap_stream *stream, struct bt_bap_ep *ep)
 		return err;
 	}
 
-	err = OSA_SemaphoreWait(sem_stream_configured, osaWaitForever_c);
+	err = k_sem_take(&sem_stream_configured, K_FOREVER);
 	if (err != 0) {
 		PRINTF("failed to take sem_stream_configured (err %d)\n", err);
 		return err;
@@ -1398,7 +1379,7 @@ static int set_stream_qos(int index)
 	}
 
 	PRINTF("QoS: waiting for %zu streams\n", index);
-	(void)OSA_SemaphoreWait(sem_stream_qos, osaWaitForever_c);
+	(void)k_sem_take(&sem_stream_qos, K_FOREVER);
 
 	return 0;
 }
@@ -1415,7 +1396,7 @@ static int enable_streams(int index)
 		return err;
 	}
 
-	err = OSA_SemaphoreWait(sem_stream_enabled, osaWaitForever_c);
+	err = k_sem_take(&sem_stream_enabled, K_FOREVER);
 	if (err != 0) {
 		PRINTF("failed to take sem_stream_enabled (err %d)\n", err);
 		return err;
@@ -1434,7 +1415,7 @@ static int disable_streams(int index)
 		return err;
 	}
 
-	err = OSA_SemaphoreWait(sem_stream_disabled, osaWaitForever_c);
+	err = k_sem_take(&sem_stream_disabled, K_FOREVER);
 	if (err != 0) {
 		PRINTF("failed to take sem_stream_disabled (err %d)\n", err);
 		return err;
@@ -1453,7 +1434,7 @@ static int connect_streams(int index)
 		return err;
 	}
 
-	err = OSA_SemaphoreWait(sem_stream_connected, osaWaitForever_c);
+	err = k_sem_take(&sem_stream_connected, K_FOREVER);
 	if (err != 0) {
 		PRINTF("failed to take sem_stream_connected (err %d)\n", err);
 		return err;
@@ -1466,7 +1447,7 @@ static int start_streams(int index)
 {
 	int err;
 
-	err = OSA_SemaphoreWait(sem_stream_started, osaWaitForever_c);
+	err = k_sem_take(&sem_stream_started, K_FOREVER);
 	if (err != 0) {
 		PRINTF("failed to take sem_stream_started (err %d)\n", err);
 		return err;
@@ -1477,43 +1458,24 @@ static int start_streams(int index)
 
 static void reset_data(void)
 {
-	(void)OSA_SemaphoreDestroy(sem_lc3_preset);
-	(void)OSA_SemaphoreDestroy(sem_scan);
-	(void)OSA_SemaphoreDestroy(sem_device_selected);
-	(void)OSA_SemaphoreDestroy(sem_connected);
-	(void)OSA_SemaphoreDestroy(sem_csip_discovered);
-	(void)OSA_SemaphoreDestroy(sem_member_discovered);
-	(void)OSA_SemaphoreDestroy(sem_disconnected);
-	(void)OSA_SemaphoreDestroy(sem_mtu_exchanged);
-	(void)OSA_SemaphoreDestroy(sem_security_updated);
-	(void)OSA_SemaphoreDestroy(sem_sinks_discovered);
-	(void)OSA_SemaphoreDestroy(sem_vcs_discovered);
-	(void)OSA_SemaphoreDestroy(sem_sources_discovered);
-	(void)OSA_SemaphoreDestroy(sem_stream_configured);
-	(void)OSA_SemaphoreDestroy(sem_stream_qos);
-	(void)OSA_SemaphoreDestroy(sem_stream_enabled);
-	(void)OSA_SemaphoreDestroy(sem_stream_disabled);
-	(void)OSA_SemaphoreDestroy(sem_stream_started);
-	(void)OSA_SemaphoreDestroy(sem_stream_connected);
-
-	(void)OSA_SemaphoreCreate(sem_lc3_preset, 0);
-	(void)OSA_SemaphoreCreate(sem_scan, 0);
-	(void)OSA_SemaphoreCreate(sem_device_selected, 0);
-	(void)OSA_SemaphoreCreate(sem_connected, 0);
-	(void)OSA_SemaphoreCreate(sem_csip_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_member_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_disconnected, 0);
-	(void)OSA_SemaphoreCreate(sem_mtu_exchanged, 0);
-	(void)OSA_SemaphoreCreate(sem_security_updated, 0);
-	(void)OSA_SemaphoreCreate(sem_sinks_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_vcs_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_sources_discovered, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_configured, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_qos, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_enabled, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_disabled, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_started, 0);
-	(void)OSA_SemaphoreCreate(sem_stream_connected, 0);
+	(void)k_sem_reset(&sem_lc3_preset);
+	(void)k_sem_reset(&sem_scan);
+	(void)k_sem_reset(&sem_device_selected);
+	(void)k_sem_reset(&sem_connected);
+	(void)k_sem_reset(&sem_csip_discovered);
+	(void)k_sem_reset(&sem_member_discovered);
+	(void)k_sem_reset(&sem_disconnected);
+	(void)k_sem_reset(&sem_mtu_exchanged);
+	(void)k_sem_reset(&sem_security_updated);
+	(void)k_sem_reset(&sem_sinks_discovered);
+	(void)k_sem_reset(&sem_vcs_discovered);
+	(void)k_sem_reset(&sem_sources_discovered);
+	(void)k_sem_reset(&sem_stream_configured);
+	(void)k_sem_reset(&sem_stream_qos);
+	(void)k_sem_reset(&sem_stream_enabled);
+	(void)k_sem_reset(&sem_stream_disabled);
+	(void)k_sem_reset(&sem_stream_started);
+	(void)k_sem_reset(&sem_stream_connected);
 
 	memset(sinks, 0, sizeof(sinks));
 }
@@ -1579,7 +1541,7 @@ static void csip_set_coordinator_discover_cb(
 			}
 		}
 	}
-	(void)OSA_SemaphorePost(sem_csip_discovered);
+	(void)k_sem_give(&sem_csip_discovered);
 }
 
 static struct bt_csip_set_coordinator_cb csip_cb = {
@@ -1621,7 +1583,7 @@ void unicast_media_sender_task(void *param)
 #endif
 
 	PRINTF("\nPlease select lc3 preset use \"lc3_preset <name>\" command.\n");
-	OSA_SemaphoreWait(sem_lc3_preset, osaWaitForever_c);
+	k_sem_take(&sem_lc3_preset, K_FOREVER);
 	/* Config audio parameters. */
 #if defined(APP_BRIDGE_UPSAMPLE_441_TO_48) && (APP_BRIDGE_UPSAMPLE_441_TO_48 > 0)
 	config_audio_parameters(48000, a2dp_audio_channels, a2dp_audio_bits);
@@ -1664,7 +1626,7 @@ void unicast_media_sender_task(void *param)
 		PRINTF("Unicast group created\n");
 
 		PRINTF("Please scan and connect the devices you want!\n");
-		err = OSA_SemaphoreWait(sem_scan, osaWaitForever_c);
+		err = k_sem_take(&sem_scan, K_FOREVER);
 		if (err != 0) {
 			PRINTF("failed to take sem_scan (err %d)\n", err);
 			break;
@@ -1677,7 +1639,7 @@ void unicast_media_sender_task(void *param)
 		}
 		PRINTF("Scanning successfully started\n");
 
-		err = OSA_SemaphoreWait(sem_device_selected, osaWaitForever_c);
+		err = k_sem_take(&sem_device_selected, K_FOREVER);
 		if (err != 0) {
 			PRINTF("failed to take sem_device_selected (err %d)\n", err);
 			break;
@@ -1699,7 +1661,7 @@ void unicast_media_sender_task(void *param)
 				PRINTF("CSIP set coordinator discover err %d\n", err);
 				break;
 			}
-			OSA_SemaphoreWait(sem_csip_discovered, osaWaitForever_c);
+			k_sem_take(&sem_csip_discovered, K_FOREVER);
 			PRINTF("CSIP discovered\n");
 
 			if(i == 0)
@@ -1708,7 +1670,7 @@ void unicast_media_sender_task(void *param)
 
 				member_scan();
 
-				OSA_SemaphoreWait(sem_member_discovered, osaWaitForever_c);
+				k_sem_take(&sem_member_discovered, K_FOREVER);
 				PRINTF("Member discovered\n");
 			}
 		}
@@ -1818,12 +1780,12 @@ void unicast_media_sender_task(void *param)
 						}
 					}
 				}
-				OSA_TimeDelay(1);
+				k_msleep(1);
 			}
 		} while (0 == res);
 
 		/* Wait for disconnect */
-		err = OSA_SemaphoreWait(sem_disconnected, osaWaitForever_c);
+		err = k_sem_take(&sem_disconnected, K_FOREVER);
 		if (err != 0) {
 			PRINTF("failed to take sem_disconnected (err %d)\n", err);
 			break;

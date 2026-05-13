@@ -41,7 +41,7 @@ enum event_bitmap
     KAPP_EventUnicastDiscoverDone = BIT(0),
 };
 
-static OSA_EVENT_HANDLE_DEFINE(eventHandle);
+static K_SEM_DEFINE(sem_discover_done, 0, 1);
 
 static shell_status_t scanning(shell_handle_t shellHandle, int32_t argc, char **argv);
 static shell_status_t passkey_confirm(shell_handle_t shellHandle, int32_t argc, char **argv);
@@ -338,7 +338,7 @@ static void unicast_client_discover_done_callback(struct bt_conn *conn, int err)
 {
     if (err == 0)
     {
-        OSA_EventSet((osa_event_handle_t)eventHandle, KAPP_EventUnicastDiscoverDone);
+        k_sem_give(&sem_discover_done);
     }
 }
 
@@ -598,23 +598,11 @@ static shell_status_t unpair(shell_handle_t shellHandle, int32_t argc, char **ar
 void call_gateway_task(void *param)
 {
     int ret;
-    osa_status_t osa_ret;
-    osa_event_flags_t flags;
 
 #if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
     extern void bt_psa_crypto_init(void);
     bt_psa_crypto_init();
 #endif /* CONFIG_BT_SMP */
-
-    osa_ret = OSA_EventCreate((osa_event_handle_t)eventHandle, 1U);
-    if (KOSA_StatusSuccess != osa_ret)
-    {
-        PRINTF("Event create failed\n");
-        while (true)
-        {
-            vTaskDelay(2000);
-        }
-    }
 
     /* Init SHELL */
     s_shellHandle = &s_shellHandleBuffer[0];
@@ -632,18 +620,10 @@ void call_gateway_task(void *param)
 
     while (true)
     {
-        osa_ret = OSA_EventWait(eventHandle, (osa_event_flags_t)0xFFFFFFFFUL, 0U, osaWaitForever_c, &flags);
-        if (KOSA_StatusSuccess == osa_ret)
+        ret = k_sem_take(&sem_discover_done, K_FOREVER);
+        if (0 == ret)
         {
-            switch (flags)
-            {
-            case KAPP_EventUnicastDiscoverDone:
-                call_server_enable_command();
-                break;
-
-            default:
-                break;
-            }
+            call_server_enable_command();
         }
     }
 }

@@ -139,10 +139,10 @@ static uint32_t seq_num;
 static uint64_t tx_samples = 0;
 static uint32_t tx_time_stamp_start;
 
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_wav_opened);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_lc3_preset);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_started);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_stopped);
+static K_SEM_DEFINE(sem_wav_opened, 0, 1);
+static K_SEM_DEFINE(sem_lc3_preset, 0, 1);
+static K_SEM_DEFINE(sem_started, 0, 1);
+static K_SEM_DEFINE(sem_stopped, 0, 1);
 
 #define BROADCAST_SOURCE_LIFETIME  120U /* seconds */
 
@@ -192,13 +192,13 @@ static void stream_started_cb(struct bt_bap_stream *stream)
 
 	source_stream->seq_num = 0U;
 	source_stream->sent_cnt = 0U;
-	OSA_SemaphorePost(sem_started);
+	k_sem_give(&sem_started);
 }
 
 static void stream_stopped_cb(struct bt_bap_stream *stream, uint8_t reason)
 {
 	BOARD_SyncSignal_Stop();
-	OSA_SemaphorePost(sem_stopped);
+	k_sem_give(&sem_stopped);
 }
 
 struct bt_bap_stream_ops stream_ops = {
@@ -428,7 +428,7 @@ int open_wav_file(char *path)
 		return -1;
 	}
 
-	(void)OSA_SemaphorePost(sem_wav_opened);
+	(void)k_sem_give(&sem_wav_opened);
 
 	return 0;
 }
@@ -511,7 +511,7 @@ int select_lc3_preset(char *preset_name)
 
 	print_lc3_preset(preset_name, &lc3_preset);
 
-	(void)OSA_SemaphorePost(sem_lc3_preset);
+	(void)k_sem_give(&sem_lc3_preset);
 
 	return 0;
 }
@@ -677,11 +677,6 @@ void broadcast_media_sender_task(void *param)
 	bt_psa_crypto_init();
 #endif /* CONFIG_BT_SMP */
 
-	OSA_SemaphoreCreate(sem_wav_opened, 0);
-	OSA_SemaphoreCreate(sem_lc3_preset, 0);
-	OSA_SemaphoreCreate(sem_started, 0);
-	OSA_SemaphoreCreate(sem_stopped, 0);
-
 	/* shell init. */
 	le_audio_shell_init();
 
@@ -691,7 +686,7 @@ void broadcast_media_sender_task(void *param)
 		printk("Bluetooth init failed (err %d)\n", err);
 		while(1)
 		{
-			OSA_TimeDelay(1000);
+			k_msleep(1000);
 		}
 	}
 	printk("Bluetooth initialized\n");
@@ -704,11 +699,11 @@ void broadcast_media_sender_task(void *param)
 	wav_file_list("1:/");
 	/* Open wav file */
 	PRINTF("\nPlease open the wav file you want use \"wav_open <path>\" command.\n");
-	OSA_SemaphoreWait(sem_wav_opened, osaWaitForever_c);
+	k_sem_take(&sem_wav_opened, K_FOREVER);
 	/* Select LC3 preset */
 	print_all_preset(wav_file.sample_rate);
 	PRINTF("\nPlease select lc3 preset use \"lc3_preset <name>\" command.\n");
-	OSA_SemaphoreWait(sem_lc3_preset, osaWaitForever_c);
+	k_sem_take(&sem_lc3_preset, K_FOREVER);
 	/* overlay rtn & pd if set */
 	if(new_rtn >= 0)
 	{
@@ -840,7 +835,7 @@ void broadcast_media_sender_task(void *param)
 
 		/* Wait for all to be started */
 		for (size_t i = 0U; i < ARRAY_SIZE(streams); i++) {
-			OSA_SemaphoreWait(sem_started, osaWaitForever_c);
+			k_sem_take(&sem_started, K_FOREVER);
 		}
 		printk("Broadcast source started\n");
 
@@ -861,7 +856,7 @@ void broadcast_media_sender_task(void *param)
 
 					/* Wait for all to be started */
 					for (size_t i = 0U; i < ARRAY_SIZE(streams); i++) {
-						OSA_SemaphoreWait(sem_started, osaWaitForever_c);
+						k_sem_take(&sem_started, K_FOREVER);
 					}
 					PRINTF("Broadcast source started\n");
 				}
@@ -882,11 +877,11 @@ void broadcast_media_sender_task(void *param)
 
 					/* Wait for all to be stopped */
 					for (size_t i = 0U; i < ARRAY_SIZE(streams); i++) {
-						OSA_SemaphoreWait(sem_stopped, osaWaitForever_c);
+						k_sem_take(&sem_stopped, K_FOREVER);
 					}
 					PRINTF("Broadcast source stopped\n");
 				}
-				OSA_TimeDelay(2);
+				k_msleep(2);
 			}
 		} while (0 == res);
 
@@ -899,7 +894,7 @@ void broadcast_media_sender_task(void *param)
 
 		/* Wait for all to be stopped */
 		for (size_t i = 0U; i < ARRAY_SIZE(streams); i++) {
-			OSA_SemaphoreWait(sem_stopped, osaWaitForever_c);
+			k_sem_take(&sem_stopped, K_FOREVER);
 		}
 		printk("Broadcast source stopped\n");
 

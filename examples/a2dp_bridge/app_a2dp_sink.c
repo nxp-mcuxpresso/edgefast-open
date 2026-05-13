@@ -26,7 +26,7 @@
 #if 1 /* Code change for bridge. */
 #include "unicast_media_sender.h"
 
-static OSA_SEMAPHORE_HANDLE_DEFINE(a2dp_sink_init_done);
+static K_SEM_DEFINE(a2dp_sink_init_done, 0, 1);
 extern int a2dp_sink_audio_frame_size;
 bt_addr_t a2dp_bdaddr;
 
@@ -174,7 +174,7 @@ void sbc_stream_started(struct bt_a2dp_stream *stream)
 	sbc_setup_decoder(&decoder);
 	ring_buf_reset(&a2dp_ring_buf);
 	sbc_first_data = true;
-	OSA_SemaphorePost(a2dp_sink_init_done);
+	k_sem_give(&a2dp_sink_init_done);
 #endif
 }
 
@@ -354,8 +354,6 @@ void app_a2dp_sink_task(void *pvParameters)
 {
 	int err;
 
-    (void)OSA_SemaphoreCreate(a2dp_sink_init_done, 0);
-
     PRINTF("Bluetooth A2dp Bridge demo start...\n");
 
 	/* Initializate BT Host stack */
@@ -368,7 +366,7 @@ void app_a2dp_sink_task(void *pvParameters)
 	}
 
 #if 1 /* Code change for bridge. */
-    OSA_SemaphoreWait(a2dp_sink_init_done, osaWaitForever_c);
+    k_sem_take(&a2dp_sink_init_done, K_FOREVER);
 
     if (NULL == xTaskCreateStatic(unicast_media_sender_task, "unicast_media_sender_task", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, xStack, &xTaskBuffer))
     {

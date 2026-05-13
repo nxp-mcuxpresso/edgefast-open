@@ -123,7 +123,7 @@ ssize_t write_http_entity_body(struct bt_conn *conn, const struct bt_gatt_attr *
  *
  *  @return Zero in case of success and error code in case of error.
  */
-int bt_hps_init(osa_msgq_handle_t queue);
+int bt_hps_init(struct k_fifo *queue);
 
  /** @brief Sets Status Code after HTTP request was fulfilled.
  */

@@ -338,7 +338,7 @@ void central_ipsp_task(void *pvParameters)
     {
         vTaskDelay(5000);
 
-        buf = net_buf_alloc(&buf_pool, osaWaitNone_c);
+        buf = net_buf_alloc(&buf_pool, 0);
         if (NULL != buf)
         {
             net_buf_reserve(buf, BT_L2CAP_SDU_CHAN_SEND_RESERVE);

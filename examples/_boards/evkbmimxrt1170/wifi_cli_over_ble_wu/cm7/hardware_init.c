@@ -43,7 +43,7 @@
 void BOARD_InitHardware(void)
 {
     timer_config_t timerConfig;
-    osa_status_t status;
+    timer_status_t status;
     BOARD_ConfigMPU();
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
@@ -64,8 +64,8 @@ void BOARD_InitHardware(void)
     (void)memset(&timerConfig, 0, sizeof(timer_config_t));
     timerConfig.instance    = 1;
     timerConfig.srcClock_Hz = CLOCK_GetRootClockFreq(kCLOCK_Root_Bus);
-    status                  = (osa_status_t)TM_Init(&timerConfig);
-    assert(status == (osa_status_t)kStatus_TimerSuccess);
+    status                  = TM_Init(&timerConfig);
+    assert(status == kStatus_TimerSuccess);
     (void)status;
 }
 

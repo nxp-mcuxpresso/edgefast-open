@@ -23,7 +23,7 @@
 LOG_MODULE_REGISTER(hps);
 #endif
 
-static osa_msgq_handle_t hps_queue;
+static struct k_fifo *hps_queue;
 
 static hps_config_t service_config;
 static bool notif_enabled;
@@ -168,7 +168,7 @@ static ssize_t write_http_control_point(struct bt_conn *conn, const struct bt_ga
     else
     {
         service_config.state = BUSY_STATE;
-        (void)OSA_MsgQPut(hps_queue, (void*)&service_config);
+        (void)k_fifo_put(hps_queue, (void*)&service_config);
         return len;
     }
 }
@@ -192,7 +192,7 @@ static BT_GATT_SERVICE_DEFINE(hps_svc,
 			       BT_GATT_PERM_READ, read_https_security, NULL, NULL),
 );
 
-int bt_hps_init(osa_msgq_handle_t queue)
+int bt_hps_init(struct k_fifo *queue)
 {
     int err = 0;
 

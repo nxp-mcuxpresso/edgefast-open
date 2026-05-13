@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <porting.h>
 #include "clock_config.h"
 #include "board.h"
 #include "fsl_adapter_audio.h"
@@ -67,7 +68,7 @@ volatile uint32_t codecTxBufferPrimeIndex = 0;
 volatile uint32_t codecTxBufferWriteIndex = 0;
 volatile uint32_t codecTxBufferPrimeCount = 0;
 
-static OSA_SEMAPHORE_HANDLE_DEFINE(s_audioTaskSync);
+static K_SEM_DEFINE(s_audioTaskSync, 0, 1);
 
 static volatile uint8_t s_audioInitialized = 0u;
 
@@ -107,7 +108,7 @@ static void APP_CodecTxCallback(hal_audio_handle_t handle, hal_audio_status_t co
         codecTxBufferPrimeCount --;
     }
     tx_played_count += CODEC_TX_BUFFER_SIZE;
-    OSA_SemaphorePost(s_audioTaskSync);
+    k_sem_give(&s_audioTaskSync);
 }
 
 static void APP_CodecRxCallback(hal_audio_handle_t handle, hal_audio_status_t completionStatus, void *callbackParam)
@@ -119,7 +120,7 @@ static void APP_CodecRxCallback(hal_audio_handle_t handle, hal_audio_status_t co
         codecRxBufferPrimeCount --;
     }
     rx_new_count += CODEC_RX_BUFFER_SIZE;
-    OSA_SemaphorePost(s_audioTaskSync);
+    k_sem_give(&s_audioTaskSync);
 }
 
 int BOARD_AudioInit(uint32_t samplingRate, uint32_t bitWidth)
@@ -206,21 +207,21 @@ static void BOARD_CodecTask(void* param)
 {
     hal_audio_transfer_t xfer;
     uint8_t need2Callback = 0U;
-    OSA_SR_ALLOC();
+    unsigned int key;
 
     while (true)
     {
-        OSA_SemaphoreWait(s_audioTaskSync, osaWaitForever_c);
+        k_sem_take(&s_audioTaskSync, K_FOREVER);
 
-        OSA_ENTER_CRITICAL();
+        key = irq_lock();
         if (s_audioInitialized < 1)
         {
-            OSA_EXIT_CRITICAL();
+            irq_unlock(key);
             continue;
         }
-        OSA_EXIT_CRITICAL();
+        irq_unlock(key);
 
-        OSA_ENTER_CRITICAL();
+        key = irq_lock();
         if (codecTxBufferPrimeCount < CODEC_TX_BUFFER_COUNT)
         {
             xfer.data     = &codecTxBuffer[codecTxBufferPrimeIndex * CODEC_TX_BUFFER_SIZE];
@@ -237,7 +238,7 @@ static void BOARD_CodecTask(void* param)
             codecTxBufferPrimeCount ++;
             need2Callback = 1U;
         }
-        OSA_EXIT_CRITICAL();
+        irq_unlock(key);
 
         if (need2Callback > 0U)
         {
@@ -248,7 +249,7 @@ static void BOARD_CodecTask(void* param)
             }
         }
 
-        OSA_ENTER_CRITICAL();
+        key = irq_lock();
         if (codecRxBufferPrimeCount < CODEC_RX_BUFFER_COUNT)
         {
             xfer.data     = codecRxBuffer + codecRxBufferPrimeIndex * CODEC_RX_BUFFER_SIZE;
@@ -265,7 +266,7 @@ static void BOARD_CodecTask(void* param)
             codecRxBufferPrimeCount ++;
             need2Callback = 1U;
         }
-        OSA_EXIT_CRITICAL();
+        irq_unlock(key);
 
         if (need2Callback > 0U)
         {
@@ -282,14 +283,10 @@ static int BOARD_AudioTaskInit(void)
 {
     static uint8_t s_audioStarted = 0u;
     BaseType_t result = 0;
-    osa_status_t ret = KOSA_StatusSuccess;
 
     if (0u == s_audioStarted)
     {
         s_audioStarted = 1U;
-
-        ret = OSA_SemaphoreCreate(s_audioTaskSync, 0);
-        assert(KOSA_StatusSuccess == result);
 
         result = xTaskCreate(BOARD_CodecTask, "BOARD_CodecTask", 1024, NULL, configMAX_PRIORITIES / 2, NULL);
         assert(pdPASS == result);
@@ -311,7 +308,6 @@ static int BOARD_AudioTaskInit(void)
     rx_read_count = 0;
 
     (void)result;
-    (void)ret;
 
     return 0;
 }
@@ -363,9 +359,9 @@ void BOARD_PrimeTxWriteBuffer(const uint8_t * buffer, uint32_t length)
 void BOARD_StartStream(void)
 {
     hal_audio_transfer_t xfer;
-    OSA_SR_ALLOC();
+    unsigned int key;
 
-    OSA_ENTER_CRITICAL();
+    key = irq_lock();
     for (uint8_t index = 0; index < (CODEC_TX_BUFFER_COUNT - codecTxBufferPrimeCount); ++index)
     {
         xfer.data     = &codecTxBuffer[codecTxBufferPrimeIndex * CODEC_TX_BUFFER_SIZE];
@@ -398,7 +394,7 @@ void BOARD_StartStream(void)
         codecRxBufferPrimeCount++;
     }
 
-    OSA_EXIT_CRITICAL();
+    irq_unlock(key);
 }
 
 uint8_t *BOARD_GetRxReadBuffer(void)

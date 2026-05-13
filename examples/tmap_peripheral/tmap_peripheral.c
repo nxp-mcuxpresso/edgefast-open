@@ -334,6 +334,6 @@ void tmap_peripheral_task(void *param)
 
 	while(1)
 	{
-		OSA_TimeDelay(2);
+		k_msleep(2);
 	}
 }

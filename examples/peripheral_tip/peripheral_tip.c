@@ -41,7 +41,7 @@ static void timeout_process(void);
 struct bt_conn *default_conn;
 static QueueHandle_t adv_timeout_sync;
 
-OSA_MSGQ_HANDLE_DEFINE(app_queue, 10, sizeof(uint32_t));
+K_SEM_DEFINE(app_queue, 0, 10);
 
 static const struct bt_data ad[] = {
     BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
@@ -225,12 +225,12 @@ static void notifications_enabled(void)
 static void cts_notification_timeout_handler(TimerHandle_t timer_id)
 {
     /* get local timestamp */
-    local_time = OSA_TimeGetMsec() / 1000U;
+    local_time = k_uptime_get_32() / 1000U;
     /* add to epoch */
     local_time += EPOCH_TIMESTAMP;
 
     /* Post message and wake up application task */
-    (void)OSA_MsgQPut(app_queue, &local_time);
+	k_sem_give(&app_queue);
     if (NULL != adv_timeout_sync)
     {
     	xSemaphoreGive(adv_timeout_sync);
@@ -352,13 +352,6 @@ void peripheral_tip_task(void *pvParameters)
 		printk("failed to create adv_timeout_sync\n");
 	}
 
-	err = OSA_MsgQCreate(app_queue, 10, sizeof(void *));
-	if (err)
-	{
-		printk("Failed to create app msg queue (err %d)\n", err);
-		return;
-	}
-
 	/* Initialize the Bluetooth Subsystem */
 	err = bt_enable(bt_ready);
 	if (err)
@@ -376,8 +369,8 @@ void peripheral_tip_task(void *pvParameters)
 			}
 		}
 
-		err = OSA_MsgQGet(app_queue, &rx_data, 1000);
-		if (err == KOSA_StatusSuccess)
+		err = k_sem_take(&app_queue, 1000);
+		if (0 == err)
 		{
 			bt_cts_set_current_time(default_conn, current_time, local_time);
 		}

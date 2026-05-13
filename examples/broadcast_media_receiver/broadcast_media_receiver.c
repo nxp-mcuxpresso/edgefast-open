@@ -66,7 +66,7 @@ static lc3_decoder_mem_48k_t decoder_mem;
 SDK_ALIGN(static uint8_t audio_buff[MAX_AUDIO_CHANNEL_COUNT][PCM_AUDIO_BUFF_SIZE], 4);
 #endif
 
-static OSA_MSGQ_HANDLE_DEFINE(sdu_fifo, PCM_BUFF_COUNT, sizeof(void *));
+static K_FIFO_DEFINE(sdu_fifo);
 
 NET_BUF_POOL_FIXED_DEFINE(sdu_pool,
 			  PCM_BUFF_COUNT,
@@ -87,14 +87,14 @@ static lc3_codec_info_t lc3_codec_info;
 
 /* Semaphores */
 #define SEM_TIMEOUT 30 * 1000
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_broadcaster_found);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_pa_synced);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_base_received);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_syncable);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_broadcast_code_received);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_stream_started);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_stream_stopped);
-static OSA_SEMAPHORE_HANDLE_DEFINE(sem_pa_sync_lost);
+static K_SEM_DEFINE(sem_broadcaster_found, 0, 1);
+static K_SEM_DEFINE(sem_pa_synced, 0, 1);
+static K_SEM_DEFINE(sem_base_received, 0, 1);
+static K_SEM_DEFINE(sem_syncable, 0, 1);
+static K_SEM_DEFINE(sem_broadcast_code_received, 0, 1);
+static K_SEM_DEFINE(sem_stream_started, 0, 1);
+static K_SEM_DEFINE(sem_stream_stopped, 0, 1);
+static K_SEM_DEFINE(sem_pa_sync_lost, 0, 1);
 
 volatile static bool base_info_received = false;
 
@@ -200,17 +200,16 @@ static int audio_stream_decode(void)
 	int plc_flag = 1;
 	uint8_t *temp_audio_buff;
 
-	osa_status_t status;
 	do {
-		status = OSA_MsgQGet(sdu_fifo, &sdu_buf, 10);
-		if(KOSA_StatusSuccess != status)
+		sdu_buf = k_fifo_get(&sdu_fifo, 10);
+		if(NULL == sdu_buf)
 		{
 			if(stream_stoped)
 			{
 				return -1;
 			}
 		}
-	} while(KOSA_StatusSuccess != status);
+	} while(NULL == sdu_buf);
 
 	sdu = (sdu_packet_t *)sdu_buf->data;
 
@@ -277,7 +276,7 @@ static int audio_stream_decode(void)
 		if(res)
 		{
 			PRINTF("\naudio_i2s_write err %d\n", res);
-			OSA_TimeDelay(2);
+			k_msleep(2);
 		}
 	} while(res != 0);
 
@@ -296,7 +295,7 @@ static void stream_started_cb(struct bt_bap_stream *stream)
 {
 	PRINTF("Stream %p started\n", stream);
 	stream_stoped = false;
-	OSA_SemaphorePost(sem_stream_started);
+	k_sem_give(&sem_stream_started);
 
 	memcpy(&lc3_preset.qos, stream->qos, sizeof(struct bt_bap_qos_cfg));
 
@@ -320,7 +319,7 @@ static void stream_stopped_cb(struct bt_bap_stream *stream, uint8_t reason)
 	le_audio_sync_stop();
 #endif
 
-	OSA_SemaphorePost(sem_stream_stopped);
+	k_sem_give(&sem_stream_stopped);
 }
 
 static void stream_recv_cb(struct bt_bap_stream *stream,
@@ -331,7 +330,7 @@ static void stream_recv_cb(struct bt_bap_stream *stream,
 	sdu_packet_t *sdu;
 
 	/* alloc sdu buf from sdu pool */
-	sdu_buf = net_buf_alloc(&sdu_pool, osaWaitForever_c);
+	sdu_buf = net_buf_alloc(&sdu_pool, K_FOREVER);
 	if(!sdu_buf)
 	{
 		PRINTF("sdu buf alloc failed!\n");
@@ -345,12 +344,7 @@ static void stream_recv_cb(struct bt_bap_stream *stream,
 	sdu->len = buf->len;
 
 	/* put sdu buf to sdu fifo */
-	osa_status_t status = OSA_MsgQPut(sdu_fifo, &sdu_buf);
-	if(status != KOSA_StatusSuccess)
-	{
-		net_buf_unref(sdu_buf);
-		PRINTF("Put sdu to sdu_fifo failed!\n");
-	}
+	k_fifo_put(&sdu_fifo, sdu_buf);
 }
 
 static struct bt_bap_stream_ops stream_ops = {
@@ -466,7 +460,7 @@ static void base_recv_cb(struct bt_bap_broadcast_sink *sink, const struct bt_bap
 	}
 
 	base_info_received = true;
-	OSA_SemaphorePost(sem_base_received);
+	k_sem_give(&sem_base_received);
 }
 
 static void syncable_cb(struct bt_bap_broadcast_sink *sink, const struct bt_iso_biginfo *biginfo)
@@ -484,7 +478,7 @@ static void syncable_cb(struct bt_bap_broadcast_sink *sink, const struct bt_iso_
 		biginfo->rep_count
 		);
 
-	OSA_SemaphorePost(sem_syncable);
+	k_sem_give(&sem_syncable);
 }
 
 static struct bt_bap_broadcast_sink_cb broadcast_sink_cbs = {
@@ -676,7 +670,7 @@ static void broadcast_scan_recv(const struct bt_le_scan_recv_info *info, struct 
 
 		bt_data_parse(buf, scan_check_broadcast_id, NULL);
 
-		OSA_SemaphorePost(sem_broadcaster_found);
+		k_sem_give(&sem_broadcaster_found);
 	}
 }
 
@@ -690,7 +684,7 @@ static void bap_pa_sync_synced_cb(struct bt_le_per_adv_sync *sync,
 	PRINTF("PA synced for sync %p with sid 0x%02X\n",
 	       sync, info->sid);
 
-	OSA_SemaphorePost(sem_pa_synced);
+	k_sem_give(&sem_pa_synced);
 }
 
 static void bap_pa_sync_terminated_cb(struct bt_le_per_adv_sync *sync,
@@ -719,7 +713,7 @@ int config_broadcast_code(uint8_t *data, int len)
 		broadcast_code_set = true;
 
 		PRINTF("broadcast_code: %s\n", bt_hex(broadcast_code, BT_ISO_BROADCAST_CODE_SIZE));
-		OSA_SemaphorePost(sem_broadcast_code_received);
+		k_sem_give(&sem_broadcast_code_received);
 	}
 	else
 	{
@@ -789,23 +783,14 @@ static int reset(void)
 	broadcaster_broadcast_id = INVALID_BROADCAST_ID;
 	broadcast_encryped = false;
 
-	OSA_SemaphoreDestroy(sem_broadcaster_found);
-	OSA_SemaphoreDestroy(sem_pa_synced);
-	OSA_SemaphoreDestroy(sem_base_received);
-	OSA_SemaphoreDestroy(sem_syncable);
-	OSA_SemaphoreDestroy(sem_broadcast_code_received);
-	OSA_SemaphoreDestroy(sem_stream_started);
-	OSA_SemaphoreDestroy(sem_stream_stopped);
-	OSA_SemaphoreDestroy(sem_pa_sync_lost);
-
-	OSA_SemaphoreCreate(sem_broadcaster_found, 0);
-	OSA_SemaphoreCreate(sem_pa_synced, 0);
-	OSA_SemaphoreCreate(sem_base_received, 0);
-	OSA_SemaphoreCreate(sem_syncable, 0);
-	OSA_SemaphoreCreate(sem_broadcast_code_received, 0);
-	OSA_SemaphoreCreate(sem_stream_started, 0);
-	OSA_SemaphoreCreate(sem_stream_stopped, 0);
-	OSA_SemaphoreCreate(sem_pa_sync_lost, 0);
+	k_sem_reset(&sem_broadcaster_found);
+	k_sem_reset(&sem_pa_synced);
+	k_sem_reset(&sem_base_received);
+	k_sem_reset(&sem_syncable);
+	k_sem_reset(&sem_broadcast_code_received);
+	k_sem_reset(&sem_stream_started);
+	k_sem_reset(&sem_stream_stopped);
+	k_sem_reset(&sem_pa_sync_lost);
 
 	if (broadcast_sink != NULL) {
 		err = bt_bap_broadcast_sink_stop(broadcast_sink);
@@ -841,7 +826,7 @@ static int reset(void)
 	}
 #endif
 
-	OSA_TimeDelay(1000);
+	k_msleep(1000);
 
         return 0;
 }
@@ -894,17 +879,6 @@ void broadcast_media_receiver_task(void *param)
 	bt_psa_crypto_init();
 #endif /* CONFIG_BT_SMP */
 
-	OSA_SemaphoreCreate(sem_broadcaster_found, 0);
-	OSA_SemaphoreCreate(sem_pa_synced, 0);
-	OSA_SemaphoreCreate(sem_base_received, 0);
-	OSA_SemaphoreCreate(sem_syncable, 0);
-	OSA_SemaphoreCreate(sem_broadcast_code_received, 0);
-	OSA_SemaphoreCreate(sem_stream_started, 0);
-	OSA_SemaphoreCreate(sem_stream_stopped, 0);
-	OSA_SemaphoreCreate(sem_pa_sync_lost, 0);
-
-	OSA_MsgQCreate((osa_msgq_handle_t)sdu_fifo, PCM_BUFF_COUNT, sizeof(void *));
-
 	/* shell init. */
 	le_audio_shell_init();
 
@@ -935,7 +909,7 @@ void broadcast_media_receiver_task(void *param)
 			continue;
 		}
 
-		err = OSA_SemaphoreWait(sem_broadcaster_found, SEM_TIMEOUT);
+		err = k_sem_take(&sem_broadcaster_found, SEM_TIMEOUT);
 		if (err != 0) {
 			printk("sem_broadcaster_found timed out, resetting\n");
 			continue;
@@ -957,7 +931,7 @@ void broadcast_media_receiver_task(void *param)
 		}
 
 		printk("Waiting for PA synced\n");
-		err = OSA_SemaphoreWait(sem_pa_synced, SEM_TIMEOUT);
+		err = k_sem_take(&sem_pa_synced, SEM_TIMEOUT);
 		if (err != 0) {
 			printk("sem_pa_synced timed out, resetting\n");
 			continue;
@@ -972,7 +946,7 @@ void broadcast_media_receiver_task(void *param)
 		}
 
 		printk("Broadcast Sink created, waiting for BASE\n");
-		err = OSA_SemaphoreWait(sem_base_received, SEM_TIMEOUT);
+		err = k_sem_take(&sem_base_received, SEM_TIMEOUT);
 		if (err != 0) {
 			printk("sem_base_received timed out, resetting\n");
 			continue;
@@ -982,7 +956,7 @@ void broadcast_media_receiver_task(void *param)
 		audio_codec_config();
 		PRINTF("Audio codec configed, waiting for syncable\n");
 
-		err = OSA_SemaphoreWait(sem_syncable, SEM_TIMEOUT);
+		err = k_sem_take(&sem_syncable, SEM_TIMEOUT);
 		if (err != 0) {
 			printk("sem_syncable timed out, resetting\n");
 			continue;
@@ -993,7 +967,7 @@ void broadcast_media_receiver_task(void *param)
 			if(!broadcast_code_set)
 			{
 				printk("Please set the broadcast code!\n");
-				err = OSA_SemaphoreWait(sem_broadcast_code_received, osaWaitForever_c);
+				err = k_sem_take(&sem_broadcast_code_received, K_FOREVER);
 				if (err != 0) {
 					printk("sem_syncable timed out, resetting\n");
 					continue;
@@ -1014,7 +988,7 @@ void broadcast_media_receiver_task(void *param)
 			continue;
 		}
 
-		err = OSA_SemaphoreWait(sem_stream_started, SEM_TIMEOUT);
+		err = k_sem_take(&sem_stream_started, SEM_TIMEOUT);
 		if (err != 0) {
 			PRINTF("sem_stream_started timed out, resetting\n");
 			continue;
@@ -1039,7 +1013,7 @@ void broadcast_media_receiver_task(void *param)
 						PRINTF("Unable to sync to broadcast source: %d\n", err);
 					}
 
-					err = OSA_SemaphoreWait(sem_stream_started, SEM_TIMEOUT);
+					err = k_sem_take(&sem_stream_started, SEM_TIMEOUT);
 					if (err != 0) {
 						PRINTF("sem_stream_started timed out, resetting\n");
 						le_audio_sync_stop();
@@ -1062,13 +1036,13 @@ void broadcast_media_receiver_task(void *param)
 						PRINTF("Unable to stop broadcast sink: %d\n", err);
 					}
 
-					err = OSA_SemaphoreWait(sem_stream_stopped, SEM_TIMEOUT);
+					err = k_sem_take(&sem_stream_stopped, SEM_TIMEOUT);
 					if (err != 0) {
 						PRINTF("sem_stream_stopped timed out, resetting\n");
 					}
 					PRINTF("\nBroadcast sink stoped!\n");
 				}
-				OSA_TimeDelay(2);
+				k_msleep(2);
 			}
 		} while (0 == res);
 	}

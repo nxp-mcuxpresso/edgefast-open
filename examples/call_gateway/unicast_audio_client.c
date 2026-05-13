@@ -73,8 +73,7 @@ enum {
 struct stream_state
 {
     struct bt_bap_stream stream;
-    OSA_SEMAPHORE_HANDLE_DEFINE(sem_handle);
-    osa_semaphore_handle_t sem;
+    struct k_sem sem;
     ATOMIC_DEFINE(flags, BT_STREAM_STATE_NUM_FLAGS);
     sys_snode_t             node;
 };
@@ -396,16 +395,13 @@ NET_BUF_POOL_FIXED_DEFINE(tx_pool, STREAM_TX_BUF_COUNT,
 			  LC3_INPUT_FRAME_SIZE_MAX * MAX_AUDIO_CHANNEL_COUNT * BITS_RATES_OF_SAMPLE / 8,
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
-osa_msgq_handle_t tx_stream_queue;
-OSA_MSGQ_HANDLE_DEFINE(tx_stream_queue_handle, STREAM_TX_BUF_COUNT, sizeof(void *));
-
+K_FIFO_DEFINE(tx_stream_queue);
 
 NET_BUF_POOL_FIXED_DEFINE(rx_pool, STREAM_RX_BUF_COUNT,
 			  LC3_INPUT_FRAME_SIZE_MAX * MAX_AUDIO_CHANNEL_COUNT * BITS_RATES_OF_SAMPLE / 8,
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
-osa_msgq_handle_t rx_stream_queue;
-OSA_MSGQ_HANDLE_DEFINE(rx_stream_queue_handle, STREAM_RX_BUF_COUNT, sizeof(void *));
+K_FIFO_DEFINE(rx_stream_queue);
 
 static volatile uint8_t sync_timer_started;
 
@@ -429,7 +425,6 @@ static volatile bool codec_start = false;
 int unicast_audio_client_init(unicast_client_discover_done_callback_t callback)
 {
     int ret = -1;
-    osa_status_t err;
 
     if (xTaskCreate(source_send_stream_task, "source_send_stream_task", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, NULL) != pdPASS)
     {
@@ -437,25 +432,11 @@ int unicast_audio_client_init(unicast_client_discover_done_callback_t callback)
         return ret;
     }
 
-    err = OSA_MsgQCreate((osa_msgq_handle_t)tx_stream_queue_handle, STREAM_TX_BUF_COUNT, sizeof(void*));
-    if (KOSA_StatusSuccess != err)
-    {
-        return -ENOMEM;
-    }
-    tx_stream_queue = (osa_msgq_handle_t)tx_stream_queue_handle;
-
     if (xTaskCreate(sink_recv_stream_task, "sink_recv_stream_task", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, NULL) != pdPASS)
     {
         PRINTF("Sink stream recv task creation failed!\r\n");
         return ret;
     }
-
-    err = OSA_MsgQCreate((osa_msgq_handle_t)rx_stream_queue_handle, STREAM_RX_BUF_COUNT, sizeof(void*));
-    if (KOSA_StatusSuccess != err)
-    {
-        return -ENOMEM;
-    }
-    rx_stream_queue = (osa_msgq_handle_t)rx_stream_queue_handle;
 
     discover_done = callback;
 
@@ -629,7 +610,6 @@ int unicast_client_release_streams_of_conn(struct bt_conn *conn)
 {
     struct conn_state *state = NULL;
     int err = -ENOTCONN;
-    osa_status_t osa_ret;
 
     for (uint32_t index = 0; index < ARRAY_SIZE(server_state); index++)
     {
@@ -659,8 +639,7 @@ int unicast_client_release_streams_of_conn(struct bt_conn *conn)
 
                     do
                     {
-                        osa_ret = OSA_SemaphoreWait(state->src[ep_index].stream->sem, osaWaitForever_c);
-                        if (KOSA_StatusSuccess != osa_ret)
+                        if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
                         {
                             PRINTF("Fail to wait stream configuration sem!\n");
                             return -EIO;
@@ -685,8 +664,7 @@ int unicast_client_release_streams_of_conn(struct bt_conn *conn)
 
                     do
                     {
-                        osa_ret = OSA_SemaphoreWait(state->snk[ep_index].stream->sem, osaWaitForever_c);
-                        if (KOSA_StatusSuccess != osa_ret)
+                        if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
                         {
                             PRINTF("Fail to wait stream configuration sem!\n");
                             return -EIO;
@@ -749,7 +727,6 @@ int unicast_client_configure_streams(void)
 {
     struct conn_state *state = NULL;
     int err = 0;
-    osa_status_t osa_ret;
     uint32_t loc;
     uint32_t channel_location;
 
@@ -808,8 +785,7 @@ int unicast_client_configure_streams(void)
 
                     do
                     {
-                        osa_ret = OSA_SemaphoreWait(state->src[ep_index].stream->sem, osaWaitForever_c);
-                        if (KOSA_StatusSuccess != osa_ret)
+                        if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
                         {
                             PRINTF("Fail to wait stream configuration sem!\n");
                             return -EIO;
@@ -862,8 +838,7 @@ int unicast_client_configure_streams(void)
 
                     do
                     {
-                        osa_ret = OSA_SemaphoreWait(state->snk[ep_index].stream->sem, osaWaitForever_c);
-                        if (KOSA_StatusSuccess != osa_ret)
+                        if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
                         {
                             PRINTF("Fail to wait stream configuration sem!\n");
                             return -EIO;
@@ -928,7 +903,7 @@ int unicast_client_set_stream_qos(void)
             {
                 if (need_to_wait > 0U)
                 {
-                    OSA_TimeDelay(1U);
+                    k_msleep(1U);
                     need_to_wait = 0U;
                 }
 
@@ -967,7 +942,6 @@ int unicast_client_enable_stream_unidirectional(uint8_t is_tx, uint16_t context)
 {
     struct conn_state *state = NULL;
     int err = -ENOTCONN;
-    osa_status_t osa_ret;
 
     for (uint32_t index = 0; index < ARRAY_SIZE(server_state); index++)
     {
@@ -1000,8 +974,7 @@ int unicast_client_enable_stream_unidirectional(uint8_t is_tx, uint16_t context)
 
                         do
                         {
-                            osa_ret = OSA_SemaphoreWait(state->src[ep_index].stream->sem, osaWaitForever_c);
-                            if (KOSA_StatusSuccess != osa_ret)
+                            if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1030,8 +1003,7 @@ int unicast_client_enable_stream_unidirectional(uint8_t is_tx, uint16_t context)
 
                         do
                         {
-                            osa_ret = OSA_SemaphoreWait(state->snk[ep_index].stream->sem, osaWaitForever_c);
-                            if (KOSA_StatusSuccess != osa_ret)
+                            if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1063,7 +1035,6 @@ int unicast_client_connect_stream_unidirectional(uint8_t is_tx)
 {
     struct conn_state *state = NULL;
     int err = 0;
-    osa_status_t osa_ret;
 
     for (uint32_t index = 0; index < ARRAY_SIZE(server_state); index++)
     {
@@ -1095,8 +1066,7 @@ int unicast_client_connect_stream_unidirectional(uint8_t is_tx)
 
                         do
                         {
-                            osa_ret = OSA_SemaphoreWait(state->src[ep_index].stream->sem, osaWaitForever_c);
-                            if (KOSA_StatusSuccess != osa_ret)
+                            if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
                             {
                                 PRINTF("Fail to wait stream connected sem!\n");
                                 return -EIO;
@@ -1124,8 +1094,7 @@ int unicast_client_connect_stream_unidirectional(uint8_t is_tx)
 
                         do
                         {
-                            osa_ret = OSA_SemaphoreWait(state->snk[ep_index].stream->sem, osaWaitForever_c);
-                            if (KOSA_StatusSuccess != osa_ret)
+                            if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
                             {
                                 PRINTF("Fail to wait stream connected sem!\n");
                                 return -EIO;
@@ -1228,7 +1197,6 @@ int unicast_client_disable_stream_unidirectional_of_conn(struct bt_conn *conn, u
 {
     struct conn_state *state = NULL;
     int err;
-    osa_status_t osa_ret;
 
     for (uint32_t index = 0; index < ARRAY_SIZE(server_state); index++)
     {
@@ -1255,8 +1223,7 @@ int unicast_client_disable_stream_unidirectional_of_conn(struct bt_conn *conn, u
 
                         do
                         {
-                            osa_ret = OSA_SemaphoreWait(state->src[ep_index].stream->sem, osaWaitForever_c);
-                            if (KOSA_StatusSuccess != osa_ret)
+                            if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1284,8 +1251,7 @@ int unicast_client_disable_stream_unidirectional_of_conn(struct bt_conn *conn, u
 
                         do
                         {
-                            osa_ret = OSA_SemaphoreWait(state->snk[ep_index].stream->sem, osaWaitForever_c);
-                            if (KOSA_StatusSuccess != osa_ret)
+                            if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1379,7 +1345,6 @@ int unicast_client_start_stream_unidirectional(uint8_t is_tx)
 {
     struct conn_state *state = NULL;
     int err = -ENOTCONN;
-    osa_status_t osa_ret;
 
     for (uint32_t index = 0; index < ARRAY_SIZE(server_state); index++)
     {
@@ -1415,8 +1380,7 @@ int unicast_client_start_stream_unidirectional(uint8_t is_tx)
 
                         do
                         {
-                            osa_ret = OSA_SemaphoreWait(state->src[ep_index].stream->sem, osaWaitForever_c);
-                            if (KOSA_StatusSuccess != osa_ret)
+                            if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1474,7 +1438,6 @@ int unicast_client_stop_stream_unidirectional(uint8_t is_tx)
 {
     struct conn_state *state = NULL;
     int err;
-    osa_status_t osa_ret;
 
     for (uint32_t index = 0; index < ARRAY_SIZE(server_state); index++)
     {
@@ -1501,8 +1464,7 @@ int unicast_client_stop_stream_unidirectional(uint8_t is_tx)
 
                         do
                         {
-                            osa_ret = OSA_SemaphoreWait(state->src[ep_index].stream->sem, osaWaitForever_c);
-                            if (KOSA_StatusSuccess != osa_ret)
+                            if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1530,8 +1492,7 @@ int unicast_client_stop_stream_unidirectional(uint8_t is_tx)
 
                         do
                         {
-                            osa_ret = OSA_SemaphoreWait(state->snk[ep_index].stream->sem, osaWaitForever_c);
-                            if (KOSA_StatusSuccess != osa_ret)
+                            if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1588,7 +1549,6 @@ static void sink_recv_stream_task(void *param)
 {
     struct net_buf *buf;
     struct bt_iso_recv_info * info;
-    osa_status_t ret;
     int32_t plc_flag[MAX_AUDIO_CHANNEL_COUNT];
     int32_t dec_byte_count[MAX_AUDIO_CHANNEL_COUNT];
     int lc3_ret;
@@ -1609,18 +1569,13 @@ static void sink_recv_stream_task(void *param)
     uint32_t handled_sync_index_current = 0;
     uint32_t handled_flag_last = 0;
 
-    OSA_SR_ALLOC();
+    unsigned int key;
 
     while (true)
     {
-        ret = OSA_MsgQGet(rx_stream_queue, &buf, osaWaitForever_c);
-        if ( KOSA_StatusSuccess == ret )
+        buf = k_fifo_get(&rx_stream_queue, K_FOREVER);
+        if ( NULL != buf )
         {
-            if (NULL == buf)
-            {
-                continue;
-            }
-
             state = NULL;
             for (uint32_t index = 0; index < ARRAY_SIZE(server_state); index++)
             {
@@ -1715,7 +1670,7 @@ static void sink_recv_stream_task(void *param)
                         memset(state->src[0].decoder->dec_buf_out[i], 0, sizeof(int32_t) * LC3_INPUT_FRAME_SIZE_MAX);
                     }
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
-                    OSA_ENTER_CRITICAL();
+                    key = irq_lock();
                     if (0 == state->src[0].status.start_slot)
                     {
                         /* Get cig_sync_delay_us */
@@ -1747,7 +1702,7 @@ static void sink_recv_stream_task(void *param)
                         state->snk[0].status.start_slot = state->src[0].status.start_slot + 4;
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
                     }
-                    OSA_EXIT_CRITICAL();
+                    irq_unlock(key);
 
                     srCvtUpdateFreqOffset(&state->src[0].resampler[i].upSrc, update_delta);
 
@@ -1766,13 +1721,13 @@ static void sink_recv_stream_task(void *param)
                 pcm = (int16_t *)state->src[0].in_buffer;
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
-                OSA_ENTER_CRITICAL();
+                key = irq_lock();
                 state->src[0].status.output_length += (output_length/state->src_cap_required.channel_count) * HW_CODEC_CHANNEL_COUNT;
                 state->src[0].status.received_length += (received_length/state->src_cap_required.channel_count) * HW_CODEC_CHANNEL_COUNT;
                 state->src[0].status.received_count++;
                 state->src[0].status.resampler_added_samples += (resampler_added_samples/state->src_cap_required.channel_count) * HW_CODEC_CHANNEL_COUNT;
                 state->src[0].status.resampler_internal_samples = (resampler_internal_samples/state->src_cap_required.channel_count) * HW_CODEC_CHANNEL_COUNT;
-                OSA_EXIT_CRITICAL();
+                irq_unlock(key);
 
                 channel_delta = state->src[0].resampler[0].out_length - state->src[0].resampler[1].out_length;
 
@@ -1872,7 +1827,6 @@ static void source_send_stream_task(void *param)
     struct net_buf *buf;
     struct net_buf *buf2;
     uint8_t * buffer = NULL;
-    osa_status_t ret;
     uint32_t len;
     int err;
     uint32_t cis_count;
@@ -1880,14 +1834,9 @@ static void source_send_stream_task(void *param)
 
     while (true)
     {
-        ret = OSA_MsgQGet(tx_stream_queue, &buf, osaWaitForever_c);
-        if ( KOSA_StatusSuccess == ret )
+        buf = k_fifo_get(&tx_stream_queue, K_FOREVER);
+        if ( NULL != buf )
         {
-            if (NULL == buf)
-            {
-                continue;
-            }
-
             if (source_connect_ready() == false)
             {
                 net_buf_unref(buf);
@@ -1986,7 +1935,6 @@ static void ringtone_prime_data(struct ringtone_prime_work *ring)
 {
     struct net_buf *buf;
     size_t tx_len = 0;
-    osa_status_t ret;
     struct conn_state *state = NULL;
 
     if ((ring == NULL) || (ring->pcm == NULL))
@@ -2027,15 +1975,8 @@ static void ringtone_prime_data(struct ringtone_prime_work *ring)
         }
         net_buf_add_mem(buf, &ring->pcm[ring->prime_index], tx_len);
 
-        ret = OSA_MsgQPut(tx_stream_queue, &buf);
-        if (KOSA_StatusSuccess != ret)
-        {
-            net_buf_unref(buf);
-        }
-        else
-        {
-            ring->prime_index = ring->prime_index + tx_len;
-        }
+        k_fifo_put(&tx_stream_queue, buf);
+        ring->prime_index = ring->prime_index + tx_len;
         buf = NULL;
     } while (false);
 }
@@ -2060,7 +2001,7 @@ static void ringtone_prime_timeout(struct k_work *work)
 int unicast_client_start_voice(void)
 {
     struct conn_state *state = NULL;
-    OSA_SR_ALLOC();
+    unsigned int key;
 
     for (uint32_t index = 0; index < ARRAY_SIZE(server_state); index++)
     {
@@ -2075,21 +2016,21 @@ int unicast_client_start_voice(void)
     }
 
     voice_is_started = 1U;
-    OSA_ENTER_CRITICAL();
+    key = irq_lock();
     voice_start_flag = 1U;
-    OSA_EXIT_CRITICAL();
+    irq_unlock(key);
 
     return 0;
 }
 
 int unicast_client_stop_voice(void)
 {
-    OSA_SR_ALLOC();
+    unsigned int key;
 
     voice_is_started = 0U;
-    OSA_ENTER_CRITICAL();
+    key = irq_lock();
     voice_start_flag = 0U;
-    OSA_EXIT_CRITICAL();
+    irq_unlock(key);
 
     return 0;
 }
@@ -2206,11 +2147,7 @@ int unicast_client_retrieve(void)
                     PRINTF("Clear other sources, stream %p, ep %p\n", server_state[i].src[j].stream, server_state[i].src[j].ep);
                     if (server_state[i].src[j].stream != NULL)
                     {
-                        if (NULL != server_state[i].src[j].stream->sem)
-                        {
-                            (void)OSA_SemaphoreDestroy(server_state[i].src[j].stream->sem);
-                            server_state[i].src[j].stream->sem = NULL;
-                        }
+                        (void)k_sem_reset(&server_state[i].src[j].stream->sem);
                         k_fifo_put(&free_streams, server_state[i].src[j].stream);
                         server_state[i].src[j].stream = NULL;
                     }
@@ -2625,9 +2562,7 @@ static void unicast_client_stream_configured(struct bt_bap_stream *stream,
     stream_base = (struct stream_state *)stream;
 
     atomic_set_bit(stream_base->flags, BT_STREAM_STATE_CONFIGURED);
-    if (stream_base->sem != NULL) {
-        (void)OSA_SemaphorePost(stream_base->sem);
-    }
+    (void)k_sem_give(&stream_base->sem);
 }
 
 static void unicast_client_stream_qos_set(struct bt_bap_stream *stream)
@@ -2639,9 +2574,7 @@ static void unicast_client_stream_qos_set(struct bt_bap_stream *stream)
     stream_base = (struct stream_state *)stream;
 
     atomic_set_bit(stream_base->flags, BT_STREAM_STATE_QOS);
-    if (stream_base->sem != NULL) {
-        (void)OSA_SemaphorePost(stream_base->sem);
-    }
+    (void)k_sem_give(&stream_base->sem);
 }
 
 static void unicast_client_stream_enabled(struct bt_bap_stream *stream)
@@ -2682,9 +2615,7 @@ static void unicast_client_stream_enabled(struct bt_bap_stream *stream)
     }
 
     atomic_set_bit(stream_base->flags, BT_STREAM_STATE_ENABLED);
-    if (stream_base->sem != NULL) {
-        (void)OSA_SemaphorePost(stream_base->sem);
-    }
+    (void)k_sem_give(&stream_base->sem);
 }
 
 static void unicast_client_stream_connected(struct bt_bap_stream *stream)
@@ -2696,9 +2627,7 @@ static void unicast_client_stream_connected(struct bt_bap_stream *stream)
     stream_base = (struct stream_state *)stream;
 
     atomic_set_bit(stream_base->flags, BT_STREAM_STATE_CONNECTED);
-    if (stream_base->sem != NULL) {
-        (void)OSA_SemaphorePost(stream_base->sem);
-    }
+    (void)k_sem_give(&stream_base->sem);
 }
 
 static void unicast_client_stream_started(struct bt_bap_stream *stream)
@@ -2820,9 +2749,7 @@ static void unicast_client_stream_started(struct bt_bap_stream *stream)
 #endif /* UNICAST_AUDIO_SYNC_MODE */
 
     atomic_set_bit(stream_base->flags, BT_STREAM_STATE_STARTED);
-    if (stream_base->sem != NULL) {
-        (void)OSA_SemaphorePost(stream_base->sem);
-    }
+    (void)k_sem_give(&stream_base->sem);
 
     (void)snk;
 }
@@ -2861,9 +2788,7 @@ static void unicast_client_stream_disabled(struct bt_bap_stream *stream)
     }
 
     atomic_clear_bit(stream_base->flags, BT_STREAM_STATE_ENABLED);
-    if (stream_base->sem != NULL) {
-        (void)OSA_SemaphorePost(stream_base->sem);
-    }
+    (void)k_sem_give(&stream_base->sem);
 }
 
 static void unicast_client_stream_stopped(struct bt_bap_stream *stream, uint8_t reason)
@@ -2888,9 +2813,7 @@ static void unicast_client_stream_stopped(struct bt_bap_stream *stream, uint8_t 
     }
 
     atomic_clear_bit(stream_base->flags, BT_STREAM_STATE_STARTED);
-    if (stream_base->sem != NULL) {
-        (void)OSA_SemaphorePost(stream_base->sem);
-    }
+    (void)k_sem_give(&stream_base->sem);
 }
 
 static void release_stream(struct bt_bap_stream *stream)
@@ -2913,11 +2836,7 @@ static void release_stream(struct bt_bap_stream *stream)
 		{
 			if (server_state[index].src[ep_index].stream == stream_base)
 			{
-				if (NULL != stream_base->sem)
-				{
-					(void)OSA_SemaphoreDestroy(stream_base->sem);
-					stream_base->sem = NULL;
-				}
+				(void)k_sem_reset(&stream_base->sem);
 				k_fifo_put(&free_streams, stream_base);
 				server_state[index].src[ep_index].stream = NULL;
 				if (server_state[index].src[ep_index].decoder != NULL)
@@ -2939,11 +2858,7 @@ static void release_stream(struct bt_bap_stream *stream)
 		{
 			if (server_state[index].snk[ep_index].stream == stream_base)
 			{
-				if (NULL != stream_base->sem)
-				{
-					(void)OSA_SemaphoreDestroy(stream_base->sem);
-					stream_base->sem = NULL;
-				}
+				(void)k_sem_reset(&stream_base->sem);
 				k_fifo_put(&free_streams, stream_base);
 				server_state[index].snk[ep_index].stream = NULL;
 				if (server_state[index].snk[ep_index].encoder != NULL)
@@ -3026,9 +2941,7 @@ static void unicast_client_stream_released(struct bt_bap_stream *stream)
     atomic_clear_bit(stream_base->flags, BT_STREAM_STATE_CONNECTED);
     atomic_clear_bit(stream_base->flags, BT_STREAM_STATE_STARTED);
 
-    if (stream_base->sem != NULL) {
-        (void)OSA_SemaphorePost(stream_base->sem);
-    }
+    (void)k_sem_give(&stream_base->sem);
 
     release_stream(stream);
     (void)stream_base;
@@ -3038,7 +2951,6 @@ static void codec_rx_callback(uint8_t *rx_buffer)
 {
     struct net_buf *buf;
     size_t tx_len = 0;
-    osa_status_t ret;
     uint16_t *src = (uint16_t *)rx_buffer;
     uint16_t *dst = NULL;
     struct conn_state *state = NULL;
@@ -3082,11 +2994,7 @@ static void codec_rx_callback(uint8_t *rx_buffer)
     }
     buf->len = tx_len * HW_CODEC_CHANNEL_COUNT * 2;
 
-    ret = OSA_MsgQPut(tx_stream_queue, &buf);
-    if (KOSA_StatusSuccess != ret)
-    {
-        net_buf_unref(buf);
-    }
+    k_fifo_put(&tx_stream_queue, buf);
 }
 
 static void codec_tx_callback(void)
@@ -3132,7 +3040,6 @@ static void unicast_client_stream_recv(struct bt_bap_stream *stream,
             struct net_buf *buf)
 {
     struct net_buf *rx_buf;
-    osa_status_t ret;
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
     uint32_t sync_index = current_sync_index;
 #endif /* UNICAST_AUDIO_SYNC_MODE */
@@ -3142,7 +3049,7 @@ static void unicast_client_stream_recv(struct bt_bap_stream *stream,
         return;
     }
 
-    rx_buf = net_buf_alloc(&rx_pool, osaWaitForever_c);
+    rx_buf = net_buf_alloc(&rx_pool, K_FOREVER);
     if (NULL == rx_buf)
     {
         PRINTF("Fail to alloc rx buffer\n");
@@ -3154,13 +3061,7 @@ static void unicast_client_stream_recv(struct bt_bap_stream *stream,
     net_buf_add_mem(rx_buf, (void*)&sync_index, sizeof(sync_index));
 #endif /* UNICAST_AUDIO_SYNC_MODE */
     net_buf_add_mem(rx_buf, buf->data, buf->len);
-    ret = OSA_MsgQPut(rx_stream_queue, &rx_buf);
-    if (KOSA_StatusSuccess != ret)
-    {
-        net_buf_unref(rx_buf);
-        PRINTF(" Fail to put the rx buf %p to queue\n", rx_buf);
-        return;
-    }
+    k_fifo_put(&rx_stream_queue, rx_buf);
 }
 
 static void unicast_client_discover_callback(struct bt_conn *conn, int err, enum bt_audio_dir dir)
@@ -3311,11 +3212,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 				if ((atomic_get(stream_base->flags) != 0) && !atomic_test_bit(stream_base->flags, BT_STREAM_STATE_RELEASED)) {
 					continue;
 				}
-				if (NULL != stream_base->sem)
-				{
-					(void)OSA_SemaphoreDestroy(stream_base->sem);
-					stream_base->sem = NULL;
-				}
+				(void)k_sem_reset(&stream_base->sem);
 				k_fifo_put(&free_streams, stream_base);
 				server_state[index].src[ep_index].stream = NULL;
 				if (server_state[index].src[ep_index].decoder != NULL)
@@ -3335,11 +3232,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 				if ((atomic_get(stream_base->flags) != 0) && !atomic_test_bit(stream_base->flags, BT_STREAM_STATE_RELEASED)) {
 					continue;
 				}
-				if (NULL != stream_base->sem)
-				{
-					(void)OSA_SemaphoreDestroy(stream_base->sem);
-					stream_base->sem = NULL;
-				}
+				(void)k_sem_reset(&stream_base->sem);
 				k_fifo_put(&free_streams, stream_base);
 				server_state[index].snk[ep_index].stream = NULL;
 				if (server_state[index].snk[ep_index].encoder != NULL)
@@ -3600,7 +3493,7 @@ static void unicast_client_endpoint(struct bt_conn *conn, enum bt_audio_dir dir,
     struct stream_state * stream = NULL;
     struct encoder_t *encoder = NULL;
     struct decoder_t *decoder = NULL;
-    osa_status_t osa_ret;
+    int ret;
     uint8_t failed = 0U;
 
     PRINTF("conn %p dir %u ep %p\n", conn, dir, ep);
@@ -3614,18 +3507,11 @@ static void unicast_client_endpoint(struct bt_conn *conn, enum bt_audio_dir dir,
 
     if (failed == 0U)
     {
-        if (NULL == stream->sem)
+		ret = k_sem_init(&stream->sem, 0, K_SEM_MAX_LIMIT);
+        if (0 != ret)
         {
-            osa_ret = OSA_SemaphoreCreate(stream->sem_handle, 0);
-            if (KOSA_StatusSuccess != osa_ret)
-            {
-                assert(KOSA_StatusSuccess != osa_ret);
-                failed = 1U;
-            }
-            else
-            {
-                stream->sem = stream->sem_handle;
-            }
+            assert(0 != ret);
+            failed = 1U;
         }
     }
 
@@ -3733,11 +3619,7 @@ static void unicast_client_endpoint(struct bt_conn *conn, enum bt_audio_dir dir,
     {
         if (NULL != stream)
         {
-            if (NULL != stream->sem)
-            {
-                (void)OSA_SemaphoreDestroy(stream->sem);
-                stream->sem = NULL;
-            }
+            (void)k_sem_reset(&stream->sem);
             k_fifo_put(&free_streams, stream);
         }
 
@@ -3783,8 +3665,6 @@ static void sync_timer_callback(uint32_t sync_index, uint64_t bclk_count)
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE_TX) && (UNICAST_AUDIO_SYNC_MODE_TX > 0))
     static uint32_t sem_post_count = 0;
-
-    osa_status_t ret;
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
 
     current_sync_index = sync_index;
@@ -3940,8 +3820,7 @@ static void sync_timer_callback(uint32_t sync_index, uint64_t bclk_count)
 
             while (sem_post_count > 0)
             {
-                ret = OSA_SemaphorePost(sync_sem);
-                if (KOSA_StatusSuccess != ret)
+                if (0 != k_sem_give(&sync_sem))
                 {
 #if 0
                     PRINTF("Post sem failed!\n");
