@@ -97,7 +97,7 @@ struct mse_mas_instance {
 	struct bt_map_mse_mas mse_mas;
 	struct bt_conn *conn;
 	struct map_app_param app_param;
-	uint32_t msg_handle;
+	uint64_t msg_handle;
 	uint16_t mopl;
 	uint16_t tx_cnt;
 	uint8_t srm;
@@ -442,8 +442,10 @@ static int map_fs_init(void)
 	map_mkdir(path);
 
 	/* Store initial inbox message */
+	/* Not use %016llX here to avoid uint64_t is not supported in some platforms. */
 	mas_inst.msg_handle = 1;
-	(void)sprintf(path, "%s/telecom/msg/inbox/%08X", MAP_ROOT_PATH, mas_inst.msg_handle);
+	snprintf(path, sizeof(path), "%s/telecom/msg/inbox/%08X%08X", MAP_ROOT_PATH,
+		 (uint32_t)(mas_inst.msg_handle >> 32U), (uint32_t)mas_inst.msg_handle);
 	mas_inst.msg_handle++;
 
 	if (f_open(&fdes, path, FA_WRITE | FA_CREATE_ALWAYS) != FR_OK) {
@@ -1003,9 +1005,9 @@ static int app_mse_mns_connect(struct mse_mns_instance *inst)
 
 #define MAP_EVENT_REPORT                                                                           \
 	"<?xml version='1.0' encoding='utf-8' standalone='yes' ?>\r\n"                             \
-	"<MAP-event-report version = \"1.0\">\r\n"                                                 \
-	"    <event type = \"NewMessage\" handle = \"12345678\" "                                  \
-	"folder = \"TELECOM/MSG/INBOX\" msg_type = \"SMS_CDMA\" />\r\n"                            \
+	"<MAP-event-report version=\"1.0\">\r\n"                                                   \
+	"    <event type=\"NewMessage\" handle=\"0000000012345678\" "                              \
+	"folder=\"TELECOM/MSG/INBOX\" msg_type=\"SMS_CDMA\"/>\r\n"                                 \
 	"</MAP-event-report>";
 
 static int app_mse_mns_send_event(struct mse_mns_instance *inst)
@@ -1308,7 +1310,9 @@ static void mse_mas_rfcomm_connected(struct bt_conn *conn, struct bt_map_mse_mas
 {
 	printk("MSE MAS RFCOMM connected\n");
 	mas_inst.goep_v2 = false;
-	map_fs_init();
+	if (map_fs_init() != 0) {
+		printk("File system init failed\n");
+	}
 }
 
 static void mse_mas_rfcomm_disconnected(struct bt_map_mse_mas *mse_mas)
@@ -1322,7 +1326,9 @@ static void mse_mas_l2cap_connected(struct bt_conn *conn, struct bt_map_mse_mas 
 {
 	printk("MSE MAS L2CAP connected\n");
 	mas_inst.goep_v2 = true;
-	map_fs_init();
+	if (map_fs_init() != 0) {
+		printk("File system init failed\n");
+	}
 }
 
 static void mse_mas_l2cap_disconnected(struct bt_map_mse_mas *mse_mas)
@@ -1604,7 +1610,7 @@ static int app_build_folder_listing(char *xml_path, char *dir_path)
 
 		/* Only process directories */
 		if (fno.fattrib & AM_DIR) {
-			int ret = f_printf(&fdes, "    <folder name = \"%s\"/>\r\n", fno.fname);
+			int ret = f_printf(&fdes, "    <folder name=\"%s\"/>\r\n", fno.fname);
 			if (ret < 0) {
 				err = -EIO;
 				break;
@@ -2391,7 +2397,9 @@ static int app_mse_mas_push_msg(struct mse_mas_instance *inst, struct mse_mas_ms
 		goto rsp;
 	}
 
-	len = snprintf(name, sizeof(name), "%08X", inst->msg_handle);
+	/* Not use %016llX here to avoid uint64_t is not supported in some platforms. */
+	len = snprintf(name, sizeof(name), "%08X%08X", (uint32_t)(mas_inst.msg_handle >> 32U),
+		       (uint32_t)mas_inst.msg_handle);
 	if (len >= sizeof(name)) {
 		goto rsp;
 	}

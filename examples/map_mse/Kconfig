@@ -48,11 +48,11 @@ config BT_MAP_MSE_MNS_MSGQ_COUNT
 
 config BT_MAP_MSE_PATH_MAX_LEN
 	int "Maximum path length"
-	default 40
-	range 40 65535
+	default 45
+	range 45 65535
 	help
-	  The minimal value is 40 to accommodate
-	  the longest path(0:/telecom/msg/deleted/) and message handle.
+	  The minimal value is 45 to accommodate
+	  the longest path(0:/root/telecom/msg/deleted/) and message handle.
 
 config BT_MAP_MSE_NAME_MAX_LEN
 	int "Maximum name length"
