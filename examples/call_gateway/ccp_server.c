@@ -43,7 +43,7 @@ static struct bt_conn_cb conn_callbacks = {
     .disconnected = disconnected,
 };
 
-static K_SEM_DEFINE(semHandle, 0, 1);
+static K_SEM_DEFINE(semHandle, 0, K_SEM_MAX_LIMIT);
 
 enum
 {

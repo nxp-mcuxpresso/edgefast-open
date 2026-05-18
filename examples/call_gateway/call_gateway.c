@@ -41,7 +41,7 @@ enum event_bitmap
     KAPP_EventUnicastDiscoverDone = BIT(0),
 };
 
-static K_SEM_DEFINE(sem_discover_done, 0, 1);
+static K_SEM_DEFINE(sem_discover_done, 0, K_SEM_MAX_LIMIT);
 
 static shell_status_t scanning(shell_handle_t shellHandle, int32_t argc, char **argv);
 static shell_status_t passkey_confirm(shell_handle_t shellHandle, int32_t argc, char **argv);

@@ -152,10 +152,10 @@ static frame_packet_t frame;
 
 static lc3_codec_info_t lc3_codec_info;
 
-static K_SEM_DEFINE(sem_disconnected, 0, 1);
-static K_SEM_DEFINE(sem_stream_enabled, 0, 1);
-static K_SEM_DEFINE(sem_security_changed, 0, 1);
-static K_SEM_DEFINE(sem_mcs_server_discovered, 0, 1);
+static K_SEM_DEFINE(sem_disconnected, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_stream_enabled, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_security_changed, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_mcs_server_discovered, 0, K_SEM_MAX_LIMIT);
 
 static int get_channel_count_from_allocation(uint32_t allocation)
 {

@@ -29,7 +29,7 @@ extern serial_handle_t g_serialHandle;
 
 extern int config_broadcast_code(uint8_t *data, int len);
 
-static K_SEM_DEFINE(sem_mode_role_selected, 0, 1);
+static K_SEM_DEFINE(sem_mode_role_selected, 0, K_SEM_MAX_LIMIT);
 
 static shell_status_t sink_init(shell_handle_t shellHandle, int32_t argc, char **argv)
 {

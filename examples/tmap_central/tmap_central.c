@@ -30,11 +30,11 @@
 
 static struct bt_conn *default_conn;
 
-static K_SEM_DEFINE(sem_connected, 0, 1);
-static K_SEM_DEFINE(sem_security_updated, 0, 1);
-static K_SEM_DEFINE(sem_disconnected, 0, 1);
-static K_SEM_DEFINE(sem_mtu_exchanged, 0, 1);
-static K_SEM_DEFINE(sem_discovery_done, 0, 1);
+static K_SEM_DEFINE(sem_connected, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_security_updated, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_disconnected, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_mtu_exchanged, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_discovery_done, 0, K_SEM_MAX_LIMIT);
 
 static void att_mtu_updated(struct bt_conn *conn, uint16_t tx, uint16_t rx)
 {

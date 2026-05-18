@@ -26,7 +26,7 @@
 #if 1 /* Code change for bridge. */
 #include "unicast_media_sender.h"
 
-static K_SEM_DEFINE(a2dp_sink_init_done, 0, 1);
+static K_SEM_DEFINE(a2dp_sink_init_done, 0, K_SEM_MAX_LIMIT);
 extern int a2dp_sink_audio_frame_size;
 bt_addr_t a2dp_bdaddr;
 

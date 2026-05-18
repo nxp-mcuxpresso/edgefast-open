@@ -24,7 +24,7 @@
 static uint8_t new_call_index;
 static char remote_uri[CONFIG_BT_TBS_MAX_URI_LENGTH];
 
-static K_SEM_DEFINE(sem_discovery_done, 0, 1);
+static K_SEM_DEFINE(sem_discovery_done, 0, K_SEM_MAX_LIMIT);
 
 static struct bt_conn *default_conn;
 

@@ -91,9 +91,9 @@ static const struct bt_data ad[] = {
 static frame_packet_t frame;
 #endif
 
-static K_SEM_DEFINE(sem_disconnected, 0, 1);
-static K_SEM_DEFINE(sem_security_changed, 0, 1);
-static K_SEM_DEFINE(sem_mcs_server_discovered, 0, 1);
+static K_SEM_DEFINE(sem_disconnected, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_security_changed, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_mcs_server_discovered, 0, K_SEM_MAX_LIMIT);
 
 
 extern void umr_to_bms_vol_control(uint8_t volume, uint8_t mute);

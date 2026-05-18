@@ -170,24 +170,24 @@ static struct bt_le_conn_param conn_param = {
 	.timeout = 30,
 };
 
-static K_SEM_DEFINE(sem_lc3_preset, 0, 1);
-K_SEM_DEFINE(sem_scan, 0, 1);
-static K_SEM_DEFINE(sem_device_selected, 0, 1);
-static K_SEM_DEFINE(sem_connected, 0, 1);
-static K_SEM_DEFINE(sem_csip_discovered, 0, 1);
-static K_SEM_DEFINE(sem_member_discovered, 0, 1);
-static K_SEM_DEFINE(sem_disconnected, 0, 1);
-static K_SEM_DEFINE(sem_mtu_exchanged, 0, 1);
-static K_SEM_DEFINE(sem_security_updated, 0, 1);
-static K_SEM_DEFINE(sem_sinks_discovered, 0, 1);
-static K_SEM_DEFINE(sem_vcs_discovered, 0, 1);
-static K_SEM_DEFINE(sem_sources_discovered, 0, 1);
-static K_SEM_DEFINE(sem_stream_configured, 0, 1);
-static K_SEM_DEFINE(sem_stream_qos, 0, 1);
-static K_SEM_DEFINE(sem_stream_enabled, 0, 1);
-static K_SEM_DEFINE(sem_stream_disabled, 0, 1);
-static K_SEM_DEFINE(sem_stream_started, 0, 1);
-static K_SEM_DEFINE(sem_stream_connected, 0, 1);
+static K_SEM_DEFINE(sem_lc3_preset, 0, K_SEM_MAX_LIMIT);
+K_SEM_DEFINE(sem_scan, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_device_selected, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_connected, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_csip_discovered, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_member_discovered, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_disconnected, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_mtu_exchanged, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_security_updated, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_sinks_discovered, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_vcs_discovered, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_sources_discovered, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_stream_configured, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_stream_qos, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_stream_enabled, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_stream_disabled, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_stream_started, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_stream_connected, 0, K_SEM_MAX_LIMIT);
 
 static bool cis_stream_play = true;
 static bool cis_stream_play_update = false;

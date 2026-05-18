@@ -68,7 +68,7 @@ volatile uint32_t codecTxBufferPrimeIndex = 0;
 volatile uint32_t codecTxBufferWriteIndex = 0;
 volatile uint32_t codecTxBufferPrimeCount = 0;
 
-static K_SEM_DEFINE(s_audioTaskSync, 0, 1);
+static K_SEM_DEFINE(s_audioTaskSync, 0, K_SEM_MAX_LIMIT);
 
 static volatile uint8_t s_audioInitialized = 0u;
 

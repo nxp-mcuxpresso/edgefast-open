@@ -139,10 +139,10 @@ static uint32_t seq_num;
 static uint64_t tx_samples = 0;
 static uint32_t tx_time_stamp_start;
 
-static K_SEM_DEFINE(sem_wav_opened, 0, 1);
-static K_SEM_DEFINE(sem_lc3_preset, 0, 1);
-static K_SEM_DEFINE(sem_started, 0, 1);
-static K_SEM_DEFINE(sem_stopped, 0, 1);
+static K_SEM_DEFINE(sem_wav_opened, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_lc3_preset, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_started, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_stopped, 0, K_SEM_MAX_LIMIT);
 
 #define BROADCAST_SOURCE_LIFETIME  120U /* seconds */
 

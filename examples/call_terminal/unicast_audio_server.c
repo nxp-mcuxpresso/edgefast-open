@@ -338,7 +338,7 @@ struct ringtone_prime_work ringtone_work;
 volatile uint8_t sync_timer_started;
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE_TX) && (UNICAST_AUDIO_SYNC_MODE_TX > 0))
-K_SEM_DEFINE(sync_sem, 0, 1);
+K_SEM_DEFINE(sync_sem, 0, K_SEM_MAX_LIMIT);
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))

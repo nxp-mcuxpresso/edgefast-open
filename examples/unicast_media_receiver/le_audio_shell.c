@@ -33,7 +33,7 @@ SDK_ALIGN(static uint8_t s_shellHandleBuffer[SHELL_HANDLE_SIZE], 4);
 extern serial_handle_t g_serialHandle;
 extern struct bt_csip_set_member_register_param csip_set_memeber_param;
 
-static K_SEM_DEFINE(sem_mode_role_selected, 0, 1);
+static K_SEM_DEFINE(sem_mode_role_selected, 0, K_SEM_MAX_LIMIT);
 
 static shell_status_t sink_init(shell_handle_t shellHandle, int32_t argc, char **argv)
 {

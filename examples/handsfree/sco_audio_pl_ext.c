@@ -68,7 +68,7 @@ AT_NONCACHEABLE_SECTION_ALIGN(static uint8_t MicBuffer[BUFFER_NUMBER * BUFFER_SI
 AT_NONCACHEABLE_SECTION_ALIGN(static uint8_t SpeakerBuffer[BUFFER_NUMBER * BUFFER_SIZE], 4);
 AT_NONCACHEABLE_SECTION(uint32_t g_AudioTxDummyBuffer[AUDIO_DUMMY_SIZE / 4U]);
 
-K_SEM_DEFINE(xSemaphoreScoAudio, 0, 1);
+K_SEM_DEFINE(xSemaphoreScoAudio, 0, K_SEM_MAX_LIMIT);
 
 static volatile uint8_t saiEnable= 0;
 static uint32_t txMic_index = 0U, rxMic_index = 0U;

@@ -73,10 +73,10 @@ static const struct bt_data ad[] = {
 	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 };
 
-static K_SEM_DEFINE(sem_connected, 0, 1);
-static K_SEM_DEFINE(sem_security_updated, 0, 1);
-static K_SEM_DEFINE(sem_disconnected, 0, 1);
-static K_SEM_DEFINE(sem_discovery_done, 0, 1);
+static K_SEM_DEFINE(sem_connected, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_security_updated, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_disconnected, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_discovery_done, 0, K_SEM_MAX_LIMIT);
 
 void tmap_discovery_complete(enum bt_tmap_role peer_role, struct bt_conn *conn, int err)
 {

@@ -87,14 +87,14 @@ static lc3_codec_info_t lc3_codec_info;
 
 /* Semaphores */
 #define SEM_TIMEOUT 30 * 1000
-static K_SEM_DEFINE(sem_broadcaster_found, 0, 1);
-static K_SEM_DEFINE(sem_pa_synced, 0, 1);
-static K_SEM_DEFINE(sem_base_received, 0, 1);
-static K_SEM_DEFINE(sem_syncable, 0, 1);
-static K_SEM_DEFINE(sem_broadcast_code_received, 0, 1);
-static K_SEM_DEFINE(sem_stream_started, 0, 1);
-static K_SEM_DEFINE(sem_stream_stopped, 0, 1);
-static K_SEM_DEFINE(sem_pa_sync_lost, 0, 1);
+static K_SEM_DEFINE(sem_broadcaster_found, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_pa_synced, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_base_received, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_syncable, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_broadcast_code_received, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_stream_started, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_stream_stopped, 0, K_SEM_MAX_LIMIT);
+static K_SEM_DEFINE(sem_pa_sync_lost, 0, K_SEM_MAX_LIMIT);
 
 volatile static bool base_info_received = false;
 
