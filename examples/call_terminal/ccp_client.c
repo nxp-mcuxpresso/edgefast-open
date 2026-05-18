@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NXP
+ * Copyright 2023-2026 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -86,7 +86,7 @@ static void app_bt_tbs_client_discover_cb_discover(struct bt_conn *conn, int err
 #endif /* defined(CONFIG_BT_TBS_CLIENT_BEARER_UCI) */
 #if (defined(CONFIG_BT_TBS_CLIENT_BEARER_TECHNOLOGY) && (CONFIG_BT_TBS_CLIENT_BEARER_TECHNOLOGY > 0))
     void app_bt_tbs_client_read_value_cb_technology(struct bt_conn *conn, int err,
-                        uint8_t inst_index, uint32_t value);
+                        uint8_t inst_index, enum bt_bearer_tech tech);
 #endif /* defined(CONFIG_BT_TBS_CLIENT_BEARER_TECHNOLOGY) */
 #if (defined(CONFIG_BT_TBS_CLIENT_BEARER_URI_SCHEMES_SUPPORTED_LIST) && (CONFIG_BT_TBS_CLIENT_BEARER_URI_SCHEMES_SUPPORTED_LIST > 0))
     void app_bt_tbs_client_read_string_cb_uri_list(struct bt_conn *conn, int err,
@@ -316,9 +316,9 @@ void app_bt_tbs_client_read_string_cb_bearer_uci(struct bt_conn *conn, int err,
 #endif /* defined(CONFIG_BT_TBS_CLIENT_BEARER_UCI) */
 #if (defined(CONFIG_BT_TBS_CLIENT_BEARER_TECHNOLOGY) && (CONFIG_BT_TBS_CLIENT_BEARER_TECHNOLOGY > 0))
 void app_bt_tbs_client_read_value_cb_technology(struct bt_conn *conn, int err,
-                    uint8_t inst_index, uint32_t value)
+                    uint8_t inst_index, enum bt_bearer_tech tech)
 {
-    PRINTF("Read technology %d (err %d). TBS Index %d.\r\n", value, err, inst_index);
+    PRINTF("Read technology %d (err %d). TBS Index %d.\r\n", tech, err, inst_index);
 }
 #endif /* defined(CONFIG_BT_TBS_CLIENT_BEARER_TECHNOLOGY) */
 #if (defined(CONFIG_BT_TBS_CLIENT_BEARER_URI_SCHEMES_SUPPORTED_LIST) && (CONFIG_BT_TBS_CLIENT_BEARER_URI_SCHEMES_SUPPORTED_LIST > 0))

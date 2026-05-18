@@ -1126,7 +1126,7 @@ int call_server_init(shell_handle_t shellHandle)
 		.uri_schemes_supported = "tel",
 		.gtbs = true,
 		.authorization_required = false,
-		.technology = BT_TBS_TECHNOLOGY_3G,
+		.technology = BT_BEARER_TECH_3G,
 		.supported_features = BT_TBS_FEATURE_ALL,
 	};
 
@@ -1142,7 +1142,7 @@ int call_server_init(shell_handle_t shellHandle)
 		.uri_schemes_supported = "tel",
 		.gtbs = false,
 		.authorization_required = false,
-		.technology = BT_TBS_TECHNOLOGY_3G,
+		.technology = BT_BEARER_TECH_3G,
 		.supported_features = BT_TBS_FEATURE_ALL,
 	};
 

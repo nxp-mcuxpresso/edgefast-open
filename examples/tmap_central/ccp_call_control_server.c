@@ -50,7 +50,7 @@ int ccp_call_control_server_init(void)
 		.uri_schemes_supported = "tel",
 		.gtbs = true,
 		.authorization_required = false,
-		.technology = BT_TBS_TECHNOLOGY_3G,
+		.technology = BT_BEARER_TECH_3G,
 		.supported_features = BT_TBS_FEATURE_ALL,
 	};
 
