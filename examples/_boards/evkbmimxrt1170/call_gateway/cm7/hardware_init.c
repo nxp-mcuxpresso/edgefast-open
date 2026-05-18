@@ -47,10 +47,10 @@
 #define DEMO_CODEC_INSTANCE (1U)
 
 /* DMA */
-#define EXAMPLE_DMAMUX_INSTANCE      (0U)
-#define EXAMPLE_DMA_INSTANCE         (0U)
-#define EXAMPLE_DMA_TX_CHANNEL       (2U)
-#define EXAMPLE_DMA_RX_CHANNEL       (1U)
+#define EXAMPLE_DMAMUX_INSTANCE     (0U)
+#define EXAMPLE_DMA_INSTANCE        (0U)
+#define EXAMPLE_DMA_TX_CHANNEL      (2U)
+#define EXAMPLE_DMA_RX_CHANNEL      (1U)
 #define EXAMPLE_SAI_CODEC_TX_SOURCE (kDmaRequestMuxSai1Tx)
 #define EXAMPLE_SAI_CODEC_RX_SOURCE (kDmaRequestMuxSai1Rx)
 
@@ -59,7 +59,7 @@
 #define EXAMPLE_CODEC_TX_CHANNEL (kHAL_AudioMonoLeft)
 
 /* GPT - SyncTimer */
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
 #define SyncTimer_GPT               (GPT2)
 #define SyncTimer_GPT_Irq           (GPT2_IRQn)
 #define SyncTimer_GPT_ClockRoot     (kCLOCK_Root_Gpt2)
@@ -183,14 +183,14 @@ hal_audio_config_t codecRxConfig = {
     .instance          = DEMO_CODEC_INSTANCE,
 };
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(WIFI_IW612_BOARD_RD_USD)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD) || defined(WIFI_IW612_BOARD_RD_USD)
 static volatile uint32_t SyncTimer_Trigger_Counter; /* This used to counter the sync trigger signal. */
 static void (*SyncTimer_Trigger_Callback)(uint32_t sync_index, uint64_t bclk_count) = NULL;
-static uint32_t SyncTimer_Capture1_Value = 0;
-static uint32_t SyncTimer_Pre_Capture2_Value = 0;
-static uint64_t SyncTimer_Count_Value = 0;
-static uint32_t SyncTimer_Count_To_Bclk_Div = 0;
-static uint64_t SyncTimer_Bclk_Value = 0;
+static uint32_t SyncTimer_Capture1_Value                                            = 0;
+static uint32_t SyncTimer_Pre_Capture2_Value                                        = 0;
+static uint64_t SyncTimer_Count_Value                                               = 0;
+static uint32_t SyncTimer_Count_To_Bclk_Div                                         = 0;
+static uint64_t SyncTimer_Bclk_Value                                                = 0;
 #endif
 
 /*${variable:end}*/
@@ -230,7 +230,8 @@ void bt_psa_crypto_init(void)
     psa_status_t status;
 
     status = psa_crypto_init();
-    if (status != PSA_SUCCESS) {
+    if (status != PSA_SUCCESS)
+    {
         PRINTF("Failed to initialize PSA crypto");
     }
     assert(status == PSA_SUCCESS);
@@ -256,7 +257,6 @@ void BOARD_InitHardware(void)
     EDMA_Init(dmaBases[EXAMPLE_DMA_INSTANCE], &config);
 #endif /* HAL_UART_DMA_ENABLE */
 
-
 #if defined(WIFI_IW612_BOARD_RD_USD)
     GPIO_PinWrite(CONTROLLER_RESET_GPIO, CONTROLLER_RESET_PIN, 0U);
     SDK_DelayAtLeastUs(10U, SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY);
@@ -264,7 +264,8 @@ void BOARD_InitHardware(void)
 #endif
 }
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || \
+     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD))
 int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
 {
     if (NULL == config)
@@ -290,12 +291,12 @@ int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
 #else
 #endif
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(WIFI_IW612_BOARD_RD_USD)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD) || defined(WIFI_IW612_BOARD_RD_USD)
 void BOARD_SyncTimer_Init(void (*sync_timer_callback)(uint32_t sync_index, uint64_t bclk_count))
 {
     gpt_config_t config;
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
     /* 2EL use GPT2 as SyncTimer. */
     BOARD_InitGPT2Pins();
 #elif defined(WIFI_IW612_BOARD_RD_USD)
@@ -351,7 +352,7 @@ void BORAD_SyncTimer_Stop(void)
     GPT_StopTimer(SyncTimer_GPT);
 }
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
 void GPT2_IRQHandler(void)
 #elif defined(WIFI_IW612_BOARD_RD_USD)
 void GPT3_IRQHandler(void)

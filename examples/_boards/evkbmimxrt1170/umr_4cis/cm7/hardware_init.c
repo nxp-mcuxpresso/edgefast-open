@@ -52,27 +52,27 @@
 #define EXAMPLE_SAI_TX_SOURCE   (kDmaRequestMuxSai1Tx)
 
 /* GPT - SyncTimer */
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
-#define SyncTimer_GPT                (GPT2)
-#define SyncTimer_GPT_Irq            (GPT2_IRQn)
-#define SyncTimer_GPT_ClockRoot      (kCLOCK_Root_Gpt2)
-#define SyncTimer_GPT_ClockRoot_Mux  (kCLOCK_GPT2_ClockRoot_MuxAudioPllOut)
-#define SyncTimer_GPT_ClockRoot_Div  (16)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
+#define SyncTimer_GPT               (GPT2)
+#define SyncTimer_GPT_Irq           (GPT2_IRQn)
+#define SyncTimer_GPT_ClockRoot     (kCLOCK_Root_Gpt2)
+#define SyncTimer_GPT_ClockRoot_Mux (kCLOCK_GPT2_ClockRoot_MuxAudioPllOut)
+#define SyncTimer_GPT_ClockRoot_Div (16)
 #elif defined(WIFI_IW612_BOARD_RD_USD)
-#define SyncTimer_GPT                (GPT3)
-#define SyncTimer_GPT_Irq            (GPT3_IRQn)
-#define SyncTimer_GPT_ClockRoot      (kCLOCK_Root_Gpt3)
-#define SyncTimer_GPT_ClockRoot_Mux  (kCLOCK_GPT3_ClockRoot_MuxAudioPllOut)
-#define SyncTimer_GPT_ClockRoot_Div  (16)
+#define SyncTimer_GPT               (GPT3)
+#define SyncTimer_GPT_Irq           (GPT3_IRQn)
+#define SyncTimer_GPT_ClockRoot     (kCLOCK_Root_Gpt3)
+#define SyncTimer_GPT_ClockRoot_Mux (kCLOCK_GPT3_ClockRoot_MuxAudioPllOut)
+#define SyncTimer_GPT_ClockRoot_Div (16)
 #endif
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(WIFI_IW612_BOARD_RD_USD)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD) || defined(WIFI_IW612_BOARD_RD_USD)
 static volatile uint32_t SyncTimer_Trigger_Counter; /* This used to counter the sync trigger signal. */
 static void (*SyncTimer_Trigger_Callback)(uint32_t sync_index, uint64_t bclk_count) = NULL;
-static uint32_t SyncTimer_Capture1_Value = 0;
-static uint32_t SyncTimer_Pre_Capture2_Value = 0;
-static uint64_t SyncTimer_Count_Value = 0;
-static uint32_t SyncTimer_Count_To_Bclk_Div = 0;
-static uint64_t SyncTimer_Bclk_Value = 0;
+static uint32_t SyncTimer_Capture1_Value                                            = 0;
+static uint32_t SyncTimer_Pre_Capture2_Value                                        = 0;
+static uint64_t SyncTimer_Count_Value                                               = 0;
+static uint32_t SyncTimer_Count_To_Bclk_Div                                         = 0;
+static uint64_t SyncTimer_Bclk_Value                                                = 0;
 #endif
 
 /* demo audio data channel */
@@ -101,8 +101,8 @@ wm8962_config_t wm8962Config = {
     .slaveAddress = WM8962_I2C_ADDR,
     .bus          = kWM8962_BusI2S,
     .format       = {.mclk_HZ    = 12288000U,
-               .sampleRate = kWM8962_AudioSampleRate16KHz,
-               .bitWidth   = kWM8962_AudioBitWidth16bit},
+                     .sampleRate = kWM8962_AudioSampleRate16KHz,
+                     .bitWidth   = kWM8962_AudioBitWidth16bit},
     .masterSlave  = false,
 };
 codec_config_t boardCodecConfig = {.codecDevType = kCODEC_WM8962, .codecDevConfig = &wm8962Config};
@@ -127,8 +127,8 @@ const clock_audio_pll_config_t audioPllConfig = {
  *                              = 393.216 MHZ
  */
 const clock_audio_pll_config_t audioPllConfig1 = {
-    .loopDivider = 32,  /* PLL loop divider. Valid range for DIV_SELECT divider value: 27~54. */
-    .postDivider = 1,   /* Divider after the PLL, should only be 0, 1, 2, 3, 4, 5 */
+    .loopDivider = 32,    /* PLL loop divider. Valid range for DIV_SELECT divider value: 27~54. */
+    .postDivider = 1,     /* Divider after the PLL, should only be 0, 1, 2, 3, 4, 5 */
     .numerator   = 7680,  /* 30 bit numerator of fractional loop divider. */
     .denominator = 10000, /* 30 bit denominator of fractional loop divider */
 };
@@ -154,11 +154,11 @@ hal_audio_ip_config_t audioTxIpConfig = {
 };
 
 hal_audio_config_t audioTxConfig = {
-    .dmaConfig         = &audioTxDmaConfig,
-    .ipConfig          = (void *)&audioTxIpConfig,
-    .srcClock_Hz       = 12288000U,
-    .sampleRate_Hz     = (uint32_t)DEMO_AUDIO_SAMPLING_RATE,
-//    .fifoWatermark     = FSL_FEATURE_SAI_FIFO_COUNTn(DEMO_SAI) / 2U,
+    .dmaConfig     = &audioTxDmaConfig,
+    .ipConfig      = (void *)&audioTxIpConfig,
+    .srcClock_Hz   = 12288000U,
+    .sampleRate_Hz = (uint32_t)DEMO_AUDIO_SAMPLING_RATE,
+    //    .fifoWatermark     = FSL_FEATURE_SAI_FIFO_COUNTn(DEMO_SAI) / 2U,
     /* Here we use this config to use 4bytes align, otherwise will trigger 32bytes align assert. */
     .fifoWatermark     = FSL_FEATURE_SAI_FIFO_COUNTn(DEMO_SAI) - 2,
     .masterSlave       = kHAL_AudioMaster,
@@ -212,12 +212,12 @@ uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
     return DEMO_SAI_CLK_FREQ;
 }
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(WIFI_IW612_BOARD_RD_USD)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD) || defined(WIFI_IW612_BOARD_RD_USD)
 void BOARD_SyncTimer_Init(void (*sync_timer_callback)(uint32_t sync_index, uint64_t bclk_count))
 {
     gpt_config_t config;
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
     /* 2EL use GPT2 as SyncTimer. */
     BOARD_InitGPT2Pins();
 #elif defined(WIFI_IW612_BOARD_RD_USD)
@@ -229,22 +229,22 @@ void BOARD_SyncTimer_Init(void (*sync_timer_callback)(uint32_t sync_index, uint6
     CLOCK_SetRootClockDiv(SyncTimer_GPT_ClockRoot, SyncTimer_GPT_ClockRoot_Div); /* 393216000 / 16 = 24576000 */
 
     GPT_GetDefaultConfig(&config);
-    config.clockSource = kGPT_ClockSource_HighFreq; /* GPT2_CLK come from AUDIO PLL. */
-    config.divider = 1U;
+    config.clockSource     = kGPT_ClockSource_HighFreq; /* GPT2_CLK come from AUDIO PLL. */
+    config.divider         = 1U;
     config.enableRunInStop = true;
     config.enableRunInWait = true;
     config.enableRunInDoze = false;
-    config.enableRunInDbg = false;
-    config.enableFreeRun = true;
-    config.enableMode  = true;
+    config.enableRunInDbg  = false;
+    config.enableFreeRun   = true;
+    config.enableMode      = true;
     GPT_Init(SyncTimer_GPT, &config);
 
     /* Input Capture 1 capture signal come from SAI FS signal, in order to capture offset between BCLK and FS. */
     GPT_SetInputOperationMode(SyncTimer_GPT, kGPT_InputCapture_Channel1, kGPT_InputOperation_RiseEdge);
-    //GPT_EnableInterrupts(SyncTimer_GPT, kGPT_InputCapture1InterruptEnable);
+    // GPT_EnableInterrupts(SyncTimer_GPT, kGPT_InputCapture1InterruptEnable);
     /* Input Capture 2 capture signal come from Sync INT signal, on order to measure CLK draft. */
     GPT_SetInputOperationMode(SyncTimer_GPT, kGPT_InputCapture_Channel2, kGPT_InputOperation_RiseEdge);
-    //GPT_EnableInterrupts(SyncTimer_GPT, kGPT_InputCapture2InterruptEnable);
+    // GPT_EnableInterrupts(SyncTimer_GPT, kGPT_InputCapture2InterruptEnable);
 
     EnableIRQWithPriority(SyncTimer_GPT_Irq, 3);
 
@@ -273,7 +273,7 @@ void BORAD_SyncTimer_Stop(void)
     GPT_StopTimer(SyncTimer_GPT);
 }
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
 void GPT2_IRQHandler(void)
 #elif defined(WIFI_IW612_BOARD_RD_USD)
 void GPT3_IRQHandler(void)
@@ -283,10 +283,10 @@ void GPT3_IRQHandler(void)
     uint32_t current_capture2_value;
     uint32_t capture2_value_delta;
 
-    flag  = GPT_GetStatusFlags(SyncTimer_GPT, (gpt_status_flag_t)(kGPT_InputCapture1Flag | kGPT_InputCapture2Flag));
+    flag = GPT_GetStatusFlags(SyncTimer_GPT, (gpt_status_flag_t)(kGPT_InputCapture1Flag | kGPT_InputCapture2Flag));
     flag &= GPT_GetEnabledInterrupts(SyncTimer_GPT);
 
-    if(flag & kGPT_InputCapture1Flag)
+    if (flag & kGPT_InputCapture1Flag)
     {
         /* We only need capture the first SAI FS signal to calculate offset. */
         GPT_DisableInterrupts(SyncTimer_GPT, kGPT_InputCapture1InterruptEnable);
@@ -294,7 +294,7 @@ void GPT3_IRQHandler(void)
         /* SAI FS trigged BCLK offset. */
         SyncTimer_Capture1_Value = GPT_GetInputCaptureValue(SyncTimer_GPT, kGPT_InputCapture_Channel1);
     }
-    if(flag & kGPT_InputCapture2Flag)
+    if (flag & kGPT_InputCapture2Flag)
     {
         GPT_ClearStatusFlags(SyncTimer_GPT, kGPT_InputCapture2Flag);
         /* Sync INT trigged BCLK count capture. */
@@ -313,7 +313,7 @@ void GPT3_IRQHandler(void)
 
         /* Calculate BCLK. */
         /* BCLK should be 0 before the SAI_SW start, because we use AUDIO_PLL as clk source. */
-        if(SyncTimer_Capture1_Value > 0U)
+        if (SyncTimer_Capture1_Value > 0U)
         {
             SyncTimer_Bclk_Value = (SyncTimer_Count_Value - SyncTimer_Capture1_Value) / SyncTimer_Count_To_Bclk_Div;
         }
@@ -322,13 +322,13 @@ void GPT3_IRQHandler(void)
             SyncTimer_Bclk_Value = 0;
         }
         /* invoke callback. */
-        if(SyncTimer_Trigger_Callback)
+        if (SyncTimer_Trigger_Callback)
         {
             SyncTimer_Trigger_Callback(SyncTimer_Trigger_Counter, SyncTimer_Bclk_Value);
         }
 
         /* SyncTimer trigger signal count. */
-        SyncTimer_Trigger_Counter ++;
+        SyncTimer_Trigger_Counter++;
     }
 
     SDK_ISR_EXIT_BARRIER;
@@ -341,7 +341,8 @@ void bt_psa_crypto_init(void)
     psa_status_t status;
 
     status = psa_crypto_init();
-    if (status != PSA_SUCCESS) {
+    if (status != PSA_SUCCESS)
+    {
         PRINTF("Failed to initialize PSA crypto");
     }
     assert(status == PSA_SUCCESS);
@@ -356,7 +357,9 @@ void BOARD_InitHardware(void)
 
     BOARD_ConfigMPU();
     BOARD_InitBootPins();
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if (defined(WIFI_IW416_BOARD_AW_AM510MA) || defined(WIFI_88W8987_BOARD_AW_CM358MA) ||       \
+     defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || \
+     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD))
     BOARD_InitM2UARTPins();
 #endif
     BOARD_InitM2CodecPins();
@@ -368,7 +371,7 @@ void BOARD_InitHardware(void)
     EDMA_Init(dmaBases[EXAMPLE_DMA_INSTANCE], &config);
 }
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
 int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
 {
     if (NULL == config)

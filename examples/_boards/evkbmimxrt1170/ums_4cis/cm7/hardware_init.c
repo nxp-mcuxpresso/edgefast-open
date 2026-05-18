@@ -60,14 +60,14 @@ static void BOARD_SyncSignal_Init(void)
 
     hal_gpio_pin_config_t config;
     config.direction = kHAL_GpioDirectionIn;
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
-    config.port      = 3;
-    config.pin       = 0;
-    config.level     = 1;
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
+    config.port  = 3;
+    config.pin   = 0;
+    config.level = 1;
 #elif defined(WIFI_IW612_BOARD_RD_USD)
-    config.port      = 3;
-    config.pin       = 7;
-    config.level     = 1;
+    config.port  = 3;
+    config.pin   = 7;
+    config.level = 1;
 #endif
     HAL_GpioInit((hal_gpio_handle_t)sync_signal_pin_handle, &config);
 
@@ -78,7 +78,7 @@ void BOARD_SyncSignal_Start(uint32_t init_offset)
 {
     SyncSignal_Index = 0;
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
     GPIO_ClearPinsInterruptFlags(GPIO3,
                                  1U); /* A walk-around for fsl_adapter_gpio will triger once after trigger enabled. */
 #elif defined(WIFI_IW612_BOARD_RD_USD)
@@ -104,7 +104,8 @@ void bt_psa_crypto_init(void)
     psa_status_t status;
 
     status = psa_crypto_init();
-    if (status != PSA_SUCCESS) {
+    if (status != PSA_SUCCESS)
+    {
         PRINTF("Failed to initialize PSA crypto");
     }
     assert(status == PSA_SUCCESS);
@@ -115,9 +116,9 @@ void BOARD_InitHardware(void)
 {
     BOARD_ConfigMPU();
     BOARD_InitBootPins();
-#if (defined(WIFI_IW416_BOARD_AW_AM510MA) || defined(WIFI_88W8987_BOARD_AW_CM358MA) || \
+#if (defined(WIFI_IW416_BOARD_AW_AM510MA) || defined(WIFI_88W8987_BOARD_AW_CM358MA) ||       \
      defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || \
-     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) )
+     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD))
     BOARD_InitM2UARTPins();
 #else
     BOARD_InitArduinoUARTPins();
@@ -149,12 +150,12 @@ int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
     {
         return -1;
     }
-    config->clockSrc         = BOARD_BT_UART_CLK_FREQ;
-    config->defaultBaudrate  = 1000000u;
-    config->runningBaudrate  = 1000000u;
-    config->instance         = BOARD_BT_UART_INSTANCE;
-    config->enableRxRTS      = 1u;
-    config->enableTxCTS      = 1u;
+    config->clockSrc        = BOARD_BT_UART_CLK_FREQ;
+    config->defaultBaudrate = 1000000u;
+    config->runningBaudrate = 1000000u;
+    config->instance        = BOARD_BT_UART_INSTANCE;
+    config->enableRxRTS     = 1u;
+    config->enableTxCTS     = 1u;
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
     config->dma_instance     = 0U;
     config->rx_channel       = 1U;
@@ -177,10 +178,10 @@ int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
     {
         return -1;
     }
-    config->clockSrc         = BOARD_BT_UART_CLK_FREQ;
-    config->defaultBaudrate  = BOARD_BT_UART_BAUDRATE;
-    config->runningBaudrate  = BOARD_BT_UART_BAUDRATE;
-    config->instance         = BOARD_BT_UART_INSTANCE;
+    config->clockSrc        = BOARD_BT_UART_CLK_FREQ;
+    config->defaultBaudrate = BOARD_BT_UART_BAUDRATE;
+    config->runningBaudrate = BOARD_BT_UART_BAUDRATE;
+    config->instance        = BOARD_BT_UART_INSTANCE;
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
     config->dma_instance     = 0U;
     config->rx_channel       = 0U;
@@ -189,11 +190,11 @@ int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
     config->rx_request       = kDmaRequestMuxLPUART7Rx;
     config->tx_request       = kDmaRequestMuxLPUART7Tx;
 #endif
-    config->enableRxRTS      = 1u;
-    config->enableTxCTS      = 1u;
+    config->enableRxRTS = 1u;
+    config->enableTxCTS = 1u;
     return 0;
 }
-#elif defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#elif defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
 int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
 {
     if (NULL == config)

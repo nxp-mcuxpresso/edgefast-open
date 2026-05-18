@@ -7,8 +7,8 @@
 
 #include "edgefast_open_config.h"
 
-#define FLASH_ADAPTER_SIZE              0x10000
-#define OSA_USED                        1
+#define FLASH_ADAPTER_SIZE 0x10000
+#define OSA_USED           1
 
 #if (defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || \
      defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(WIFI_IW610_BOARD_MURATA_2LL_M2))
@@ -18,7 +18,7 @@
 #error The transceiver module is unsupported
 #endif
 
-#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD)
 #undef SD_TIMING_MAX
 #define SD_TIMING_MAX kSD_TimingDDR50Mode
 #endif /*#define WIFI_IW612_BOARD_MURATA_2EL_M2*/

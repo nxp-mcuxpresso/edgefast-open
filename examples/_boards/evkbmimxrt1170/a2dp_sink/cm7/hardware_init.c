@@ -79,8 +79,8 @@ wm8962_config_t wm8962Config = {
     .slaveAddress = WM8962_I2C_ADDR,
     .bus          = kWM8962_BusI2S,
     .format       = {.mclk_HZ    = 11289750U,
-               .sampleRate = kWM8962_AudioSampleRate16KHz,
-               .bitWidth   = kWM8962_AudioBitWidth16bit},
+                     .sampleRate = kWM8962_AudioSampleRate16KHz,
+                     .bitWidth   = kWM8962_AudioBitWidth16bit},
     .masterSlave  = false,
 };
 codec_config_t boardCodecConfig = {.codecDevType = kCODEC_WM8962, .codecDevConfig = &wm8962Config};
@@ -185,8 +185,8 @@ uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
         /* Enable MCLK output */
         IOMUXC_GPR->GPR0 |= IOMUXC_GPR_GPR0_SAI1_MCLK_DIR_MASK;
     }
-    wm8962Config.format.sampleRate             = sampleRate;
-    wm8962Config.format.mclk_HZ                = DEMO_SAI_CLK_FREQ;
+    wm8962Config.format.sampleRate = sampleRate;
+    wm8962Config.format.mclk_HZ    = DEMO_SAI_CLK_FREQ;
     return DEMO_SAI_CLK_FREQ;
 }
 
@@ -204,11 +204,10 @@ void BOARD_InitHardware(void)
     DMAMUX_Init(dmaMuxBases[EXAMPLE_DMAMUX_INSTANCE]);
     EDMA_GetDefaultConfig(&config);
     EDMA_Init(dmaBases[EXAMPLE_DMA_INSTANCE], &config);
-
 }
 
 #if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || \
-     defined(WIFI_IW612_BOARD_MURATA_2EL_M2))
+     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD))
 int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
 {
     if (NULL == config)

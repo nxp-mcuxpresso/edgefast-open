@@ -30,7 +30,7 @@
 #define USB_HOST_INTERRUPT_PRIORITY (3U)
 #endif
 #if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || \
-     defined(WIFI_IW612_BOARD_MURATA_2EL_M2))
+     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD))
 #define M2_WIFI_RESET_GPIO     GPIO9
 #define M2_WIFI_RESET_GPIO_PIN 30U
 #endif
@@ -50,8 +50,8 @@
 #define DEMO_SCO_INSTANCE   (3U)
 
 /* DMA */
-#define EXAMPLE_DMAMUX_INSTANCE (0U)
-#define EXAMPLE_DMA_INSTANCE    (0U)
+#define EXAMPLE_DMAMUX_INSTANCE      (0U)
+#define EXAMPLE_DMA_INSTANCE         (0U)
 #define EXAMPLE_MICBUF_TX_CHANNEL    (0U)
 #define EXAMPLE_MICBUF_RX_CHANNEL    (1U)
 #define EXAMPLE_SPKBUF_TX_CHANNEL    (2U)
@@ -95,24 +95,24 @@ wm8962_config_t wm8962ScoConfig = {
 };
 
 codec_config_t boardCodecScoConfig = {.codecDevType = kCODEC_WM8962, .codecDevConfig = &wm8962ScoConfig};
-wm8962_config_t wm8962ScoConfig1 = {
-    .i2cConfig = {.codecI2CInstance = BOARD_CODEC_I2C_INSTANCE, .codecI2CSourceClock = BOARD_CODEC_I2C_CLOCK_FREQ},
-    .route =
+wm8962_config_t wm8962ScoConfig1   = {
+      .i2cConfig = {.codecI2CInstance = BOARD_CODEC_I2C_INSTANCE, .codecI2CSourceClock = BOARD_CODEC_I2C_CLOCK_FREQ},
+      .route =
         {
-            .enableLoopBack            = false,
-            .leftInputPGASource        = kWM8962_InputPGASourceInput1,
-            .leftInputMixerSource      = kWM8962_InputMixerSourceInputPGA,
-            .rightInputPGASource       = kWM8962_InputPGASourceInput3,
-            .rightInputMixerSource     = kWM8962_InputMixerSourceInputPGA,
-            .leftHeadphoneMixerSource  = kWM8962_OutputMixerDisabled,
-            .leftHeadphonePGASource    = kWM8962_OutputPGASourceDAC,
-            .rightHeadphoneMixerSource = kWM8962_OutputMixerDisabled,
-            .rightHeadphonePGASource   = kWM8962_OutputPGASourceDAC,
+              .enableLoopBack            = false,
+              .leftInputPGASource        = kWM8962_InputPGASourceInput1,
+              .leftInputMixerSource      = kWM8962_InputMixerSourceInputPGA,
+              .rightInputPGASource       = kWM8962_InputPGASourceInput3,
+              .rightInputMixerSource     = kWM8962_InputMixerSourceInputPGA,
+              .leftHeadphoneMixerSource  = kWM8962_OutputMixerDisabled,
+              .leftHeadphonePGASource    = kWM8962_OutputPGASourceDAC,
+              .rightHeadphoneMixerSource = kWM8962_OutputMixerDisabled,
+              .rightHeadphonePGASource   = kWM8962_OutputPGASourceDAC,
         },
-    .slaveAddress = WM8962_I2C_ADDR,
-    .bus          = kWM8962_BusI2S,
-    .format       = {.mclk_HZ = 24576000U, .sampleRate = 8000, .bitWidth = kWM8962_AudioBitWidth16bit},
-    .masterSlave  = false,
+      .slaveAddress = WM8962_I2C_ADDR,
+      .bus          = kWM8962_BusI2S,
+      .format       = {.mclk_HZ = 24576000U, .sampleRate = 8000, .bitWidth = kWM8962_AudioBitWidth16bit},
+      .masterSlave  = false,
 };
 
 codec_config_t boardCodecScoConfig1 = {.codecDevType = kCODEC_WM8962, .codecDevConfig = &wm8962ScoConfig1};
@@ -276,7 +276,7 @@ uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
     else
     {
         CLOCK_InitAudioPll(&audioCodecPllConfig);
-            /* no action */
+        /* no action */
 
         /*Clock setting for LPI2C*/
         CLOCK_SetRootClockMux(kCLOCK_Root_Lpi2c5, 1);
@@ -288,8 +288,8 @@ uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
         /* Enable MCLK output */
         IOMUXC_GPR->GPR0 |= IOMUXC_GPR_GPR0_SAI1_MCLK_DIR_MASK;
     }
-    wm8962ScoConfig.format.sampleRate             = sampleRate;
-    wm8962ScoConfig.format.mclk_HZ                = DEMO_SAI_CLK_FREQ;
+    wm8962ScoConfig.format.sampleRate = sampleRate;
+    wm8962ScoConfig.format.mclk_HZ    = DEMO_SAI_CLK_FREQ;
     return DEMO_SAI_CLK_FREQ;
 }
 
@@ -314,11 +314,10 @@ void BOARD_InitHardware(void)
     EDMA_GetDefaultConfig(&config);
     EDMA_Init(dmaBases[EXAMPLE_DMA_INSTANCE], &config);
 #endif
-
 }
 
 #if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || \
-     defined(WIFI_IW612_BOARD_MURATA_2EL_M2))
+     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(BT_NW61X_BOARD_NXP_RD_USD))
 int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
 {
     if (NULL == config)
@@ -342,6 +341,5 @@ int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
     return 0;
 }
 #endif
-
 
 /*${function:end}*/

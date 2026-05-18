@@ -35,7 +35,6 @@
 
 /*${variable:start}*/
 
-
 /*${variable:end}*/
 
 /*${function:start}*/
