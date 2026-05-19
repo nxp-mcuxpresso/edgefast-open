@@ -1734,8 +1734,6 @@ static void sm_work_handler(struct k_work *work)
 		mas_inst.state = APP_STATE_TRANSPORT_DISCONNECT;
 		(void)k_work_schedule(&sm_work, K_NO_WAIT);
 	}
-
-	mas_inst.state = entry->exit_state;
 }
 
 static void mas_work_handler(struct k_work *work)
