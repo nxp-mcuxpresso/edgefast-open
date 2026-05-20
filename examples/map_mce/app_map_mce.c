@@ -1733,6 +1733,8 @@ static void sm_work_handler(struct k_work *work)
 		printk("Failed to %s (err %d)\n", entry->action_name, err);
 		mas_inst.state = APP_STATE_TRANSPORT_DISCONNECT;
 		(void)k_work_schedule(&sm_work, K_NO_WAIT);
+	} else {
+		mas_inst.state = entry->exit_state;
 	}
 }
 
