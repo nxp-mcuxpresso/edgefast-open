@@ -1760,6 +1760,7 @@ static void mce_mns_rfcomm_disconnected(struct bt_map_mce_mns *mce_mns)
 	bt_conn_unref(mns_inst.conn);
 	memset(&mns_inst.conn, 0, sizeof(mns_inst) - offsetof(struct mce_mns_instance, conn));
 	printk("MCE MNS RFCOMM disconnected\n");
+	(void)k_work_schedule(&sm_work, K_SECONDS(1));
 }
 
 static void mce_mns_l2cap_connected(struct bt_conn *conn, struct bt_map_mce_mns *mce_mns)
@@ -1773,6 +1774,7 @@ static void mce_mns_l2cap_disconnected(struct bt_map_mce_mns *mce_mns)
 	bt_conn_unref(mns_inst.conn);
 	memset(&mns_inst.conn, 0, sizeof(mns_inst) - offsetof(struct mce_mns_instance, conn));
 	printk("MCE MNS L2CAP disconnected\n");
+	(void)k_work_schedule(&sm_work, K_SECONDS(1));
 }
 
 static void mce_mns_connect(struct bt_map_mce_mns *mce_mns, uint8_t version, uint16_t mopl,
@@ -1787,7 +1789,6 @@ static void mce_mns_disconnect(struct bt_map_mce_mns *mce_mns, struct net_buf *b
 {
 	printk("MCE MNS disconn req\n");
 	(void)bt_map_mce_mns_disconnect(mce_mns, BT_OBEX_RSP_CODE_SUCCESS, NULL);
-	(void)k_work_schedule(&sm_work, K_NO_WAIT);
 }
 
 static void mce_mns_abort(struct bt_map_mce_mns *mce_mns, struct net_buf *buf)

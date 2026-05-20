@@ -192,10 +192,10 @@ Conn ID: 00000001
 
 ============ END BODY ============
 MCE MNS disconn req
+MCE MNS L2CAP disconnected
 [16] skip get_owner_status, BT_MAP_OWNER_STATUS not supported
 [17] skip set_owner_status, BT_MAP_OWNER_STATUS not supported
 [18] set_folder_parent
-MCE MNS L2CAP disconnected
 MCE MAS set_folder rsp, rsp_code Success
 Conn ID: 00000001
 [19] set_folder_outbox
