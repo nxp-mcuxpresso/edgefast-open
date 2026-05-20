@@ -76,6 +76,8 @@ extern struct device bt_hci_h4_w_disable_gpio;
 #define _K_PRIO_COOP(x) (((x) < 0) ? (CONFIG_NUM_PREEMPT_PRIORITIES - 2) : (x))
 #define K_PRIO_COOP(x) (((x) >= CONFIG_NUM_PREEMPT_PRIORITIES) ? (CONFIG_NUM_PREEMPT_PRIORITIES - 2) : _K_PRIO_COOP(x))
 
+#define K_PRIO_PREEMPT(x) (((x) >= CONFIG_NUM_PREEMPT_PRIORITIES) ? (CONFIG_NUM_PREEMPT_PRIORITIES - 1) : (x))
+
 #define k_thread_stack_t uint8_t
 
 #define k_ticks_t uint32_t
