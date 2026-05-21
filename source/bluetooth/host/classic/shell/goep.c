@@ -1223,11 +1223,6 @@ static int cmd_goep_server_reg(const struct shell *sh, size_t argc, char *argv[]
 
 	static struct bt_uuid_128 uuid;
 
-	if (goep_app.conn == NULL) {
-		shell_error(sh, "No goep transport connection");
-		return -ENOEXEC;
-	}
-
 	if (argc > 1) {
 		hex2bin(argv[1], strlen(argv[1]), uuid128, sizeof(uuid128));
 		uuid.uuid.type = BT_UUID_TYPE_128;
