@@ -1402,12 +1402,6 @@ static void update_conn(struct bt_conn *conn, const bt_addr_le_t *id_addr,
 #endif
 }
 
-#if defined(CONFIG_BT_ATT_TEST)
-__weak void bt_testing_att_connection_init(void)
-{
-}
-#endif
-
 void bt_hci_le_enh_conn_complete(struct bt_hci_evt_le_enh_conn_complete *evt)
 {
 	__ASSERT_NO_MSG(evt->status == BT_HCI_ERR_SUCCESS);
@@ -1526,16 +1520,6 @@ void bt_hci_le_enh_conn_complete(struct bt_hci_evt_le_enh_conn_complete *evt)
 		}
 	}
 #endif /* defined(CONFIG_BT_USER_PHY_UPDATE) */
-
-#if defined(CONFIG_BT_ATT_TEST)
-	/* This is a weak function that will be implemented in the ATT test case.
-	 * It can add delay to block the HCI_LE_Enhanced_conn_complete event processing,
-	 * allowing the peer to send ATT commands first, then verify that ATT commands
-	 * are processed after the HCI_LE_Enhanced_conn_complete processing finishes.
-	 */
-
-	bt_testing_att_connection_init();
-#endif /* defined(CONFIG_BT_ATT_TEST) */
 
 	bt_conn_set_state(conn, BT_CONN_CONNECTED);
 
