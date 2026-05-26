@@ -9,17 +9,18 @@
 - Embedded Artists 1ZM M.2 Module (EAR00364) - direct M2 connection.
 - Embedded Artists 2EL M.2 Module (Rev-A1) - direct M2 connection.
 - Embedded Artists 2LL M.2 Module (EAR00500) - direct M2 connection.
+- Embedded Artists AW300 Module (BT_NW61X_BOARD_NXP_RD_USD).
 
 ## Supported Configurations per Module
 
 The shell example provides three build configurations. Not all M.2 modules support all
 configurations, as summarized below:
 
-| Configuration      | 1XK | 1ZM | 2EL | 2LL (IW610) |
-|--------------------|:---:|:---:|:---:|:-----------:|
-| `@default`         | ✓   | ✓   | ✓   | ✓           |
-| `@classic`         | ✓   | ✓   | ✓   | ✗           |
-| `@multiple_conns`  | ✓   | ✓   | ✓   | ✗           |
+| Configuration      | 1XK | 1ZM | 2EL | 2LL (IW610) | AW300 |
+|--------------------|:---:|:---:|:---:|:-----------:|:-----:|
+| `@default`         | ✓   | ✓   | ✓   | ✓           | ✓     |
+| `@classic`         | ✓   | ✓   | ✓   | ✗           | ✓     |
+| `@multiple_conns`  | ✓   | ✓   | ✓   | ✗           | ✓     |
 
 > **Note:** The `@classic` and `@multiple_conns` configurations require Bluetooth Classic
 > (BR/EDR) support. The 2LL (IW610) module does not support Bluetooth Classic and cannot
@@ -39,8 +40,8 @@ Embedded Artists 1ZM module datasheet: https://www.embeddedartists.com/doc/ds/1Z
 Embedded Artists 2EL module datasheet: https://www.embeddedartists.com/doc/ds/2EL_M2_Datasheet.pdf
 Embedded Artists 2LL module datasheet: https://www.embeddedartists.com/wp-content/uploads/2024/12/2LL_M2_Datasheet.pdf
 
-The hardware should be reworked according to the Hardware Rework Guide for MIMXRT1170-EVKB and Murata 1XK M.2 Adapter in document Hardware Rework Guide for EdgeFast BT PAL.
-The hardware should be reworked according to the Hardware Rework Guide for MIMXRT1170-EVKB and Murata 1ZM M.2 Adapter in document Hardware Rework Guide for EdgeFast BT PAL.
+The hardware should be reworked according to the Hardware Rework Guide for MIMXRT1170-EVKB and Murata 1XK M.2 Adapter in document Hardware Rework Guide for EdgeFast Open Bluetooth Host stack.
+The hardware should be reworked according to the Hardware Rework Guide for MIMXRT1170-EVKB and Murata 1ZM M.2 Adapter in document Hardware Rework Guide for EdgeFast Open Bluetooth Host stack.
 The hardware rework for MIMXRT1170-EVKB and Murata 2EL M.2 Adapter is same as MIMXRT1170-EVKB and Murata 1XK M.2 Adapter.
 The hardware rework for MIMXRT1170-EVKB and Murata 2LL M.2 Adapter is same as MIMXRT1170-EVKB and Murata 1XK M.2 Adapter.
 

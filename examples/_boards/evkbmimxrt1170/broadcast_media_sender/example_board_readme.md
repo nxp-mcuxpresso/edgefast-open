@@ -4,6 +4,7 @@ Hardware requirements
 - evkbmimxrt1170 board
 - Personal Computer
 - Embedded Artists 2EL M.2 Module (Rev-A1) - direct M2 connection.
+- Embedded Artists AW300 Module (BT_NW61X_BOARD_NXP_RD_USD).
 
 Jumper settings for RT1170-EVKB (enables external 5V supply):
 ========================================================
@@ -16,7 +17,7 @@ Murata Solution Board settings
 ==============================
 Embedded Artists 2EL module datasheet: https://www.embeddedartists.com/doc/ds/2EL_M2_Datasheet.pdf
 
-The hardware rework for MIMXRT1170-EVKB and Murata 2EL M.2 Module should refer to Hardware Rework Guide for MIMXRT1170-EVKB and Murata 2EL M.2 Module in document Hardware Rework Guide for EdgeFast BT PAL.
+The hardware rework for MIMXRT1170-EVKB and Murata 2EL M.2 Module should refer to Hardware Rework Guide for MIMXRT1170-EVKB and Murata 2EL M.2 Module in document Hardware Rework Guide for EdgeFast Open Bluetooth Host stack.
 
 Note:
 To ensure that the LITTLEFS flash region has been cleaned,
