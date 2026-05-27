@@ -4,6 +4,7 @@
 
 config BT_RX_STACK_SIZE
 	default 4096
+	range 4096 65536
 
 if BT_LONG_WQ
 config BT_LONG_WQ_STACK_SIZE
