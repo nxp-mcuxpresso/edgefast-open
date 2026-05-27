@@ -223,7 +223,7 @@ static void bond_info(const struct bt_br_bond_info *info, void *user_data)
 void app_a2dp_snk_auto_connect(void)
 {
 #if ((defined AUTO_CONNECT_USE_BOND_INFO) && (AUTO_CONNECT_USE_BOND_INFO))
-    bool valid;
+    bool valid = false;
 
     memset(&auto_connect_device, 0, sizeof(auto_connect_device));
     bt_br_foreach_bond(bond_info, &valid);
