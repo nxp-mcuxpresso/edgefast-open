@@ -13,20 +13,6 @@ handsfree_ag:
       - middleware/edgefast_open/examples/_boards/${board}/handsfree_ag/example_board_readme.md
       - ${board_root}/${board}/examples_shared_readme.md
   boards:
-    evkbimxrt1050:
-    - -armgcc@debug
-    - -armgcc@flexspi_nor_debug
-    - -armgcc@release
-    - -armgcc@sdram_debug
-    - -armgcc@sdram_release
-    - -iar@debug
-    - -iar@release
-    - -iar@sdram_debug
-    - -iar@sdram_release
-    - -mdk@debug
-    - -mdk@release
-    - -mdk@sdram_debug
-    - -mdk@sdram_release
     evkbmimxrt1170@cm7:
     - -armgcc@debug
     - -armgcc@release
