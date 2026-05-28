@@ -70,7 +70,16 @@ volatile uint32_t codecTxBufferPrimeCount = 0;
 
 static K_SEM_DEFINE(s_audioTaskSync, 0, K_SEM_MAX_LIMIT);
 
-static volatile uint8_t s_audioInitialized = 0u;
+enum {
+	CODEC_STATE_AUDIO_DEINITIATED = 0,
+	CODEC_STATE_AUDIO_INITING = 1,
+	CODEC_STATE_AUDIO_INITIATED = 2,
+	CODEC_STATE_AUDIO_STARTED = 3,
+	CODEC_STATE_AUDIO_STOPPED = 4,
+	CODEC_STATE_AUDIO_DEINITIATING = 5,
+};
+
+static atomic_t codec_state;
 
 static void APP_CodecTxCallback(hal_audio_handle_t handle, hal_audio_status_t completionStatus, void *callbackParam);
 static void APP_CodecRxCallback(hal_audio_handle_t handle, hal_audio_status_t completionStatus, void *callbackParam);
@@ -84,7 +93,7 @@ volatile uint32_t s_rxCount = 0;
 volatile uint32_t s_txToggle = 0;
 volatile uint32_t s_rxToggle = 0;
 
-volatile static uint32_t s_currentVol = HFP_CODEC_HP_VOLUME;
+static volatile uint32_t s_currentVol = HFP_CODEC_HP_VOLUME;
 
 static codec_rx_callback_t rx_callback;
 static codec_tx_callback_t tx_callback;
@@ -101,439 +110,494 @@ volatile uint64_t rx_read_count = 0;
 
 static void APP_CodecTxCallback(hal_audio_handle_t handle, hal_audio_status_t completionStatus, void *callbackParam)
 {
-    s_txToggle = 1000 - s_txToggle;
-    s_txCount ++;
-    if (codecTxBufferPrimeCount > 0)
-    {
-        codecTxBufferPrimeCount --;
-    }
-    tx_played_count += CODEC_TX_BUFFER_SIZE;
-    k_sem_give(&s_audioTaskSync);
+	s_txToggle = 1000 - s_txToggle;
+	s_txCount ++;
+	if (codecTxBufferPrimeCount > 0)
+	{
+		codecTxBufferPrimeCount --;
+	}
+	tx_played_count += CODEC_TX_BUFFER_SIZE;
+	k_sem_give(&s_audioTaskSync);
 }
 
 static void APP_CodecRxCallback(hal_audio_handle_t handle, hal_audio_status_t completionStatus, void *callbackParam)
 {
-    s_rxToggle = 1000 - s_rxToggle;
-    s_rxCount ++;
-    if (codecRxBufferPrimeCount > 0)
-    {
-        codecRxBufferPrimeCount --;
-    }
-    rx_new_count += CODEC_RX_BUFFER_SIZE;
-    k_sem_give(&s_audioTaskSync);
+	s_rxToggle = 1000 - s_rxToggle;
+	s_rxCount ++;
+	if (codecRxBufferPrimeCount > 0)
+	{
+		codecRxBufferPrimeCount --;
+	}
+	rx_new_count += CODEC_RX_BUFFER_SIZE;
+	k_sem_give(&s_audioTaskSync);
+}
+
+static bool APP_CodecCheckState(uint32_t state, uint32_t timeout)
+{
+	if (atomic_get(&codec_state) == state) {
+		return true;
+	}
+
+	if (timeout == 0U) {
+		return false;
+	}
+
+	while (atomic_get(&codec_state) != state) {
+		k_sleep(K_MSEC(1));
+		timeout--;
+
+		if (timeout == 0U) {
+			break;
+		}
+	}
+
+	return atomic_get(&codec_state) == state;
 }
 
 int BOARD_AudioInit(uint32_t samplingRate, uint32_t bitWidth)
 {
-    if (s_audioInitialized > 1)
-    {
-        BOARD_AudioDeinit();
-    }
-    PRINTF("Init Audio SAI and CODEC, samplingRate :%d  bitWidth:%d \r\n", samplingRate, bitWidth);
-    /* Enable clock */
-    src_clk_hz = BOARD_SwitchAudioFreq(samplingRate);
+	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STOPPED, 0) &&
+	    !APP_CodecCheckState(CODEC_STATE_AUDIO_DEINITIATED, 0)) {
+		atomic_set(&codec_state, CODEC_STATE_AUDIO_STOPPED);
+		k_sem_give(&s_audioTaskSync);
+	}
 
-    /* Audio streamer */
+	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_DEINITIATED, 5000U))
+	{
+		return -EINVAL;
+	}
+
+	atomic_set(&codec_state, CODEC_STATE_AUDIO_INITING);
+	PRINTF("Init Audio SAI and CODEC, samplingRate :%d  bitWidth:%d \r\n", samplingRate, bitWidth);
+	/* Enable clock */
+	src_clk_hz = BOARD_SwitchAudioFreq(samplingRate);
+
+	/* Audio streamer */
 #if (defined FSL_FEATURE_SAI_HAS_MCLKDIV_REGISTER && FSL_FEATURE_SAI_HAS_MCLKDIV_REGISTER) || \
-(defined FSL_FEATURE_PCC_HAS_SAI_DIVIDER && FSL_FEATURE_PCC_HAS_SAI_DIVIDER)
-    codecTxConfig.srcClock_Hz = OVER_SAMPLE_RATE * samplingRate;
+    (defined FSL_FEATURE_PCC_HAS_SAI_DIVIDER && FSL_FEATURE_PCC_HAS_SAI_DIVIDER)
+	codecTxConfig.srcClock_Hz = OVER_SAMPLE_RATE * samplingRate;
 #else
-    codecTxConfig.srcClock_Hz = src_clk_hz;
+	codecTxConfig.srcClock_Hz = src_clk_hz;
 #endif
-    codecTxConfig.sampleRate_Hz     = samplingRate;
-    codecTxConfig.frameSyncWidth    = kHAL_AudioFrameSyncWidthHalfFrame,
-    codecTxConfig.frameSyncPolarity = kHAL_AudioBeginAtFallingEdge,
-    codecTxConfig.lineChannels      = kHAL_AudioStereo;
-    codecTxConfig.dataFormat        = kHAL_AudioDataFormatI2sClassic;
-    HAL_AudioTxInit((hal_audio_handle_t)&codecTxHandle[0], &codecTxConfig);
-    HAL_AudioTxInstallCallback((hal_audio_handle_t)&codecTxHandle[0], APP_CodecTxCallback, NULL);
+	codecTxConfig.sampleRate_Hz     = samplingRate;
+	codecTxConfig.frameSyncWidth    = kHAL_AudioFrameSyncWidthHalfFrame;
+	codecTxConfig.frameSyncPolarity = kHAL_AudioBeginAtFallingEdge;
+	codecTxConfig.lineChannels      = kHAL_AudioStereo;
+	codecTxConfig.dataFormat        = kHAL_AudioDataFormatI2sClassic;
+	HAL_AudioTxInit((hal_audio_handle_t)&codecTxHandle[0], &codecTxConfig);
+	HAL_AudioTxInstallCallback((hal_audio_handle_t)&codecTxHandle[0], APP_CodecTxCallback, NULL);
 
 #if (defined FSL_FEATURE_SAI_HAS_MCLKDIV_REGISTER && FSL_FEATURE_SAI_HAS_MCLKDIV_REGISTER) || \
-(defined FSL_FEATURE_PCC_HAS_SAI_DIVIDER && FSL_FEATURE_PCC_HAS_SAI_DIVIDER)
-    codecRxConfig.srcClock_Hz = OVER_SAMPLE_RATE * samplingRate;
+    (defined FSL_FEATURE_PCC_HAS_SAI_DIVIDER && FSL_FEATURE_PCC_HAS_SAI_DIVIDER)
+	codecRxConfig.srcClock_Hz = OVER_SAMPLE_RATE * samplingRate;
 #else
-    codecRxConfig.srcClock_Hz = src_clk_hz;
+	codecRxConfig.srcClock_Hz = src_clk_hz;
 #endif
-    codecRxConfig.sampleRate_Hz = samplingRate;
-    HAL_AudioRxInit((hal_audio_handle_t)&codecRxHandle[0], &codecRxConfig);
-    HAL_AudioRxInstallCallback((hal_audio_handle_t)&codecRxHandle[0], APP_CodecRxCallback, NULL);
+	codecRxConfig.sampleRate_Hz = samplingRate;
+	HAL_AudioRxInit((hal_audio_handle_t)&codecRxHandle[0], &codecRxConfig);
+	HAL_AudioRxInstallCallback((hal_audio_handle_t)&codecRxHandle[0], APP_CodecRxCallback, NULL);
 
-    /* Codec */
-    if (CODEC_Init(&codec_handle, &boardCodecScoConfig1) != kStatus_Success)
-    {
-        PRINTF("codec init failed!\r\n");
-    }
-    CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, true);
-    CODEC_SetFormat(&codec_handle, codecTxConfig.srcClock_Hz, codecTxConfig.sampleRate_Hz, codecTxConfig.bitWidth);
-    CODEC_SetVolume(&codec_handle, kCODEC_VolumeDAC, HFP_CODEC_DAC_VOLUME);
-    s_currentVol = HFP_CODEC_HP_VOLUME;
-    PRINTF("Set default headphone volume %d\r\n", s_currentVol);
-    CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, s_currentVol);
-    CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, false);
+	/* Codec */
+	if (CODEC_Init(&codec_handle, &boardCodecScoConfig1) != kStatus_Success)
+	{
+		PRINTF("codec init failed!\r\n");
+	}
+	CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, true);
+	CODEC_SetFormat(&codec_handle, codecTxConfig.srcClock_Hz, codecTxConfig.sampleRate_Hz, codecTxConfig.bitWidth);
+	CODEC_SetVolume(&codec_handle, kCODEC_VolumeDAC, HFP_CODEC_DAC_VOLUME);
+	s_currentVol = HFP_CODEC_HP_VOLUME;
+	PRINTF("Set default headphone volume %d\r\n", s_currentVol);
+	CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, s_currentVol);
+	CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, false);
 
-    s_audioInitialized = 1U;
+	atomic_set(&codec_state, CODEC_STATE_AUDIO_INITIATED);
 
-    return 0;
+	return 0;
 }
 
 static int BOARD_AudioDeinit(void)
 {
-    if (s_audioInitialized > 0)
-    {
-        s_audioInitialized = 0;
+	if (APP_CodecCheckState(CODEC_STATE_AUDIO_DEINITIATED, 0))
+	{
+		return 0;
+	}
 
-        CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, true);
-        HAL_AudioTxDeinit((hal_audio_handle_t)&codecTxHandle[0]);
-        HAL_AudioRxDeinit((hal_audio_handle_t)&codecRxHandle[0]);
-        (void)BOARD_SwitchAudioFreq(0U);
+	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STOPPED, 0))
+	{
+		return -EINVAL;
+	}
 
-        codecTxBufferPrimeCount = 0;
-        codecTxBufferPrimeIndex = 0;
-        codecTxBufferWriteIndex = 0;
-        codecRxBufferPrimeCount = 0;
-        codecRxBufferPrimeIndex = 0;
-        codecRxBufferReadIndex = 0;
-        codecRxBufferNotifyIndex = 0;
+	atomic_set(&codec_state, CODEC_STATE_AUDIO_DEINITIATING);
 
-        tx_prime_count = 0;
-        tx_played_count = 0;
-        tx_queued_count = 0;
-    }
+	CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, true);
+	HAL_AudioTxDeinit((hal_audio_handle_t)&codecTxHandle[0]);
+	HAL_AudioRxDeinit((hal_audio_handle_t)&codecRxHandle[0]);
+	(void)BOARD_SwitchAudioFreq(0U);
 
-    return 0;
+	codecTxBufferPrimeCount = 0;
+	codecTxBufferPrimeIndex = 0;
+	codecTxBufferWriteIndex = 0;
+	codecRxBufferPrimeCount = 0;
+	codecRxBufferPrimeIndex = 0;
+	codecRxBufferReadIndex = 0;
+	codecRxBufferNotifyIndex = 0;
+
+	tx_prime_count = 0;
+	tx_played_count = 0;
+	tx_queued_count = 0;
+
+	atomic_set(&codec_state, CODEC_STATE_AUDIO_DEINITIATED);
+
+	return 0;
 }
 
 static void BOARD_CodecTask(void* param)
 {
-    hal_audio_transfer_t xfer;
-    uint8_t need2Callback = 0U;
-    unsigned int key;
+	hal_audio_transfer_t xfer;
+	uint8_t need2Callback = 0U;
+	unsigned int key;
 
-    while (true)
-    {
-        k_sem_take(&s_audioTaskSync, K_FOREVER);
+	while (true)
+	{
+		k_sem_take(&s_audioTaskSync, K_FOREVER);
 
-        key = irq_lock();
-        if (s_audioInitialized < 1)
-        {
-            irq_unlock(key);
-            continue;
-        }
-        irq_unlock(key);
+		if (APP_CodecCheckState(CODEC_STATE_AUDIO_STOPPED, 0)) {
+			BOARD_AudioDeinit();
+		}
 
-        key = irq_lock();
-        if (codecTxBufferPrimeCount < CODEC_TX_BUFFER_COUNT)
-        {
-            xfer.data     = &codecTxBuffer[codecTxBufferPrimeIndex * CODEC_TX_BUFFER_SIZE];
-            xfer.dataSize = CODEC_TX_BUFFER_SIZE;
-            if (kStatus_HAL_AudioSuccess == HAL_AudioTransferSendNonBlocking((hal_audio_handle_t)&codecTxHandle[0], &xfer))
-            {
-                tx_queued_count += CODEC_TX_BUFFER_SIZE;
-                codecTxBufferPrimeIndex ++;
-            }
-            if (codecTxBufferPrimeIndex >= CODEC_TX_BUFFER_COUNT)
-            {
-                codecTxBufferPrimeIndex = 0U;
-            }
-            codecTxBufferPrimeCount ++;
-            need2Callback = 1U;
-        }
-        irq_unlock(key);
+		if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STARTED, 0))
+		{
+			continue;
+		}
 
-        if (need2Callback > 0U)
-        {
-            need2Callback = 0U;
-            if (NULL != tx_callback)
-            {
-                tx_callback();
-            }
-        }
+		key = irq_lock();
+		if (codecTxBufferPrimeCount < CODEC_TX_BUFFER_COUNT)
+		{
+			xfer.data     = &codecTxBuffer[codecTxBufferPrimeIndex * CODEC_TX_BUFFER_SIZE];
+			xfer.dataSize = CODEC_TX_BUFFER_SIZE;
+			if (kStatus_HAL_AudioSuccess == HAL_AudioTransferSendNonBlocking((hal_audio_handle_t)&codecTxHandle[0], &xfer))
+			{
+				tx_queued_count += CODEC_TX_BUFFER_SIZE;
+				codecTxBufferPrimeIndex ++;
+			}
+			if (codecTxBufferPrimeIndex >= CODEC_TX_BUFFER_COUNT)
+			{
+				codecTxBufferPrimeIndex = 0U;
+			}
+			codecTxBufferPrimeCount ++;
+			need2Callback = 1U;
+		}
+		irq_unlock(key);
 
-        key = irq_lock();
-        if (codecRxBufferPrimeCount < CODEC_RX_BUFFER_COUNT)
-        {
-            xfer.data     = codecRxBuffer + codecRxBufferPrimeIndex * CODEC_RX_BUFFER_SIZE;
-            xfer.dataSize = CODEC_RX_BUFFER_SIZE;
+		if (need2Callback > 0U)
+		{
+			need2Callback = 0U;
+			if (NULL != tx_callback)
+			{
+				tx_callback();
+			}
+		}
 
-            if (kStatus_HAL_AudioSuccess == HAL_AudioTransferReceiveNonBlocking((hal_audio_handle_t)&codecRxHandle[0], &xfer))
-            {
-                codecRxBufferPrimeIndex++;
-            }
-            if (codecRxBufferPrimeIndex >= CODEC_RX_BUFFER_COUNT)
-            {
-                codecRxBufferPrimeIndex = 0U;
-            }
-            codecRxBufferPrimeCount ++;
-            need2Callback = 1U;
-        }
-        irq_unlock(key);
+		key = irq_lock();
+		if (codecRxBufferPrimeCount < CODEC_RX_BUFFER_COUNT)
+		{
+			xfer.data     = codecRxBuffer + codecRxBufferPrimeIndex * CODEC_RX_BUFFER_SIZE;
+			xfer.dataSize = CODEC_RX_BUFFER_SIZE;
 
-        if (need2Callback > 0U)
-        {
-            need2Callback = 0U;
-            if (NULL != rx_callback)
-            {
-                rx_callback(BOARD_GetRxNotifyBuffer());
-            }
-        }
-    }
+			if (kStatus_HAL_AudioSuccess == HAL_AudioTransferReceiveNonBlocking((hal_audio_handle_t)&codecRxHandle[0], &xfer))
+			{
+				codecRxBufferPrimeIndex++;
+			}
+			if (codecRxBufferPrimeIndex >= CODEC_RX_BUFFER_COUNT)
+			{
+				codecRxBufferPrimeIndex = 0U;
+			}
+			codecRxBufferPrimeCount ++;
+			need2Callback = 1U;
+		}
+		irq_unlock(key);
+
+		if (need2Callback > 0U)
+		{
+			need2Callback = 0U;
+			if (NULL != rx_callback)
+			{
+				rx_callback(BOARD_GetRxNotifyBuffer());
+			}
+		}
+	}
 }
 
 static int BOARD_AudioTaskInit(void)
 {
-    static uint8_t s_audioStarted = 0u;
-    BaseType_t result = 0;
+	static uint8_t s_audioStarted = 0u;
+	BaseType_t result = 0;
 
-    if (0u == s_audioStarted)
-    {
-        s_audioStarted = 1U;
+	if (0u == s_audioStarted)
+	{
+		s_audioStarted = 1U;
 
-        result = xTaskCreate(BOARD_CodecTask, "BOARD_CodecTask", 1024, NULL, configMAX_PRIORITIES / 2, NULL);
-        assert(pdPASS == result);
+		result = xTaskCreate(BOARD_CodecTask, "BOARD_CodecTask", 1024, NULL, configMAX_PRIORITIES / 2, NULL);
+		assert(pdPASS == result);
 
-    }
-    codecTxBufferPrimeCount = 0;
-    codecTxBufferPrimeIndex = 0;
-    codecTxBufferWriteIndex = 0;
-    codecRxBufferPrimeCount = 0;
-    codecRxBufferPrimeIndex = 0;
-    codecRxBufferReadIndex = 0;
-    codecRxBufferNotifyIndex = 0;
+	}
+	codecTxBufferPrimeCount = 0;
+	codecTxBufferPrimeIndex = 0;
+	codecTxBufferWriteIndex = 0;
+	codecRxBufferPrimeCount = 0;
+	codecRxBufferPrimeIndex = 0;
+	codecRxBufferReadIndex = 0;
+	codecRxBufferNotifyIndex = 0;
 
-    tx_prime_count = 0;
-    tx_played_count = 0;
-    tx_queued_count = 0;
+	tx_prime_count = 0;
+	tx_played_count = 0;
+	tx_queued_count = 0;
 
-    rx_new_count = 0;
-    rx_read_count = 0;
+	rx_new_count = 0;
+	rx_read_count = 0;
 
-    (void)result;
+	(void)result;
 
-    return 0;
+	return 0;
 }
 
 void BOARD_PrimeTxWriteBuffer(const uint8_t * buffer, uint32_t length)
 {
-    uint32_t prime_length = 0;
+	uint32_t prime_length = 0;
 
-    if ((length + codecTxBufferWriteIndex) >= sizeof(codecTxBuffer))
-    {
-        prime_length = sizeof(codecTxBuffer) - codecTxBufferWriteIndex;
-    }
-    else
-    {
-        prime_length = length;
-    }
-    if (buffer != NULL)
-    {
-        memcpy(&codecTxBuffer[codecTxBufferWriteIndex], buffer, prime_length);
-    }
-    else
-    {
-        memset(&codecTxBuffer[codecTxBufferWriteIndex], 0, prime_length);
-    }
-    codecTxBufferWriteIndex = codecTxBufferWriteIndex + prime_length;
+	if ((length + codecTxBufferWriteIndex) >= sizeof(codecTxBuffer))
+	{
+		prime_length = sizeof(codecTxBuffer) - codecTxBufferWriteIndex;
+	}
+	else
+	{
+		prime_length = length;
+	}
 
-    if (prime_length < length)
-    {
-        if (buffer != NULL)
-        {
-            buffer = buffer + prime_length;
-        }
+	if (buffer != NULL)
+	{
+		memcpy(&codecTxBuffer[codecTxBufferWriteIndex], buffer, prime_length);
+	}
+	else
+	{
+		memset(&codecTxBuffer[codecTxBufferWriteIndex], 0, prime_length);
+	}
+	codecTxBufferWriteIndex = codecTxBufferWriteIndex + prime_length;
 
-        prime_length = length - prime_length;
+	if (prime_length < length)
+	{
+		if (buffer != NULL)
+		{
+			buffer = buffer + prime_length;
+		}
 
-        if (buffer != NULL)
-        {
-            memcpy(&codecTxBuffer[0], buffer, prime_length);
-        }
-        else
-        {
-            memset(&codecTxBuffer[0], 0, prime_length);
-        }
-        codecTxBufferWriteIndex = prime_length;
-    }
-    tx_prime_count += length;
+		prime_length = length - prime_length;
+
+		if (buffer != NULL)
+		{
+			memcpy(&codecTxBuffer[0], buffer, prime_length);
+		}
+		else
+		{
+			memset(&codecTxBuffer[0], 0, prime_length);
+		}
+		codecTxBufferWriteIndex = prime_length;
+	}
+	tx_prime_count += length;
 }
 
 void BOARD_StartStream(void)
 {
-    hal_audio_transfer_t xfer;
-    unsigned int key;
+	hal_audio_transfer_t xfer;
+	unsigned int key;
 
-    key = irq_lock();
-    for (uint8_t index = 0; index < (CODEC_TX_BUFFER_COUNT - codecTxBufferPrimeCount); ++index)
-    {
-        xfer.data     = &codecTxBuffer[codecTxBufferPrimeIndex * CODEC_TX_BUFFER_SIZE];
-        xfer.dataSize = CODEC_TX_BUFFER_SIZE;
-        if (kStatus_HAL_AudioSuccess == HAL_AudioTransferSendNonBlocking((hal_audio_handle_t)&codecTxHandle[0], &xfer))
-        {
-            tx_queued_count += CODEC_TX_BUFFER_SIZE;
-            codecTxBufferPrimeIndex ++;
-        }
-        if (codecTxBufferPrimeIndex >= CODEC_TX_BUFFER_COUNT)
-        {
-            codecTxBufferPrimeIndex = 0U;
-        }
-        codecTxBufferPrimeCount ++;
-    }
+	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_INITIATED, 5000U))
+	{
+		return;
+	}
 
-    for (uint8_t index = 0; index < (CODEC_RX_BUFFER_COUNT - codecRxBufferPrimeCount); ++index)
-    {
-        xfer.data     = codecRxBuffer + codecRxBufferPrimeIndex * CODEC_RX_BUFFER_SIZE;
-        xfer.dataSize = CODEC_RX_BUFFER_SIZE;
+	key = irq_lock();
+	for (uint8_t index = 0; index < (CODEC_TX_BUFFER_COUNT - codecTxBufferPrimeCount); ++index)
+	{
+		xfer.data     = &codecTxBuffer[codecTxBufferPrimeIndex * CODEC_TX_BUFFER_SIZE];
+		xfer.dataSize = CODEC_TX_BUFFER_SIZE;
+		if (kStatus_HAL_AudioSuccess == HAL_AudioTransferSendNonBlocking((hal_audio_handle_t)&codecTxHandle[0], &xfer))
+		{
+			tx_queued_count += CODEC_TX_BUFFER_SIZE;
+			codecTxBufferPrimeIndex ++;
+		}
+		if (codecTxBufferPrimeIndex >= CODEC_TX_BUFFER_COUNT)
+		{
+			codecTxBufferPrimeIndex = 0U;
+		}
+		codecTxBufferPrimeCount ++;
+	}
 
-        if (kStatus_HAL_AudioSuccess == HAL_AudioTransferReceiveNonBlocking((hal_audio_handle_t)&codecRxHandle[0], &xfer))
-        {
-            codecRxBufferPrimeIndex++;
-        }
-        if (codecRxBufferPrimeIndex >= CODEC_RX_BUFFER_COUNT)
-        {
-            codecRxBufferPrimeIndex = 0U;
-        }
-        codecRxBufferPrimeCount++;
-    }
+	for (uint8_t index = 0; index < (CODEC_RX_BUFFER_COUNT - codecRxBufferPrimeCount); ++index)
+	{
+		xfer.data     = codecRxBuffer + codecRxBufferPrimeIndex * CODEC_RX_BUFFER_SIZE;
+		xfer.dataSize = CODEC_RX_BUFFER_SIZE;
 
-    irq_unlock(key);
+		if (kStatus_HAL_AudioSuccess == HAL_AudioTransferReceiveNonBlocking((hal_audio_handle_t)&codecRxHandle[0], &xfer))
+		{
+			codecRxBufferPrimeIndex++;
+		}
+		if (codecRxBufferPrimeIndex >= CODEC_RX_BUFFER_COUNT)
+		{
+			codecRxBufferPrimeIndex = 0U;
+		}
+		codecRxBufferPrimeCount++;
+	}
+
+	atomic_set(&codec_state, CODEC_STATE_AUDIO_STARTED);
+
+	irq_unlock(key);
 }
 
 uint8_t *BOARD_GetRxReadBuffer(void)
 {
-    uint8_t * buffer = &codecRxBuffer[codecRxBufferReadIndex * CODEC_RX_BUFFER_SIZE];
+	uint8_t * buffer = &codecRxBuffer[codecRxBufferReadIndex * CODEC_RX_BUFFER_SIZE];
 
-    codecRxBufferReadIndex ++;
+	codecRxBufferReadIndex ++;
 
-    if (codecRxBufferReadIndex >= CODEC_RX_BUFFER_COUNT)
-    {
-        codecRxBufferReadIndex = 0U;
-    }
-    rx_read_count += CODEC_RX_BUFFER_SIZE;
+	if (codecRxBufferReadIndex >= CODEC_RX_BUFFER_COUNT)
+	{
+		codecRxBufferReadIndex = 0U;
+	}
+	rx_read_count += CODEC_RX_BUFFER_SIZE;
 
-    return buffer;
+	return buffer;
 }
 
 static uint8_t *BOARD_GetRxNotifyBuffer(void)
 {
-    uint8_t * buffer = &codecRxBuffer[codecRxBufferNotifyIndex * CODEC_RX_BUFFER_SIZE];
+	uint8_t * buffer = &codecRxBuffer[codecRxBufferNotifyIndex * CODEC_RX_BUFFER_SIZE];
 
-    codecRxBufferNotifyIndex ++;
+	codecRxBufferNotifyIndex ++;
 
-    if (codecRxBufferNotifyIndex >= CODEC_RX_BUFFER_COUNT)
-    {
-        codecRxBufferNotifyIndex = 0U;
-    }
-    return buffer;
+	if (codecRxBufferNotifyIndex >= CODEC_RX_BUFFER_COUNT)
+	{
+		codecRxBufferNotifyIndex = 0U;
+	}
+	return buffer;
 }
 
 int BOARD_StartCodec(codec_tx_callback_t tx_cb, codec_rx_callback_t rx_cb, uint32_t simpleBitRate, uint32_t simpleBits)
 {
-    BOARD_AudioDeinit();
+	int err = BOARD_AudioInit(simpleBitRate, simpleBits);
 
-    BOARD_AudioInit(simpleBitRate, simpleBits);
+	if (err != 0) {
+		PRINTF("Failed to initiate audio Codec (err %d)\r\n", err);
+		return err;
+	}
 
-    memset(codecTxBuffer, 0, sizeof(codecTxBuffer));
-    memset(codecRxBuffer, 0, sizeof(codecRxBuffer));
+	memset(codecTxBuffer, 0, sizeof(codecTxBuffer));
+	memset(codecRxBuffer, 0, sizeof(codecRxBuffer));
 
-    BOARD_AudioTaskInit();
+	BOARD_AudioTaskInit();
 
-    rx_callback = rx_cb;
-    tx_callback = tx_cb;
+	rx_callback = rx_cb;
+	tx_callback = tx_cb;
 
-    return 0;
+	return 0;
 }
 
 int BOARD_StopCodec(void)
 {
-    BOARD_AudioDeinit();
+	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STOPPED, 0) &&
+	    !APP_CodecCheckState(CODEC_STATE_AUDIO_DEINITIATED, 0)) {
+		atomic_set(&codec_state, CODEC_STATE_AUDIO_STOPPED);
+		k_sem_give(&s_audioTaskSync);
+	}
 
-    return 0;
+	return 0;
 }
 
 int BOARD_VolSet(uint32_t vol)
 {
-    if (s_audioInitialized < 1)
-    {
-        return -1;
-    }
+	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STARTED, 0))
+	{
+		return -EINVAL;
+	}
 
-    if (vol > 100)
-    {
-        return -2;
-    }
+	if (vol > 100)
+	{
+		return -EINVAL;
+	}
 
-    s_currentVol = vol;
-    CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, s_currentVol);
-    PRINTF("Current VOL is %d\r\n", s_currentVol);
+	s_currentVol = vol;
+	CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, s_currentVol);
+	PRINTF("Current VOL is %d\r\n", s_currentVol);
 
-    return 0;
+	return 0;
 }
 
 int BOARD_VolUp(void)
 {
-    if (s_audioInitialized < 1)
-    {
-        return -1;
-    }
+	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STARTED, 0))
+	{
+		return -EINVAL;
+	}
 
-    if (s_currentVol <= 90)
-    {
-        s_currentVol = s_currentVol + 10;
-    }
-    else
-    {
-        s_currentVol = 100;
-    }
+	if (s_currentVol <= 90)
+	{
+		s_currentVol = s_currentVol + 10;
+	}
+	else
+	{
+		s_currentVol = 100;
+	}
 
-    CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, s_currentVol);
-    PRINTF("Current VOL is %d\r\n", s_currentVol);
+	CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, s_currentVol);
+	PRINTF("Current VOL is %d\r\n", s_currentVol);
 
-    return 0;
+	return 0;
 }
 
 int BOARD_VolDown(void)
 {
-    if (s_audioInitialized < 1)
-    {
-        return -1;
-    }
+	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STARTED, 0))
+	{
+		return -EINVAL;
+	}
 
-    if (s_currentVol >= 10)
-    {
-        s_currentVol = s_currentVol - 10;
-    }
-    else
-    {
-        s_currentVol = 0;
-    }
+	if (s_currentVol >= 10)
+	{
+		s_currentVol = s_currentVol - 10;
+	}
+	else
+	{
+		s_currentVol = 0;
+	}
 
-    CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, s_currentVol);
-    PRINTF("Current VOL is %d\r\n", s_currentVol);
+	CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, s_currentVol);
+	PRINTF("Current VOL is %d\r\n", s_currentVol);
 
-    return 0;
+	return 0;
 }
 
 int BOARD_SpeakerMute(void)
 {
-    if (s_audioInitialized < 1)
-    {
-        return -1;
-    }
+	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STARTED, 0))
+	{
+		return -EINVAL;
+	}
 
-    CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, true);
-    PRINTF("Speaker mute\r\n");
+	CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, true);
+	PRINTF("Speaker mute\r\n");
 
-    return 0;
+	return 0;
 }
 
 int BOARD_SpeakerUnmute(void)
 {
-    if (s_audioInitialized < 1)
-    {
-        return -1;
-    }
+	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STARTED, 0))
+	{
+		return -EINVAL;
+	}
 
-    CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, false);
-    PRINTF("Speaker unmute\r\n");
+	CODEC_SetMute(&codec_handle, kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft, false);
+	PRINTF("Speaker unmute\r\n");
 
-    return 0;
+	return 0;
 }
