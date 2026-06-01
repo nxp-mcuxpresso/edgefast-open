@@ -1,5 +1,7 @@
 ## Multiple Conns + Dual mode tests
-Notes: The nRF Connect APP can be used to create BLE connection for the follow BLE connection.
+Notes:
+- The nRF Connect APP can be used to create BLE connection for the follow BLE connection.
+- Only Mutra M.2 2EL is supported for CTKD cases.
 
 - BLE is derived from br/edr (tested with Phone)
   - use the "prj-br-ble-conns.conf" config file to build the shell demo and run.
