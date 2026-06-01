@@ -159,6 +159,8 @@ void audio_process_sbc_buf(uint8_t sbc_hdr, uint8_t *data, size_t len, uint16_t 
 		if (sbc_expected_ts != ts) {
 			if (sbc_expected_ts < ts) {
 				samples_lost = ts - sbc_expected_ts;
+			} else {
+				sbc_expected_ts = ts;
 			}
 		}
 	}
@@ -173,19 +175,15 @@ void audio_process_sbc_buf(uint8_t sbc_hdr, uint8_t *data, size_t len, uint16_t 
 	samples_count = 0;
 	in_data = (void *)data;
 	for (uint8_t i = 0; i < num_frames; ++i) {
-		if (audio_pcm_buffer_free_size() == 0) {
-			/* if no enough space, don't need decode. */
-			continue;
-		}
-
 		out_size = sizeof(pcm_frame_buffer);
-		err = sbc_decode(&decoder, &in_data, (uint32_t*)&len, pcm_frame_buffer, (uint32_t*)&out_size);
 
+		err = sbc_decode(&decoder, &in_data, (uint32_t*)&len, pcm_frame_buffer, (uint32_t*)&out_size);
 		if (err == 0) {
-			audio_add_pcm_data((uint8_t *)pcm_frame_buffer, out_size);
+			if (audio_pcm_buffer_free_size() != 0) {
+				audio_add_pcm_data((uint8_t *)pcm_frame_buffer, out_size);
+			}
 		} else {
 			PRINTF("decode err\n");
-			break;
 		}
 
 		samples_count += (out_size / 2 / channel_num);
