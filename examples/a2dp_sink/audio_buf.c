@@ -34,7 +34,7 @@ static struct sbc_decoder decoder;
 static volatile bool sbc_first_data;
 static uint32_t sbc_expected_ts;
 static uint16_t pcm_frame_buffer[A2DP_SBC_ONE_FRAME_MAX_SIZE / 2];
-static __aligned(4) uint8_t decoded_pcm_buf[A2DP_SBC_DECODER_PCM_BUFFER_SIZE];
+static AT_NONCACHEABLE_SECTION_ALIGN(uint8_t decoded_pcm_buf[A2DP_SBC_DECODER_PCM_BUFFER_SIZE], 4);
 
 static uint32_t audio_pcm_buffer_free_size(void)
 {
