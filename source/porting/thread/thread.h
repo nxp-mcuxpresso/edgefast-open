@@ -23,6 +23,7 @@ struct k_thread {
 	uint32_t options;
 	struct k_heap *resource_pool;
 	void *custom_data;
+	atomic_t flags;
 	char task_name[ configMAX_TASK_NAME_LEN ];
 };
 

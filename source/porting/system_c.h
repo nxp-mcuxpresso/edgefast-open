@@ -73,10 +73,16 @@ extern struct device bt_hci_h4_w_disable_gpio;
 #define K_OBJ_CORE_INIT(objp, type)   do { } while (false)
 #define K_OBJ_CORE_LINK(objp)         do { } while (false)
 
-#define _K_PRIO_COOP(x) (((x) < 0) ? (CONFIG_NUM_PREEMPT_PRIORITIES - 2) : (x))
-#define K_PRIO_COOP(x) (((x) >= CONFIG_NUM_PREEMPT_PRIORITIES) ? (CONFIG_NUM_PREEMPT_PRIORITIES - 2) : _K_PRIO_COOP(x))
+#define K_PRIO_COOP_MIN (CONFIG_NUM_PREEMPT_PRIORITIES - 2)
+#define K_PRIO_COOP_MAX (CONFIG_NUM_PREEMPT_PRIORITIES - 1)
 
-#define K_PRIO_PREEMPT(x) (((x) >= CONFIG_NUM_PREEMPT_PRIORITIES) ? (CONFIG_NUM_PREEMPT_PRIORITIES - 1) : (x))
+#define K_PRIO_PREEMPT_MIN 0
+#define K_PRIO_PREEMPT_MAX (K_PRIO_COOP_MIN - 1)
+
+#define K_PRIO_COOP(x) (((x) >= 0) ? (-x) : (x))
+
+#define _K_PRIO_PREEMPT(x) (((x) < K_PRIO_PREEMPT_MIN) ? K_PRIO_PREEMPT_MIN : (x))
+#define K_PRIO_PREEMPT(x) (((x) >= K_PRIO_PREEMPT_MAX) ? K_PRIO_PREEMPT_MAX : _K_PRIO_PREEMPT(x))
 
 #define k_thread_stack_t uint8_t
 

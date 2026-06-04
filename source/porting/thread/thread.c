@@ -9,6 +9,14 @@
 
 static sys_slist_t threads = SYS_SLIST_STATIC_INIT(&threads);
 
+static struct k_spinlock lock;
+
+enum {
+	THREAD_FLAG_COOP = 0,
+	THREAD_FLAG_PREEMPT = 1,
+	THREAD_FLAG_ACTIVE_SUSPENDED = 2,
+};
+
 const char k_thread_alloc_mem_tag[4] = {0xA5,0xAA,0x55,0x5A};
 
 struct k_thread_alloc_mem
@@ -83,6 +91,24 @@ static void _k_thread_function_wrap( void * pvParameters )
         thread->entry(thread->p1, thread->p2, thread->p3);
     }
 }
+
+static int _k_thread_format_prio(int prio)
+{
+	if (prio < 0) {
+		if (prio == -1) {
+			return K_PRIO_COOP_MIN;
+		} else {
+			return K_PRIO_COOP_MAX;
+		}
+	}
+
+	if (prio > K_PRIO_PREEMPT_MAX) {
+		return K_PRIO_PREEMPT_MAX;
+	}
+
+	return prio;
+}
+
 /**
  * @brief Create a thread.
  *
@@ -162,9 +188,12 @@ k_tid_t k_thread_create(struct k_thread *new_thread,
     new_thread->p3 = p3;
     new_thread->entry = entry;
     new_thread->options = options;
+    atomic_clear(&new_thread->flags);
+    atomic_set_bit_to(&new_thread->flags, THREAD_FLAG_COOP, prio < 0);
+    atomic_set_bit_to(&new_thread->flags, THREAD_FLAG_PREEMPT, prio >= 0);
 
     vTaskSuspendAll();
-    new_thread->handle = xTaskCreateStatic(_k_thread_function_wrap, buffer, stack_size/sizeof(StackType_t), new_thread, prio, (StackType_t *)stack, &new_thread->task_buffer);
+    new_thread->handle = xTaskCreateStatic(_k_thread_function_wrap, buffer, stack_size/sizeof(StackType_t), new_thread, _k_thread_format_prio(prio), (StackType_t *)stack, &new_thread->task_buffer);
 
     if (NULL != new_thread->handle)
     {
@@ -290,6 +319,7 @@ int k_thread_join(struct k_thread *thread, k_timeout_t timeout)
     int ret = 0;
     uint32_t current;
     uint32_t start = k_uptime_get_32();
+    k_spinlock_key_t key;
 
     do
     {
@@ -306,9 +336,9 @@ int k_thread_join(struct k_thread *thread, k_timeout_t timeout)
                 thread = k_sched_current_thread_query();
                 break;
             }
-            k_sched_lock();
+            key = k_spin_lock(&lock);
             sys_slist_find_and_remove(&threads, &thread->node);
-            k_sched_unlock();
+            k_spin_unlock(&lock, key);
             vTaskDelete(thread->handle);
         }
         else if (eDeleted == state)
@@ -512,17 +542,19 @@ k_tid_t k_sched_current_thread_query(void)
  */
 void k_thread_abort(k_tid_t thread)
 {
+	k_spinlock_key_t key;
+
 	if (thread != NULL) {
 		if (thread->handle == NULL) {
 			return;
 		}
 	}
-	k_sched_lock();
+	key = k_spin_lock(&lock);
 	sys_slist_find_and_remove(&threads, &thread->node);
-	k_sched_unlock();
+	k_spin_unlock(&lock, key);
 	vTaskDelete((NULL == thread) ? NULL : thread->handle);
 	if (thread != NULL) {
-    		thread->handle = NULL;
+		thread->handle = NULL;
 	}
 }
 
@@ -940,25 +972,19 @@ bool k_is_in_isr(void)
  */
 int k_is_preempt_thread(void)
 {
-    int ret = 0;
+    k_tid_t thread;
 
-    if (k_is_in_isr())
-    {
-        ret = 0;
+    thread = k_current_get();
+
+    if (NULL == thread) {
+        return 0;
     }
-    else
-    {
-        BaseType_t state = xTaskGetSchedulerState();
-        if (taskSCHEDULER_RUNNING == state)
-        {
-            ret = 1;
-        }
-        else
-        {
-            ret = 0;
-        }
+
+    if (atomic_test_bit(&thread->flags, THREAD_FLAG_PREEMPT)) {
+        return 1;
     }
-    return ret;
+
+    return 0;
 }
 
 __maybe_unused static struct k_mutex sched_lock_mutex;
@@ -997,12 +1023,29 @@ void k_sched_lock(void)
 	}
 
 	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_MUTEX)) {
+		struct k_thread *thread, *next;
+
 		if (!sched_lock_mutex_initialized) {
 			k_mutex_init(&sched_lock_mutex);
 			sched_lock_mutex_initialized = true;
 		}
 
 		k_mutex_lock(&sched_lock_mutex, K_FOREVER);
+
+		vTaskSuspendAll();
+		SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
+			if ((thread != k_current_get()) && atomic_test_bit(&thread->flags, THREAD_FLAG_PREEMPT)) {
+				if (eSuspended != eTaskGetState(thread->handle)) {
+					k_thread_suspend(thread);
+					atomic_set_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED);
+				}
+			}
+		}
+
+		if (!xTaskResumeAll())
+		{
+			taskYIELD();
+		}
 		return;
 	}
 }
@@ -1025,8 +1068,22 @@ void k_sched_unlock(void)
 	}
 
 	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_MUTEX)) {
+		struct k_thread *thread, *next;
+
 		if (!sched_lock_mutex_initialized) {
 			return;
+		}
+
+		vTaskSuspendAll();
+		SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
+			if (atomic_test_and_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
+				k_thread_resume(thread);
+			}
+		}
+
+		if (!xTaskResumeAll())
+		{
+			taskYIELD();
 		}
 
 		k_mutex_unlock(&sched_lock_mutex);
