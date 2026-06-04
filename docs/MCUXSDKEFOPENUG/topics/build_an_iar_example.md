@@ -10,7 +10,7 @@
     ![](../images/image8.png "IAR project
     							build")
 
-    **Note:** Wireless module does not have flash hardware and requires 512 KB image loaded from board \(such as RT1060\) on system startup. The 512 KB image is kept on RT1060 side and only `flexspi_nor target` is supported for Bluetooth examples. Other targets are not supported because memory size limit.
+    **Note:** Wireless module does not have flash hardware and requires 512 KB image loaded from board \(such as RT1170\) on system startup. The 512 KB image is kept on RT1170 side and only `flexspi_nor target` is supported for Bluetooth examples. Other targets are not supported because memory size limit.
 
 
 **Parent topic:**[Run a demo application using IAR](../topics/run_a_demo_application_using_iar.md)

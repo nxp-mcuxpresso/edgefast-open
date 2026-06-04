@@ -4,7 +4,7 @@ The figure Architecture of EdgeFast Open demo in MCUXpresso SDK below shows that
 
 ![](../images/architecture_of_mcux_sdk_edgefast_open.png "Architecture of EdgeFast Open Bluetooth demo in MCUXpresso SDK")
 
-MCUXpresso SDK has the dual-chip architecture defined by EdgeFast Open Bluetooth project, the Bluetooth application code, and the EdgeFast Open Bluetooth host stack running on the reference board. For example, MIMXRT1060-EVK and the Linker Layer \(LL\) run on the Bluetooth modules like AW-AM457-USD, Murata Type 1XK, and Murata Type 1ZM and has single-chip architecture. Bluetooth Host stack and LL runs on the same chip, and communicate with Internal Communication Unit \(IMU\).
+MCUXpresso SDK has the dual-chip architecture defined by EdgeFast Open Bluetooth project, the Bluetooth application code, and the EdgeFast Open Bluetooth host stack running on the reference board. For example, MIMXRT1170-EVKB and the Linker Layer \(LL\) run on the Bluetooth modules like AW-AM457-USD, Murata Type 1XK, and Murata Type 1ZM and has single-chip architecture. Bluetooth Host stack and LL runs on the same chip, and communicate with Internal Communication Unit \(IMU\).
 
 The communication between the host stack and the LL is implemented via the standard HCI UART interface and PCM interface for voice, or the IMU interface.
 

@@ -4,7 +4,7 @@ For the IAR Embedded Workbench, unpack the contents of the archive to a folder o
 
 1.  The example projects are available at:
 
-    `<root>/boards/evkmimxrt1060/edgefast_open_examples/peripheral_ht/iar`
+    `<root>/boards/evkbmimxrt1170/edgefast_open_examples/peripheral_ht/iar`
 
 2.  Open the IAR workspace file. For example, the highlighted \*.eww format file
 

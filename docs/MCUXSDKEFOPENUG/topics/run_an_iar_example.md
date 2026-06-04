@@ -2,12 +2,12 @@
 
 This document uses the peripheral\_ht as an example to describe the steps to run an example. For details on other projects and compilers, see the readme file in the corresponding example directory.
 
-The following figure shows the connection of RT1060 and the uSD wireless module.
+The following figure shows the connection of RT1170 and the M.2 wireless module.
 
 ![](../images/image9.png "Development board
 				connector")
 
-1.  Connect the USB debug console port to PC. For example, connect J14 of EVKRT1060 to the PC.
+1.  Connect the USB debug console port to PC.
 2.  Connect a 5 V power source to the J1 jack in the Wireless module board.
 3.  Make the appropriate debugger settings in the project options window, as shown in the figure below.
 
@@ -19,7 +19,7 @@ The following figure shows the connection of RT1060 and the uSD wireless module.
     ![](../images/image11.png "IAR debugger
     						running")
 
-5.  Linker layer \(LL\) Firmware running in wireless module loads from EVKRT1060 by SDIO interface, so need take a bit time to download the LL firmware, “Initialize AW-AM457-uSD Driver” prints in the debug console. For example, it depends on the firmware. For details, see readme.txt.
+5.  Linker layer \(LL\) Firmware running in wireless module loads from EVKRT1170 by UART interface, so need take a bit time to download the LL firmware, For details, see readme.txt.
 
 **Note:** The projects are configured to use “CMSIS DAP” as the default debugger. Ensure that the OpenSDA chip of the board contains a CMSIS. DAP firmware or that the debugger selection corresponds to the physical interface used to interface to the board.
 

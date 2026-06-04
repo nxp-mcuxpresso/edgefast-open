@@ -12,11 +12,11 @@
 
     ![](../images/image14.png "MCUXpresso IDE Import SDK Projects")
 
-4.  Select the evkmimxrt1060 board and click the **Next** button to select the desired example\(s\).
+4.  Select the evkbmimxrt1170 board and click the **Next** button to select the desired example\(s\).
 
     ![](../images/image15.png "MCUXpresso IDE Board selector")
 
-5.  Select the evkmimxrt1060 board EdgeFast Open example. For example, peripheral\_ht.
+5.  Select the evkbmimxrt1170 board EdgeFast Open example. For example, peripheral\_ht.
 6.  Ensure to change SDK debug console from **Semihost** to **UART**.
 7.  Click **Finish**.
 

@@ -19,14 +19,14 @@ Currently we provide pdf version of those documentation, later release may conve
 
    HWRGEFOPENUG/ugindex.md
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Enabling Additional EdgeFast Open Bluetooth Host stack Examples on RT1064
+.. .. toctree::
+..    :maxdepth: 1
+..    :caption: Enabling Additional EdgeFast Open Bluetooth Host stack Examples on RT1064
 
-   EAEFOPENERT1064UG/ugindex.md
+..    EAEFOPENERT1064UG/ugindex.md
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Enabling Additional EdgeFast Open Bluetooth Host stack Examples on M4 core for RT1170
+.. .. toctree::
+..    :maxdepth: 1
+..    :caption: Enabling Additional EdgeFast Open Bluetooth Host stack Examples on M4 core for RT1170
 
-   EFEM4RT1170UG/ugindex.md
+..    EFEM4RT1170UG/ugindex.md

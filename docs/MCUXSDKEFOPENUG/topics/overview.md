@@ -1,6 +1,6 @@
 # Overview
 
-The EdgeFast Open Bluetooth Host stack software is built based on MCUXpresso SDK. The following chapter uses RT1060 as an example, other boards have similar folder structure and corresponding document.
+The EdgeFast Open Bluetooth Host stack software is built based on MCUXpresso SDK. The following chapter uses RT1170 as an example, other boards have similar folder structure and corresponding document.
 
 
 ```{include} ../topics/folder_structure.md
