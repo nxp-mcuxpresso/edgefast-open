@@ -13,3 +13,10 @@ config USE_STATS_FORMATTING_FUNCTIONS
 	bool "Enable Statistics Formatting Functions"
 	help
 	  Enable Statistics Formatting Functions
+
+config TOTAL_HEAP_SIZE_KB
+	int "Total Heap Size (KB)"
+	default 64
+	range 12 512
+	help
+	  Configure the total heap size in kilobytes for FreeRTOS memory allocation
