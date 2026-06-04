@@ -7,9 +7,5 @@ There are some board-specific parameters that can be changed in the application 
 :heading-offset: 2
 ```
 
-```{include} ../topics/change_usb_host_stack_parameters.md
-:heading-offset: 2
-```
-
 **Parent topic:**[Demo](../topics/demo.md)
 

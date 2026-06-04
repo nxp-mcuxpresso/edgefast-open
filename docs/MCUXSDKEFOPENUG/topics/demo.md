@@ -1,6 +1,6 @@
 # Demo
 
-This topic lists the steps to run a demo application using IAR, steps to run a demo application using MCUXpresso IDE, and steps to download LL firmware from the reference board. The following chapter uses RT1060 and peripheral\_ht as an example.
+This topic lists the steps to run a demo application using IAR, steps to run a demo application using MCUXpresso IDE, and steps to download LL firmware from the reference board. The following chapter uses RT1170 and peripheral\_ht as an example.
 
 Before you run the example, see the readme.txt in current the peripheral\_ht directory and the Hardware Rework Guide for EdgeFast Open document to set the jumper and connect the wireless module with development board.
 

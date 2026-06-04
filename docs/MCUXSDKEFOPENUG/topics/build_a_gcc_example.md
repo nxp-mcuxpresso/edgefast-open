@@ -2,7 +2,7 @@
 
 To build a GCC example:
 
-1.  Change the directory to the project directory: `<install_dir>\boards\evkmimxrt1060\edgefast_open_examples\peripheral_ht\armgcc`.
+1.  Change the directory to the project directory: `<install_dir>\boards\evkbmimxrt1170\edgefast_open_examples\peripheral_ht\armgcc`.
 
 2.  Run the build script.
 
