@@ -1,7 +1,7 @@
 # Create an M4 project
 
-1.  Copy folder *cm4* from *<install\_dir\>boards\\evkmimxrt1170\\edgefast\_bluetooth\_examples\\a2dp\_source\\cm4* into the folder in where the example must be enabled. In this case, copy folder *cm4* into directory *<install\_dir\>\\boards\\evkmimxrt1170\\edgefast\_bluetooth\_examples\\peripheral\_ht*.
-2.  Open folder mdk from *<install\_dir\>boards\\evkmimxrt1170\\edgefast\_bluetooth\_examples\\peripheral\_ht\\cm4\\mdk*.
+1.  Copy folder *cm4* from *<install\_dir\>boards\\evkbmimxrt1170\\edgefast\_open\_examples\\a2dp\_source\\cm4* into the folder in where the example must be enabled. In this case, copy folder *cm4* into directory *<install\_dir\>\\boards\\evkbmimxrt1170\\edgefast\_open\_examples\\peripheral\_ht*.
+2.  Open folder mdk from *<install\_dir\>boards\\evkbmimxrt1170\\edgefast\_open\_examples\\peripheral\_ht\\cm4\\mdk*.
 
     |![](../images/create_mdk_change_filename.png "mdk folder")
 
