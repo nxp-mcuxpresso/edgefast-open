@@ -961,6 +961,9 @@ int k_is_preempt_thread(void)
     return ret;
 }
 
+__maybe_unused static struct k_mutex sched_lock_mutex;
+__maybe_unused static bool sched_lock_mutex_initialized;
+
 /**
  * @brief Lock the scheduler.
  *
@@ -988,7 +991,20 @@ int k_is_preempt_thread(void)
  */
 void k_sched_lock(void)
 {
-    vTaskSuspendAll();
+	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SCHEDULER)) {
+		vTaskSuspendAll();
+		return;
+	}
+
+	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_MUTEX)) {
+		if (!sched_lock_mutex_initialized) {
+			k_mutex_init(&sched_lock_mutex);
+			sched_lock_mutex_initialized = true;
+		}
+
+		k_mutex_lock(&sched_lock_mutex, K_FOREVER);
+		return;
+	}
 }
 
 /**
@@ -1000,10 +1016,22 @@ void k_sched_lock(void)
  */
 void k_sched_unlock(void)
 {
-    if (!xTaskResumeAll())
-    {
-        taskYIELD();
-    }
+	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SCHEDULER)) {
+		if (!xTaskResumeAll())
+		{
+			taskYIELD();
+		}
+		return;
+	}
+
+	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_MUTEX)) {
+		if (!sched_lock_mutex_initialized) {
+			return;
+		}
+
+		k_mutex_unlock(&sched_lock_mutex);
+		return;
+	}
 }
 
 /**
