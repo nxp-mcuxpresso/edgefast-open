@@ -11,8 +11,7 @@
 typedef struct bt_fifo
 {
 	sys_slist_t list;
-	QueueHandle_t sem;
-	StaticSemaphore_t  sem_buffer;
+	struct k_sem sem;
 } bt_fifo_t;
 
 #define BT_FIFO_DEFINE(name)  \

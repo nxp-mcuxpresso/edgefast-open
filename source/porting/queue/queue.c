@@ -15,69 +15,21 @@ LOG_MODULE_DEFINE(LOG_MODULE_NAME, kLOG_LevelTrace);
 
 static struct k_spinlock lock;
 
-static void bt_fifo_sem_post(QueueHandle_t sem)
-{
-	if (k_is_in_isr())
-	{
-		portBASE_TYPE taskToWake = (portBASE_TYPE)pdFALSE;
-
-		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreGiveFromISR(sem, &taskToWake))
-		{
-			portYIELD_FROM_ISR(((bool)(taskToWake)));
-		}
-		else
-		{
-		}
-	}
-	else
-	{
-		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreGive(sem))
-		{
-		}
-		else
-		{
-		}
-	}
-}
-
-static void bt_fifo_sem_wait(QueueHandle_t sem, uint32_t millisec)
-{
-	uint32_t timeoutTicks;
-
-	if (millisec == K_FOREVER)
-	{
-		timeoutTicks = portMAX_DELAY;
-	}
-	else
-	{
-		timeoutTicks = MSEC_TO_TICK(millisec);
-	}
-
-	(void)xSemaphoreTake(sem, timeoutTicks);
-}
-
-static void * bt_fifo_sem_create(bt_fifo_t *fifo)
-{
-	return xSemaphoreCreateCountingStatic(0xFFFFFFFFU, 0U, &fifo->sem_buffer);
-}
-
 void bt_fifo_init(bt_fifo_t *fifo)
 {
+	int err;
+
 	LOG_DBG("FIFO init", fifo);
 
 	k_spinlock_key_t key = k_spin_lock(&lock);
 
-	/* Clear object */
-	fifo->sem = bt_fifo_sem_create(fifo);
-	if (fifo->sem == (QueueHandle_t)&fifo->sem_buffer)
-	{
-		sys_slist_init(&fifo->list);
-	}
-	else
-	{
-		__ASSERT(0, "fifo init failed");
+	err = k_sem_init(&fifo->sem, 0, UINT32_MAX);
+	if (err < 0) {
 		LOG_ERR("failed");
 	}
+
+	sys_slist_init(&fifo->list);
+
 	k_spin_unlock(&lock, key);
 }
 
@@ -88,10 +40,6 @@ void bt_fifo_append(bt_fifo_t *fifo, void *data)
 #endif /* CONFIG_BT_DEBUG_FIFO */
 {
 	k_spinlock_key_t key;
-
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
 
 	key = k_spin_lock(&lock);
 	if (true == sys_slist_find(&fifo->list, (sys_snode_t*)data, NULL))
@@ -108,7 +56,7 @@ void bt_fifo_append(bt_fifo_t *fifo, void *data)
 	sys_slist_append(&fifo->list, (sys_snode_t*)data);
 	k_spin_unlock(&lock, key);
 	LOG_INF("next %p", ((sys_snode_t*)data)->next);
-	bt_fifo_sem_post(fifo->sem);
+	k_sem_give(&fifo->sem);
 }
 
 #if (defined(CONFIG_BT_DEBUG_FIFO) && (CONFIG_BT_DEBUG_FIFO > 0U))
@@ -118,10 +66,6 @@ void bt_fifo_prepend(bt_fifo_t *fifo, void *data)
 #endif /* CONFIG_BT_DEBUG_FIFO */
 {
 	k_spinlock_key_t key;
-
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
 
 	key = k_spin_lock(&lock);
 	if (true == sys_slist_find(&fifo->list, (sys_snode_t*)data, NULL))
@@ -136,7 +80,7 @@ void bt_fifo_prepend(bt_fifo_t *fifo, void *data)
 	}
 	sys_slist_prepend(&fifo->list, (sys_snode_t*)data);
 	k_spin_unlock(&lock, key);
-	bt_fifo_sem_post(fifo->sem);
+	k_sem_give(&fifo->sem);
 }
 
 #if (defined(CONFIG_BT_DEBUG_FIFO) && (CONFIG_BT_DEBUG_FIFO > 0U))
@@ -146,10 +90,6 @@ void bt_fifo_insert(bt_fifo_t *fifo, void *prev, void *data)
 #endif /* CONFIG_BT_DEBUG_FIFO */
 {
 	k_spinlock_key_t key;
-
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
 
 	key = k_spin_lock(&lock);
 	if (true == sys_slist_find(&fifo->list, (sys_snode_t*)data, NULL))
@@ -164,21 +104,18 @@ void bt_fifo_insert(bt_fifo_t *fifo, void *prev, void *data)
 	}
 	sys_slist_insert(&fifo->list, (sys_snode_t*)prev, (sys_snode_t*)data);
 	k_spin_unlock(&lock, key);
-	bt_fifo_sem_post(fifo->sem);
+	k_sem_give(&fifo->sem);
 }
 
 int bt_fifo_append_list(bt_fifo_t *fifo, void *head, void *tail)
 {
 	k_spinlock_key_t key;
 
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
 	key = k_spin_lock(&lock);
 	sys_slist_append_list(&fifo->list, (sys_snode_t*)head, (sys_snode_t*)tail);
 	k_spin_unlock(&lock, key);
 
-	bt_fifo_sem_post(fifo->sem);
+	k_sem_give(&fifo->sem);
 
 	return 0;
 }
@@ -187,14 +124,11 @@ int bt_fifo_merge_slist(bt_fifo_t *fifo, sys_slist_t *head)
 {
 	k_spinlock_key_t key;
 
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
 	key = k_spin_lock(&lock);
 	sys_slist_append_list(&fifo->list, (sys_snode_t*)head->head, (sys_snode_t*)NULL);
 	head->head = NULL;
 	k_spin_unlock(&lock, key);
-	bt_fifo_sem_post(fifo->sem);
+	k_sem_give(&fifo->sem);
 
 	return 0;
 }
@@ -204,10 +138,6 @@ void *bt_fifo_get(bt_fifo_t *fifo, size_t timeout)
 	sys_snode_t *head = NULL;
 	uint32_t start;
 	uint32_t current;
-
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
 
 	if (k_is_in_isr())
 	{
@@ -228,7 +158,7 @@ void *bt_fifo_get(bt_fifo_t *fifo, size_t timeout)
 			{
 				if ((current - start) < timeout)
 				{
-					bt_fifo_sem_wait(fifo->sem, timeout - (current - start));
+					(void)k_sem_take(&fifo->sem, timeout - (current - start));
 				}
 				else
 				{
@@ -255,10 +185,6 @@ bool bt_fifo_remove(bt_fifo_t *fifo, void *data)
 	bool ret;
 	k_spinlock_key_t key;
 
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
-
 	key = k_spin_lock(&lock);
 	ret = sys_slist_find_and_remove(&fifo->list, (sys_snode_t*)data);
 	k_spin_unlock(&lock, key);
@@ -270,10 +196,6 @@ bool bt_fifo_unique_append(bt_fifo_t *fifo, void *data)
 {
 	k_spinlock_key_t key;
 
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
-
 	key = k_spin_lock(&lock);
 	if (true == sys_slist_find(&fifo->list, (sys_snode_t*)data, NULL))
 	{
@@ -283,35 +205,23 @@ bool bt_fifo_unique_append(bt_fifo_t *fifo, void *data)
 	}
 	sys_slist_append(&fifo->list, (sys_snode_t*)data);
 	k_spin_unlock(&lock, key);
-	bt_fifo_sem_post(fifo->sem);
+	k_sem_give(&fifo->sem);
 
 	return true;
 }
 
 int bt_fifo_is_empty(bt_fifo_t *fifo)
 {
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
-
 	return sys_slist_is_empty(&fifo->list);
 }
 
 void *bt_fifo_peek_head(bt_fifo_t *fifo)
 {
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
-
 	return sys_slist_peek_head(&fifo->list);
 }
 
 void *bt_fifo_peek_tail(bt_fifo_t *fifo)
 {
-	if (fifo->sem == NULL) {
-		bt_fifo_init(fifo);
-	}
-
 	return sys_slist_peek_tail(&fifo->list);
 }
 
