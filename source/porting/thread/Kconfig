@@ -30,3 +30,9 @@ choice BT_THREAD_SCHEDULER_LOCK
       potential race conditions and is not recommended for production use.
 
 endchoice # BT_THREAD_SCHEDULER_LOCK
+
+config THREAD_NAME
+  bool "Enable custom thread naming"
+  default y
+  help
+    Enable support for custom thread names in the Bluetooth thread implementation.
