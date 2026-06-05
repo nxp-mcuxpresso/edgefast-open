@@ -93,8 +93,8 @@ int k_sem_init(struct k_sem *sem, unsigned int initial_count, unsigned int limit
 int k_sem_take(struct k_sem *sem, k_timeout_t timeout)
 {
 	struct k_thread *thread;
-	uint32_t current;
-	uint32_t start = k_uptime_get_32();
+	int64_t start = k_uptime_get();
+	int64_t total_timeout = 0;
 	int err = -EINVAL;
 
 	if (NULL == sem)
@@ -116,47 +116,42 @@ int k_sem_take(struct k_sem *sem, k_timeout_t timeout)
 		}
 	}
 
+
+	if (k_is_in_isr())
+	{
+		portBASE_TYPE taskToWake = (portBASE_TYPE)pdFALSE;
+
+		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreTakeFromISR(sem->sem, &taskToWake))
+		{
+			portYIELD_FROM_ISR(((bool)(taskToWake)));
+			return 0;
+		}
+
+		return -EBUSY;
+	}
+
 	thread = k_sched_current_thread_query();
 	do {
 		if (thread != NULL) {
 			atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
 		}
 
-		if (k_is_in_isr())
+		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreTake(sem->sem, (TickType_t)timeout))
 		{
-			portBASE_TYPE taskToWake = (portBASE_TYPE)pdFALSE;
-
-			if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreTakeFromISR(sem->sem, &taskToWake))
-			{
-				portYIELD_FROM_ISR(((bool)(taskToWake)));
-				return 0;
-			}
-
-			return -EBUSY;
+			return 0;
 		}
-		else
-		{
-			if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreTake(sem->sem, timeout))
-			{
-				return 0;
-			}
 
-			current = k_uptime_get_32();
-			if ((current - start) >= timeout) {
-				return -EAGAIN;
-			}
-
-			if (timeout != K_FOREVER) {
-				timeout = timeout - (current - start);
-			}
-
-			if ((timeout > 0) && (thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
-				continue;
-			}
-
-			return -EAGAIN;
+		total_timeout += k_uptime_delta(&start);
+		if (timeout != K_FOREVER && total_timeout >= timeout) {
+			break;
 		}
-	} while (timeout > 0);
+
+		if ((thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
+			continue;
+		}
+
+		break;
+	} while (true);
 
 	return -EAGAIN;
 }

@@ -61,8 +61,8 @@ int k_mutex_init(struct k_mutex *mutex)
 int k_mutex_lock(struct k_mutex *mutex, k_timeout_t timeout)
 {
 	struct k_thread *thread;
-	uint32_t current;
-	uint32_t start = k_uptime_get_32();
+	int64_t start = k_uptime_get();
+	int64_t total_timeout = 0;
 	int err = -EINVAL;
 
 	if (NULL == mutex) {
@@ -90,21 +90,17 @@ int k_mutex_lock(struct k_mutex *mutex, k_timeout_t timeout)
 			return 0;
 		}
 
-		current = k_uptime_get_32();
-		if ((current - start) >= timeout) {
-			return -EAGAIN;
+		total_timeout += k_uptime_delta(&start);
+		if (timeout != K_FOREVER && total_timeout >= timeout) {
+			break;
 		}
 
-		if (timeout != K_FOREVER) {
-			timeout = timeout - (current - start);
-		}
-
-		if ((timeout > 0) && (thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
+		if ((thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
 			continue;
 		}
 
-		return -EAGAIN;
-	} while (timeout > 0);
+		break;
+	} while (true);
 
 	return -EAGAIN;
 }

@@ -377,36 +377,35 @@ int k_thread_join(struct k_thread *thread, k_timeout_t timeout)
  */
 int32_t k_sleep(k_timeout_t timeout)
 {
-    struct k_thread *thread;
-    uint32_t current;
-    uint32_t start = k_uptime_get_32();
+	struct k_thread *thread;
+	int64_t start = k_uptime_get();
+	int64_t total_timeout = 0;
 
-    thread = k_sched_current_thread_query();
-    do {
-        if (thread != NULL) {
-            atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
-        }
+	thread = k_sched_current_thread_query();
+	do {
+		if (thread != NULL) {
+			atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+		}
 
-        vTaskDelay(timeout);
-        current = k_uptime_get_32();
-        if ((current - start) >= timeout)
-        {
-            return 0;
-        }
+		vTaskDelay(timeout);
 
-        if (timeout != K_FOREVER) {
-            timeout = timeout - (current - start);
-        }
+		total_timeout += k_uptime_delta(&start);
+		if ((timeout != K_FOREVER) && (total_timeout >= timeout)) {
+			return 0;
+		}
 
-        if ((timeout > 0) && (thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
-            continue;
-        }
+		if ((thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
+			continue;
+		}
 
-        return timeout;
+		if (timeout != K_FOREVER) {
+			timeout = timeout - total_timeout;
+		}
 
-    } while (timeout > 0);
+		break;
+	} while (true);
 
-    return 0;
+	return timeout;
 }
 
 /**
