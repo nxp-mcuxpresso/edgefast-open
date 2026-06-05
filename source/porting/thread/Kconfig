@@ -3,16 +3,16 @@
 
 choice BT_THREAD_SCHEDULER_LOCK
   prompt "Enable Bluetooth Thread Scheduler Lock"
-  default BT_THREAD_SCHEDULER_LOCK_VIA_MUTEX
+  default BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD
   help
     Enable the Bluetooth thread scheduler lock to protect critical sections in the Bluetooth stack.
     This ensures thread-safe operations when accessing shared resources in the Bluetooth
     implementation.
 
-  config BT_THREAD_SCHEDULER_LOCK_VIA_MUTEX
-    bool "Use Mutex for Bluetooth Thread Scheduler Lock"
+  config BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD
+    bool "Suspend preempt threads for Bluetooth Thread Scheduler Lock"
     help
-      Use a mutex to implement the Bluetooth thread scheduler lock. This provides a simple and
+      Suspend preempt threads for Bluetooth Thread Scheduler Lock. This provides a simple and
       efficient mechanism for synchronizing access to critical sections in the Bluetooth stack.
 
   config BT_THREAD_SCHEDULER_LOCK_VIA_SCHEDULER

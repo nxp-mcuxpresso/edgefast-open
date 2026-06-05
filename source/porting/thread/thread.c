@@ -987,8 +987,7 @@ int k_is_preempt_thread(void)
     return 0;
 }
 
-__maybe_unused static struct k_mutex sched_lock_mutex;
-__maybe_unused static bool sched_lock_mutex_initialized;
+__maybe_unused static atomic_t sched_lock_count;
 
 /**
  * @brief Lock the scheduler.
@@ -1022,26 +1021,20 @@ void k_sched_lock(void)
 		return;
 	}
 
-	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_MUTEX)) {
+	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD)) {
 		struct k_thread *thread, *next;
 
-		if (!sched_lock_mutex_initialized) {
-			k_mutex_init(&sched_lock_mutex);
-			sched_lock_mutex_initialized = true;
-		}
-
-		k_mutex_lock(&sched_lock_mutex, K_FOREVER);
-
 		vTaskSuspendAll();
-		SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
-			if ((thread != k_current_get()) && atomic_test_bit(&thread->flags, THREAD_FLAG_PREEMPT)) {
-				if (eSuspended != eTaskGetState(thread->handle)) {
-					k_thread_suspend(thread);
-					atomic_set_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED);
+		if (atomic_inc(&sched_lock_count) == 0) {
+			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
+				if ((thread != k_current_get()) && atomic_test_bit(&thread->flags, THREAD_FLAG_PREEMPT)) {
+					if (eSuspended != eTaskGetState(thread->handle)) {
+						k_thread_suspend(thread);
+						atomic_set_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED);
+					}
 				}
 			}
 		}
-
 		if (!xTaskResumeAll())
 		{
 			taskYIELD();
@@ -1067,26 +1060,21 @@ void k_sched_unlock(void)
 		return;
 	}
 
-	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_MUTEX)) {
+	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD)) {
 		struct k_thread *thread, *next;
 
-		if (!sched_lock_mutex_initialized) {
-			return;
-		}
-
 		vTaskSuspendAll();
-		SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
-			if (atomic_test_and_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
-				k_thread_resume(thread);
+		if (atomic_dec(&sched_lock_count) == 1) {
+			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
+				if (atomic_test_and_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
+					k_thread_resume(thread);
+				}
 			}
 		}
-
 		if (!xTaskResumeAll())
 		{
 			taskYIELD();
 		}
-
-		k_mutex_unlock(&sched_lock_mutex);
 		return;
 	}
 }
