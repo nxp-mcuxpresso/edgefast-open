@@ -10,7 +10,11 @@
 static int _k_sem_init(struct k_sem *sem, unsigned int initial_count, unsigned int limit);
 static int _k_sem_init(struct k_sem *sem, unsigned int initial_count, unsigned int limit)
 {
-	if (!((sem != NULL) || (limit > initial_count) || (limit > 0U)))
+	if (limit == 0) {
+		limit = UINT32_MAX;
+	}
+
+	if ((sem == NULL) || (limit < initial_count))
 	{
 		SYS_PORT_TRACING_OBJ_FUNC(k_sem, init, sem, -EINVAL);
 		return -EINVAL;
@@ -60,7 +64,7 @@ static int _k_sem_init(struct k_sem *sem, unsigned int initial_count, unsigned i
  */
 int k_sem_init(struct k_sem *sem, unsigned int initial_count, unsigned int limit)
 {
-	__ASSERT((sem != NULL) || (limit > initial_count) || (limit > 0U), "Invalid parameter!");
+	__ASSERT((sem != NULL) && (limit >= initial_count) && (limit > 0U), "Invalid parameter!");
 
 	/* Clear sem to ensure clean initialization */
 	memset(sem, 0, sizeof(struct k_sem));
@@ -102,7 +106,7 @@ int k_sem_take(struct k_sem *sem, k_timeout_t timeout)
 	{
 		if (sem->limit == 0)
 		{
-			return -EINVAL;
+			sem->limit = UINT32_MAX;
 		}
 
 		err = _k_sem_init(sem, sem->count, sem->limit);
@@ -193,7 +197,7 @@ void k_sem_give(struct k_sem *sem)
 	{
 		if (sem->limit == 0)
 		{
-			return;
+			sem->limit = UINT32_MAX;
 		}
 
 		int err = _k_sem_init(sem, sem->count, sem->limit);
@@ -248,7 +252,7 @@ void k_sem_reset(struct k_sem *sem)
 	{
 		if (sem->limit == 0)
 		{
-			return;
+			sem->limit = UINT32_MAX;
 		}
 
 		int err = _k_sem_init(sem, sem->count, sem->limit);
@@ -288,7 +292,7 @@ unsigned int k_sem_count_get(struct k_sem *sem)
 	{
 		if (sem->limit == 0)
 		{
-			return (unsigned int)-EINVAL;
+			sem->limit = UINT32_MAX;
 		}
 
 		err = _k_sem_init(sem, sem->count, sem->limit);
