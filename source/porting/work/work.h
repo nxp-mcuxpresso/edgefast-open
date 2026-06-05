@@ -8,8 +8,6 @@
 #ifndef __EDGEFAST_BT_BLE_WORK_H__
 #define __EDGEFAST_BT_BLE_WORK_H__
 
-#include <system_c.h>
-
 /**
  * @cond INTERNAL_HIDDEN
  */

@@ -8,8 +8,6 @@
 #ifndef __EDGEFAST_BT_BLE_THREAD_H__
 #define __EDGEFAST_BT_BLE_THREAD_H__
 
-#include <system_c.h>
-
 typedef void (*k_thread_entry_t)(void *p1, void *p2, void *p3);
 
 enum {

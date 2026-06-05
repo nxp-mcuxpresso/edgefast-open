@@ -8,8 +8,6 @@
 #ifndef __EDGEFAST_BT_BLE_FIFO_H__
 #define __EDGEFAST_BT_BLE_FIFO_H__
 
-#include <system_c.h>
-
 struct k_fifo {
 	struct k_queue _queue;
 #ifdef CONFIG_OBJ_CORE_FIFO

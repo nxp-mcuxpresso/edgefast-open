@@ -8,8 +8,6 @@
 #ifndef __EDGEFAST_BT_BLE_SPINLOCK_H__
 #define __EDGEFAST_BT_BLE_SPINLOCK_H__
 
-#include <system_c.h>
-
 struct k_spinlock
 {
     uint8_t dummy;

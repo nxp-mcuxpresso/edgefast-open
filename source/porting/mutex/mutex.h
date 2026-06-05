@@ -8,8 +8,6 @@
 #ifndef __EDGEFAST_BT_BLE_MUTEX_H__
 #define __EDGEFAST_BT_BLE_MUTEX_H__
 
-#include <system_c.h>
-
 /**
  * Mutex Structure
  * @ingroup mutex_apis

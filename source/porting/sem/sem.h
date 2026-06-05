@@ -8,8 +8,6 @@
 #ifndef __EDGEFAST_BT_BLE_SEM_H__
 #define __EDGEFAST_BT_BLE_SEM_H__
 
-#include <system_c.h>
-
 struct k_sem {
 	SemaphoreHandle_t sem;\
 	StaticSemaphore_t sem_buffer;

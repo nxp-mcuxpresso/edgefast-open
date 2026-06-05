@@ -97,13 +97,18 @@ struct _timeout
 
 #include "heap/heap.h"
 
+#include "poll/poll_events.h"
+
+#include "sem/sem.h"
+
 #include "poll/poll.h"
 
 #include "queue/queue.h"
 
 #include "fifo/fifo.h"
+
 #include "lifo/lifo.h"
-#include "sem/sem.h"
+
 #include "mutex/mutex.h"
 
 #include "thread/thread.h"

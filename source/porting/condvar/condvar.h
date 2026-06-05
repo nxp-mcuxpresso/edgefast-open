@@ -8,8 +8,6 @@
 #ifndef __EDGEFAST_BT_BLE_CONDVAR_H__
 #define __EDGEFAST_BT_BLE_CONDVAR_H__
 
-#include <system_c.h>
-
 #define K_CONDVAR_MAX_WAITERS 16
 
 struct k_condvar_waiter {

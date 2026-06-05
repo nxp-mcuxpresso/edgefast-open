@@ -8,12 +8,6 @@
 #ifndef __BT_BLE_POLL_H__
 #define __BT_BLE_POLL_H__
 
-#include <system_c.h>
-
-#define _POLL_EVENT_OBJ_INIT(obj) \
-	.poll_events = {NULL},
-#define _POLL_EVENT sys_slist_t poll_events
-
 struct z_poller;
 
 /* polling API - PRIVATE */
@@ -184,25 +178,20 @@ enum POLL_MODE { MODE_NONE, MODE_POLL, MODE_TRIGGERED };
 struct z_poller
 {
 	/** PRIVATE - DO NOT TOUCH */
-    QueueHandle_t sem;
+	struct k_sem sem;
 
 	/** PRIVATE - DO NOT TOUCH */
-    StaticSemaphore_t  sem_buffer;
+	bool is_polling;
 
-    /** PRIVATE - DO NOT TOUCH */
-    bool is_polling;
+	/** PRIVATE - DO NOT TOUCH */
+	enum POLL_MODE mode;
 
-    /** PRIVATE - DO NOT TOUCH */
-    enum POLL_MODE mode;
-
-    /* event update callback */
-    poll_event_update_t event_update;
+	/* event update callback */
+	poll_event_update_t event_update;
 };
 
 #define K_POLL_INITIALIZER(cb) \
 	{                          \
-	.sem = NULL,               \
-	.sem_buffer = {{0}},       \
 	.is_polling = false,       \
 	.mode = MODE_NONE,         \
 	.event_update = cb,        \

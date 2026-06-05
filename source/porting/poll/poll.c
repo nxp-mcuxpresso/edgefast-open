@@ -15,31 +15,6 @@ static struct z_poller poller = K_POLL_INITIALIZER(NULL);
 
 static struct k_spinlock lock;
 
-static void sem_post(QueueHandle_t sem)
-{
-	if (k_is_in_isr())
-	{
-		portBASE_TYPE taskToWake = (portBASE_TYPE)pdFALSE;
-
-		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreGiveFromISR(sem, &taskToWake))
-		{
-			portYIELD_FROM_ISR(((bool)(taskToWake)));
-		}
-		else
-		{
-		}
-	}
-	else
-	{
-		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreGive(sem))
-		{
-		}
-		else
-		{
-		}
-	}
-}
-
 static void poll_event_update(struct k_poll_event *event)
 {
 	if (event->poller != &poller)
@@ -47,18 +22,12 @@ static void poll_event_update(struct k_poll_event *event)
 		return;
 	}
 
-	if (NULL != poller.sem)
-	{
-		sem_post(poller.sem);
-	}
+	k_sem_give(&poller.sem);
 }
 
 static void poller_init(void)
 {
-	if (NULL == poller.sem)
-	{
-		poller.sem = xSemaphoreCreateCountingStatic(0xFFFFU, 0, &poller.sem_buffer);
-	}
+	k_sem_init(&poller.sem, 0, UINT32_MAX);
 	if (NULL == poller.event_update)
 	{
 		poller.event_update = poll_event_update;
@@ -163,7 +132,12 @@ static inline void add_event(sys_slist_t *events, struct k_poll_event *event,
 		}
 	}
 	#endif
+
+	k_spinlock_key_t key;
+
+	key = k_spin_lock(&lock);
 	sys_slist_append(events, &event->_node);
+	k_spin_unlock(&lock, key);
 }
 
 static inline void remove_event(sys_slist_t *events, struct k_poll_event *event,
@@ -188,7 +162,11 @@ static inline void remove_event(sys_slist_t *events, struct k_poll_event *event,
 		}
 	}
 	#endif
+	k_spinlock_key_t key;
+
+	key = k_spin_lock(&lock);
 	sys_slist_find_and_remove(events, &event->_node);
+	k_spin_unlock(&lock, key);
 }
 
 /* must be called with interrupts locked */
@@ -415,10 +393,7 @@ int k_poll(struct k_poll_event *events, int num_events,
 
 	k_spin_unlock(&lock, key);
 
-	if (NULL != poller.sem)
-	{
-		(void)xSemaphoreTake(poller.sem, timeout);
-	}
+	(void)k_sem_take(&poller.sem, timeout);
 
 	SYS_PORT_TRACING_FUNC_EXIT(k_poll_api, poll, events, swap_rc);
 
