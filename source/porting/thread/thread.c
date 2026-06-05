@@ -1027,7 +1027,13 @@ void k_sched_lock(void)
 		vTaskSuspendAll();
 		if (atomic_inc(&sched_lock_count) == 0) {
 			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
-				if ((thread != k_current_get()) && atomic_test_bit(&thread->flags, THREAD_FLAG_PREEMPT)) {
+				if (thread != k_current_get()) {
+					if (atomic_test_bit(&thread->flags, THREAD_FLAG_COOP)) {
+						if (!IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_ALL_THREADS)) {
+							continue;
+						}
+					}
+
 					if (eSuspended != eTaskGetState(thread->handle)) {
 						k_thread_suspend(thread);
 						atomic_set_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED);

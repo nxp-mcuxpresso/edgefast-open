@@ -36,3 +36,11 @@ config THREAD_NAME
   default y
   help
     Enable support for custom thread names in the Bluetooth thread implementation.
+
+config BT_THREAD_SCHEDULER_LOCK_ALL_THREADS
+  bool "Lock all threads for Bluetooth Thread Scheduler Lock"
+  depends on BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD
+  help
+    Lock all threads, including cooperative threads, for Bluetooth Thread Scheduler Lock. This
+    provides comprehensive synchronization across all threads in the system to protect critical
+    sections in the Bluetooth stack.
