@@ -12,6 +12,14 @@
 
 typedef void (*k_thread_entry_t)(void *p1, void *p2, void *p3);
 
+enum {
+	THREAD_FLAG_COOP = 0,
+	THREAD_FLAG_PREEMPT = 1,
+	THREAD_FLAG_ACTIVE_SUSPENDED = 2,
+	THREAD_FLAG_SCH_LOCK_CHANGED= 3,
+	THREAD_FLAG_DELAY = 4,
+};
+
 struct k_thread {
 	sys_snode_t node;
 	TaskHandle_t handle;

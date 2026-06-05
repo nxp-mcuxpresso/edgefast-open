@@ -11,12 +11,6 @@ static sys_slist_t threads = SYS_SLIST_STATIC_INIT(&threads);
 
 static struct k_spinlock lock;
 
-enum {
-	THREAD_FLAG_COOP = 0,
-	THREAD_FLAG_PREEMPT = 1,
-	THREAD_FLAG_ACTIVE_SUSPENDED = 2,
-};
-
 const char k_thread_alloc_mem_tag[4] = {0xA5,0xAA,0x55,0x5A};
 
 struct k_thread_alloc_mem
@@ -383,19 +377,36 @@ int k_thread_join(struct k_thread *thread, k_timeout_t timeout)
  */
 int32_t k_sleep(k_timeout_t timeout)
 {
+    struct k_thread *thread;
     uint32_t current;
     uint32_t start = k_uptime_get_32();
 
-    vTaskDelay(timeout);
-    current = k_uptime_get_32();
-    if ((current - start) > timeout)
-    {
-        return 0;
-    }
-    else
-    {
-        return (int32_t)(timeout - (current - start));
-    }
+    thread = k_sched_current_thread_query();
+    do {
+        if (thread != NULL) {
+            atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+        }
+
+        vTaskDelay(timeout);
+        current = k_uptime_get_32();
+        if ((current - start) >= timeout)
+        {
+            return 0;
+        }
+
+        if (timeout != K_FOREVER) {
+            timeout = timeout - (current - start);
+        }
+
+        if ((timeout > 0) && (thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
+            continue;
+        }
+
+        return timeout;
+
+    } while (timeout > 0);
+
+    return 0;
 }
 
 /**
@@ -1027,6 +1038,9 @@ void k_sched_lock(void)
 		vTaskSuspendAll();
 		if (atomic_inc(&sched_lock_count) == 0) {
 			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
+
+				atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+
 				if (thread != k_current_get()) {
 					if (atomic_test_bit(&thread->flags, THREAD_FLAG_COOP)) {
 						if (!IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_ALL_THREADS)) {
@@ -1073,6 +1087,7 @@ void k_sched_unlock(void)
 		if (atomic_dec(&sched_lock_count) == 1) {
 			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
 				if (atomic_test_and_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
+					atomic_set_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
 					k_thread_resume(thread);
 				}
 			}
