@@ -50,6 +50,8 @@
 #include "fsl_component_generic_list.h"
 #include "fsl_component_serial_manager.h"
 
+#include <zephyr/kernel.h>
+
 #include "fsl_shell.h"
 
 #if CONFIG_GETOPT
@@ -112,7 +114,6 @@ typedef struct _shell_context_handle
     common_task_message_t commontaskMsg; /*!< Message for common task */
 #else
     uint8_t semphore[OSA_SEM_HANDLE_SIZE]; /*!< Event instance */
-    uint8_t taskId[OSA_TASK_HANDLE_SIZE]; /*!< Task handle */
 #endif
 
 #endif
@@ -201,7 +202,13 @@ static char s_cmdLineBuffer[SHELL_BUFFER_SIZE];
 /*
  * \brief Defines the serial manager task's stack
  */
-OSA_TASK_DEFINE(SHELL_Task, SHELL_TASK_PRIORITY, 1, SHELL_TASK_STACK_SIZE, false);
+static struct k_thread shell_thread;
+static K_KERNEL_STACK_DEFINE(shell_thread_stack, SHELL_TASK_STACK_SIZE);
+
+static void shell_task_wrap(void *p1, void *p2, void *p3)
+{
+	SHELL_Task(p1);
+}
 #endif
 
 #endif
@@ -1448,16 +1455,19 @@ shell_status_t SHELL_Init(shell_handle_t shellHandle, serial_handle_t serialHand
 #if (defined(SHELL_USE_COMMON_TASK) && (SHELL_USE_COMMON_TASK > 0U))
         COMMON_TASK_init();
 #else
+	k_tid_t tid;
+
         if (KOSA_StatusSuccess != OSA_SemaphoreCreate((osa_semaphore_handle_t)shellContextHandle->semphore, 0))
         {
             return kStatus_SHELL_Error;
         }
 
-        if (KOSA_StatusSuccess !=
-            OSA_TaskCreate((osa_task_handle_t)shellContextHandle->taskId, OSA_TASK(SHELL_Task), shellContextHandle))
-        {
-            return kStatus_SHELL_Error;
-        }
+	tid = k_thread_create(&shell_thread, shell_thread_stack,
+			      K_KERNEL_STACK_SIZEOF(shell_thread_stack),
+			      shell_task_wrap, shellContextHandle, NULL, NULL,
+			      K_PRIO_COOP(SHELL_TASK_PRIORITY),
+			      0, K_NO_WAIT);
+	k_thread_name_set(tid, "shell_thread");
 #endif
 
 #endif

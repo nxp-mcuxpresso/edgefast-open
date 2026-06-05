@@ -95,15 +95,15 @@ static void _k_thread_function_wrap( void * pvParameters )
 static int _k_thread_format_prio(int prio)
 {
 	if (prio < 0) {
-		if (prio == -1) {
-			return K_PRIO_COOP_MIN;
+		if (prio <= -CONFIG_NUM_PREEMPT_PRIORITIES) {
+			return CONFIG_NUM_PREEMPT_PRIORITIES + CONFIG_NUM_PREEMPT_PRIORITIES;
 		} else {
-			return K_PRIO_COOP_MAX;
+			return CONFIG_NUM_PREEMPT_PRIORITIES + prio * -1;
 		}
 	}
 
-	if (prio > K_PRIO_PREEMPT_MAX) {
-		return K_PRIO_PREEMPT_MAX;
+	if (prio > CONFIG_NUM_PREEMPT_PRIORITIES) {
+		return CONFIG_NUM_PREEMPT_PRIORITIES;
 	}
 
 	return prio;

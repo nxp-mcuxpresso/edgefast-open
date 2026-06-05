@@ -4,8 +4,8 @@
 
 config NUM_PREEMPT_PRIORITIES
 	int "Number of Preemption Priorities"
-	default 12
-	range 5 16
+	default 6
+	range 6 16
 	help
 	  Configure the number of preemption priority levels for Bluetooth stack scheduling
 

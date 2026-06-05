@@ -54,7 +54,7 @@
 
 /*! @brief Macro to set shell task priority. */
 #ifndef SHELL_TASK_PRIORITY
-#define SHELL_TASK_PRIORITY (2U)
+#define SHELL_TASK_PRIORITY (CONFIG_NUM_PREEMPT_PRIORITIES - 1)
 #endif
 
 /*! @brief Macro to set shell task stack size. */
@@ -87,7 +87,7 @@
      SERIAL_MANAGER_WRITE_HANDLE_SIZE)
 #else
 #define SHELL_HANDLE_SIZE                                                                                             \
-    (112U + OSA_SEM_HANDLE_SIZE + OSA_TASK_HANDLE_SIZE + SHELL_HISTORY_COUNT * SHELL_BUFFER_SIZE + SHELL_BUFFER_SIZE + \
+    (112U + OSA_SEM_HANDLE_SIZE + SHELL_HISTORY_COUNT * SHELL_BUFFER_SIZE + SHELL_BUFFER_SIZE + \
      SERIAL_MANAGER_READ_HANDLE_SIZE + SERIAL_MANAGER_WRITE_HANDLE_SIZE)
 #endif
 

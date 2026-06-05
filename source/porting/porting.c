@@ -42,7 +42,7 @@ static mbedtls_ctr_drbg_context rng_ctx;
 #if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 
 #ifndef CONFIG_PORTING_LOG_PRIO
-#define CONFIG_PORTING_LOG_PRIO OSA_TASK_PRIORITY_MIN
+#define CONFIG_PORTING_LOG_PRIO 1
 #endif
 
 #ifndef CONFIG_PORTING_LOG_STACK_SIZE
@@ -50,10 +50,10 @@ static mbedtls_ctr_drbg_context rng_ctx;
 #endif
 
 #if (defined(CONFIG_BT_LOGGING_ASYNC) && (CONFIG_BT_LOGGING_ASYNC > 0))
-static void porting_log_task(void *param);
+static void porting_log_task(void *p1, void *p2, void *p3);
 
-static OSA_TASK_HANDLE_DEFINE(porting_log_task_data);
-OSA_TASK_DEFINE( porting_log_task, CONFIG_PORTING_LOG_PRIO, 1, CONFIG_PORTING_LOG_STACK_SIZE, 0);
+static struct k_thread porting_log_thread;
+static K_KERNEL_STACK_DEFINE(porting_log_thread_stack, CONFIG_PORTING_LOG_STACK_SIZE);
 #endif /* CONFIG_BT_LOGGING_ASYNC */
 
 #endif
@@ -188,7 +188,7 @@ static unsigned int bt_ble_get_timestamp(void)
 
 #if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 #if (defined(CONFIG_BT_LOGGING_ASYNC) && (CONFIG_BT_LOGGING_ASYNC > 0))
-static void porting_log_task(void* param)
+static void porting_log_task(void *p1, void *p2, void *p3)
 {
 	static uint8_t dumpBuffer[512];
 	size_t dumpLength;
@@ -206,7 +206,7 @@ static void porting_log_task(void* param)
 		/* Make sure we don't hog the CPU if the rx_queue never
 		 * gets empty.
 		 */
-		OSA_TaskYield();
+		k_yield();
 	}
 }
 #endif /* CONFIG_BT_LOGGING_ASYNC */
@@ -215,7 +215,7 @@ static bool logging_initialized;
 
 void bt_logging_init(void)
 {
-	osa_status_t ret;
+	k_tid_t tid;
 
 	if (logging_initialized) {
 		return;
@@ -229,30 +229,30 @@ void bt_logging_init(void)
 #endif
 
 #if (defined(CONFIG_BT_LOGGING_ASYNC) && (CONFIG_BT_LOGGING_ASYNC > 0))
-	ret = OSA_TaskCreate((osa_task_handle_t)porting_log_task_data, OSA_TASK(porting_log_task), NULL);
-	assert(KOSA_StatusSuccess == ret);
+	tid = k_thread_create(&porting_log_thread, porting_log_thread_stack,
+			      K_KERNEL_STACK_SIZEOF(porting_log_thread_stack),
+			      porting_log_task, NULL, NULL, NULL,
+			      K_PRIO_PREEMPT(CONFIG_PORTING_LOG_PRIO),
+			      0, K_NO_WAIT);
+	k_thread_name_set(tid, "log_thread");
 #else
 	LOG_InitBackendDebugconsole();
 #endif /* CONFIG_BT_LOGGING_ASYNC */
 
-	(void)ret;
+	(void)tid;
 }
 
 void bt_logging_deinit(void)
 {
-	osa_status_t ret;
-
 	if (logging_initialized == false) {
 		return;
 	}
 
 #if (defined(CONFIG_BT_LOGGING_ASYNC) && (CONFIG_BT_LOGGING_ASYNC > 0))
-	ret = OSA_TaskDestroy((osa_task_handle_t)porting_log_task_data);
-	assert(KOSA_StatusSuccess == ret);
+	k_thread_abort(&porting_log_thread);
 #else
 	LOG_DeinitBackendDebugconsole();
 #endif /* CONFIG_BT_LOGGING_ASYNC */
-	(void)ret;
 
 	logging_initialized = false;
 }
