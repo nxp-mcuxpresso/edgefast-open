@@ -837,7 +837,19 @@ int k_thread_cpu_pin(k_tid_t thread, int cpu)
  */
 void k_thread_suspend(k_tid_t thread)
 {
-    vTaskSuspend((NULL == thread) ? NULL : thread->handle);
+	if (NULL == thread) {
+		thread = k_sched_current_thread_query();
+	}
+
+	if ((thread != NULL) && atomic_test_and_set_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
+		return;
+	}
+
+	if (thread != NULL) {
+		atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+	}
+
+	vTaskSuspend((NULL == thread) ? NULL : thread->handle);
 }
 
 /**
@@ -852,22 +864,26 @@ void k_thread_suspend(k_tid_t thread)
  */
 void k_thread_resume(k_tid_t thread)
 {
-    BaseType_t xYieldRequired;
+	BaseType_t xYieldRequired;
 
-    if (NULL == thread)
-    {
-        return;
-    }
+	if (NULL == thread)
+	{
+		return;
+	}
 
-    if (k_is_in_isr())
-    {
-        xYieldRequired = xTaskResumeFromISR(thread->handle);
-        portYIELD_FROM_ISR(xYieldRequired);
-    }
-    else
-    {
-        vTaskResume(thread->handle);
-    }
+	if (atomic_test_and_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
+		atomic_set_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+	}
+
+	if (k_is_in_isr())
+	{
+		xYieldRequired = xTaskResumeFromISR(thread->handle);
+		portYIELD_FROM_ISR(xYieldRequired);
+	}
+	else
+	{
+		vTaskResume(thread->handle);
+	}
 }
 
 #if 0 /* Unsupported */
@@ -1048,9 +1064,7 @@ void k_sched_lock(void)
 						}
 					}
 
-					if (!atomic_test_and_set_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
-						k_thread_suspend(thread);
-					}
+					k_thread_suspend(thread);
 				}
 			}
 		}
