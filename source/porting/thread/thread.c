@@ -1048,9 +1048,8 @@ void k_sched_lock(void)
 						}
 					}
 
-					if (eSuspended != eTaskGetState(thread->handle)) {
+					if (!atomic_test_and_set_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
 						k_thread_suspend(thread);
-						atomic_set_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED);
 					}
 				}
 			}
