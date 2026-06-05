@@ -144,6 +144,14 @@ int k_condvar_wait(struct k_condvar *condvar, struct k_mutex *mutex, k_timeout_t
 	struct k_condvar_waiter *waiter;
 	__maybe_unused uint32_t notified_value;
 	BaseType_t ret;
+	struct k_thread *thread;
+	int64_t start = k_uptime_get();
+	int64_t total_timeout = 0;
+
+	thread = k_current_get();
+	if (thread == NULL) {
+		return -EINVAL;
+	}
 
 	err = k_mutex_lock(&condvar->mutex, K_FOREVER);
 	if (err) {
@@ -157,12 +165,30 @@ int k_condvar_wait(struct k_condvar *condvar, struct k_mutex *mutex, k_timeout_t
 	}
 
 	waiter = CONTAINER_OF(node, struct k_condvar_waiter, node);
-	waiter->thread = k_current_get();
+	waiter->thread = thread;
 	sys_slist_append(&condvar->waiter, &waiter->node);
 	k_mutex_unlock(&condvar->mutex);
 
 	k_mutex_unlock(mutex);
-	ret = xTaskNotifyWait(0, ULONG_MAX, &notified_value, timeout);
+	do {
+		atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+
+		ret = xTaskNotifyWait(0, ULONG_MAX, &notified_value, timeout);
+		if (ret == pdTRUE) {
+			break;
+		}
+
+		total_timeout += k_uptime_delta(&start);
+		if (timeout != K_FOREVER && total_timeout >= timeout) {
+			break;
+		}
+
+		if (atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
+			continue;
+		}
+
+		break;
+	} while (true);
 	err = k_mutex_lock(mutex, K_FOREVER);
 	if (err) {
 		return err;
