@@ -350,7 +350,7 @@ int k_thread_join(struct k_thread *thread, k_timeout_t timeout)
             ret = -EBUSY;
             break;
         }
-        vTaskDelay(timeout);
+        k_sleep(timeout);
         current = k_uptime_get_32();
         if ((current - start) > timeout)
         {
