@@ -42,3 +42,13 @@ config BT_LOGGING_USBCDC
 	depends on BT_LOGGING
 	help
 	  Enable logging via USBCDC for Bluetooth stack
+
+config LOG_RUNTIME_FILTERING
+	bool "Runtime filtering reconfiguration"
+	depends on !LOG_MODE_MINIMAL
+	help
+	  Allow runtime configuration of maximal, independent severity
+	  level for instance.
+
+config LOG_DEFAULT_MINIMAL
+	bool

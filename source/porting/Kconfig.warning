@@ -1,0 +1,35 @@
+# Copyright 2026 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+config MINIMAL_LIBC_STRING_ERROR_TABLE
+	bool "String error table for strerror() and strerror_r()"
+	help
+	  Select this option to ensure that strerror(), strerror_r()
+	  produce strings corresponding to the descriptions in errno.h.
+
+	  The string error table can add ~2kiB to ROM. As such, it is
+	  disabled by default. In this case, strerror() and strerror_r()
+	  symbols are still present, but the functions produce an empty
+	  string.
+
+config TEST
+	bool "Mark project as a test"
+	# For tests, store thread names in binary and dump them on crash to
+	# ease debugging.
+	select THREAD_NAME
+	help
+	  Mark a project or an application as a test. This will enable a few
+	  test defaults.
+
+config TEST_LOGGING_DEFAULTS
+	bool "Test case logging defaults"
+	depends on TEST
+	select LOG
+	select LOG_DEFAULT_MINIMAL
+	default y
+	help
+	  Option which implements default policy of enabling logging in
+	  minimal mode for all test cases. For tests that need alternate
+	  logging configuration, or no logging at all, disable this
+	  in the project-level defconfig.
