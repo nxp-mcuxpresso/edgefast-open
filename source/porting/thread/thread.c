@@ -1094,6 +1094,14 @@ void k_sched_unlock(void)
 
 	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD)) {
 		struct k_thread *thread, *next;
+		atomic_val_t value;
+
+		value = atomic_get(&sched_lock_count);
+
+		__ASSERT(value >= 1, "Invalid scheduler unlock");
+		if (value < 1) {
+			return;
+		}
 
 		vTaskSuspendAll();
 		if (atomic_dec(&sched_lock_count) == 1) {
