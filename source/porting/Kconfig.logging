@@ -17,7 +17,6 @@ config BT_LOGGING
 config BT_LOGGING_ASYNC
 	bool "Bluetooth Logging ASYNC Mode"
 	depends on BT_LOGGING
-	default y
 	help
 	  Configure Bluetooth logging async mode
 
