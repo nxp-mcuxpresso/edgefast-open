@@ -22,6 +22,7 @@ static int _k_sem_init(struct k_sem *sem, unsigned int initial_count, unsigned i
 
 	sem->count = initial_count;
 	sem->limit = limit;
+	sys_slist_init(&sem->poll_events);
 
 	SYS_PORT_TRACING_OBJ_FUNC(k_sem, init, sem, 0);
 

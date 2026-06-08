@@ -29,6 +29,7 @@ struct k_sem {
 	.sem_buffer = {{0}}, \
 	.count = initial_count, \
 	.limit = count_limit, \
+	_POLL_EVENT_OBJ_INIT(obj) \
 	}
 
 /**
