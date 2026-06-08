@@ -283,6 +283,25 @@ static inline uint32_t k_cycle_get_32(void)
 	return k_uptime_get_32();
 }
 
+static inline bool bt_timeout_expired_since(int64_t start, k_timeout_t timeout, int64_t *delta)
+{
+	int64_t now;
+	int64_t deadline;
+
+	if (timeout == K_FOREVER) {
+		return false;
+	}
+
+	now = k_uptime_get();
+	deadline = start + timeout;
+
+	if (delta != NULL) {
+		*delta = now - start;
+	}
+
+	return now >= deadline;
+}
+
 #ifndef CYCLE_TO_NSEC_64
 #define CYCLE_TO_NSEC_64(tick) ((uint64_t)((uint64_t)(tick)*1000000000uL / (uint64_t)configTICK_RATE_HZ))
 #endif /* CYCLE_TO_NSEC_64 */

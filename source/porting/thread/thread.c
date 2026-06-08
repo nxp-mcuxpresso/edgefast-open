@@ -379,7 +379,7 @@ int32_t k_sleep(k_timeout_t timeout)
 {
 	struct k_thread *thread;
 	int64_t start = k_uptime_get();
-	int64_t total_timeout = 0;
+	int64_t delta = 0;
 
 	thread = k_sched_current_thread_query();
 	do {
@@ -389,8 +389,7 @@ int32_t k_sleep(k_timeout_t timeout)
 
 		vTaskDelay(timeout);
 
-		total_timeout += k_uptime_delta(&start);
-		if ((timeout != K_FOREVER) && (total_timeout >= timeout)) {
+		if (bt_timeout_expired_since(start, timeout, &delta)) {
 			return 0;
 		}
 
@@ -399,7 +398,7 @@ int32_t k_sleep(k_timeout_t timeout)
 		}
 
 		if (timeout != K_FOREVER) {
-			timeout = timeout - total_timeout;
+			timeout = timeout - delta;
 		}
 
 		break;

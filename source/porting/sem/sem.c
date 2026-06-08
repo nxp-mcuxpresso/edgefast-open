@@ -94,7 +94,6 @@ int k_sem_take(struct k_sem *sem, k_timeout_t timeout)
 {
 	struct k_thread *thread;
 	int64_t start = k_uptime_get();
-	int64_t total_timeout = 0;
 	int err = -EINVAL;
 
 	if (NULL == sem)
@@ -141,8 +140,7 @@ int k_sem_take(struct k_sem *sem, k_timeout_t timeout)
 			return 0;
 		}
 
-		total_timeout += k_uptime_delta(&start);
-		if (timeout != K_FOREVER && total_timeout >= timeout) {
+		if (bt_timeout_expired_since(start, timeout, NULL)) {
 			break;
 		}
 

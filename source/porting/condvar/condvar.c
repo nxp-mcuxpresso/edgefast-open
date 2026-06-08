@@ -146,7 +146,6 @@ int k_condvar_wait(struct k_condvar *condvar, struct k_mutex *mutex, k_timeout_t
 	BaseType_t ret;
 	struct k_thread *thread;
 	int64_t start = k_uptime_get();
-	int64_t total_timeout = 0;
 
 	thread = k_current_get();
 	if (thread == NULL) {
@@ -178,8 +177,7 @@ int k_condvar_wait(struct k_condvar *condvar, struct k_mutex *mutex, k_timeout_t
 			break;
 		}
 
-		total_timeout += k_uptime_delta(&start);
-		if (timeout != K_FOREVER && total_timeout >= timeout) {
+		if (bt_timeout_expired_since(start, timeout, NULL)) {
 			break;
 		}
 
