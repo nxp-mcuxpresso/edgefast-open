@@ -280,7 +280,7 @@ static int audio_stream_encode(bool mute)
 		{
 			return 0;
 		}
-		
+
 		uint32_t ret = ring_buf_get(&a2dp_ring_buf, pcm_audio_buff, pcm_len);
 		if(ret != pcm_len)
 		{
@@ -341,7 +341,7 @@ static int audio_stream_encode(bool mute)
 			{
 				timeout = (lc3_codec_info.frame_duration_us + 5000) / 1000;
 			}
-			buf[i] = net_buf_alloc(tx_pool[i], timeout);
+			buf[i] = net_buf_alloc(tx_pool[i], K_MSEC(timeout));
 			if(buf[i] == NULL)
 			{
 				PRINTF("iso net buff alloc timeout!\n");

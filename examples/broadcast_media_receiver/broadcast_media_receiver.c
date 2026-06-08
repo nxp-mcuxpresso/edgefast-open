@@ -86,7 +86,7 @@ static lc3_codec_info_t lc3_codec_info;
 #define PA_SYNC_SKIP              5
 
 /* Semaphores */
-#define SEM_TIMEOUT 30 * 1000
+#define SEM_TIMEOUT K_SECONDS(30)
 static K_SEM_DEFINE(sem_broadcaster_found, 0, K_SEM_MAX_LIMIT);
 static K_SEM_DEFINE(sem_pa_synced, 0, K_SEM_MAX_LIMIT);
 static K_SEM_DEFINE(sem_base_received, 0, K_SEM_MAX_LIMIT);

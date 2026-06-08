@@ -59,7 +59,7 @@ static ipsp_rx_cb_t mpf_rx_cb = NULL;
 
 static struct net_buf *alloc_buf_cb(struct bt_l2cap_chan *chan)
 {
-	return net_buf_alloc(&data_pool, osaWaitForever_c);
+	return net_buf_alloc(&data_pool, K_FOREVER);
 }
 
 static int l2cap_rx(struct bt_l2cap_chan *chan, struct net_buf *buf)

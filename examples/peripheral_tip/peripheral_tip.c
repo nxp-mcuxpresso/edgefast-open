@@ -367,7 +367,7 @@ void peripheral_tip_task(void *pvParameters)
 			}
 		}
 
-		err = k_sem_take(&app_queue, 1000);
+		err = k_sem_take(&app_queue, K_SECONDS(1));
 		if (0 == err)
 		{
 			bt_cts_set_current_time(default_conn, current_time, local_time);

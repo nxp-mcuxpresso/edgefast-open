@@ -1843,7 +1843,7 @@ static void source_send_stream_task(void *param)
             buf2 = NULL;
             if (cis_count > 1)
             {
-                buf2 = net_buf_alloc(&tx_pool, 0U);
+                buf2 = net_buf_alloc(&tx_pool, K_NO_WAIT);
                 if (NULL == buf2)
                 {
                     net_buf_unref(buf);
@@ -1958,7 +1958,7 @@ static void ringtone_prime_data(struct ringtone_prime_work *ring)
 
     do
     {
-        buf = net_buf_alloc(&tx_pool, 0U);
+        buf = net_buf_alloc(&tx_pool, K_NO_WAIT);
         if (NULL == buf)
         {
             break;
@@ -2971,7 +2971,7 @@ static void codec_rx_callback(uint8_t *rx_buffer)
         return;
     }
 
-    buf = net_buf_alloc(&tx_pool, 0U);
+    buf = net_buf_alloc(&tx_pool, K_NO_WAIT);
     if (NULL == buf)
     {
         return;

@@ -317,7 +317,7 @@ static int audio_stream_encode(void)
 			{
 				timeout = (lc3_codec_info.frame_duration_us + 5000) / 1000;
 			}
-			buf[i] = net_buf_alloc(&tx_pool, timeout);
+			buf[i] = net_buf_alloc(&tx_pool, K_MSEC(timeout));
 			if(buf[i] == NULL)
 			{
 				PRINTF("iso net buff alloc timeout!\n");

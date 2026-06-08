@@ -614,7 +614,7 @@ static int bms_stream_pending(enum bt_audio_location chan_allocation, struct net
 	struct net_buf *tx_buf;
 	struct tx_pending_data *pending_data;
 
-	tx_buf = net_buf_alloc(&tx_pool, 0);
+	tx_buf = net_buf_alloc(&tx_pool, K_NO_WAIT);
 	if (tx_buf == NULL) {
 		printk("BMS: Unable to allocate tx_buf for pending data\r\n");
 		return -ENOMEM;
@@ -714,7 +714,7 @@ int bms_stream_send(enum bt_audio_location chan_allocation, struct net_buf *buf)
 			continue;
 		}
 
-		tx_buf = net_buf_alloc(&tx_pool, 0);
+		tx_buf = net_buf_alloc(&tx_pool, K_NO_WAIT);
 		if (tx_buf != NULL) {
 			size_t len;
 
@@ -756,7 +756,7 @@ void streaming_simulate_work_handler(struct k_work *work)
 		k_work_reschedule(dwork, K_USEC(lc3_codec_info.frame_duration_us));
 	}
 
-	buf = net_buf_alloc(&tx_pool, 0);
+	buf = net_buf_alloc(&tx_pool, K_NO_WAIT);
 	if (buf != NULL) {
 		memset(buf->data, index, lc3_codec_info.octets_per_frame);
 		net_buf_add(buf, lc3_codec_info.octets_per_frame);

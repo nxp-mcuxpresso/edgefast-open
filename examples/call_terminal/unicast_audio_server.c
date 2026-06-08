@@ -462,7 +462,7 @@ static void ringtone_prime_timeout(struct k_work *work)
     k_work_schedule(&ring->work, K_MSEC(1));
     do
     {
-        buf = net_buf_alloc(&tx_pool, 0U);
+        buf = net_buf_alloc(&tx_pool, K_NO_WAIT);
         if (NULL == buf)
         {
             break;
@@ -1337,7 +1337,7 @@ static void codec_rx_callback(uint8_t *rx_buffer)
     uint16_t *src = (uint16_t *)rx_buffer;
     uint16_t *dst = NULL;
 
-    buf = net_buf_alloc(&tx_pool, 0U);
+    buf = net_buf_alloc(&tx_pool, K_NO_WAIT);
     if (NULL == buf)
     {
         return;

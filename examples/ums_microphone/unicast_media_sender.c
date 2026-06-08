@@ -220,7 +220,7 @@ static void codec_rx_callback(uint8_t *rx_buffer)
 {
 	struct net_buf *buf;
 
-	buf = net_buf_alloc(&tx_pool, 0U);
+	buf = net_buf_alloc(&tx_pool, K_NO_WAIT);
 	if (NULL == buf)
 	{
 		return;
