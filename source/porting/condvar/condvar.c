@@ -172,7 +172,7 @@ int k_condvar_wait(struct k_condvar *condvar, struct k_mutex *mutex, k_timeout_t
 
 	k_mutex_unlock(mutex);
 	do {
-		atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+		atomic_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_RESUMED);
 
 		ret = xTaskNotifyWait(0, ULONG_MAX, &notified_value, (TickType_t)remaining_ticks);
 		if (ret == pdTRUE) {
@@ -187,7 +187,7 @@ int k_condvar_wait(struct k_condvar *condvar, struct k_mutex *mutex, k_timeout_t
 			remaining_ticks = timeout.ticks - delta;
 		}
 
-		if (atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
+		if (atomic_test_bit(&thread->flags, THREAD_FLAG_ACTIVE_RESUMED)) {
 			continue;
 		}
 

@@ -84,7 +84,7 @@ int k_mutex_lock(struct k_mutex *mutex, k_timeout_t timeout)
 	thread = k_sched_current_thread_query();
 	do {
 		if (thread != NULL) {
-			atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+			atomic_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_RESUMED);
 		}
 
 		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreTakeRecursive(mutex->mutex, (TickType_t)remaining_ticks)) {
@@ -99,7 +99,7 @@ int k_mutex_lock(struct k_mutex *mutex, k_timeout_t timeout)
 			remaining_ticks = timeout.ticks - delta;
 		}
 
-		if ((thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
+		if ((thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_ACTIVE_RESUMED)) {
 			continue;
 		}
 

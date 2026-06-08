@@ -195,11 +195,11 @@ k_tid_t k_thread_create(struct k_thread *new_thread,
 
         if (K_TIMEOUT_EQ(delay, K_FOREVER))
         {
-            vTaskSuspend(new_thread->handle);
+            k_thread_suspend(new_thread);
         }
         else
         {
-            vTaskDelay(delay.ticks);
+            (void)k_sleep(delay);
         }
     }
 
@@ -378,7 +378,7 @@ int32_t k_sleep(k_timeout_t timeout)
 	thread = k_sched_current_thread_query();
 	do {
 		if (thread != NULL) {
-			atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+			atomic_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_RESUMED);
 		}
 
 		vTaskDelay(remaining_ticks);
@@ -391,7 +391,7 @@ int32_t k_sleep(k_timeout_t timeout)
 			remaining_ticks = timeout.ticks - delta;
 		}
 
-		if ((thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
+		if ((thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_ACTIVE_RESUMED)) {
 			continue;
 		}
 
@@ -838,7 +838,7 @@ void k_thread_suspend(k_tid_t thread)
 	}
 
 	if (thread != NULL) {
-		atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+		atomic_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_RESUMED);
 	}
 
 	vTaskSuspend((NULL == thread) ? NULL : thread->handle);
@@ -863,9 +863,11 @@ void k_thread_resume(k_tid_t thread)
 		return;
 	}
 
-	if (atomic_test_and_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
-		atomic_set_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+	if (!atomic_test_and_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
+		return;
 	}
+
+	atomic_set_bit(&thread->flags, THREAD_FLAG_ACTIVE_RESUMED);
 
 	if (k_is_in_isr())
 	{
@@ -1047,7 +1049,7 @@ void k_sched_lock(void)
 		if (atomic_inc(&sched_lock_count) == 0) {
 			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
 
-				atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
+				atomic_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_RESUMED);
 
 				if (thread != k_current_get()) {
 					if (atomic_test_bit(&thread->flags, THREAD_FLAG_COOP)) {
@@ -1099,10 +1101,7 @@ void k_sched_unlock(void)
 		vTaskSuspendAll();
 		if (atomic_dec(&sched_lock_count) == 1) {
 			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
-				if (atomic_test_and_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
-					atomic_set_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
-					k_thread_resume(thread);
-				}
+				k_thread_resume(thread);
 			}
 		}
 		if (!xTaskResumeAll())
