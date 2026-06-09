@@ -154,6 +154,7 @@ struct sync_status
     volatile double output;
 };
 
+#if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
 struct resampler_info
 {
     SrCvtFrmCfg_t upSrcCfg;
@@ -161,6 +162,7 @@ struct resampler_info
     int16_t out_buffer[2*(480 + 128)];
     uint32_t out_length;
 };
+#endif /* UNICAST_AUDIO_SYNC_MODE */
 
 struct conn_state
 {

@@ -37,11 +37,12 @@
 #define UNICAST_AUDIO_SRC_STREAM_COUNT 1U
 #endif /* UNICAST_AUDIO_SRC_STREAM_COUNT */
 
+#include "audio/bap_endpoint.h"
+#include "audio/bap_iso.h"
+
 #if defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0)
 #include "srCvtFrm.h"
 /* Note: this include should be remove once audio api could get bt_iso_chan. */
-#include "audio/bap_endpoint.h"
-#include "audio/bap_iso.h"
 #endif /* UNICAST_AUDIO_SYNC_MODE */
 
 #define UNICAST_AUDIO_SERVER_COUNT CONFIG_BT_MAX_CONN
@@ -99,7 +100,7 @@ struct decoder_t
     uint8_t* enc_buf_list_in[MAX_AUDIO_CHANNEL_COUNT];
     int32_t* dec_buf_list_out[MAX_AUDIO_CHANNEL_COUNT];
     uint8_t enc_buf_in[MAX_AUDIO_CHANNEL_COUNT][LC3_MAX_FRAME_BYTES];
-    int32_t dec_buf_out[MAX_AUDIO_CHANNEL_COUNT][LC3_INPUT_FRAME_SIZE_MAX];
+    int16_t dec_buf_out[MAX_AUDIO_CHANNEL_COUNT][LC3_INPUT_FRAME_SIZE_MAX];
     lc3_decoder_mem_16k_t decoder_mem[MAX_AUDIO_CHANNEL_COUNT];
 
     sys_snode_t node;
@@ -1655,20 +1656,14 @@ static void sink_recv_stream_task(void *param)
                 {
                     dec_byte_count[i] = state->src_cap_required.frame_bytes;
 
-                    if (0 != buf->len)
+                    lc3_ret = lc3_decode(state->src[0].decoder->decoder[i], (plc_flag[i]) ? NULL : &in[i * dec_byte_count[i]], dec_byte_count[i],
+                        LC3_PCM_FORMAT_S16, state->src[0].decoder->dec_buf_out[i], 1);
+                    if(lc3_ret == -1)
                     {
-                        lc3_ret = lc3_decode(state->src[0].decoder->decoder[i], (plc_flag[i]) ? NULL : &in[i * dec_byte_count[i]], dec_byte_count[i],
-                            LC3_PCM_FORMAT_S16, state->src[0].in_buffer, 1);
-                        if(lc3_ret == -1)
-                        {
-                            memset(state->src[0].decoder->dec_buf_out[i], 0, sizeof(int32_t) * LC3_INPUT_FRAME_SIZE_MAX);
-                            PRINTF("Fail to decoder stream! %d\n", lc3_ret);
-                        }
+                        memset(state->src[0].decoder->dec_buf_out[i], 0, sizeof(state->src[0].decoder->dec_buf_out[i]));
+                        PRINTF("Fail to decoder stream! %d\n", lc3_ret);
                     }
-                    else
-                    {
-                        memset(state->src[0].decoder->dec_buf_out[i], 0, sizeof(int32_t) * LC3_INPUT_FRAME_SIZE_MAX);
-                    }
+
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
                     key = irq_lock();
                     if (0 == state->src[0].status.start_slot)
@@ -1707,7 +1702,7 @@ static void sink_recv_stream_task(void *param)
                     srCvtUpdateFreqOffset(&state->src[0].resampler[i].upSrc, update_delta);
 
                     /* resampler */
-                    state->src[0].resampler[i].out_length = upCvtFrm(&state->src[0].resampler[i].upSrc, state->src[0].in_buffer, state->src[0].resampler[i].out_buffer);
+                    state->src[0].resampler[i].out_length = upCvtFrm(&state->src[0].resampler[i].upSrc, state->src[0].decoder->dec_buf_out[i], state->src[0].resampler[i].out_buffer);
 
                     output_length += state->src[0].resampler[i].out_length;
                     received_length += (state->src_cap_required.frequency * state->src_cap_required.duration / 1000000);
