@@ -26,13 +26,13 @@ Application demonstrating how to use the a2dp source feature.
 The log below shows the output of the example in the terminal window.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-USB Host stack successfully initialized
+Bluetooth A2dp Source demo start...
 Bluetooth initialized
+BR/EDR set connectable and discoverable done
 
-SHELL build: Mar  2 2021
-Copyright  2021  NXP
+Copyright  2024  NXP
 
->> 
+>>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Procedures to run

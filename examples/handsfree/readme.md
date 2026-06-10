@@ -24,9 +24,14 @@ board running a HFP AG application. And the HF example support accept/reject/End
 
 ## Running the demo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-USB Host stack successfully initialized
+Bluetooth Handsfree demo start...
 Bluetooth initialized
+
+Copyright  2024  NXP
+
+>>
 BR/EDR set connectable and discoverable done
+Wait for connection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Now Start SDP Service and the Service is now discoverable by remote device
 

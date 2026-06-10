@@ -26,9 +26,10 @@ Application demonstrating how to use the a2dp sink feature.
 The log below shows the output of the example in the terminal window.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-USB Host stack successfully initialized
+Bluetooth A2dp Sink demo start...
 Bluetooth initialized
 BR/EDR set connectable and discoverable done
+Wait for connection
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Procedures to run

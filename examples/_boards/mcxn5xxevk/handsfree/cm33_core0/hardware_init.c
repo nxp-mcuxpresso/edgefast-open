@@ -241,36 +241,54 @@ sai_master_clock_t mclkConfig;
 
 /*${function:start}*/
 
+void BOARD_MASTER_CLOCK_CONFIG(void)
+{
+    mclkConfig.mclkOutputEnable = true, mclkConfig.mclkHz = 24576000U;
+    mclkConfig.mclkSourceClkHz = 24576000U;
+    SAI_SetMasterClockConfig(CODEC_SAI, &mclkConfig);
+}
+
 uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
 {
-    if (sampleRate == 48000U)
-    {
-        /* < Set up PLL1 */
-        const pll_setup_t pll1Setup1 = {
-            .pllctrl = SCG_APLLCTRL_SOURCE(1U) | SCG_APLLCTRL_SELI(7U) | SCG_APLLCTRL_SELP(3U),
-            .pllndiv = SCG_APLLNDIV_NDIV(1U),
-            .pllpdiv = SCG_APLLPDIV_PDIV(4U),
-            .pllmdiv = SCG_APLLMDIV_MDIV(8U),
-            .pllRate = 48000000U};
-        CLOCK_SetPLL1Freq(&pll1Setup1);
-        CLOCK_SetClkDiv(kCLOCK_DivPLL1Clk0, 1U);
-    }
-    else if (sampleRate == 44100U)
-    {
-        /* do nothing, 44100 is the default value */
-    }
+    if (sampleRate == 0) {
+        /* Disable external osc clock */
+        SCG0->SOSCCSR &= ~SCG_SOSCCSR_SOSCEN_MASK;
+    } else {
+        /* Enable external osc clock */
+        CLOCK_SetupExtClocking(24000000U);
+        CLOCK_SetSysOscMonitorMode(kSCG_SysOscMonitorDisable); /* System OSC Clock Monitor is disabled */
 
+        /* < Set up PLL1 */
+        const pll_setup_t audioPllConfig = {
+            .pllctrl = SCG_SPLLCTRL_SOURCE(0U) | SCG_SPLLCTRL_LIMUPOFF_MASK | SCG_SPLLCTRL_SELI(4U) |
+                    SCG_SPLLCTRL_SELP(3U) | SCG_SPLLCTRL_SELR(4U),
+            .pllndiv = SCG_SPLLNDIV_NDIV(6U),
+            .pllpdiv = SCG_SPLLPDIV_PDIV(7U),
+            .pllsscg = {(SCG_SPLLSSCG0_SS_MDIV_LSB(2886218023U)),
+                        ((SCG0->SPLLSSCG1 & ~SCG_SPLLSSCG1_SS_PD_MASK) | SCG_SPLLSSCG1_SS_MDIV_MSB(0U) |
+                        (uint32_t)(kSS_MF_512) | (uint32_t)(kSS_MR_K0) | (uint32_t)(kSS_MC_NOC) |
+                        SCG_SPLLSSCG1_SEL_SS_MDIV_MASK)},
+            .pllRate = 24576000U};
+
+        CLOCK_SetPLL1Freq(&audioPllConfig);
+        CLOCK_SetClkDiv(kCLOCK_DivPLL1Clk0, 1U);
+
+        /* attach PLL1 to SAI1 */
+        CLOCK_SetClkDiv(kCLOCK_DivSai1Clk, 1u);
+        CLOCK_AttachClk(kPLL1_CLK0_to_SAI1);
+
+        /* attach PLL1 to SAI0 */
+        CLOCK_SetClkDiv(kCLOCK_DivSai0Clk, 1u);
+        CLOCK_AttachClk(kPLL1_CLK0_to_SAI0);
+
+        /* Enable master clock for SAI1 */
+        CLOCK_EnableClock(kCLOCK_Sai1);
+        BOARD_MASTER_CLOCK_CONFIG();
+    }
     da7212Config.format.sampleRate = sampleRate;
     da7212Config.format.mclk_HZ    = DEMO_SAI_CLK_FREQ;
 
     return DEMO_SAI_CLK_FREQ;
-}
-
-void BOARD_MASTER_CLOCK_CONFIG(void)
-{
-    mclkConfig.mclkOutputEnable = true, mclkConfig.mclkHz = 12288000U;
-    mclkConfig.mclkSourceClkHz = 12288000U;
-    SAI_SetMasterClockConfig(CODEC_SAI, &mclkConfig);
 }
 
 void BOARD_InitHardware(void)
@@ -282,25 +300,6 @@ void BOARD_InitHardware(void)
     /* attach FRO 12M to FLEXCOMM2 (M.2) */
     CLOCK_SetClkDiv(kCLOCK_DivFlexcom2Clk, 1u);
     CLOCK_AttachClk(BOARD_BT_UART_CLK_ATTACH);
-
-    CLOCK_EnableClock(kCLOCK_Scg);
-    CLOCK_SetupFROHFClocking(48000000U);
-    /* < Set up PLL1 */
-    const pll_setup_t pll1Setup = {.pllctrl = SCG_SPLLCTRL_SOURCE(1U) | SCG_SPLLCTRL_SELI(3U) | SCG_SPLLCTRL_SELP(1U),
-                                   .pllndiv = SCG_SPLLNDIV_NDIV(25U),
-                                   .pllpdiv = SCG_SPLLPDIV_PDIV(10U),
-                                   .pllmdiv = SCG_SPLLMDIV_MDIV(256U),
-                                   .pllRate = 24576000U};
-    CLOCK_SetPLL1Freq(&pll1Setup);
-    CLOCK_SetClkDiv(kCLOCK_DivPLL1Clk0, 1U);
-
-    /* attach PLL1 to SAI1 */
-    CLOCK_SetClkDiv(kCLOCK_DivSai1Clk, 1u);
-    CLOCK_AttachClk(kPLL1_CLK0_to_SAI1);
-
-    /* attach PLL1 to SAI0 */
-    CLOCK_SetClkDiv(kCLOCK_DivSai0Clk, 1u);
-    CLOCK_AttachClk(kPLL1_CLK0_to_SAI0);
 
     /* attach FRO HF to USDHC */
     CLOCK_SetClkDiv(kCLOCK_DivUSdhcClk, 1u);
@@ -320,13 +319,6 @@ void BOARD_InitHardware(void)
 #if defined(LPFLEXCOMM_INIT_NOT_USED_IN_DRIVER) && LPFLEXCOMM_INIT_NOT_USED_IN_DRIVER
     LP_FLEXCOMM_Init(BOARD_BT_UART_INSTANCE, LP_FLEXCOMM_PERIPH_LPI2CAndLPUART);
 #endif /* LPFLEXCOMM_INIT_NOT_USED_IN_DRIVER */
-
-#if (defined(FSL_FEATURE_SAI_HAS_MCR) && (FSL_FEATURE_SAI_HAS_MCR)) || \
-    (defined(FSL_FEATURE_SAI_HAS_MCLKDIV_REGISTER) && (FSL_FEATURE_SAI_HAS_MCLKDIV_REGISTER))
-    (void)CLOCK_EnableClock(kCLOCK_Sai1);
-    /* master clock configurations */
-    BOARD_MASTER_CLOCK_CONFIG();
-#endif
 
     // XCACHE_DisableCache(XCACHE_PS);
 }

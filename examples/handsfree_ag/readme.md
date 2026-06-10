@@ -26,11 +26,11 @@ But the SCO audio can only be opened with one connection at the same time.
 ## Running the demo
 The log below shows the output of the example in the terminal window.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-USB Host stack successfully initialized
+Bluetooth Handsfree AG demo start...
 Bluetooth initialized
+BR/EDR set connectable and discoverable done
 
-SHELL build: Mar  1 2021
-Copyright  2020  NXP
+Copyright  2024  NXP
 
 >>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
