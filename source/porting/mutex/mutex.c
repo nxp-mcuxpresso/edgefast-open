@@ -62,6 +62,8 @@ int k_mutex_lock(struct k_mutex *mutex, k_timeout_t timeout)
 {
 	struct k_thread *thread;
 	int64_t start = k_uptime_ticks();
+	int64_t delta;
+	int64_t remaining_ticks = timeout.ticks;
 	int err = -EINVAL;
 
 	if (NULL == mutex) {
@@ -85,12 +87,16 @@ int k_mutex_lock(struct k_mutex *mutex, k_timeout_t timeout)
 			atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
 		}
 
-		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreTakeRecursive(mutex->mutex, (TickType_t)timeout.ticks)) {
+		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreTakeRecursive(mutex->mutex, (TickType_t)remaining_ticks)) {
 			return 0;
 		}
 
-		if (bt_timeout_expired_since(start, timeout, NULL)) {
+		if (bt_timeout_expired_since(start, timeout, &delta)) {
 			break;
+		}
+
+		if (!K_TIMEOUT_EQ(timeout, K_FOREVER)) {
+			remaining_ticks = timeout.ticks - delta;
 		}
 
 		if ((thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {

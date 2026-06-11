@@ -100,6 +100,8 @@ int k_mem_slab_alloc(struct k_mem_slab *slab, void **mem,
 	char *p;
 	k_spinlock_key_t key;
 	int64_t start = k_uptime_ticks();
+	int64_t delta;
+	k_timeout_t remaining_ticks = timeout;
 
 	__ASSERT(!((slab == NULL) || (mem == NULL)), "Invalid memory pointer provided");
 
@@ -147,18 +149,22 @@ int k_mem_slab_alloc(struct k_mem_slab *slab, void **mem,
 			}
 
 			k_spin_unlock(&slab->lock, key);
-			ret = k_sem_take(&slab->sem, timeout);
+			ret = k_sem_take(&slab->sem, remaining_ticks);
 			key = k_spin_lock(&slab->lock);
 			if (ret < 0) {
 				*mem = NULL;
 				break;
 			}
 
-			if (bt_timeout_expired_since(start, timeout, NULL))
+			if (bt_timeout_expired_since(start, timeout, &delta))
 			{
 				*mem = NULL;
 				ret = -ENOMEM;
 				break;
+			}
+
+			if (!K_TIMEOUT_EQ(timeout, K_FOREVER)) {
+				remaining_ticks.ticks = timeout.ticks - delta;
 			}
 		}
 	} while (true);

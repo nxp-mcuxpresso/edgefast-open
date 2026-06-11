@@ -138,7 +138,7 @@ void *bt_fifo_get(bt_fifo_t *fifo, k_timeout_t timeout)
 	sys_snode_t *head = NULL;
 	int64_t start;
 	int64_t delta;
-	k_timeout_t remaining_ticks;
+	k_timeout_t remaining_ticks = timeout;
 	int err;
 
 	if (k_is_in_isr()) {
@@ -159,7 +159,10 @@ void *bt_fifo_get(bt_fifo_t *fifo, k_timeout_t timeout)
 				break;
 			}
 
-			remaining_ticks.ticks = timeout.ticks - delta;
+			if (!K_TIMEOUT_EQ(timeout, K_FOREVER)) {
+				remaining_ticks.ticks = timeout.ticks - delta;
+			}
+
 			err = k_sem_take(&fifo->sem, remaining_ticks);
 			if (err < 0) {
 				LOG_ERR("Failed to wait for queue semaphore: %d", err);

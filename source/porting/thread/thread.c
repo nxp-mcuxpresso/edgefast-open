@@ -373,7 +373,7 @@ int32_t k_sleep(k_timeout_t timeout)
 	struct k_thread *thread;
 	int64_t start = k_uptime_ticks();
 	int64_t delta = 0;
-	int64_t remaining_ticks = 0;
+	int64_t remaining_ticks = timeout.ticks;
 
 	thread = k_sched_current_thread_query();
 	do {
@@ -381,18 +381,18 @@ int32_t k_sleep(k_timeout_t timeout)
 			atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
 		}
 
-		vTaskDelay(timeout.ticks);
+		vTaskDelay(remaining_ticks);
 
 		if (bt_timeout_expired_since(start, timeout, &delta)) {
 			return 0;
 		}
 
-		if ((thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
-			continue;
-		}
-
 		if (!K_TIMEOUT_EQ(timeout, K_FOREVER)) {
 			remaining_ticks = timeout.ticks - delta;
+		}
+
+		if ((thread != NULL) && atomic_test_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED)) {
+			continue;
 		}
 
 		break;
