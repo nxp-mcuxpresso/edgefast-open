@@ -833,11 +833,15 @@ int k_thread_cpu_pin(k_tid_t thread, int cpu)
  */
 void k_thread_suspend(k_tid_t thread)
 {
+	k_spinlock_key_t key;
+
 	if (NULL == thread) {
 		thread = k_sched_current_thread_query();
 	}
 
+	key = k_spin_lock(&lock);
 	if ((thread != NULL) && atomic_test_and_set_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
+		k_spin_unlock(&lock, key);
 		return;
 	}
 
@@ -846,6 +850,8 @@ void k_thread_suspend(k_tid_t thread)
 	}
 
 	vTaskSuspend((NULL == thread) ? NULL : thread->handle);
+
+	k_spin_unlock(&lock, key);
 }
 
 /**
@@ -861,13 +867,16 @@ void k_thread_suspend(k_tid_t thread)
 void k_thread_resume(k_tid_t thread)
 {
 	BaseType_t xYieldRequired;
+	k_spinlock_key_t key;
 
 	if (NULL == thread)
 	{
 		return;
 	}
 
+	key = k_spin_lock(&lock);
 	if (!atomic_test_and_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_SUSPENDED)) {
+		k_spin_unlock(&lock, key);
 		return;
 	}
 
@@ -882,6 +891,7 @@ void k_thread_resume(k_tid_t thread)
 	{
 		vTaskResume(thread->handle);
 	}
+	k_spin_unlock(&lock, key);
 }
 
 #if 0 /* Unsupported */
