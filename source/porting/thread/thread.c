@@ -1091,19 +1091,22 @@ void k_sched_unlock(void)
 		struct k_thread *thread, *next;
 		atomic_val_t value;
 
+		vTaskSuspendAll();
+
 		value = atomic_get(&sched_lock_count);
 
 		__ASSERT(value >= 1, "Invalid scheduler unlock");
 		if (value < 1) {
-			return;
+			goto out;
 		}
 
-		vTaskSuspendAll();
 		if (atomic_dec(&sched_lock_count) == 1) {
 			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
 				k_thread_resume(thread);
 			}
 		}
+
+out:
 		if (!xTaskResumeAll())
 		{
 			taskYIELD();
