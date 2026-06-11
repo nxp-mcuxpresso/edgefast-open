@@ -387,6 +387,10 @@ int32_t k_sleep(k_timeout_t timeout)
 			return 0;
 		}
 
+		if (delta >= timeout.ticks) {
+			return 0;
+		}
+
 		if (!K_TIMEOUT_EQ(timeout, K_FOREVER)) {
 			remaining_ticks = timeout.ticks - delta;
 		}
