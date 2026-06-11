@@ -199,7 +199,7 @@ k_tid_t k_thread_create(struct k_thread *new_thread,
         }
         else
         {
-            vTaskDelay(delay);
+            vTaskDelay(delay.ticks);
         }
     }
 
@@ -311,20 +311,16 @@ int k_thread_join(struct k_thread *thread, k_timeout_t timeout)
 {
     eTaskState state;
     int ret = 0;
-    uint32_t current;
-    uint32_t start = k_uptime_get_32();
+    int64_t start = k_uptime_ticks();
     k_spinlock_key_t key;
 
     do
     {
         state = eTaskGetState((NULL == thread) ? NULL : thread->handle);
-        if (eRunning == state)
-        {
+        if (eRunning == state) {
             ret = -EDEADLK;
             break;
-        }
-        else if ((eBlocked == state) || (eReady == state) || (eSuspended == state))
-        {
+        } else if ((eBlocked == state) || (eReady == state) || (eSuspended == state)) {
             if (thread == NULL)
             {
                 thread = k_sched_current_thread_query();
@@ -334,25 +330,22 @@ int k_thread_join(struct k_thread *thread, k_timeout_t timeout)
             sys_slist_find_and_remove(&threads, &thread->node);
             k_spin_unlock(&lock, key);
             vTaskDelete(thread->handle);
-        }
-        else if (eDeleted == state)
-        {
+        } else if (eDeleted == state) {
+            ret = 0;
+            break;
+        } else {
             ret = 0;
             break;
         }
-        else
-        {
-            ret = 0;
-            break;
-        }
+
         if (k_is_in_isr())
         {
             ret = -EBUSY;
             break;
         }
-        k_sleep(timeout);
-        current = k_uptime_get_32();
-        if ((current - start) > timeout)
+
+        k_sleep(K_MSEC(10));
+        if (bt_timeout_expired_since(start, timeout, NULL))
         {
             ret = -EAGAIN;
             break;
@@ -378,8 +371,9 @@ int k_thread_join(struct k_thread *thread, k_timeout_t timeout)
 int32_t k_sleep(k_timeout_t timeout)
 {
 	struct k_thread *thread;
-	int64_t start = k_uptime_get();
+	int64_t start = k_uptime_ticks();
 	int64_t delta = 0;
+	int64_t remaining_ticks = 0;
 
 	thread = k_sched_current_thread_query();
 	do {
@@ -387,7 +381,7 @@ int32_t k_sleep(k_timeout_t timeout)
 			atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
 		}
 
-		vTaskDelay(timeout);
+		vTaskDelay(timeout.ticks);
 
 		if (bt_timeout_expired_since(start, timeout, &delta)) {
 			return 0;
@@ -397,14 +391,14 @@ int32_t k_sleep(k_timeout_t timeout)
 			continue;
 		}
 
-		if (timeout != K_FOREVER) {
-			timeout = timeout - delta;
+		if (!K_TIMEOUT_EQ(timeout, K_FOREVER)) {
+			remaining_ticks = timeout.ticks - delta;
 		}
 
 		break;
 	} while (true);
 
-	return timeout;
+	return TICKS_TO_MSEC(remaining_ticks);
 }
 
 /**
@@ -424,7 +418,7 @@ int32_t k_sleep(k_timeout_t timeout)
  */
 int32_t k_usleep(int32_t us)
 {
-    return k_sleep((us+1000)/1000);
+    return k_sleep(K_USEC(us));
 }
 
 /**

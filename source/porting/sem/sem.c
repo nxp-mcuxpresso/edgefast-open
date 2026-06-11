@@ -93,7 +93,7 @@ int k_sem_init(struct k_sem *sem, unsigned int initial_count, unsigned int limit
 int k_sem_take(struct k_sem *sem, k_timeout_t timeout)
 {
 	struct k_thread *thread;
-	int64_t start = k_uptime_get();
+	int64_t start = k_uptime_ticks();
 	int err = -EINVAL;
 
 	if (NULL == sem)
@@ -135,7 +135,7 @@ int k_sem_take(struct k_sem *sem, k_timeout_t timeout)
 			atomic_clear_bit(&thread->flags, THREAD_FLAG_SCH_LOCK_CHANGED);
 		}
 
-		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreTake(sem->sem, (TickType_t)timeout))
+		if (((BaseType_t)pdTRUE) == (BaseType_t)xSemaphoreTake(sem->sem, (TickType_t)timeout.ticks))
 		{
 			return 0;
 		}

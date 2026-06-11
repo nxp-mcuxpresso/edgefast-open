@@ -38,7 +38,7 @@ int bt_fifo_alloc_append(bt_fifo_t *fifo, void *data);
 void bt_fifo_cancel_wait(bt_fifo_t *fifo);
 int bt_fifo_append_list(bt_fifo_t *fifo, void *head, void *tail);
 int bt_fifo_merge_slist(bt_fifo_t *fifo, sys_slist_t *head);
-void *bt_fifo_get(bt_fifo_t *fifo, size_t timeout);
+void *bt_fifo_get(bt_fifo_t *fifo, k_timeout_t timeout);
 bool bt_fifo_remove(bt_fifo_t *fifo, void *data);
 bool bt_fifo_unique_append(bt_fifo_t *fifo, void *data);
 int bt_fifo_is_empty(bt_fifo_t *fifo);

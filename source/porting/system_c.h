@@ -82,16 +82,118 @@ extern struct device bt_hci_h4_w_disable_gpio;
 
 #define k_ticks_t uint32_t
 
-#ifndef k_timeout_t
-#define k_timeout_t k_ticks_t
-#endif
+typedef struct k_timeout {
+	k_ticks_t ticks;
+} k_timeout_t;
 
 #define NSEC_PER_SEC 1000000000L
 
 struct _timeout
 {
-    uint32_t count;
+    uint32_t ticks;
 };
+
+#define USEC_PER_MSEC (1000)
+/**
+ * @addtogroup porting
+ * @{
+ */
+#define K_TIMEOUT_TICKS_INIT(t) {.ticks = (t)}
+#define K_TIMEOUT_TICKS(t) ((k_timeout_t)K_TIMEOUT_TICKS_INIT(t))
+
+/**
+ * @brief Compare timeouts for equality
+ *
+ * The k_timeout_t object is an opaque struct that should not be
+ * inspected by application code.  This macro exists so that users can
+ * test timeout objects for equality with known constants
+ * (e.g. K_NO_WAIT and K_FOREVER) when implementing their own APIs in
+ * terms of Zephyr timeout constants.
+ *
+ * @return True if the timeout objects are identical
+ */
+#define K_TIMEOUT_EQ(a, b) ((a).ticks == (b).ticks)
+
+/**
+ * @brief Generate null timeout delay.
+ *
+ * This macro generates a timeout delay that instructs a kernel API
+ * not to wait if the requested operation cannot be performed immediately.
+ *
+ * @return Timeout delay value.
+ */
+#define K_NO_WAIT K_TIMEOUT_TICKS(0)
+
+/**
+ * @brief Generate timeout delay from milliseconds.
+ *
+ * This macro generates a timeout delay that instructs a kernel API
+ * to wait up to @a ms milliseconds to perform the requested operation.
+ *
+ * @param ms Duration in milliseconds.
+ *
+ * @return Timeout delay value.
+ */
+#define K_USEC(us) K_TIMEOUT_TICKS(MSEC_TO_TICK((us)/USEC_PER_MSEC))
+
+
+/**
+ * @brief Generate timeout delay from milliseconds.
+ *
+ * This macro generates a timeout delay that instructs a kernel API
+ * to wait up to @a ms milliseconds to perform the requested operation.
+ *
+ * @param ms Duration in milliseconds.
+ *
+ * @return Timeout delay value.
+ */
+#define K_MSEC(ms) K_TIMEOUT_TICKS(MSEC_TO_TICK(ms))
+
+/**
+ * @brief Generate timeout delay from seconds.
+ *
+ * This macro generates a timeout delay that instructs a kernel API
+ * to wait up to @a s seconds to perform the requested operation.
+ *
+ * @param s Duration in seconds.
+ *
+ * @return Timeout delay value.
+ */
+#define K_SECONDS(s) K_MSEC((s) * MSEC_PER_SEC)
+
+/**
+ * @brief Generate timeout delay from minutes.
+
+ * This macro generates a timeout delay that instructs a kernel API
+ * to wait up to @a m minutes to perform the requested operation.
+ *
+ * @param m Duration in minutes.
+ *
+ * @return Timeout delay value.
+ */
+#define K_MINUTES(m) K_SECONDS((m) * 60)
+
+/**
+ * @brief Generate timeout delay from hours.
+ *
+ * This macro generates a timeout delay that instructs a kernel API
+ * to wait up to @a h hours to perform the requested operation.
+ *
+ * @param h Duration in hours.
+ *
+ * @return Timeout delay value.
+ */
+#define K_HOURS(h) K_MINUTES((h) * 60)
+
+/**
+ * @brief Generate infinite timeout delay.
+ *
+ * This macro generates a timeout delay that instructs a kernel API
+ * to wait as long as necessary to perform the requested operation.
+ *
+ * @return Timeout delay value.
+ */
+#define K_FOREVER K_TIMEOUT_TICKS(-1)
 
 #include "zephyr/spinlock.h"
 
@@ -124,105 +226,6 @@ struct sys_memory_stats {
 };
 
 #include "slab/slab.h"
-
-#define USEC_PER_MSEC (1000)
-/**
- * @addtogroup porting
- * @{
- */
-
-/**
- * @brief Compare timeouts for equality
- *
- * The k_timeout_t object is an opaque struct that should not be
- * inspected by application code.  This macro exists so that users can
- * test timeout objects for equality with known constants
- * (e.g. K_NO_WAIT and K_FOREVER) when implementing their own APIs in
- * terms of Zephyr timeout constants.
- *
- * @return True if the timeout objects are identical
- */
-#define K_TIMEOUT_EQ(a, b) ((a) == (b))
-
-/**
- * @brief Generate null timeout delay.
- *
- * This macro generates a timeout delay that instructs a kernel API
- * not to wait if the requested operation cannot be performed immediately.
- *
- * @return Timeout delay value.
- */
-#define K_NO_WAIT ((k_timeout_t)0)
-
-/**
- * @brief Generate timeout delay from milliseconds.
- *
- * This macro generates a timeout delay that instructs a kernel API
- * to wait up to @a ms milliseconds to perform the requested operation.
- *
- * @param ms Duration in milliseconds.
- *
- * @return Timeout delay value.
- */
-#define K_USEC(ms)     ((ms)/USEC_PER_MSEC)
-
-/**
- * @brief Generate timeout delay from milliseconds.
- *
- * This macro generates a timeout delay that instructs a kernel API
- * to wait up to @a ms milliseconds to perform the requested operation.
- *
- * @param ms Duration in milliseconds.
- *
- * @return Timeout delay value.
- */
-#define K_MSEC(ms)     (ms)
-
-/**
- * @brief Generate timeout delay from seconds.
- *
- * This macro generates a timeout delay that instructs a kernel API
- * to wait up to @a s seconds to perform the requested operation.
- *
- * @param s Duration in seconds.
- *
- * @return Timeout delay value.
- */
-#define K_SECONDS(s)   K_MSEC((s) * MSEC_PER_SEC)
-
-/**
- * @brief Generate timeout delay from minutes.
-
- * This macro generates a timeout delay that instructs a kernel API
- * to wait up to @a m minutes to perform the requested operation.
- *
- * @param m Duration in minutes.
- *
- * @return Timeout delay value.
- */
-#define K_MINUTES(m)   K_SECONDS((m) * 60)
-
-/**
- * @brief Generate timeout delay from hours.
- *
- * This macro generates a timeout delay that instructs a kernel API
- * to wait up to @a h hours to perform the requested operation.
- *
- * @param h Duration in hours.
- *
- * @return Timeout delay value.
- */
-#define K_HOURS(h)     K_MINUTES((h) * 60)
-
-/**
- * @brief Generate infinite timeout delay.
- *
- * This macro generates a timeout delay that instructs a kernel API
- * to wait as long as necessary to perform the requested operation.
- *
- * @return Timeout delay value.
- */
-#define K_FOREVER      ((k_ticks_t)-1)
 
 /*
  * When timers are configured out, timepoints can't relate to anything.
@@ -283,20 +286,20 @@ static inline uint32_t k_cycle_get_32(void)
 	return k_uptime_get_32();
 }
 
-static inline bool bt_timeout_expired_since(int64_t start, k_timeout_t timeout, int64_t *delta)
+static inline bool bt_timeout_expired_since(int64_t start_ticks, k_timeout_t timeout, int64_t *delta_ticks)
 {
 	int64_t now;
 	int64_t deadline;
 
-	if (timeout == K_FOREVER) {
+	if (K_TIMEOUT_EQ(timeout, K_FOREVER)) {
 		return false;
 	}
 
-	now = k_uptime_get();
-	deadline = start + timeout;
+	now = k_uptime_ticks();
+	deadline = start_ticks + timeout.ticks;
 
-	if (delta != NULL) {
-		*delta = now - start;
+	if (delta_ticks != NULL) {
+		*delta_ticks = now - start_ticks;
 	}
 
 	return now >= deadline;

@@ -332,7 +332,7 @@ int32_t k_sleep(k_timeout_t timeout);
  */
 static inline int32_t k_msleep(int32_t ms)
 {
-	return k_sleep(ms);
+	return k_sleep(K_MSEC(ms));
 }
 
 /**

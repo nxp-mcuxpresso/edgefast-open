@@ -35,7 +35,7 @@ struct k_work_delay_q {
 	/* List of k_work items to be worked. */
 	sys_slist_t pending;
 
-	uint32_t tick;
+	int64_t tick;
 
 	/* Flags describing queue state. */
 	atomic_t flags;
@@ -460,7 +460,7 @@ void k_work_queue_start(struct k_work_q *queue,
 int k_work_queue_drain(struct k_work_q *queue, bool plug)
 {
 	while (!k_queue_is_empty(&queue->pending)) {
-		k_sleep(1);
+		k_sleep(K_MSEC(1));
 	}
 	if (plug == true) {
 		k_thread_suspend(&queue->thread);
@@ -506,12 +506,12 @@ static void k_work_delay_queue_main( TimerHandle_t xTimer )
 	struct k_work *temp = NULL;
 	struct k_work_q *queue = NULL;
 	BaseType_t ret;
-	uint32_t tick;
-	uint32_t tick_delta;
+	int64_t tick;
+	int64_t tick_delta;
 
 	k_spinlock_key_t key = k_spin_lock(&lock);
 
-	tick = k_uptime_get_32();
+	tick = k_uptime_ticks();
 
 	tick_delta = tick - k_sys_work_delay_q.tick;
 
@@ -521,14 +521,14 @@ static void k_work_delay_queue_main( TimerHandle_t xTimer )
 	{
 		dwork = CONTAINER_OF(work, struct k_work_delayable, work);
 
-		if (dwork->timeout.count > tick_delta)
+		if (dwork->timeout.ticks > tick_delta)
 		{
-			dwork->timeout.count = dwork->timeout.count - tick_delta;
+			dwork->timeout.ticks = dwork->timeout.ticks - tick_delta;
 		}
 		else
 		{
 			/* Timeout */
-			dwork->timeout.count = 0;
+			dwork->timeout.ticks = 0;
 
 			/* If the work is still marked delayed (should be) then clear that
 			* state and submit it to the queue.  If successful the queue will be
@@ -584,7 +584,7 @@ static void k_work_delay_queue_append(struct k_work_delayable *dwork, k_timeout_
 
 	k_spinlock_key_t key = k_spin_lock(&lock);
 
-	dwork->timeout.count = delay;
+	dwork->timeout.ticks = delay.ticks;
 	is_empty = sys_slist_is_empty(&k_sys_work_delay_q.pending);
 	sys_slist_append(&k_sys_work_delay_q.pending, &dwork->work.node);
 
@@ -596,7 +596,7 @@ static void k_work_delay_queue_append(struct k_work_delayable *dwork, k_timeout_
 		assert(pdPASS == ret);
 		if (pdPASS == ret)
 		{
-			k_sys_work_delay_q.tick = k_uptime_get_32();
+			k_sys_work_delay_q.tick = k_uptime_ticks();
 		}
 	}
 	(void)is_empty;
@@ -760,7 +760,7 @@ k_ticks_t k_work_delayable_timeout_expires(const struct k_work_delayable *dwork)
 	k_spinlock_key_t key = k_spin_lock(&lock);
 
 	if (flag_test(&dwork->work.flags, K_WORK_DELAYED_BIT)) {
-		tick = k_sys_work_delay_q.tick + dwork->timeout.count;
+		tick = k_sys_work_delay_q.tick + dwork->timeout.ticks;
 	}
 
 	k_spin_unlock(&lock, key);
@@ -774,7 +774,7 @@ k_ticks_t k_work_delayable_timeout_remaining(const struct k_work_delayable *dwor
 	k_spinlock_key_t key = k_spin_lock(&lock);
 
 	if (flag_test(&dwork->work.flags, K_WORK_DELAYED_BIT)) {
-		tick = dwork->timeout.count;
+		tick = dwork->timeout.ticks;
 	}
 
 	k_spin_unlock(&lock, key);

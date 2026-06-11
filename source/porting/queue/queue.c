@@ -133,45 +133,42 @@ int bt_fifo_merge_slist(bt_fifo_t *fifo, sys_slist_t *head)
 	return 0;
 }
 
-void *bt_fifo_get(bt_fifo_t *fifo, size_t timeout)
+void *bt_fifo_get(bt_fifo_t *fifo, k_timeout_t timeout)
 {
 	sys_snode_t *head = NULL;
-	uint32_t start;
-	uint32_t current;
+	int64_t start;
+	int64_t delta;
+	k_timeout_t remaining_ticks;
+	int err;
 
-	if (k_is_in_isr())
-	{
+	if (k_is_in_isr()) {
 		k_spinlock_key_t key = k_spin_lock(&lock);
 		head = sys_slist_get(&fifo->list);
 		k_spin_unlock(&lock, key);
-	}
-	else
-	{
-		start = k_uptime_get_32();
-		current = start;
-		while (((current - start) <= timeout) && (NULL == head))
-		{
+	} else {
+		start = k_uptime_ticks();
+		do {
 			k_spinlock_key_t key = k_spin_lock(&lock);
 			head = sys_slist_get(&fifo->list);
 			k_spin_unlock(&lock, key);
-			if (NULL == head)
-			{
-				if ((current - start) < timeout)
-				{
-					(void)k_sem_take(&fifo->sem, timeout - (current - start));
-				}
-				else
-				{
-					break;
-				}
+			if (head != NULL) {
+				break;
 			}
-			else
-			{
-				LOG_INF("node %p, fifo %p", head, fifo);
+
+			if (bt_timeout_expired_since(start, timeout, &delta)) {
+				break;
 			}
-			current = k_uptime_get_32();
-		}
+
+			remaining_ticks.ticks = timeout.ticks - delta;
+			err = k_sem_take(&fifo->sem, remaining_ticks);
+			if (err < 0) {
+				LOG_ERR("Failed to wait for queue semaphore: %d", err);
+				break;
+			}
+		} while (head == NULL);
 	}
+
+	LOG_INF("node %p, fifo %p", head, fifo);
 
 	if (head != NULL) {
 		head->next = NULL;
