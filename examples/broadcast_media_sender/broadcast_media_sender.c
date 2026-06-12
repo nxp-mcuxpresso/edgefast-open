@@ -682,7 +682,7 @@ void broadcast_media_sender_task(void *param)
 		PRINTF("Bluetooth init failed (err %d)\n", err);
 		while(1)
 		{
-			k_msleep(1000);
+			vTaskDelay(pdMS_TO_TICKS(1000));
 		}
 	}
 	PRINTF("Bluetooth initialized\n");
@@ -877,7 +877,7 @@ void broadcast_media_sender_task(void *param)
 					}
 					PRINTF("Broadcast source stopped\n");
 				}
-				k_msleep(2);
+				vTaskDelay(pdMS_TO_TICKS(2));
 			}
 		} while (0 == res);
 

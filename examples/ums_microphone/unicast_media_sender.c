@@ -1648,7 +1648,7 @@ void ums_microphone_task(void *param)
 						PRINTF("\nDisable stream err %d\r\n", err);
 					}
 				}
-				k_msleep(2);
+				vTaskDelay(pdMS_TO_TICKS(2));
 			}
 		} while (0 == err);
 

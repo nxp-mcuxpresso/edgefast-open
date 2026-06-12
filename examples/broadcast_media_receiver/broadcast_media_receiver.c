@@ -272,7 +272,7 @@ static int audio_stream_decode(void)
 		if(res)
 		{
 			PRINTF("\naudio_i2s_write err %d\n", res);
-			k_msleep(2);
+			vTaskDelay(pdMS_TO_TICKS(2));
 		}
 	} while(res != 0);
 
@@ -820,7 +820,7 @@ static int reset(void)
 	}
 #endif
 
-	k_msleep(1000);
+	vTaskDelay(pdMS_TO_TICKS(1000));
 
         return 0;
 }
@@ -1036,7 +1036,7 @@ void broadcast_media_receiver_task(void *param)
 					}
 					PRINTF("\nBroadcast sink stoped!\n");
 				}
-				k_msleep(2);
+				vTaskDelay(pdMS_TO_TICKS(2));
 			}
 		} while (0 == res);
 	}

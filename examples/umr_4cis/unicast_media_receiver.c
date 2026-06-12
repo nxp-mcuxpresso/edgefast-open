@@ -265,7 +265,7 @@ static int audio_stream_decode(void)
 		if(res)
 		{
 			PRINTF("\naudio_i2s_write err %d\n", res);
-			k_msleep(2);
+			vTaskDelay(pdMS_TO_TICKS(2));
 		}
 	} while(res != 0);
 

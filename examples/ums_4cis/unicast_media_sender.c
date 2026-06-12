@@ -1854,7 +1854,7 @@ void unicast_media_sender_task(void *param)
 						}
 					}
 				}
-				k_msleep(2);
+				vTaskDelay(pdMS_TO_TICKS(2));
 			}
 		} while (0 == res);
 

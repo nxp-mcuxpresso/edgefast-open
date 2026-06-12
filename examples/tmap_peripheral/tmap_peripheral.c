@@ -333,6 +333,6 @@ void tmap_peripheral_task(void *param)
 
 	while(1)
 	{
-		k_msleep(2);
+		vTaskDelay(pdMS_TO_TICKS(2));
 	}
 }
