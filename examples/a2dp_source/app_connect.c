@@ -105,7 +105,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	uint8_t index = 0;
 #endif
 
-	printk("Disconnected (reason 0x%02x)\n", reason);
+	PRINTF("Disconnected (reason 0x%02x)\n", reason);
 	APP_LOCK();
 	memset(&connecting_peer_addr[index], 0, sizeof(bt_addr_t));
 	default_conns[index] = NULL;
@@ -200,7 +200,7 @@ void app_disconnect(void)
 
 	if (conn != NULL) {
 		if (bt_conn_disconnect(conn, 0x13U)) {
-			printk("Disconnection failed\r\n");
+			PRINTF("Disconnection failed\r\n");
 		}
 	}
 }

@@ -20,7 +20,6 @@
 #include <zephyr/bluetooth/iso.h>
 #include <zephyr/kernel.h>
 #include <zephyr/net_buf.h>
-#include <zephyr/sys/printk.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/sys/util_macro.h>
 #include <zephyr/types.h>
@@ -46,7 +45,7 @@ static K_SEM_DEFINE(sem_audio_start, 0, K_SEM_MAX_LIMIT);
 static void unicast_stream_configured(struct bt_bap_stream *stream,
 				      const struct bt_bap_qos_cfg_pref *pref)
 {
-	printk("Configured stream %p\n", stream);
+	PRINTF("Configured stream %p\n", stream);
 
 	/* TODO: The preference should be used/taken into account when
 	 * setting the QoS
@@ -55,34 +54,34 @@ static void unicast_stream_configured(struct bt_bap_stream *stream,
 
 static void unicast_stream_qos_set(struct bt_bap_stream *stream)
 {
-	printk("QoS set stream %p\n", stream);
+	PRINTF("QoS set stream %p\n", stream);
 }
 
 static void unicast_stream_enabled(struct bt_bap_stream *stream)
 {
-	printk("Enabled stream %p\n", stream);
+	PRINTF("Enabled stream %p\n", stream);
 }
 
 static void unicast_stream_started(struct bt_bap_stream *stream)
 {
-	printk("Started stream %p\n", stream);
+	PRINTF("Started stream %p\n", stream);
 
 	k_sem_give(&sem_audio_start);
 }
 
 static void unicast_stream_metadata_updated(struct bt_bap_stream *stream)
 {
-	printk("Metadata updated stream %p\n", stream);
+	PRINTF("Metadata updated stream %p\n", stream);
 }
 
 static void unicast_stream_disabled(struct bt_bap_stream *stream)
 {
-	printk("Disabled stream %p\n", stream);
+	PRINTF("Disabled stream %p\n", stream);
 }
 
 static void unicast_stream_stopped(struct bt_bap_stream *stream, uint8_t reason)
 {
-	printk("Stopped stream %p with reason 0x%02X\n", stream, reason);
+	PRINTF("Stopped stream %p with reason 0x%02X\n", stream, reason);
 
 	/* Stop send timer */
 	k_work_cancel_delayable(&audio_send_work);
@@ -90,7 +89,7 @@ static void unicast_stream_stopped(struct bt_bap_stream *stream, uint8_t reason)
 
 static void unicast_stream_released(struct bt_bap_stream *stream)
 {
-	printk("Released stream %p\n", stream);
+	PRINTF("Released stream %p\n", stream);
 }
 
 static struct bt_bap_stream_ops unicast_stream_ops = {
@@ -113,19 +112,19 @@ static void cap_discovery_complete_cb(struct bt_conn *conn, int err,
 				      const struct bt_csip_set_coordinator_csis_inst *csis_inst)
 {
 	if (err != 0) {
-		printk("Failed to discover CAS: %d", err);
+		PRINTF("Failed to discover CAS: %d", err);
 		return;
 	}
 
 	if (IS_ENABLED(CONFIG_BT_CAP_ACCEPTOR_SET_MEMBER)) {
 		if (csis_inst == NULL) {
-			printk("Failed to discover CAS CSIS");
+			PRINTF("Failed to discover CAS CSIS");
 			return;
 		}
 
-		printk("Found CAS with CSIS %p\n", csis_inst);
+		PRINTF("Found CAS with CSIS %p\n", csis_inst);
 	} else {
-		printk("Found CAS\n");
+		PRINTF("Found CAS\n");
 	}
 
 	k_sem_give(&sem_cas_discovery);
@@ -134,7 +133,7 @@ static void cap_discovery_complete_cb(struct bt_conn *conn, int err,
 static void unicast_start_complete_cb(int err, struct bt_conn *conn)
 {
 	if (err != 0) {
-		printk("Failed to start (failing conn %p): %d", conn, err);
+		PRINTF("Failed to start (failing conn %p): %d", conn, err);
 		return;
 	}
 
@@ -144,7 +143,7 @@ static void unicast_start_complete_cb(int err, struct bt_conn *conn)
 static void unicast_update_complete_cb(int err, struct bt_conn *conn)
 {
 	if (err != 0) {
-		printk("Failed to update (failing conn %p): %d", conn, err);
+		PRINTF("Failed to update (failing conn %p): %d", conn, err);
 		return;
 	}
 }
@@ -152,7 +151,7 @@ static void unicast_update_complete_cb(int err, struct bt_conn *conn)
 static void unicast_stop_complete_cb(int err, struct bt_conn *conn)
 {
 	if (err != 0) {
-		printk("Failed to stop (failing conn %p): %d", conn, err);
+		PRINTF("Failed to stop (failing conn %p): %d", conn, err);
 		return;
 	}
 }
@@ -170,13 +169,13 @@ static int discover_cas(struct bt_conn *conn)
 
 	err = bt_cap_initiator_unicast_discover(conn);
 	if (err != 0) {
-		printk("Failed to discover CAS: %d\n", err);
+		PRINTF("Failed to discover CAS: %d\n", err);
 		return err;
 	}
 
 	err = k_sem_take(&sem_cas_discovery, K_FOREVER);
 	if (err != 0) {
-		printk("failed to take sem_cas_discovery (err %d)\n", err);
+		PRINTF("failed to take sem_cas_discovery (err %d)\n", err);
 		return err;
 	}
 
@@ -186,7 +185,7 @@ static int discover_cas(struct bt_conn *conn)
 static void print_hex(const uint8_t *ptr, size_t len)
 {
 	while (len-- != 0) {
-		printk("%02x", *ptr++);
+		PRINTF("%02x", *ptr++);
 	}
 }
 
@@ -194,24 +193,24 @@ static bool print_cb(struct bt_data *data, void *user_data)
 {
 	const char *str = (const char *)user_data;
 
-	printk("%s: type 0x%02x value_len %u\n", str, data->type, data->data_len);
+	PRINTF("%s: type 0x%02x value_len %u\n", str, data->type, data->data_len);
 	print_hex(data->data, data->data_len);
-	printk("\n");
+	PRINTF("\n");
 
 	return true;
 }
 
 static void print_remote_codec(const struct bt_audio_codec_cap *codec_cap, enum bt_audio_dir dir)
 {
-	printk("codec id 0x%02x cid 0x%04x vid 0x%04x count %u\n", codec_cap->id, codec_cap->cid,
+	PRINTF("codec id 0x%02x cid 0x%04x vid 0x%04x count %u\n", codec_cap->id, codec_cap->cid,
 	       codec_cap->vid, codec_cap->data_len);
 
 	if (codec_cap->id == BT_HCI_CODING_FORMAT_LC3) {
 		bt_audio_data_parse(codec_cap->data, codec_cap->data_len, print_cb, "data");
 	} else { /* If not LC3, we cannot assume it's LTV */
-		printk("data: ");
+		PRINTF("data: ");
 		print_hex(codec_cap->data, codec_cap->data_len);
-		printk("\n");
+		PRINTF("\n");
 	}
 
 	bt_audio_data_parse(codec_cap->meta, codec_cap->meta_len, print_cb, "meta");
@@ -221,7 +220,7 @@ static void add_remote_sink(struct bt_bap_ep *ep)
 {
 	for (size_t i = 0U; i < ARRAY_SIZE(unicast_sink_eps); i++) {
 		if (unicast_sink_eps[i] == NULL) {
-			printk("Sink #%zu: ep %p\n", i, ep);
+			PRINTF("Sink #%zu: ep %p\n", i, ep);
 			unicast_sink_eps[i] = ep;
 			return;
 		}
@@ -232,7 +231,7 @@ static void add_remote_source(struct bt_bap_ep *ep)
 {
 	for (size_t i = 0U; i < ARRAY_SIZE(unicast_source_eps); i++) {
 		if (unicast_source_eps[i] == NULL) {
-			printk("Source #%zu: ep %p\n", i, ep);
+			PRINTF("Source #%zu: ep %p\n", i, ep);
 			unicast_source_eps[i] = ep;
 			return;
 		}
@@ -242,15 +241,15 @@ static void add_remote_source(struct bt_bap_ep *ep)
 static void discover_cb(struct bt_conn *conn, int err, enum bt_audio_dir dir)
 {
 	if (err != 0) {
-		printk("Discovery failed: %d\n", err);
+		PRINTF("Discovery failed: %d\n", err);
 		return;
 	}
 
 	if (dir == BT_AUDIO_DIR_SINK) {
-		printk("Sink discover complete\n");
+		PRINTF("Sink discover complete\n");
 		k_sem_give(&sem_discover_sink);
 	} else if (dir == BT_AUDIO_DIR_SOURCE) {
-		printk("Discover sources complete: err %d\n", err);
+		PRINTF("Discover sources complete: err %d\n", err);
 		k_sem_give(&sem_discover_source);
 	}
 }
@@ -276,13 +275,13 @@ static int discover_sinks(struct bt_conn *conn)
 
 	err = bt_bap_unicast_client_discover(conn, BT_AUDIO_DIR_SINK);
 	if (err != 0) {
-		printk("Failed to discover sink: %d\n", err);
+		PRINTF("Failed to discover sink: %d\n", err);
 		return err;
 	}
 
 	err = k_sem_take(&sem_discover_sink, K_FOREVER);
 	if (err != 0) {
-		printk("failed to take sem_discover_sink (err %d)\n", err);
+		PRINTF("failed to take sem_discover_sink (err %d)\n", err);
 		return err;
 	}
 
@@ -295,13 +294,13 @@ static int discover_sources(struct bt_conn *conn)
 
 	err = bt_bap_unicast_client_discover(conn, BT_AUDIO_DIR_SOURCE);
 	if (err != 0) {
-		printk("Failed to discover sources: %d\n", err);
+		PRINTF("Failed to discover sources: %d\n", err);
 		return err;
 	}
 
 	err = k_sem_take(&sem_discover_source, K_FOREVER);
 	if (err != 0) {
-		printk("failed to take sem_discover_source (err %d)\n", err);
+		PRINTF("failed to take sem_discover_source (err %d)\n", err);
 		return err;
 	}
 
@@ -332,10 +331,10 @@ static int unicast_group_create(struct bt_cap_unicast_group **out_unicast_group)
 
 	err = bt_cap_unicast_group_create(&group_param, out_unicast_group);
 	if (err != 0) {
-		printk("Failed to create group: %d\n", err);
+		PRINTF("Failed to create group: %d\n", err);
 		return err;
 	}
-	printk("Created group\n");
+	PRINTF("Created group\n");
 
 	return err;
 }
@@ -357,7 +356,7 @@ static int unicast_audio_start(struct bt_conn *conn)
 
 	err = bt_cap_initiator_unicast_audio_start(&param);
 	if (err != 0) {
-		printk("Failed to start unicast audio: %d\n", err);
+		PRINTF("Failed to start unicast audio: %d\n", err);
 		return err;
 	}
 
@@ -402,13 +401,13 @@ static void audio_timer_timeout(struct k_work *work)
 
 		ret = bt_bap_stream_send(stream, buf_to_send, 0);
 		if (ret < 0) {
-			printk("Failed to send audio data on streams: (%d)\n", ret);
+			PRINTF("Failed to send audio data on streams: (%d)\n", ret);
 			net_buf_unref(buf_to_send);
 		} else {
-			printk("Sending mock data with len %zu\n", len_to_send);
+			PRINTF("Sending mock data with len %zu\n", len_to_send);
 		}
 	} else {
-		printk("Failed to allocate TX buffer\n");
+		PRINTF("Failed to allocate TX buffer\n");
 		/* Retry later */
 	}
 
@@ -422,13 +421,13 @@ int cap_initiator_init(void)
 	if (IS_ENABLED(CONFIG_BT_BAP_UNICAST_CLIENT)) {
 		err = bt_cap_initiator_register_cb(&cap_cb);
 		if (err != 0) {
-			printk("Failed to register CAP callbacks (err %d)\n", err);
+			PRINTF("Failed to register CAP callbacks (err %d)\n", err);
 			return err;
 		}
 
 		err = bt_bap_unicast_client_register_cb(&unicast_client_cbs);
 		if (err != 0) {
-			printk("Failed to register BAP unicast client callbacks (err %d)\n", err);
+			PRINTF("Failed to register BAP unicast client callbacks (err %d)\n", err);
 			return err;
 		}
 

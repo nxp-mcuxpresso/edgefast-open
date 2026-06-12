@@ -50,18 +50,18 @@ static uint8_t sdp_discover_cb(struct bt_conn *conn, struct bt_sdp_client_result
         index = (size_t)bt_conn_index(conn);
         __ASSERT(index < ARRAY_SIZE(g_HfpAgs), "Conn index is out of bounds");
 
-	printk("Discover done\n");
+	PRINTF("Discover done\n");
 
 	if (result->resp_buf != NULL) {
 		err = bt_sdp_get_proto_param(result->resp_buf, BT_SDP_PROTO_RFCOMM, &value);
 
 		if (err != 0) {
-			printk("Fail to parser RFCOMM the SDP response!\n");
+			PRINTF("Fail to parser RFCOMM the SDP response!\n");
 		} else {
-			printk("The server channel is %d\n", value);
+			PRINTF("The server channel is %d\n", value);
 			err = bt_hfp_ag_connect(conn, &g_HfpAgs[index].hfp_agHandle, value);
 			if (err != 0) {
-				printk("Fail to create hfp AG connection (err %d)\n", err);
+				PRINTF("Fail to create hfp AG connection (err %d)\n", err);
 			}
 		}
 	}
@@ -143,9 +143,9 @@ static void connected(struct bt_conn *conn, uint8_t err)
                    */
                   res = bt_sdp_discover(conn, &sdp_discover);
                   if (res) {
-                          printk("SDP discovery failed (err %d)\r\n", res);
+                          PRINTF("SDP discovery failed (err %d)\r\n", res);
                   } else {
-                          printk("SDP discovery started\r\n");
+                          PRINTF("SDP discovery started\r\n");
                   }
             }
         }

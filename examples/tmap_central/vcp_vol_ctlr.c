@@ -14,7 +14,6 @@
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/hci.h>
-#include <zephyr/sys/printk.h>
 
 static struct bt_vcp_vol_ctlr *vcp_vol_ctlr;
 
@@ -22,7 +21,7 @@ static void vcs_discover_cb(struct bt_vcp_vol_ctlr *vol_ctlr, int err,
 			    uint8_t vocs_count, uint8_t aics_count)
 {
 	if (err != 0) {
-		printk("VCP: Service could not be discovered (%d)\n", err);
+		PRINTF("VCP: Service could not be discovered (%d)\n", err);
 		return;
 	}
 }
@@ -30,7 +29,7 @@ static void vcs_discover_cb(struct bt_vcp_vol_ctlr *vol_ctlr, int err,
 static void vcs_write_cb(struct bt_vcp_vol_ctlr *vol_ctlr, int err)
 {
 	if (err != 0) {
-		printk("VCP: Write failed (%d)\n", err);
+		PRINTF("VCP: Write failed (%d)\n", err);
 		return;
 	}
 }
@@ -39,22 +38,22 @@ static void vcs_state_cb(struct bt_vcp_vol_ctlr *vol_ctlr, int err,
 			 uint8_t volume, uint8_t mute)
 {
 	if (err != 0) {
-		printk("VCP: state cb err (%d)", err);
+		PRINTF("VCP: state cb err (%d)", err);
 		return;
 	}
 
-	printk("VCS volume %u, mute %u\n", volume, mute);
+	PRINTF("VCS volume %u, mute %u\n", volume, mute);
 }
 
 static void vcs_flags_cb(struct bt_vcp_vol_ctlr *vol_ctlr, int err,
 			 uint8_t flags)
 {
 	if (err != 0) {
-		printk("VCP: flags cb err (%d)", err);
+		PRINTF("VCP: flags cb err (%d)", err);
 		return;
 	}
 
-	printk("VCS flags 0x%02X\n", flags);
+	PRINTF("VCS flags 0x%02X\n", flags);
 }
 
 static struct bt_vcp_vol_ctlr_cb vcp_cbs = {
@@ -77,7 +76,7 @@ static int process_profile_connection(struct bt_conn *conn)
 	err = bt_vcp_vol_ctlr_discover(conn, &vcp_vol_ctlr);
 
 	if (err != 0) {
-		printk("bt_vcp_vol_ctlr_discover (err %d)\n", err);
+		PRINTF("bt_vcp_vol_ctlr_discover (err %d)\n", err);
 	}
 
 	return err;
@@ -86,12 +85,12 @@ static int process_profile_connection(struct bt_conn *conn)
 static void connected(struct bt_conn *conn, uint8_t err)
 {
 	if (err) {
-		printk("Connection failed, err %d %s\n", err, bt_hci_err_to_str(err));
+		PRINTF("Connection failed, err %d %s\n", err, bt_hci_err_to_str(err));
 		return;
 	}
 
 	if (process_profile_connection(conn) != 0) {
-		printk("Profile connection failed");
+		PRINTF("Profile connection failed");
 	}
 }
 
@@ -105,7 +104,7 @@ int vcp_vol_ctlr_init(void)
 
 	err = bt_vcp_vol_ctlr_cb_register(&vcp_cbs);
 	if (err != 0) {
-		printk("CB register failed (err %d)\n", err);
+		PRINTF("CB register failed (err %d)\n", err);
 	}
 
 	return err;

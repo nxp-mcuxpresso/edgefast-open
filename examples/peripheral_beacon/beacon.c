@@ -52,7 +52,7 @@ static void bt_ready(int err)
 	size_t count = 1;
 
 	if (err) {
-		printk("Bluetooth init failed (err %d)\n", err);
+		PRINTF("Bluetooth init failed (err %d)\n", err);
 		return;
 	}
 
@@ -60,13 +60,13 @@ static void bt_ready(int err)
     settings_load();
 #endif /* CONFIG_BT_SETTINGS */
 
-	printk("Bluetooth initialized\n");
+	PRINTF("Bluetooth initialized\n");
 
 	/* Start advertising */
 	err = bt_le_adv_start(BT_LE_ADV_NCONN_IDENTITY, ad, ARRAY_SIZE(ad),
                           sd, ARRAY_SIZE(sd));
 	if (err) {
-		printk("Advertising failed to start (err %d)\n", err);
+		PRINTF("Advertising failed to start (err %d)\n", err);
 		return;
 	}
 
@@ -79,20 +79,20 @@ static void bt_ready(int err)
 	bt_id_get(&addr, &count);
 	bt_addr_le_to_str(&addr, addr_s, sizeof(addr_s));
 
-	printk("Beacon started, advertising as %s\n", addr_s);
+	PRINTF("Beacon started, advertising as %s\n", addr_s);
 }
 
 void beacon_task(void *pvParameters)
 {
     int err;
 
-    printk("BLE Beacon demo start...\n");
+    PRINTF("BLE Beacon demo start...\n");
 
     /* Initialize the Bluetooth Subsystem */
     err = bt_enable(bt_ready);
     if (err)
     {
-        printk("Bluetooth init failed (err %d)\n", err);
+        PRINTF("Bluetooth init failed (err %d)\n", err);
         return;
     }
 

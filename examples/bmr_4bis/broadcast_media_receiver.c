@@ -27,10 +27,6 @@
 
 #include "common/bt_str.h"
 
-#ifndef printk
-#define printk PRINTF
-#endif
-
 #if defined(LE_AUDIO_SYNC_ENABLE) && (LE_AUDIO_SYNC_ENABLE > 0)
 /* Note: this include should be remove once audio api could get bt_iso_chan. */
 #include "audio/bap_endpoint.h"
@@ -451,18 +447,18 @@ static bool base_subgroup_cb(const struct bt_bap_base_subgroup *subgroup, void *
 
     ret = bt_bap_base_get_subgroup_codec_id(subgroup, &codec_id);
     if (ret < 0) {
-            printk("Could not get codec id for subgroup %p: %d", subgroup, ret);
+            PRINTF("Could not get codec id for subgroup %p: %d", subgroup, ret);
             return true;
     }
 
     if (codec_id.id != BT_HCI_CODING_FORMAT_LC3) {
-            printk("Unsupported codec for subgroup %p: 0x%02x", subgroup, codec_id.id);
+            PRINTF("Unsupported codec for subgroup %p: 0x%02x", subgroup, codec_id.id);
             return true; /* parse next subgroup */
     }
 
     ret = bt_bap_base_subgroup_codec_to_codec_cfg(subgroup, codec_cfg);
     if (ret < 0) {
-            printk("Could convert subgroup %p to codec_cfg: %d", subgroup, ret);
+            PRINTF("Could convert subgroup %p to codec_cfg: %d", subgroup, ret);
             return true;
     }
 
@@ -486,11 +482,11 @@ static void base_recv_cb(struct bt_bap_broadcast_sink *sink, const struct bt_bap
 
 	err = bt_bap_base_foreach_subgroup(base, base_subgroup_cb, &lc3_preset.codec_cfg);
 	if (err != 0 && err != -ECANCELED) {
-		printk("Failed to parse subgroups: %d\n", err);
+		PRINTF("Failed to parse subgroups: %d\n", err);
 		return;
 	} else if (lc3_preset.codec_cfg.id != BT_HCI_CODING_FORMAT_LC3) {
 		/* No subgroups with LC3 was found */
-		printk("Did not parse an LC3 codec\n");
+		PRINTF("Did not parse an LC3 codec\n");
 		return;
 	}
 
@@ -715,7 +711,7 @@ static void bap_pa_sync_terminated_cb(struct bt_le_per_adv_sync *sync,
 				      const struct bt_le_per_adv_sync_term_info *info)
 {
 	if (sync == pa_sync) {
-		printk("PA sync %p lost with reason %u\n", sync, info->reason);
+		PRINTF("PA sync %p lost with reason %u\n", sync, info->reason);
 		pa_sync = NULL;
 
 		//k_sem_give(&sem_pa_sync_lost);
@@ -757,21 +753,21 @@ static int init(void)
 
 	err = bt_enable(NULL);
 	if (err) {
-		printk("Bluetooth enable failed (err %d)\n", err);
+		PRINTF("Bluetooth enable failed (err %d)\n", err);
 		return err;
 	}
 
-	printk("Bluetooth initialized\n");
+	PRINTF("Bluetooth initialized\n");
 
 	err = bt_pacs_register(&pacs_param);
 	if (err) {
-		printk("Could not register PACS (err %d)\n", err);
+		PRINTF("Could not register PACS (err %d)\n", err);
 		return err;
 	}
 
 	err = bt_pacs_cap_register(BT_AUDIO_DIR_SINK, &cap_10);
 	if (err) {
-		printk("Capability register failed (err %d)\n", err);
+		PRINTF("Capability register failed (err %d)\n", err);
 		return err;
 	}
 
@@ -822,7 +818,7 @@ static int reset(void)
 
 		err = bt_bap_broadcast_sink_delete(broadcast_sink);
 		if (err) {
-			printk("Deleting broadcast sink failed (err %d)\n", err);
+			PRINTF("Deleting broadcast sink failed (err %d)\n", err);
 
 			return err;
 		}
@@ -833,7 +829,7 @@ static int reset(void)
 	if (pa_sync != NULL) {
 		err = bt_le_per_adv_sync_delete(pa_sync);
 		if (err) {
-			printk("Deleting PA sync failed (err %d)\n", err);
+			PRINTF("Deleting PA sync failed (err %d)\n", err);
 
 			return err;
 		}
@@ -907,7 +903,7 @@ void broadcast_media_receiver_task(void *param)
 	/* bluetooth init. */
 	err = init();
 	if (err) {
-		printk("Init failed (err %d)\n", err);
+		PRINTF("Init failed (err %d)\n", err);
 		while(1);
 	}
 
@@ -918,69 +914,69 @@ void broadcast_media_receiver_task(void *param)
 	while (true) {
 		err = reset();
 		if (err != 0) {
-			printk("Resetting failed: %d - Aborting\n", err);
+			PRINTF("Resetting failed: %d - Aborting\n", err);
 
 			continue;
 		}
 
-		printk("Scanning for broadcast sources\n");
+		PRINTF("Scanning for broadcast sources\n");
 		err = bt_le_scan_start(BT_LE_SCAN_ACTIVE, NULL);
 		if ((err != 0) && (err != -EALREADY)) {
-			printk("Unable to start scan for broadcast sources: %d\n",
+			PRINTF("Unable to start scan for broadcast sources: %d\n",
 			       err);
 			continue;
 		}
 
 		err = k_sem_take(&sem_broadcaster_found, SEM_TIMEOUT);
 		if (err != 0) {
-			printk("sem_broadcaster_found timed out, resetting\n");
+			PRINTF("sem_broadcaster_found timed out, resetting\n");
 			continue;
 		}
-		printk("Broadcast source found, waiting for PA sync\n");
+		PRINTF("Broadcast source found, waiting for PA sync\n");
 
 		err = bt_le_scan_stop();
 		if (err != 0) {
-			printk("bt_le_scan_stop failed with %d, resetting\n", err);
+			PRINTF("bt_le_scan_stop failed with %d, resetting\n", err);
 			continue;
 		}
 
-		printk("Attempting to PA sync to the broadcaster with id 0x%06X\n",
+		PRINTF("Attempting to PA sync to the broadcaster with id 0x%06X\n",
 		       broadcaster_broadcast_id);
 		err = pa_sync_create();
 		if (err != 0) {
-			printk("Could not create Broadcast PA sync: %d, resetting\n", err);
+			PRINTF("Could not create Broadcast PA sync: %d, resetting\n", err);
 			continue;
 		}
 
-		printk("Waiting for PA synced\n");
+		PRINTF("Waiting for PA synced\n");
 		err = k_sem_take(&sem_pa_synced, SEM_TIMEOUT);
 		if (err != 0) {
-			printk("sem_pa_synced timed out, resetting\n");
+			PRINTF("sem_pa_synced timed out, resetting\n");
 			continue;
 		}
 
-		printk("Broadcast source PA synced, creating Broadcast Sink\n");
+		PRINTF("Broadcast source PA synced, creating Broadcast Sink\n");
 		err = bt_bap_broadcast_sink_create(pa_sync, broadcaster_broadcast_id,
 						   &broadcast_sink);
 		if (err != 0) {
-			printk("Failed to create broadcast sink: %d\n", err);
+			PRINTF("Failed to create broadcast sink: %d\n", err);
 			continue;
 		}
 
-		printk("Broadcast Sink created, waiting for BASE\n");
+		PRINTF("Broadcast Sink created, waiting for BASE\n");
 		err = k_sem_take(&sem_base_received, SEM_TIMEOUT);
 		if (err != 0) {
-			printk("sem_base_received timed out, resetting\n");
+			PRINTF("sem_base_received timed out, resetting\n");
 			continue;
 		}
-		printk("BASE received, waiting for syncable\n");
+		PRINTF("BASE received, waiting for syncable\n");
 
 		audio_codec_config();
 		PRINTF("Audio codec configed, waiting for syncable\n");
 
 		err = k_sem_take(&sem_syncable, SEM_TIMEOUT);
 		if (err != 0) {
-			printk("sem_syncable timed out, resetting\n");
+			PRINTF("sem_syncable timed out, resetting\n");
 			continue;
 		}
 
@@ -988,25 +984,25 @@ void broadcast_media_receiver_task(void *param)
 		{
 			if(!broadcast_code_set)
 			{
-				printk("Please set the broadcast code!\n");
+				PRINTF("Please set the broadcast code!\n");
 				err = k_sem_take(&sem_broadcast_code_received, K_FOREVER);
 				if (err != 0) {
-					printk("sem_syncable timed out, resetting\n");
+					PRINTF("sem_syncable timed out, resetting\n");
 					continue;
 				}
 			}
 			else
 			{
-				printk("Broadcast code set!\n");
+				PRINTF("Broadcast code set!\n");
 			}
 		}
 
-		printk("Syncing to broadcast\n");
+		PRINTF("Syncing to broadcast\n");
 		err = bt_bap_broadcast_sink_sync(broadcast_sink,
 						 bis_index_bitfield & requested_bis_sync,
 						 streams_p, broadcast_code);
 		if (err != 0) {
-			printk("Unable to sync to broadcast source: %d\n", err);
+			PRINTF("Unable to sync to broadcast source: %d\n", err);
 			continue;
 		}
 

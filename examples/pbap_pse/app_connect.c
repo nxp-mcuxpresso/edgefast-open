@@ -26,7 +26,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 {
     if (err)
     {
-        printk("Connection failed, err 0x%02x %s\n", err, bt_hci_err_to_str(err));
+        PRINTF("Connection failed, err 0x%02x %s\n", err, bt_hci_err_to_str(err));
     }
     else
     {
@@ -43,13 +43,13 @@ static void connected(struct bt_conn *conn, uint8_t err)
             default_conn = bt_conn_ref(conn);
         }
 
-        printk("Connected\n");
+        PRINTF("Connected\n");
     }
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-    printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
+    PRINTF("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
 
     if (default_conn != conn)
     {
@@ -72,7 +72,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     bt_addr_to_str(info.br.dst, addr, sizeof(addr));
 
-    printk("Security changed: %s level %u, err %s(%d)\n", addr, level, bt_security_err_to_str(err), err);
+    PRINTF("Security changed: %s level %u, err %s(%d)\n", addr, level, bt_security_err_to_str(err), err);
 }
 
 static struct bt_conn_cb conn_callbacks = {

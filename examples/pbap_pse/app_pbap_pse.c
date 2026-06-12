@@ -101,13 +101,13 @@ static int pbap_check_srm(struct net_buf *buf)
     err = bt_obex_get_header_srm(buf, &srm);
     if (err != 0)
     {
-        printk("Failed to get header SRM %d", err);
+        PRINTF("Failed to get header SRM %d", err);
         return err;
     }
 
     if (srm != 0x01)
     {
-        printk("SRM mismatched %u != 0x01", srm);
+        PRINTF("SRM mismatched %u != 0x01", srm);
         return -EINVAL;
     }
 
@@ -231,7 +231,7 @@ static int pbap_alloc_tx_buf(struct app_pbap_pse *app_pse)
 {
     if (app_pse->tx_buf != NULL)
     {
-        printk("Buf %p is using\n", app_pse->tx_buf);
+        PRINTF("Buf %p is using\n", app_pse->tx_buf);
         return -EBUSY;
     }
 
@@ -239,7 +239,7 @@ static int pbap_alloc_tx_buf(struct app_pbap_pse *app_pse)
 
     if (app_pse->tx_buf == NULL)
     {
-        printk("Fail to allocate tx buffer\n");
+        PRINTF("Fail to allocate tx buffer\n");
         return -ENOBUFS;
     }
     return 0;
@@ -301,14 +301,14 @@ static int send_body_chunk(struct app_pbap_pse *app_pse,
 
     if (err != 0)
     {
-        printk("Fail to add body header %d\n", err);
+        PRINTF("Fail to add body header %d\n", err);
         return err;
     }
 
     err = func(&app_pse->pbap_pse, rsp_code, app_pse->tx_buf);
     if (err != 0)
     {
-        printk("Fail to send pull phonebook rsp %d\n", err);
+        PRINTF("Fail to send pull phonebook rsp %d\n", err);
         return err;
     }
 
@@ -382,7 +382,7 @@ static void pbap_pse_pull_rsp(struct bt_pbap_pse *pbap_pse, struct net_buf *buf,
             err               = pbap_check_srm(buf);
             if (err != 0)
             {
-                printk("Fail to check SRM %d\n", err);
+                PRINTF("Fail to check SRM %d\n", err);
                 goto fail;
             }
             app_pse->srm_srmp |= PEER_SRM_ENABLED;
@@ -390,7 +390,7 @@ static void pbap_pse_pull_rsp(struct bt_pbap_pse *pbap_pse, struct net_buf *buf,
             err = bt_obex_add_header_srm(app_pse->tx_buf, 0x01);
             if (err != 0)
             {
-                printk("Fail to add SRM header %d\n", err);
+                PRINTF("Fail to add SRM header %d\n", err);
                 goto fail;
             }
             app_pse->srm_srmp |= LOCAL_SRM_ENABLED;
@@ -434,19 +434,19 @@ fail:
 
 static void pbap_pse_pull_phonebook_cb(struct bt_pbap_pse *pbap_pse, struct net_buf *buf)
 {
-    printk("pbap_pse get pull_phone_book request\n");
+    PRINTF("pbap_pse get pull_phone_book request\n");
     pbap_pse_pull_rsp(pbap_pse, buf, bt_pbap_pse_pull_phone_book_rsp, pbap_pse_phonebook_example);
 }
 
 static void pbap_pse_pull_vcard_listing_cb(struct bt_pbap_pse *pbap_pse, struct net_buf *buf)
 {
-    printk("pbap_pse get pull_vcard_listing request\n");
+    PRINTF("pbap_pse get pull_vcard_listing request\n");
     pbap_pse_pull_rsp(pbap_pse, buf, bt_pbap_pse_pull_vcard_listing_rsp, pbap_pse_vcard_listing);
 }
 
 static void pbap_pse_pull_vcard_entry_cb(struct bt_pbap_pse *pbap_pse, struct net_buf *buf)
 {
-    printk("pbap_pse get pull_vcard_entry request\n");
+    PRINTF("pbap_pse get pull_vcard_entry request\n");
     pbap_pse_pull_rsp(pbap_pse, buf, bt_pbap_pse_pull_vcard_entry_rsp, pbap_pse_vcard_entry);
 }
 
@@ -457,7 +457,7 @@ static void pbap_pse_set_phone_book_cb(struct bt_pbap_pse *pbap_pse, uint8_t fla
     err = bt_pbap_pse_set_phone_book_rsp(pbap_pse, BT_PBAP_RSP_CODE_SUCCESS, NULL);
     if (err != 0)
     {
-        printk("Fail to send set phone book rsp %d\n", err);
+        PRINTF("Fail to send set phone book rsp %d\n", err);
     }
 }
 
@@ -466,7 +466,7 @@ static void pbap_pse_connected(struct bt_pbap_pse *pbap_pse, uint8_t version, ui
     int err;
     struct app_pbap_pse *app_pse = CONTAINER_OF(pbap_pse, struct app_pbap_pse, pbap_pse);
 
-    printk("pbap connect version %u, mopl %d\n", version, mopl);
+    PRINTF("pbap connect version %u, mopl %d\n", version, mopl);
 
     err = pbap_alloc_tx_buf(app_pse);
     if (err != 0)
@@ -477,7 +477,7 @@ static void pbap_pse_connected(struct bt_pbap_pse *pbap_pse, uint8_t version, ui
     err = bt_pbap_pse_connect_rsp(&app_pse->pbap_pse, 300, BT_PBAP_RSP_CODE_SUCCESS, app_pse->tx_buf);
     if (err != 0)
     {
-        printk("Fail to send conn rsp %d\n", err);
+        PRINTF("Fail to send conn rsp %d\n", err);
         if (app_pse->tx_buf != NULL)
         {
             net_buf_unref(app_pse->tx_buf);
@@ -499,12 +499,12 @@ static void pbap_pse_disconnected(struct bt_pbap_pse *pbap_pse, struct net_buf *
     int err;
     struct app_pbap_pse *app_pse = CONTAINER_OF(pbap_pse, struct app_pbap_pse, pbap_pse);
 
-    printk("pbap disconnect requested by pce\n");
+    PRINTF("pbap disconnect requested by pce\n");
 
     err = bt_pbap_pse_disconnect_rsp(pbap_pse, BT_PBAP_RSP_CODE_SUCCESS, NULL);
     if (err != 0)
     {
-        printk("Fail to send set phone book rsp %d\n", err);
+        PRINTF("Fail to send set phone book rsp %d\n", err);
     }
 
     app_pse->operation.sent_length   = 0;
@@ -516,26 +516,26 @@ static void pbap_pse_rfcomm_transport_connected(struct bt_conn *conn, struct bt_
 {
     struct app_pbap_pse *app_pse = CONTAINER_OF(pbap_pse, struct app_pbap_pse, pbap_pse);
 
-    printk("PBAP PSE %p rfcomm transport connected on %p\n", pbap_pse, conn);
+    PRINTF("PBAP PSE %p rfcomm transport connected on %p\n", pbap_pse, conn);
     app_pse->goep_v2 = false;
 }
 
 static void pbap_pse_rfcomm_transport_disconnected(struct bt_pbap_pse *pbap_pse)
 {
-    printk("PBAP PSE %p rfcomm transport disconnected\n", pbap_pse);
+    PRINTF("PBAP PSE %p rfcomm transport disconnected\n", pbap_pse);
 }
 
 static void pbap_pse_l2cap_transport_connected(struct bt_conn *conn, struct bt_pbap_pse *pbap_pse)
 {
     struct app_pbap_pse *app_pse = CONTAINER_OF(pbap_pse, struct app_pbap_pse, pbap_pse);
 
-    printk("PBAP PSE %p l2cap transport connected on %p\n", pbap_pse, conn);
+    PRINTF("PBAP PSE %p l2cap transport connected on %p\n", pbap_pse, conn);
     app_pse->goep_v2 = true;
 }
 
 static void pbap_pse_l2cap_transport_disconnected(struct bt_pbap_pse *pbap_pse)
 {
-    printk("PBAP PSE %p l2cap transport disconnected\n", pbap_pse);
+    PRINTF("PBAP PSE %p l2cap transport disconnected\n", pbap_pse);
 }
 
 static void pbap_pse_abort_rsp_cb(struct bt_pbap_pse *pbap_pse, struct net_buf *buf)
@@ -543,12 +543,12 @@ static void pbap_pse_abort_rsp_cb(struct bt_pbap_pse *pbap_pse, struct net_buf *
     int err;
     struct app_pbap_pse *app_pse = CONTAINER_OF(pbap_pse, struct app_pbap_pse, pbap_pse);
 
-    printk("pbap_pse get abort request\n");
+    PRINTF("pbap_pse get abort request\n");
 
     err = bt_pbap_pse_abort_rsp(pbap_pse, BT_PBAP_RSP_CODE_SUCCESS, NULL);
     if (err != 0)
     {
-        printk("Fail to send abort rsp %d\n", err);
+        PRINTF("Fail to send abort rsp %d\n", err);
     }
 
     atomic_set(&abort_req, 1);
@@ -596,12 +596,12 @@ static int pse_rfcomm_register()
     err                                 = bt_pbap_pse_rfcomm_register(&rfcomm_server);
     if (err != 0)
     {
-        printk("Fail to register RFCOMM server (error %d)\n", err);
+        PRINTF("Fail to register RFCOMM server (error %d)\n", err);
         rfcomm_server.server.rfcomm.channel = 0;
         return -ENOEXEC;
     }
 
-    printk("RFCOMM server (channel %02x) is registered\n", rfcomm_server.server.rfcomm.channel);
+    PRINTF("RFCOMM server (channel %02x) is registered\n", rfcomm_server.server.rfcomm.channel);
 
     return 0;
 }
@@ -615,11 +615,11 @@ static int pse_l2cap_register()
     err                           = bt_pbap_pse_l2cap_register(&l2cap_server);
     if (err != 0)
     {
-        printk("Fail to register L2CAP server (error %d)\n", err);
+        PRINTF("Fail to register L2CAP server (error %d)\n", err);
         l2cap_server.server.l2cap.psm = 0;
         return err;
     }
-    printk("L2cap server (psm %02x) is registered\n", l2cap_server.server.l2cap.psm);
+    PRINTF("L2cap server (psm %02x) is registered\n", l2cap_server.server.l2cap.psm);
     return 0;
 }
 
@@ -630,7 +630,7 @@ static int pbap_register()
     err = bt_sdp_register_service(&pbap_pse_rec);
     if (err != 0)
     {
-        printk("Failed to register SDP record\n");
+        PRINTF("Failed to register SDP record\n");
         return err;
     }
 
@@ -649,10 +649,10 @@ static int pbap_register()
     err = bt_pbap_pse_register(&app_pse.pbap_pse, &pse_cb);
     if (err != 0)
     {
-        printk("Fail to register server %d\n", err);
+        PRINTF("Fail to register server %d\n", err);
         return err;
     }
-    printk("PBAP PSE is registered\n");
+    PRINTF("PBAP PSE is registered\n");
     return 0;
 }
 
@@ -660,7 +660,7 @@ static void bt_ready(int err)
 {
     if (err != 0)
     {
-        printk("Bluetooth init failed (err %d)\n", err);
+        PRINTF("Bluetooth init failed (err %d)\n", err);
         return;
     }
 
@@ -668,7 +668,7 @@ static void bt_ready(int err)
     settings_load();
 #endif /* CONFIG_BT_SETTINGS */
 
-    printk("Bluetooth initialized\n");
+    PRINTF("Bluetooth initialized\n");
 
     err = pbap_register();
     if (err != 0)
@@ -681,17 +681,17 @@ static void bt_ready(int err)
     err = bt_br_set_connectable(true, NULL);
     if (err != 0)
     {
-        printk("BR/EDR set/rest connectable failed (err %d)\n", err);
+        PRINTF("BR/EDR set/rest connectable failed (err %d)\n", err);
         return;
     }
     err = bt_br_set_discoverable(true, false);
     if (err != 0)
     {
-        printk("BR/EDR set discoverable failed (err %d)\n", err);
+        PRINTF("BR/EDR set discoverable failed (err %d)\n", err);
         return;
     }
 
-    printk("BR/EDR set connectable and discoverable done\n");
+    PRINTF("BR/EDR set connectable and discoverable done\n");
 
     k_work_queue_init(&data_send_work_q);
     k_work_queue_start(&data_send_work_q, data_send_work_q_thread_stack, CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE,

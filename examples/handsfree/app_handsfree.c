@@ -154,7 +154,7 @@ static void hf_sco_connected(struct bt_hfp_hf *hf, struct bt_conn *sco_conn)
 	case BT_HCI_CODING_FORMAT_G729A:
 	case BT_HCI_CODING_FORMAT_VS:
 	default:
-		printk("Unsupported air mode: %d\n", info.sco.air_mode);
+		PRINTF("Unsupported air mode: %d\n", info.sco.air_mode);
 		return ;
 	}
 
@@ -295,21 +295,21 @@ static void hf_codec_negotiate(struct bt_hfp_hf *hf, uint8_t id)
 {
 	int err;
 
-	printk("HF codec negotiate 0x%02x\n", id);
+	PRINTF("HF codec negotiate 0x%02x\n", id);
 
 	if (id == BT_HFP_HF_CODEC_CVSD) {
-		printk("HF codec negotiate CVSD\n");
+		PRINTF("HF codec negotiate CVSD\n");
 	} else if (IS_ENABLED(CONFIG_BT_HFP_HF_CODEC_MSBC) && id == BT_HFP_HF_CODEC_MSBC) {
-		printk("HF codec negotiate mSBC\n");
+		PRINTF("HF codec negotiate mSBC\n");
 	} else if (IS_ENABLED(CONFIG_BT_HFP_HF_CODEC_LC3_SWB) && id == BT_HFP_HF_CODEC_LC3_SWB) {
-		printk("HF codec negotiate LC3 SWB\n");
+		PRINTF("HF codec negotiate LC3 SWB\n");
 	} else {
-		printk("HF codec negotiate unknown codec\n");
+		PRINTF("HF codec negotiate unknown codec\n");
 		return;
 	}
 	err = bt_hfp_hf_select_codec(hf, id);
 	if (err != 0) {
-		printk("Failed to send codec id: %d\n", err);
+		PRINTF("Failed to send codec id: %d\n", err);
 	}
 }
 #endif /* CONFIG_BT_HFP_HF_CODEC_NEG */

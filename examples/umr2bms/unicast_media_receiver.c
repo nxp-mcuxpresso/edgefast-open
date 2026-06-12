@@ -127,7 +127,7 @@ static int get_channel_count_from_allocation(uint32_t allocation)
 void print_hex(const uint8_t *ptr, size_t len)
 {
 	while (len-- != 0) {
-		printk("UMR: %02x", *ptr++);
+		PRINTF("UMR: %02x", *ptr++);
 	}
 }
 
@@ -135,16 +135,16 @@ static bool print_cb(struct bt_data *data, void *user_data)
 {
 	const char *str = (const char *)user_data;
 
-	printk("UMR: %s: type 0x%02x value_len %u\r\n", str, data->type, data->data_len);
+	PRINTF("UMR: %s: type 0x%02x value_len %u\r\n", str, data->type, data->data_len);
 	print_hex(data->data, data->data_len);
-	printk("UMR: \r\n");
+	PRINTF("UMR: \r\n");
 
 	return true;
 }
 
 static void print_codec_cfg(const struct bt_audio_codec_cfg *codec_cfg)
 {
-	printk("UMR: codec_cfg 0x%02x cid 0x%04x vid 0x%04x count %u\r\n", codec_cfg->id, codec_cfg->cid,
+	PRINTF("UMR: codec_cfg 0x%02x cid 0x%04x vid 0x%04x count %u\r\n", codec_cfg->id, codec_cfg->cid,
 	       codec_cfg->vid, codec_cfg->data_len);
 
 	if (codec_cfg->id == BT_HCI_CODING_FORMAT_LC3) {
@@ -157,19 +157,19 @@ static void print_codec_cfg(const struct bt_audio_codec_cfg *codec_cfg)
 
 		ret = bt_audio_codec_cfg_get_freq(codec_cfg);
 		if (ret > 0) {
-			printk("UMR:   Frequency: %d Hz\r\n", bt_audio_codec_cfg_freq_to_freq_hz((enum bt_audio_codec_cfg_freq)ret));
+			PRINTF("UMR:   Frequency: %d Hz\r\n", bt_audio_codec_cfg_freq_to_freq_hz((enum bt_audio_codec_cfg_freq)ret));
 		}
 
                 ret = bt_audio_codec_cfg_get_frame_dur(codec_cfg);
-		printk("UMR:   Frame Duration: %d us\r\n",
+		PRINTF("UMR:   Frame Duration: %d us\r\n",
 		       bt_audio_codec_cfg_frame_dur_to_frame_dur_us((enum bt_audio_codec_cfg_frame_dur)ret));
 		if (bt_audio_codec_cfg_get_chan_allocation(codec_cfg, &chan_allocation, false) == 0) {
-			printk("UMR:   Channel allocation: 0x%x\r\n", chan_allocation);
+			PRINTF("UMR:   Channel allocation: 0x%x\r\n", chan_allocation);
 		}
 
-		printk("UMR:   Octets per frame: %d (negative means value not pressent)\r\n",
+		PRINTF("UMR:   Octets per frame: %d (negative means value not pressent)\r\n",
 		       bt_audio_codec_cfg_get_octets_per_frame(codec_cfg));
-		printk("UMR:   Frames per SDU: %d\r\n",
+		PRINTF("UMR:   Frames per SDU: %d\r\n",
 		       bt_audio_codec_cfg_get_frame_blocks_per_sdu(codec_cfg, true));
 	} else {
 		print_hex(codec_cfg->data, codec_cfg->data_len);
@@ -180,7 +180,7 @@ static void print_codec_cfg(const struct bt_audio_codec_cfg *codec_cfg)
 
 static void print_qos(const struct bt_bap_qos_cfg *qos)
 {
-	printk("UMR: QoS: interval %u framing 0x%02x phy 0x%02x sdu %u "
+	PRINTF("UMR: QoS: interval %u framing 0x%02x phy 0x%02x sdu %u "
 	       "rtn %u latency %u pd %u\r\n",
 	       qos->interval, qos->framing, qos->phy, qos->sdu,
 	       qos->rtn, qos->latency, qos->pd);
@@ -215,19 +215,19 @@ static int lc3_config(struct bt_conn *conn, const struct bt_bap_ep *ep, enum bt_
 		      const struct bt_audio_codec_cfg *codec_cfg, struct bt_bap_stream **stream,
 		      struct bt_bap_qos_cfg_pref *const pref, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("UMR: ASE Codec Config: conn %p ep %p dir %u\r\n", conn, ep, dir);
+	PRINTF("UMR: ASE Codec Config: conn %p ep %p dir %u\r\n", conn, ep, dir);
 
 	print_codec_cfg(codec_cfg);
 
 	*stream = stream_alloc();
 	if (*stream == NULL) {
-		printk("UMR: No streams available\r\n");
+		PRINTF("UMR: No streams available\r\n");
 		*rsp = BT_BAP_ASCS_RSP(BT_BAP_ASCS_RSP_CODE_NO_MEM, BT_BAP_ASCS_REASON_NONE);
 
 		return -ENOMEM;
 	}
 
-	printk("UMR: ASE Codec Config stream %p\r\n", *stream);
+	PRINTF("UMR: ASE Codec Config stream %p\r\n", *stream);
 
 	*pref = qos_pref;
 
@@ -238,7 +238,7 @@ static int lc3_reconfig(struct bt_bap_stream *stream, enum bt_audio_dir dir,
 			const struct bt_audio_codec_cfg *codec_cfg,
 			struct bt_bap_qos_cfg_pref *const pref, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("UMR: ASE Codec Reconfig: stream %p\r\n", stream);
+	PRINTF("UMR: ASE Codec Reconfig: stream %p\r\n", stream);
 
 	print_codec_cfg(codec_cfg);
 
@@ -252,7 +252,7 @@ static int lc3_reconfig(struct bt_bap_stream *stream, enum bt_audio_dir dir,
 static int lc3_qos(struct bt_bap_stream *stream, const struct bt_bap_qos_cfg *qos,
 		   struct bt_bap_ascs_rsp *rsp)
 {
-	printk("UMR: QoS: stream %p qos %p\r\n", stream, qos);
+	PRINTF("UMR: QoS: stream %p qos %p\r\n", stream, qos);
 
 	print_qos(qos);
 
@@ -262,7 +262,7 @@ static int lc3_qos(struct bt_bap_stream *stream, const struct bt_bap_qos_cfg *qo
 static int lc3_enable(struct bt_bap_stream *stream, const uint8_t meta[], size_t meta_len,
 		      struct bt_bap_ascs_rsp *rsp)
 {
-	printk("UMR: Enable: stream %p meta_len %zu\r\n", stream, meta_len);
+	PRINTF("UMR: Enable: stream %p meta_len %zu\r\n", stream, meta_len);
 
 	umr_to_bms_audio_codec_cfg(stream->codec_cfg);
 	umr_to_bms_audio_codec_qos(stream->qos);
@@ -273,7 +273,7 @@ static int lc3_enable(struct bt_bap_stream *stream, const uint8_t meta[], size_t
 
 static int lc3_start(struct bt_bap_stream *stream, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("UMR: Start: stream %p\r\n", stream);
+	PRINTF("UMR: Start: stream %p\r\n", stream);
 
 	return 0;
 }
@@ -283,7 +283,7 @@ static bool data_func_cb(struct bt_data *data, void *user_data)
 	struct bt_bap_ascs_rsp *rsp = (struct bt_bap_ascs_rsp *)user_data;
 
 	if (!BT_AUDIO_METADATA_TYPE_IS_KNOWN((int)data->type)) {
-		printk("UMR: Invalid metadata type %u or length %u\r\n", data->type, data->data_len);
+		PRINTF("UMR: Invalid metadata type %u or length %u\r\n", data->type, data->data_len);
 		*rsp = BT_BAP_ASCS_RSP(BT_BAP_ASCS_RSP_CODE_METADATA_REJECTED, (enum bt_bap_ascs_reason)data->type);
 
 		return -EINVAL;
@@ -295,28 +295,28 @@ static bool data_func_cb(struct bt_data *data, void *user_data)
 static int lc3_metadata(struct bt_bap_stream *stream, const uint8_t meta[], size_t meta_len,
 			struct bt_bap_ascs_rsp *rsp)
 {
-	printk("UMR: Metadata: stream %p meta_len %zu\r\n", stream, meta_len);
+	PRINTF("UMR: Metadata: stream %p meta_len %zu\r\n", stream, meta_len);
 
 	return bt_audio_data_parse(meta, meta_len, data_func_cb, rsp);
 }
 
 static int lc3_disable(struct bt_bap_stream *stream, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("UMR: Disable: stream %p\r\n", stream);
+	PRINTF("UMR: Disable: stream %p\r\n", stream);
 
 	return 0;
 }
 
 static int lc3_stop(struct bt_bap_stream *stream, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("UMR: Stop: stream %p\r\n", stream);
+	PRINTF("UMR: Stop: stream %p\r\n", stream);
 
 	return 0;
 }
 
 static int lc3_release(struct bt_bap_stream *stream, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("UMR: Release: stream %p\r\n", stream);
+	PRINTF("UMR: Release: stream %p\r\n", stream);
 
 	return 0;
 }
@@ -351,19 +351,19 @@ static void stream_recv_lc3_codec(struct bt_bap_stream *stream,
 
 static void stream_started(struct bt_bap_stream *stream)
 {
-	printk("UMR: Stream %p started\r\n", stream);
+	PRINTF("UMR: Stream %p started\r\n", stream);
 	umr_to_bms_audio_start();
 }
 
 static void stream_stopped(struct bt_bap_stream *stream, uint8_t reason)
 {
-	printk("UMR: Audio Stream %p stopped with reason 0x%02X\r\n", stream, reason);
+	PRINTF("UMR: Audio Stream %p stopped with reason 0x%02X\r\n", stream, reason);
 	umr_to_bms_audio_stop();
 }
 
 static void stream_enabled(struct bt_bap_stream *stream)
 {
-	printk("UMR: Stream %p enabled\r\n", stream);
+	PRINTF("UMR: Stream %p enabled\r\n", stream);
 	/* The unicast server is responsible for starting sink ASEs after the
 	 * client has enabled them.
 	 */
@@ -371,21 +371,21 @@ static void stream_enabled(struct bt_bap_stream *stream)
 		const int err = bt_bap_stream_start(stream);
 
 		if (err != 0) {
-			printk("UMR: Failed to start stream %p: %d", stream, err);
+			PRINTF("UMR: Failed to start stream %p: %d", stream, err);
 		}
 	}
 }
 
 static void stream_disabled(struct bt_bap_stream *stream)
 {
-	printk("UMR: Stream %p disabled\r\n", stream);
+	PRINTF("UMR: Stream %p disabled\r\n", stream);
 
 	umr_to_bms_audio_disable();
 }
 
 static void stream_released(struct bt_bap_stream *stream)
 {
-	printk("UMR: Stream %p release\r\n", stream);
+	PRINTF("UMR: Stream %p release\r\n", stream);
 
 	umr_to_bms_audio_release();
 }
@@ -406,19 +406,19 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
 	if (err != 0) {
-		printk("UMR: Failed to connect to %s (%u)\r\n", addr, err);
+		PRINTF("UMR: Failed to connect to %s (%u)\r\n", addr, err);
 
 		default_conn = NULL;
 		return;
 	}
 
-	printk("UMR: Connected: %s\r\n", addr);
+	PRINTF("UMR: Connected: %s\r\n", addr);
 	default_conn = bt_conn_ref(conn);
 
 #if CONFIG_BT_SMP
 	if (bt_conn_set_security(conn, BT_SECURITY_L2))
 	{
-		printk("UMR: Failed to set security\r\n");
+		PRINTF("UMR: Failed to set security\r\n");
 	}
 #endif
 }
@@ -433,7 +433,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-	printk("UMR: Disconnected: %s (reason 0x%02x)\r\n", addr, reason);
+	PRINTF("UMR: Disconnected: %s (reason 0x%02x)\r\n", addr, reason);
 
 	bt_conn_unref(default_conn);
 	default_conn = NULL;
@@ -448,7 +448,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("UMR: Security changed: %s level %u (error %d)\r\n", addr, level, err);
+    PRINTF("UMR: Security changed: %s level %u (error %d)\r\n", addr, level, err);
 
 	(void)k_sem_give(&sem_security_changed);
 }
@@ -459,7 +459,7 @@ static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("UMR: Passkey for %s: %06u\r\n", addr, passkey);
+    PRINTF("UMR: Passkey for %s: %06u\r\n", addr, passkey);
 }
 
 static void auth_cancel(struct bt_conn *conn)
@@ -468,7 +468,7 @@ static void auth_cancel(struct bt_conn *conn)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("UMR: Pairing cancelled: %s\r\n", addr);
+    PRINTF("UMR: Pairing cancelled: %s\r\n", addr);
 }
 #endif
 
@@ -500,12 +500,12 @@ static int set_location(void)
 	if (IS_ENABLED(CONFIG_BT_PAC_SNK_LOC)) {
 		err = bt_pacs_set_location(BT_AUDIO_DIR_SINK, audio_location);
 		if (err != 0) {
-			printk("UMR: Failed to set sink location (err %d)\r\n", err);
+			PRINTF("UMR: Failed to set sink location (err %d)\r\n", err);
 			return err;
 		}
 	}
 
-	printk("UMR: Location successfully set\r\n");
+	PRINTF("UMR: Location successfully set\r\n");
 
 	return 0;
 }
@@ -518,14 +518,14 @@ static int set_supported_contexts(void)
 		err = bt_pacs_set_supported_contexts(BT_AUDIO_DIR_SINK,
 						     (enum bt_audio_context)AVAILABLE_SINK_CONTEXT);
 		if (err != 0) {
-			printk("UMR: Failed to set sink supported contexts (err %d)\r\n",
+			PRINTF("UMR: Failed to set sink supported contexts (err %d)\r\n",
 			       err);
 
 			return err;
 		}
 	}
 
-	printk("UMR: Supported contexts successfully set\r\n");
+	PRINTF("UMR: Supported contexts successfully set\r\n");
 
 	return 0;
 }
@@ -538,12 +538,12 @@ static int set_available_contexts(void)
 		err = bt_pacs_set_available_contexts(BT_AUDIO_DIR_SINK,
 						     (enum bt_audio_context)AVAILABLE_SINK_CONTEXT);
 		if (err != 0) {
-			printk("UMR: Failed to set sink available contexts (err %d)\r\n", err);
+			PRINTF("UMR: Failed to set sink available contexts (err %d)\r\n", err);
 			return err;
 		}
 	}
 
-	printk("UMR: Available contexts successfully set\r\n");
+	PRINTF("UMR: Available contexts successfully set\r\n");
 	return 0;
 }
 
@@ -555,7 +555,7 @@ static void mcc_discover_mcs_cb(struct bt_conn *conn, int err)
 {
 	if(err)
 	{
-		printk("UMR: \nMedia control server is discoverd, %d\r\n", err);
+		PRINTF("UMR: \nMedia control server is discoverd, %d\r\n", err);
 		return;
 	}
 
@@ -569,7 +569,7 @@ static void mcc_send_cmd_cb(struct bt_conn *conn, int err, const struct mpl_cmd 
 {
     if(err)
     {
-        printk("UMR: \nMedia control command is sent, %d, op %d\r\n", err, (int)cmd->opcode);
+        PRINTF("UMR: \nMedia control command is sent, %d, op %d\r\n", err, (int)cmd->opcode);
     }
 }
 
@@ -577,7 +577,7 @@ static void mcc_cmd_ntf_cb(struct bt_conn *conn, int err, const struct mpl_cmd_n
 {
     if(err)
     {
-        printk("UMR: \nMedia control command notify, %d, req_op %d, res %d\r\n", err, (int)ntf->requested_opcode, (int)ntf->result_code);
+        PRINTF("UMR: \nMedia control command notify, %d, req_op %d, res %d\r\n", err, (int)ntf->requested_opcode, (int)ntf->result_code);
     }
 }
 
@@ -602,10 +602,10 @@ int le_audio_mcs_discover(struct bt_conn *conn)
 static void vcs_vol_rend_state_callback(struct bt_conn *conn, int err, uint8_t volume, uint8_t mute)
 {
 	if (err) {
-		printk("UMR: \nVCS state callback error: %d\r\n", err);
+		PRINTF("UMR: \nVCS state callback error: %d\r\n", err);
 		return;
 	}
-	printk("UMR: \nVCS Volume = %d, mute state = %d\r\r\n", volume, mute);
+	PRINTF("UMR: \nVCS Volume = %d, mute state = %d\r\r\n", volume, mute);
 
 	umr_to_bms_vol_control(volume, mute);
 }
@@ -613,7 +613,7 @@ static void vcs_vol_rend_state_callback(struct bt_conn *conn, int err, uint8_t v
 static void vcs_vol_rend_flags_callback(struct bt_conn *conn, int err, uint8_t flags)
 {
 	if (err) {
-		printk("UMR: \nVCS flag callback error: %d\r\n", err);
+		PRINTF("UMR: \nVCS flag callback error: %d\r\n", err);
 	}
 }
 
@@ -661,7 +661,7 @@ void unicast_media_receiver_task(void *param)
 	/* Unicast server init. */
 	err = bt_pacs_register(&pacs_param);
 	if (err) {
-		printk("Could not register PACS (err %d)\n", err);
+		PRINTF("Could not register PACS (err %d)\n", err);
 		while(1);
 	}
 
@@ -692,45 +692,45 @@ void unicast_media_receiver_task(void *param)
 	/* Create a non-connectable non-scannable advertising set */
 	err = bt_le_ext_adv_create(BT_LE_EXT_ADV_CONN, NULL, &adv);
 	if (err) {
-		printk("UMR: Failed to create advertising set (err %d)\r\n", err);
+		PRINTF("UMR: Failed to create advertising set (err %d)\r\n", err);
 		while(1);
 	}
 
 	err = bt_le_ext_adv_set_data(adv, ad, ARRAY_SIZE(ad), NULL, 0);
 	if (err) {
-		printk("UMR: Failed to set advertising data (err %d)\r\n", err);
+		PRINTF("UMR: Failed to set advertising data (err %d)\r\n", err);
 		while(1);
 	}
 
 	while (true) {
 		err = bt_le_ext_adv_start(adv, BT_LE_EXT_ADV_START_DEFAULT);
 		if (err) {
-			printk("UMR: Failed to start advertising set (err %d)\r\n", err);
+			PRINTF("UMR: Failed to start advertising set (err %d)\r\n", err);
 			break;
 		}
 
-		printk("UMR: Advertising successfully started\r\n");
+		PRINTF("UMR: Advertising successfully started\r\n");
 
 		err = k_sem_take(&sem_security_changed, K_FOREVER);
 		if (err != 0) {
-			printk("UMR: failed to take sem_security_changed (err %d)\r\n", err);
+			PRINTF("UMR: failed to take sem_security_changed (err %d)\r\n", err);
 			while(1);
 		}
 
-		printk("UMR: MCS server discover:\r\n");
+		PRINTF("UMR: MCS server discover:\r\n");
 
 		(void)le_audio_mcs_discover(default_conn);
 
 		err = k_sem_take(&sem_mcs_server_discovered, K_FOREVER);
 		if (err != 0) {
-			printk("UMR: failed to take sem_mcs_server_discovered (err %d)\r\n", err);
+			PRINTF("UMR: failed to take sem_mcs_server_discovered (err %d)\r\n", err);
 			while(1);
 		}
-		printk("UMR: MCS server discovered.\r\n");
+		PRINTF("UMR: MCS server discovered.\r\n");
 
 		err = k_sem_take(&sem_disconnected, K_FOREVER);
 		if (err != 0) {
-			printk("UMR: failed to take sem_disconnected (err %d)\r\n", err);
+			PRINTF("UMR: failed to take sem_disconnected (err %d)\r\n", err);
 			break;
 		}
 	}

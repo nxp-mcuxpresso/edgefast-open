@@ -167,7 +167,7 @@ static void ag_sco_connected(struct bt_hfp_ag *ag, struct bt_conn *sco_conn)
     case BT_HCI_CODING_FORMAT_G729A:
     case BT_HCI_CODING_FORMAT_VS:
     default:
-            printk("Unsupported air mode: %d\n", info.sco.air_mode);
+            PRINTF("Unsupported air mode: %d\n", info.sco.air_mode);
             return ;
     }
 

@@ -9,7 +9,6 @@
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/audio/media_proxy.h>
 #include <zephyr/kernel.h>
-#include <zephyr/sys/printk.h>
 
 int mcp_server_init(void)
 {

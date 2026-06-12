@@ -81,18 +81,18 @@ static uint8_t sdp_discover_cb(struct bt_conn *conn, struct bt_sdp_client_result
 	int err;
 	uint16_t value;
 
-	printk("Discover done\n");
+	PRINTF("Discover done\n");
 
 	if (result->resp_buf != NULL) {
 		err = bt_sdp_get_proto_param(result->resp_buf, BT_SDP_PROTO_RFCOMM, &value);
 
 		if (err != 0) {
-			printk("Fail to parser RFCOMM the SDP response!\n");
+			PRINTF("Fail to parser RFCOMM the SDP response!\n");
 		} else {
-			printk("The server channel is %d\n", value);
+			PRINTF("The server channel is %d\n", value);
 			err = app_hfp_hf_connect(conn, value);
 			if (err != 0) {
-				printk("Fail to create hfp AG connection (err %d)\n", err);
+				PRINTF("Fail to create hfp AG connection (err %d)\n", err);
 			}
 		}
 	}
@@ -137,9 +137,9 @@ static void connected(struct bt_conn *conn, uint8_t err)
 			 */
 			res = bt_sdp_discover(default_conn, &sdp_discover);
 			if (res) {
-				printk("SDP discovery failed (err %d)\r\n", res);
+				PRINTF("SDP discovery failed (err %d)\r\n", res);
 			} else {
-				printk("SDP discovery started\r\n");
+				PRINTF("SDP discovery started\r\n");
 			}
             }
         }

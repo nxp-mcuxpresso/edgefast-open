@@ -106,7 +106,7 @@ static uint8_t sdp_discover_cb(struct bt_conn *conn,
     uint16_t rfcomm_channel;
     uint32_t feature;
 
-    printk("Discover done\n");
+    PRINTF("Discover done\n");
 
     if (result->resp_buf != NULL)
     {
@@ -116,41 +116,41 @@ static uint8_t sdp_discover_cb(struct bt_conn *conn,
         err = pbap_sdp_get_goep_l2cap_psm(result->resp_buf, &l2cap_psm);
         if (err != 0)
         {
-            printk("PSE l2cap PSM not found, err %d\n", err);
+            PRINTF("PSE l2cap PSM not found, err %d\n", err);
         }
-        printk("Found L2CAP PSM: %d\n", l2cap_psm);
+        PRINTF("Found L2CAP PSM: %d\n", l2cap_psm);
 
         err = bt_sdp_get_proto_param(result->resp_buf, BT_SDP_PROTO_RFCOMM, &rfcomm_channel);
         if (err != 0)
         {
-            printk("PSE Rfcomm channel not found, err %d\n", err);
+            PRINTF("PSE Rfcomm channel not found, err %d\n", err);
             return BT_SDP_DISCOVER_UUID_CONTINUE;
         }
-        printk("Found Rfcomm channel: %d\n", rfcomm_channel);
+        PRINTF("Found Rfcomm channel: %d\n", rfcomm_channel);
 
         err = pbap_sdp_get_features(result->resp_buf, &feature);
         if (err != 0) {
-            printk("PSE feature not found, err %d\n", err);
+            PRINTF("PSE feature not found, err %d\n", err);
         } else {
-            printk("PSE feature param 0x%08x\n", feature);
+            PRINTF("PSE feature param 0x%08x\n", feature);
         }
 
         if (l2cap_psm != 0)
         {
-            printk("Creating transport connection via L2CAP PSM: %d\n", l2cap_psm);
+            PRINTF("Creating transport connection via L2CAP PSM: %d\n", l2cap_psm);
             err = bt_pbap_pce_l2cap_connect(default_conn, &app_pce.pbap_pce, &pce_cb, l2cap_psm);
             if (err != 0)
             {
-                printk("Failed to connect PBAP PCE over L2CAP, err %d\n", err);
+                PRINTF("Failed to connect PBAP PCE over L2CAP, err %d\n", err);
             }
         }
         else
         {
-            printk("Creating transport connection via RFCOMM channel: %d\n", rfcomm_channel);
+            PRINTF("Creating transport connection via RFCOMM channel: %d\n", rfcomm_channel);
             err = bt_pbap_pce_rfcomm_connect(default_conn, &app_pce.pbap_pce, &pce_cb, rfcomm_channel);
             if (err != 0)
             {
-                printk("Failed to connect PBAP PCE over RFCOMM, err %d\n", err);
+                PRINTF("Failed to connect PBAP PCE over RFCOMM, err %d\n", err);
             }
         }
     }
@@ -171,7 +171,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
     if (err != 0)
     {
-        printk("Connection failed, err 0x%02x %s\n", err, bt_hci_err_to_str(err));
+        PRINTF("Connection failed, err 0x%02x %s\n", err, bt_hci_err_to_str(err));
     }
 
     bt_conn_get_info(conn, &info);
@@ -180,23 +180,23 @@ static void connected(struct bt_conn *conn, uint8_t err)
         return;
     }
 
-    printk("ACL Connected\n");
+    PRINTF("ACL Connected\n");
     default_conn = conn;
 
     err = bt_sdp_discover(default_conn, &sdp_discover);
     if (err != 0)
     {
-        printk("SDP discovery failed (err %d)\r\n", err);
+        PRINTF("SDP discovery failed (err %d)\r\n", err);
     }
     else
     {
-        printk("SDP discovery started\r\n");
+        PRINTF("SDP discovery started\r\n");
     }
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-    printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
+    PRINTF("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
 
     if (default_conn != conn)
     {
@@ -222,7 +222,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     bt_addr_to_str(info.br.dst, addr, sizeof(addr));
 
-    printk("Security changed: %s level %u, err %s(%d)\n", addr, level, bt_security_err_to_str(err), err);
+    PRINTF("Security changed: %s level %u, err %s(%d)\n", addr, level, bt_security_err_to_str(err), err);
 }
 
 static struct bt_conn_cb conn_callbacks = {

@@ -40,15 +40,15 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Security changed: %s level %u (error %d)\n", addr, level, err);
+    PRINTF("Security changed: %s level %u (error %d)\n", addr, level, err);
     if (err == BT_SECURITY_ERR_PIN_OR_KEY_MISSING) {
-        printk("PIN or key missing for %s. Removing bonding info...", addr);
+        PRINTF("PIN or key missing for %s. Removing bonding info...", addr);
         if (bt_conn_get_info(conn, &info) == 0) {
             if (bt_unpair(info.id, info.le.dst) != 0) {
-                printk("Fail to remove bonding info for %s", addr);
+                PRINTF("Fail to remove bonding info for %s", addr);
             }
         } else {
-            printk("Fail to get conn info for %s", addr);
+            PRINTF("Fail to get conn info for %s", addr);
         }
     }
 }
@@ -59,7 +59,7 @@ static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Passkey for %s: %06u\n", addr, passkey);
+    PRINTF("Passkey for %s: %06u\n", addr, passkey);
 }
 
 static void auth_cancel(struct bt_conn *conn)
@@ -68,7 +68,7 @@ static void auth_cancel(struct bt_conn *conn)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Pairing cancelled: %s\n", addr);
+    PRINTF("Pairing cancelled: %s\n", addr);
 }
 #endif
 struct bt_conn *default_conn = NULL;
@@ -98,12 +98,12 @@ static int ipsp_rx_cb(struct net_buf *buf)
 
     if (buf != NULL)
     {
-        printk("Received message: ");
+        PRINTF("Received message: ");
         for(i = 0; i < buf->len; i++)
         {
-            printk("%c", buf->data[i]);
+            PRINTF("%c", buf->data[i]);
         }
-        printk("\r\n");
+        PRINTF("\r\n");
     }
 
     return 0;
@@ -127,7 +127,7 @@ static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t type,
     char dev[BT_ADDR_LE_STR_LEN];
 
     bt_addr_le_to_str(addr, dev, sizeof(dev));
-    printk("[DEVICE]: %s, AD evt type %u, AD data len %u, RSSI %i\n",
+    PRINTF("[DEVICE]: %s, AD evt type %u, AD data len %u, RSSI %i\n",
            dev, type, ad->len, rssi);
 
     /* Check for connectable advertising */
@@ -155,7 +155,7 @@ static bool device_scanned(struct bt_data *data, void *user_data)
         {
             if (data->data_len % sizeof(uint16_t) != 0U)
             {
-                printk("AD malformed\n");
+                PRINTF("AD malformed\n");
                 return true;
             }
 
@@ -171,11 +171,11 @@ static bool device_scanned(struct bt_data *data, void *user_data)
                     err = bt_le_scan_stop();
                     if (err)
                     {
-                        printk("Stop LE scan failed (err %d)\n", err);
+                        PRINTF("Stop LE scan failed (err %d)\n", err);
                         break;
                     }
                     bt_addr_le_to_str(addr, dev, sizeof(dev));
-                    printk("Found device: %s", dev);
+                    PRINTF("Found device: %s", dev);
 
                     /* Send connection request */
                     err = bt_conn_le_create(addr, BT_CONN_LE_CREATE_CONN,
@@ -183,7 +183,7 @@ static bool device_scanned(struct bt_data *data, void *user_data)
                                             &default_conn);
                     if (err)
                     {
-                        printk("Create connection failed (err %d)\n", err);
+                        PRINTF("Create connection failed (err %d)\n", err);
                         scan_start();
                     }
 
@@ -206,14 +206,14 @@ static bool device_scanned(struct bt_data *data, void *user_data)
 static void connected(struct bt_conn *conn, uint8_t err)
 {
 	if (err) {
-		printk("Connection failed (err 0x%02x)\n", err);
+		PRINTF("Connection failed (err 0x%02x)\n", err);
         if (NULL != default_conn)
         {
             (void)bt_conn_unref(default_conn);
             default_conn = NULL;
         }
 	} else {
-		printk("Connected\n");
+		PRINTF("Connected\n");
         if (conn == default_conn)
         {
         	memcpy(&uuid, BT_UUID_IPSS, sizeof(uuid));
@@ -227,11 +227,11 @@ static void connected(struct bt_conn *conn, uint8_t err)
             err = bt_gatt_discover(default_conn, &discover_params);
             if (err)
             {
-                printk("Discover failed(err %d)\n", err);
+                PRINTF("Discover failed(err %d)\n", err);
             }
             else
             {
-                printk("Starting service discovery \n");
+                PRINTF("Starting service discovery \n");
             }
         }
 	}
@@ -240,7 +240,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
     int err;
-	printk("Disconnected (reason 0x%02x)\n", reason);
+	PRINTF("Disconnected (reason 0x%02x)\n", reason);
 
 	if (default_conn) {
 		bt_conn_unref(default_conn);
@@ -251,11 +251,11 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	err = scan_start();
 	if (err)
 	{
-	    printk("Scanning failed to start (err %d)\n", err);
+	    PRINTF("Scanning failed to start (err %d)\n", err);
 	    return;
 	}
 
-	printk("Scanning started\n");
+	PRINTF("Scanning started\n");
 }
 
 static uint8_t discover_func(struct bt_conn *conn,
@@ -266,7 +266,7 @@ static uint8_t discover_func(struct bt_conn *conn,
 
     if (!attr)
     {
-        printk("Discover complete, No attribute found \n");
+        PRINTF("Discover complete, No attribute found \n");
         (void)memset(params, 0, sizeof(*params));
         return BT_GATT_ITER_STOP;
     }
@@ -276,7 +276,7 @@ static uint8_t discover_func(struct bt_conn *conn,
         err = ipsp_connect(conn);
         if(err)
         {
-            printk("IPSP connect failed (err %d)\r\n", err);
+            PRINTF("IPSP connect failed (err %d)\r\n", err);
         }
     }
 
@@ -287,7 +287,7 @@ static uint8_t discover_func(struct bt_conn *conn,
 static void bt_ready(int err)
 {
     if (err) {
-        printk("Bluetooth init failed (err %d)\n", err);
+        PRINTF("Bluetooth init failed (err %d)\n", err);
         return;
     }
 
@@ -295,7 +295,7 @@ static void bt_ready(int err)
         settings_load();
 #endif /* CONFIG_BT_SETTINGS */
 
-    printk("Bluetooth initialized\n");
+    PRINTF("Bluetooth initialized\n");
 
     /* Register connection callbacks */
     bt_conn_cb_register(&conn_callbacks);
@@ -308,10 +308,10 @@ static void bt_ready(int err)
     err = scan_start();
     if (err)
     {
-        printk("Scanning failed to start (err %d)\n", err);
+        PRINTF("Scanning failed to start (err %d)\n", err);
         return;
     }
-    printk("Scanning started\n");
+    PRINTF("Scanning started\n");
 
     /* Initialize IPSP Router */
 	ipsp_init(ipsp_rx_cb);
@@ -323,11 +323,11 @@ void central_ipsp_task(void *pvParameters)
     int err;
     struct net_buf *buf;
 
-    printk("BLE Central IPSP demo start...\n");
+    PRINTF("BLE Central IPSP demo start...\n");
 
     err = bt_enable(bt_ready);
 	if (err) {
-		printk("Bluetooth init failed (err %d)\n", err);
+		PRINTF("Bluetooth init failed (err %d)\n", err);
         while (1)
         {
             vTaskDelay(2000);
@@ -353,13 +353,13 @@ void central_ipsp_task(void *pvParameters)
                 }
                 else
                 {
-                    printk("IPSP send failed (err %d)\r\n", err);
+                    PRINTF("IPSP send failed (err %d)\r\n", err);
                 }
 
             }
             else
             {
-                printk("Sending message...\r\n");
+                PRINTF("Sending message...\r\n");
             }
         }
 

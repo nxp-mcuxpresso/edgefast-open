@@ -1132,7 +1132,7 @@ int call_server_init(shell_handle_t shellHandle)
 
 	err = bt_tbs_register_bearer(&gtbs_param);
 	if (err < 0) {
-		printk("Failed to register GTBS: %d\n", err);
+		PRINTF("Failed to register GTBS: %d\n", err);
 		return -ENOEXEC;
 	}
 
@@ -1148,7 +1148,7 @@ int call_server_init(shell_handle_t shellHandle)
 
 	err = bt_tbs_register_bearer(&tbs_param);
 	if (err < 0) {
-		printk("Failed to register GTBS: %d\n", err);
+		PRINTF("Failed to register GTBS: %d\n", err);
 		return -ENOEXEC;
 	}
 

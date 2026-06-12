@@ -60,7 +60,7 @@ static uint8_t notify_func(struct bt_conn *conn,
 
     if (!data)
     {
-        printk("Unsubscribed \n");
+        PRINTF("Unsubscribed \n");
         params->value_handle = 0U;
         return BT_GATT_ITER_STOP;
     }
@@ -71,11 +71,11 @@ static uint8_t notify_func(struct bt_conn *conn,
 
     if ((temp_measurement.flags & BIT0) == hts_unit_celsius_c)
     {
-        printk("Temperature %d degrees Celsius \n", temperature);
+        PRINTF("Temperature %d degrees Celsius \n", temperature);
     }
     else
     {
-        printk("Temperature %d degrees Fahrenheit \n", temperature);
+        PRINTF("Temperature %d degrees Fahrenheit \n", temperature);
     }
 
     return BT_GATT_ITER_CONTINUE;
@@ -89,7 +89,7 @@ static uint8_t discover_func(struct bt_conn *conn,
 
     if (!attr)
     {
-        printk("Discover complete, No attribute found \n");
+        PRINTF("Discover complete, No attribute found \n");
         (void)memset(params, 0, sizeof(*params));
         return BT_GATT_ITER_STOP;
     }
@@ -105,7 +105,7 @@ static uint8_t discover_func(struct bt_conn *conn,
         err = bt_gatt_discover(conn, &discover_params);
         if (err)
         {
-            printk("Discover failed (err %d)\n", err);
+            PRINTF("Discover failed (err %d)\n", err);
         }
     }
     else if (bt_uuid_cmp(discover_params.uuid, BT_UUID_HTS_MEASUREMENT) == 0)
@@ -120,7 +120,7 @@ static uint8_t discover_func(struct bt_conn *conn,
         err = bt_gatt_discover(conn, &discover_params);
         if (err)
         {
-            printk("Discover failed (err %d)\n", err);
+            PRINTF("Discover failed (err %d)\n", err);
         }
     }
     else
@@ -133,11 +133,11 @@ static uint8_t discover_func(struct bt_conn *conn,
         err = bt_gatt_subscribe(conn, &subscribe_params);
         if (err && err != -EALREADY)
         {
-            printk("Subscribe failed (err %d)\n", err);
+            PRINTF("Subscribe failed (err %d)\n", err);
         }
         else
         {
-            printk("Subscribed to HTS\n");
+            PRINTF("Subscribed to HTS\n");
         }
 
         return BT_GATT_ITER_STOP;
@@ -155,7 +155,7 @@ static void connected(struct bt_conn *conn, uint8_t conn_err)
 
     if (conn_err)
     {
-        printk("Failed to connect to %s (err %u)\n", addr, conn_err);
+        PRINTF("Failed to connect to %s (err %u)\n", addr, conn_err);
         bt_conn_unref(default_conn);
         default_conn = NULL;
 
@@ -164,7 +164,7 @@ static void connected(struct bt_conn *conn, uint8_t conn_err)
         return;
     }
 
-    printk("Connected to peer: %s\n", addr);
+    PRINTF("Connected to peer: %s\n", addr);
 
     if (conn == default_conn)
     {
@@ -179,11 +179,11 @@ static void connected(struct bt_conn *conn, uint8_t conn_err)
         err = bt_gatt_discover(default_conn, &discover_params);
         if (err)
         {
-            printk("Discover failed(err %d)\n", err);
+            PRINTF("Discover failed(err %d)\n", err);
         }
         else
         {
-            printk("Starting service discovery \n");
+            PRINTF("Starting service discovery \n");
         }
     }
 }
@@ -206,7 +206,7 @@ static bool device_scanned(struct bt_data *data, void *user_data)
         {
             if (data->data_len % sizeof(uint16_t) != 0U)
             {
-                printk("AD malformed\n");
+                PRINTF("AD malformed\n");
                 return true;
             }
 
@@ -222,11 +222,11 @@ static bool device_scanned(struct bt_data *data, void *user_data)
                     err = bt_le_scan_stop();
                     if (err)
                     {
-                        printk("Stop LE scan failed (err %d)\n", err);
+                        PRINTF("Stop LE scan failed (err %d)\n", err);
                         break;
                     }
                     bt_addr_le_to_str(addr, dev, sizeof(dev));
-                    printk("Found device: %s", dev);
+                    PRINTF("Found device: %s", dev);
 
                     /* Send connection request */
                     err = bt_conn_le_create(addr, BT_CONN_LE_CREATE_CONN,
@@ -234,7 +234,7 @@ static bool device_scanned(struct bt_data *data, void *user_data)
                                             &default_conn);
                     if (err)
                     {
-                        printk("Create connection failed (err %d)\n", err);
+                        PRINTF("Create connection failed (err %d)\n", err);
                         scan_start();
                     }
 
@@ -260,7 +260,7 @@ static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t type,
     char dev[BT_ADDR_LE_STR_LEN];
 
 	bt_addr_le_to_str(addr, dev, sizeof(dev));
-	printk("[DEVICE]: %s, AD evt type %u, AD data len %u, RSSI %i\n",
+	PRINTF("[DEVICE]: %s, AD evt type %u, AD data len %u, RSSI %i\n",
 	       dev, type, ad->len, rssi);
 
 	/* We're only interested in connectable events */
@@ -287,7 +287,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
     int32_t err;
 
-    printk("Disconnected reason 0x%02x\n", reason);
+    PRINTF("Disconnected reason 0x%02x\n", reason);
 
     if (default_conn != conn)
     {
@@ -301,11 +301,11 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
     err = scan_start();
     if (err)
     {
-        printk("Scanning failed to start (err %d)\n", err);
+        PRINTF("Scanning failed to start (err %d)\n", err);
     }
     else
     {
-        printk("Scanning started\n");
+        PRINTF("Scanning started\n");
     }
 }
 #if CONFIG_BT_SMP
@@ -316,15 +316,15 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Security changed: %s level %u (error %d)\n", addr, level, err);
+    PRINTF("Security changed: %s level %u (error %d)\n", addr, level, err);
     if (err == BT_SECURITY_ERR_PIN_OR_KEY_MISSING) {
-        printk("PIN or key missing for %s. Removing bonding info...", addr);
+        PRINTF("PIN or key missing for %s. Removing bonding info...", addr);
         if (bt_conn_get_info(conn, &info) == 0) {
             if (bt_unpair(info.id, info.le.dst) != 0) {
-                printk("Fail to remove bonding info for %s", addr);
+                PRINTF("Fail to remove bonding info for %s", addr);
             }
         } else {
-            printk("Fail to get conn info for %s", addr);
+            PRINTF("Fail to get conn info for %s", addr);
         }
     }
 }
@@ -335,7 +335,7 @@ static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Passkey for %s: %06u\n", addr, passkey);
+    PRINTF("Passkey for %s: %06u\n", addr, passkey);
 }
 
 static void auth_cancel(struct bt_conn *conn)
@@ -344,7 +344,7 @@ static void auth_cancel(struct bt_conn *conn)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Pairing cancelled: %s\n", addr);
+    PRINTF("Pairing cancelled: %s\n", addr);
 }
 #endif
 static struct bt_conn_cb conn_callbacks = {
@@ -367,7 +367,7 @@ static void bt_ready(int err)
 {
     if (err)
     {
-        printk("Bluetooth init failed (err %d)\n", err);
+        PRINTF("Bluetooth init failed (err %d)\n", err);
         return;
     }
 
@@ -375,7 +375,7 @@ static void bt_ready(int err)
     settings_load();
 #endif /* CONFIG_BT_SETTINGS */
 
-    printk("Bluetooth initialized\n");
+    PRINTF("Bluetooth initialized\n");
 
     /* Register connection callback */
     bt_conn_cb_register(&conn_callbacks);
@@ -393,11 +393,11 @@ static void bt_ready(int err)
     err = scan_start();
     if (err)
     {
-        printk("Scanning failed to start (err %d)\n", err);
+        PRINTF("Scanning failed to start (err %d)\n", err);
         return;
     }
 
-    printk("Scanning started\n");
+    PRINTF("Scanning started\n");
 
 #if defined(APP_LOWPOWER_ENABLED) && (APP_LOWPOWER_ENABLED > 0)
     /* Release the WFI constraint, the device will go to a lower power mode
@@ -417,11 +417,11 @@ void central_ht_task(void *pvParameters)
     MMC_Init(&g_mmc);
 #endif /* APP_MEM_POWER_OPT */
 
-    printk("BLE Central HT demo start...\n");
+    PRINTF("BLE Central HT demo start...\n");
     err = bt_enable(bt_ready);
     if (err)
     {
-        printk("Bluetooth init failed (err %d)\n", err);
+        PRINTF("Bluetooth init failed (err %d)\n", err);
         while (1)
         {
             vTaskDelay(2000);

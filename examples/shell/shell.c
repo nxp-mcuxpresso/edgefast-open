@@ -9,7 +9,6 @@
 #include <stddef.h>
 #include <string.h>
 #include <errno.h>
-#include <zephyr/sys/printk.h>
 #include <zephyr/sys/byteorder.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
@@ -33,7 +32,7 @@ static shell_handle_t shell_handle;
 
 void shell_task(void *pvParameters)
 {
-    printk("Edgefast Bluetooth PAL shell demo start...\n");
+    PRINTF("Edgefast Bluetooth PAL shell demo start...\n");
 
     ctx_shell = &shell;
 
@@ -42,7 +41,7 @@ void shell_task(void *pvParameters)
 
     if (kStatus_SHELL_Success != SHELL_Init(shell_handle, g_serialHandle, CONFIG_SHELL_PROMPT))
     {
-        printk("Shell initialization failed!\r\n");
+        PRINTF("Shell initialization failed!\r\n");
         return;
     }
 

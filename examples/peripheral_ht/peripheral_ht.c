@@ -60,15 +60,15 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Security changed: %s level %u (error %d)\n", addr, level, err);
+    PRINTF("Security changed: %s level %u (error %d)\n", addr, level, err);
     if (err == BT_SECURITY_ERR_PIN_OR_KEY_MISSING) {
-        printk("PIN or key missing for %s. Removing bonding info...", addr);
+        PRINTF("PIN or key missing for %s. Removing bonding info...", addr);
         if (bt_conn_get_info(conn, &info) == 0) {
             if (bt_unpair(info.id, info.le.dst) != 0) {
-                printk("Fail to remove bonding info for %s", addr);
+                PRINTF("Fail to remove bonding info for %s", addr);
             }
         } else {
-            printk("Fail to get conn info for %s", addr);
+            PRINTF("Fail to get conn info for %s", addr);
         }
     }
 }
@@ -79,7 +79,7 @@ static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Passkey for %s: %06u\n", addr, passkey);
+    PRINTF("Passkey for %s: %06u\n", addr, passkey);
 }
 
 static void auth_cancel(struct bt_conn *conn)
@@ -88,7 +88,7 @@ static void auth_cancel(struct bt_conn *conn)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Pairing cancelled: %s\n", addr);
+    PRINTF("Pairing cancelled: %s\n", addr);
 }
 #endif
 static struct bt_conn_cb conn_callbacks = {
@@ -122,15 +122,15 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
     if (err)
     {
-        printk("Failed to connect to %s (err %u)\n", addr, err);
+        PRINTF("Failed to connect to %s (err %u)\n", addr, err);
     }
     else
     {
-        printk("Connected to peer: %s\n", addr);
+        PRINTF("Connected to peer: %s\n", addr);
 #if CONFIG_BT_SMP
         if (bt_conn_set_security(conn, BT_SECURITY_L2))
         {
-            printk("Failed to set security\n");
+            PRINTF("Failed to set security\n");
         }
 #endif
     }
@@ -138,7 +138,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-    printk("Disconnected (reason 0x%02x)\n", reason);
+    PRINTF("Disconnected (reason 0x%02x)\n", reason);
 
     if (default_conn) {
         bt_conn_unref(default_conn);
@@ -153,11 +153,11 @@ static void start_advertising(void)
     err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
     if (err)
     {
-        printk("Advertising failed to start (err %d)\n", err);
+        PRINTF("Advertising failed to start (err %d)\n", err);
         return;
     }
 
-    printk("Advertising successfully started\n");
+    PRINTF("Advertising successfully started\n");
 }
 
 static void recycled(void)
@@ -169,7 +169,7 @@ static void bt_ready(int err)
 {
     if (err)
     {
-        printk("Bluetooth init failed (err %d)\n", err);
+        PRINTF("Bluetooth init failed (err %d)\n", err);
         return;
     }
 
@@ -177,7 +177,7 @@ static void bt_ready(int err)
     settings_load();
 #endif /* CONFIG_BT_SETTINGS */
 
-    printk("Bluetooth initialized\n");
+    PRINTF("Bluetooth initialized\n");
 
     bt_conn_cb_register(&conn_callbacks);
 
@@ -207,11 +207,11 @@ void peripheral_ht_task(void *pvParameters)
     MMC_Init(&g_mmc);
 #endif /* APP_MEM_POWER_OPT */
 
-    printk("BLE Peripheral HT demo start...\n");
+    PRINTF("BLE Peripheral HT demo start...\n");
     err = bt_enable(bt_ready);
     if (err)
     {
-        printk("Bluetooth init failed (err %d)\n", err);
+        PRINTF("Bluetooth init failed (err %d)\n", err);
         while (1)
         {
             vTaskDelay(2000);

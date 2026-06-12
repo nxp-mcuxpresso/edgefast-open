@@ -25,7 +25,6 @@
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/byteorder.h>
-#include <zephyr/sys/printk.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/sys/util_macro.h>
 #include <zephyr/types.h>
@@ -85,13 +84,13 @@ void tmap_discovery_complete(enum bt_tmap_role peer_role, struct bt_conn *conn, 
 	}
 
 	if (err) {
-		printk("TMAS discovery failed! (err %d)\n", err);
+		PRINTF("TMAS discovery failed! (err %d)\n", err);
 		return;
 	}
 
 	peer_is_cg = (peer_role & BT_TMAP_ROLE_CG) != 0;
 	peer_is_ums = (peer_role & BT_TMAP_ROLE_UMS) != 0;
-	printk("TMAP discovery done\n");
+	PRINTF("TMAP discovery done\n");
 	k_sem_give(&sem_discovery_done);
 }
 
@@ -106,13 +105,13 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
 	if (err != 0) {
-		printk("Failed to connect to %s %u %s\n", addr, err, bt_hci_err_to_str(err));
+		PRINTF("Failed to connect to %s %u %s\n", addr, err, bt_hci_err_to_str(err));
 
 		default_conn = NULL;
 		return;
 	}
 
-	printk("Connected: %s\n", addr);
+	PRINTF("Connected: %s\n", addr);
 	default_conn = bt_conn_ref(conn);
 	k_sem_give(&sem_connected);
 }
@@ -127,7 +126,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 
 	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-	printk("Disconnected: %s, reason 0x%02x %s\n", addr, reason, bt_hci_err_to_str(reason));
+	PRINTF("Disconnected: %s, reason 0x%02x %s\n", addr, reason, bt_hci_err_to_str(reason));
 
 	bt_conn_unref(default_conn);
 	default_conn = NULL;
@@ -139,10 +138,10 @@ static void security_changed(struct bt_conn *conn, bt_security_t level,
 			     enum bt_security_err err)
 {
 	if (err == 0) {
-		printk("Security changed: %u\n", err);
+		PRINTF("Security changed: %u\n", err);
 		k_sem_give(&sem_security_updated);
 	} else {
-		printk("Failed to set security level: %s(%u)", bt_security_err_to_str(err), err);
+		PRINTF("Failed to set security level: %s(%u)", bt_security_err_to_str(err), err);
 	}
 }
 
@@ -160,19 +159,19 @@ static bool adv_rpa_expired_cb(struct bt_le_ext_adv *adv)
 
 	err = csip_generate_rsi(csis_rsi_addata);
 	if (err != 0) {
-		printk("Failed to generate RSI (err %d)\n", err);
+		PRINTF("Failed to generate RSI (err %d)\n", err);
 		return false;
 	}
 
-	snprintk(rsi_str, ARRAY_SIZE(rsi_str), "%02x%02x%02x%02x%02x%02x",
+	snPRINTF(rsi_str, ARRAY_SIZE(rsi_str), "%02x%02x%02x%02x%02x%02x",
 		 csis_rsi_addata[0], csis_rsi_addata[1], csis_rsi_addata[2],
 		 csis_rsi_addata[3], csis_rsi_addata[4], csis_rsi_addata[5]);
 
-	printk("PRSI: 0x%s\n", rsi_str);
+	PRINTF("PRSI: 0x%s\n", rsi_str);
 
 	err = bt_le_ext_adv_set_data(adv, ad, ARRAY_SIZE(ad), NULL, 0);
 	if (err) {
-		printk("Failed to set advertising data (err %d)\n", err);
+		PRINTF("Failed to set advertising data (err %d)\n", err);
 		return false;
 	}
 
@@ -191,7 +190,7 @@ static void audio_timer_timeout(struct k_work *work)
 	int err = ccp_terminate_call();
 
 	if (err != 0) {
-		printk("Error sending call terminate command!\n");
+		PRINTF("Error sending call terminate command!\n");
 	}
 }
 
@@ -200,7 +199,7 @@ static void media_play_timeout(struct k_work *work)
 	int err = mcp_send_cmd(BT_MCS_OPC_PAUSE);
 
 	if (err != 0) {
-		printk("Error sending pause command!\n");
+		PRINTF("Error sending pause command!\n");
 	}
 }
 
@@ -211,16 +210,16 @@ static int main_func(void)
 
 	err = bt_enable(NULL);
 	if (err != 0) {
-		printk("Bluetooth init failed (err %d)\n", err);
+		PRINTF("Bluetooth init failed (err %d)\n", err);
 		return err;
 	}
 
-	printk("Bluetooth initialized\n");
+	PRINTF("Bluetooth initialized\n");
 
 	k_work_init_delayable(&call_terminate_set_work, audio_timer_timeout);
 	k_work_init_delayable(&media_pause_set_work, media_play_timeout);
 
-	printk("Initializing TMAP and setting role\n");
+	PRINTF("Initializing TMAP and setting role\n");
 	err = bt_tmap_register(BT_TMAP_ROLE_CT | BT_TMAP_ROLE_UMR);
 	if (err != 0) {
 		return err;
@@ -229,13 +228,13 @@ static int main_func(void)
 	if (IS_ENABLED(CONFIG_TMAP_PERIPHERAL_DUO)) {
 		err = csip_set_member_init();
 		if (err != 0) {
-			printk("CSIP Set Member init failed (err %d)\n", err);
+			PRINTF("CSIP Set Member init failed (err %d)\n", err);
 			return err;
 		}
 
 		err = csip_generate_rsi(csis_rsi_addata);
 		if (err != 0) {
-			printk("Failed to generate RSI (err %d)\n", err);
+			PRINTF("Failed to generate RSI (err %d)\n", err);
 			return err;
 		}
 	}
@@ -244,33 +243,33 @@ static int main_func(void)
 	if (err != 0) {
 		return err;
 	}
-	printk("VCP initialized\n");
+	PRINTF("VCP initialized\n");
 
 	err = bap_unicast_sr_init();
 	if (err != 0) {
 		return err;
 	}
-	printk("BAP initialized\n");
+	PRINTF("BAP initialized\n");
 
 	err = bt_le_ext_adv_create(BT_BAP_ADV_PARAM_CONN_QUICK, &adv_cb, &adv);
 	if (err) {
-		printk("Failed to create advertising set (err %d)\n", err);
+		PRINTF("Failed to create advertising set (err %d)\n", err);
 		return err;
 	}
 
 	err = bt_le_ext_adv_set_data(adv, ad, ARRAY_SIZE(ad), NULL, 0);
 	if (err) {
-		printk("Failed to set advertising data (err %d)\n", err);
+		PRINTF("Failed to set advertising data (err %d)\n", err);
 		return err;
 	}
 
 	err = bt_le_ext_adv_start(adv, BT_LE_EXT_ADV_START_DEFAULT);
 	if (err) {
-		printk("Failed to start advertising set (err %d)\n", err);
+		PRINTF("Failed to start advertising set (err %d)\n", err);
 		return err;
 	}
 
-	printk("Advertising successfully started\n");
+	PRINTF("Advertising successfully started\n");
 	k_sem_take(&sem_connected, K_FOREVER);
 	k_sem_take(&sem_security_updated, K_FOREVER);
 
@@ -284,19 +283,19 @@ static int main_func(void)
 	if (err != 0) {
 		return err;
 	}
-	printk("CCP initialized\n");
+	PRINTF("CCP initialized\n");
 
 	err = mcp_ctlr_init(default_conn);
 	if (err != 0) {
 		return err;
 	}
-	printk("MCP initialized\n");
+	PRINTF("MCP initialized\n");
 
 	if (peer_is_cg) {
 		/* Initiate a call with CCP */
 		err = ccp_originate_call();
 		if (err != 0) {
-			printk("Error sending call originate command!\n");
+			PRINTF("Error sending call originate command!\n");
 		}
 		/* Start timer to send terminate call command */
 		k_work_schedule(&call_terminate_set_work, K_MSEC(2000));
@@ -306,7 +305,7 @@ static int main_func(void)
 		/* Play media with MCP */
 		err = mcp_send_cmd(BT_MCS_OPC_PLAY);
 		if (err != 0) {
-			printk("Error sending media play command!\n");
+			PRINTF("Error sending media play command!\n");
 		}
 
 		/* Start timer to send media pause command */
@@ -314,7 +313,7 @@ static int main_func(void)
 
 		err = k_sem_take(&sem_disconnected, K_FOREVER);
 		if (err != 0) {
-			printk("failed to take sem_disconnected (err %d)\n", err);
+			PRINTF("failed to take sem_disconnected (err %d)\n", err);
 		}
 	}
 
@@ -329,7 +328,7 @@ void tmap_peripheral_task(void *param)
 
 	if (err)
 	{
-		printk("tmap main return err %d\n", err);
+		PRINTF("tmap main return err %d\n", err);
 	}
 
 	while(1)

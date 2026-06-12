@@ -15,25 +15,24 @@
 #include <zephyr/bluetooth/audio/vcp.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/kernel.h>
-#include <zephyr/sys/printk.h>
 
 static struct bt_vcp_included vcp_included;
 
 static void vcs_state_cb(struct bt_conn *conn, int err, uint8_t volume, uint8_t mute)
 {
 	if (err) {
-		printk("VCS state get failed (%d)\n", err);
+		PRINTF("VCS state get failed (%d)\n", err);
 	} else {
-		printk("VCS volume %u, mute %u\n", volume, mute);
+		PRINTF("VCS volume %u, mute %u\n", volume, mute);
 	}
 }
 
 static void vcs_flags_cb(struct bt_conn *conn, int err, uint8_t flags)
 {
 	if (err) {
-		printk("VCS flags get failed (%d)\n", err);
+		PRINTF("VCS flags get failed (%d)\n", err);
 	} else {
-		printk("VCS flags 0x%02X\n", flags);
+		PRINTF("VCS flags 0x%02X\n", flags);
 	}
 }
 

@@ -940,7 +940,7 @@ void unicast_media_receiver_task(void *param)
 	/* Unicast server init. */
 	err = bt_pacs_register(&pacs_param);
 	if (err) {
-		printk("Could not register PACS (err %d)\n", err);
+		PRINTF("Could not register PACS (err %d)\n", err);
 		while(1);
 	}
 

@@ -28,7 +28,6 @@
 #include <zephyr/kernel.h>
 #include <zephyr/net_buf.h>
 #include <zephyr/sys/byteorder.h>
-#include <zephyr/sys/printk.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/sys/util_macro.h>
 
@@ -56,7 +55,7 @@ static const struct bt_bap_qos_cfg_pref qos_pref =
 static void print_hex(const uint8_t *ptr, size_t len)
 {
 	while (len-- != 0) {
-		printk("%02x", *ptr++);
+		PRINTF("%02x", *ptr++);
 	}
 }
 
@@ -64,16 +63,16 @@ static bool print_cb(struct bt_data *data, void *user_data)
 {
 	const char *str = (const char *)user_data;
 
-	printk("%s: type 0x%02x value_len %u\n", str, data->type, data->data_len);
+	PRINTF("%s: type 0x%02x value_len %u\n", str, data->type, data->data_len);
 	print_hex(data->data, data->data_len);
-	printk("\n");
+	PRINTF("\n");
 
 	return true;
 }
 
 static void print_codec_cfg(const struct bt_audio_codec_cfg *codec_cfg)
 {
-	printk("codec_cfg 0x%02x cid 0x%04x vid 0x%04x count %u\n", codec_cfg->id, codec_cfg->cid,
+	PRINTF("codec_cfg 0x%02x cid 0x%04x vid 0x%04x count %u\n", codec_cfg->id, codec_cfg->cid,
 	       codec_cfg->vid, codec_cfg->data_len);
 
 	if (codec_cfg->id == BT_HCI_CODING_FORMAT_LC3) {
@@ -86,23 +85,23 @@ static void print_codec_cfg(const struct bt_audio_codec_cfg *codec_cfg)
 
 		ret = bt_audio_codec_cfg_get_freq(codec_cfg);
 		if (ret > 0) {
-			printk("  Frequency: %d Hz\n", bt_audio_codec_cfg_freq_to_freq_hz(ret));
+			PRINTF("  Frequency: %d Hz\n", bt_audio_codec_cfg_freq_to_freq_hz(ret));
 		}
 
 		ret = bt_audio_codec_cfg_get_frame_dur(codec_cfg);
 		if (ret > 0) {
-			printk("  Frame Duration: %d us\n",
+			PRINTF("  Frame Duration: %d us\n",
 			       bt_audio_codec_cfg_frame_dur_to_frame_dur_us(ret));
 		}
 
 		ret = bt_audio_codec_cfg_get_chan_allocation(codec_cfg, &chan_allocation, false);
 		if (ret == 0) {
-			printk("  Channel allocation: 0x%x\n", chan_allocation);
+			PRINTF("  Channel allocation: 0x%x\n", chan_allocation);
 		}
 
-		printk("  Octets per frame: %d (negative means value not pressent)\n",
+		PRINTF("  Octets per frame: %d (negative means value not pressent)\n",
 		       bt_audio_codec_cfg_get_octets_per_frame(codec_cfg));
-		printk("  Frames per SDU: %d\n",
+		PRINTF("  Frames per SDU: %d\n",
 		       bt_audio_codec_cfg_get_frame_blocks_per_sdu(codec_cfg, true));
 	} else {
 		print_hex(codec_cfg->data, codec_cfg->data_len);
@@ -113,7 +112,7 @@ static void print_codec_cfg(const struct bt_audio_codec_cfg *codec_cfg)
 
 static void print_qos(const struct bt_bap_qos_cfg *qos)
 {
-	printk("QoS: interval %u framing 0x%02x phy 0x%02x sdu %u "
+	PRINTF("QoS: interval %u framing 0x%02x phy 0x%02x sdu %u "
 	       "rtn %u latency %u pd %u\n",
 	       qos->interval, qos->framing, qos->phy, qos->sdu,
 	       qos->rtn, qos->latency, qos->pd);
@@ -137,19 +136,19 @@ static int lc3_config(struct bt_conn *conn, const struct bt_bap_ep *ep, enum bt_
 		      struct bt_bap_qos_cfg_pref *const pref, struct bt_bap_ascs_rsp *rsp)
 {
 
-	printk("ASE Codec Config: conn %p ep %p dir %u\n", conn, ep, dir);
+	PRINTF("ASE Codec Config: conn %p ep %p dir %u\n", conn, ep, dir);
 
 	print_codec_cfg(codec_cfg);
 
 	*stream = stream_alloc();
 	if (*stream == NULL) {
-		printk("No streams available\n");
+		PRINTF("No streams available\n");
 		*rsp = BT_BAP_ASCS_RSP(BT_BAP_ASCS_RSP_CODE_NO_MEM, BT_BAP_ASCS_REASON_NONE);
 
 		return -ENOMEM;
 	}
 
-	printk("ASE Codec Config stream %p\n", *stream);
+	PRINTF("ASE Codec Config stream %p\n", *stream);
 
 	if (dir == BT_AUDIO_DIR_SOURCE) {
 		source_streams[configured_source_stream_count++].stream = *stream;
@@ -164,7 +163,7 @@ static int lc3_reconfig(struct bt_bap_stream *stream, enum bt_audio_dir dir,
 			const struct bt_audio_codec_cfg *codec_cfg,
 			struct bt_bap_qos_cfg_pref *const pref, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("ASE Codec Reconfig: stream %p\n", stream);
+	PRINTF("ASE Codec Reconfig: stream %p\n", stream);
 	print_codec_cfg(codec_cfg);
 	*pref = qos_pref;
 
@@ -174,7 +173,7 @@ static int lc3_reconfig(struct bt_bap_stream *stream, enum bt_audio_dir dir,
 static int lc3_qos(struct bt_bap_stream *stream, const struct bt_bap_qos_cfg *qos,
 		   struct bt_bap_ascs_rsp *rsp)
 {
-	printk("QoS: stream %p qos %p\n", stream, qos);
+	PRINTF("QoS: stream %p qos %p\n", stream, qos);
 
 	print_qos(qos);
 
@@ -184,14 +183,14 @@ static int lc3_qos(struct bt_bap_stream *stream, const struct bt_bap_qos_cfg *qo
 static int lc3_enable(struct bt_bap_stream *stream, const uint8_t meta[], size_t meta_len,
 		      struct bt_bap_ascs_rsp *rsp)
 {
-	printk("Enable: stream %p meta_len %zu\n", stream, meta_len);
+	PRINTF("Enable: stream %p meta_len %zu\n", stream, meta_len);
 
 	return 0;
 }
 
 static int lc3_start(struct bt_bap_stream *stream, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("Start: stream %p\n", stream);
+	PRINTF("Start: stream %p\n", stream);
 
 	return 0;
 }
@@ -206,7 +205,7 @@ static bool data_func_cb(struct bt_data *data, void *user_data)
 	struct data_func_param *func_param = (struct data_func_param *)user_data;
 
 	if (!BT_AUDIO_METADATA_TYPE_IS_KNOWN(data->type)) {
-		printk("Invalid metadata type %u or length %u\n", data->type, data->data_len);
+		PRINTF("Invalid metadata type %u or length %u\n", data->type, data->data_len);
 		*func_param->rsp = BT_BAP_ASCS_RSP(BT_BAP_ASCS_RSP_CODE_METADATA_REJECTED,
 						   data->type);
 
@@ -223,7 +222,7 @@ static bool data_func_cb(struct bt_data *data, void *user_data)
 
 			if (!(IS_ENABLED(CONFIG_BT_TBS_CLIENT_CCID) &&
 			      bt_tbs_client_get_by_ccid(default_conn, ccid) != NULL)) {
-				printk("CCID %u is unknown", ccid);
+				PRINTF("CCID %u is unknown", ccid);
 				*func_param->rsp =
 					BT_BAP_ASCS_RSP(BT_BAP_ASCS_RSP_CODE_METADATA_REJECTED,
 							BT_BAP_ASCS_REASON_NONE);
@@ -245,7 +244,7 @@ static int lc3_metadata(struct bt_bap_stream *stream, const uint8_t meta[], size
 	};
 	int err;
 
-	printk("Metadata: stream %p meta_len %zu\n", stream, meta_len);
+	PRINTF("Metadata: stream %p meta_len %zu\n", stream, meta_len);
 
 	err = bt_audio_data_parse(meta, meta_len, data_func_cb, &func_param);
 	if (err != 0) {
@@ -253,7 +252,7 @@ static int lc3_metadata(struct bt_bap_stream *stream, const uint8_t meta[], size
 	}
 
 	if (!func_param.stream_context_present) {
-		printk("Stream audio context not present on peer!");
+		PRINTF("Stream audio context not present on peer!");
 		*rsp = BT_BAP_ASCS_RSP(BT_BAP_ASCS_RSP_CODE_METADATA_REJECTED,
 				       BT_BAP_ASCS_REASON_NONE);
 
@@ -265,21 +264,21 @@ static int lc3_metadata(struct bt_bap_stream *stream, const uint8_t meta[], size
 
 static int lc3_disable(struct bt_bap_stream *stream, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("Disable: stream %p\n", stream);
+	PRINTF("Disable: stream %p\n", stream);
 
 	return 0;
 }
 
 static int lc3_stop(struct bt_bap_stream *stream, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("Stop: stream %p\n", stream);
+	PRINTF("Stop: stream %p\n", stream);
 
 	return 0;
 }
 
 static int lc3_release(struct bt_bap_stream *stream, struct bt_bap_ascs_rsp *rsp)
 {
-	printk("Release: stream %p\n", stream);
+	PRINTF("Release: stream %p\n", stream);
 
 	return 0;
 }
@@ -305,7 +304,7 @@ static void stream_recv(struct bt_bap_stream *stream, const struct bt_iso_recv_i
 			struct net_buf *buf)
 {
 	if (buf->len != 0) {
-		printk("Incoming audio on stream %p len %u\n", stream, buf->len);
+		PRINTF("Incoming audio on stream %p len %u\n", stream, buf->len);
 	}
 	/* TODO: decode data (if applicable) */
 }
@@ -317,7 +316,7 @@ static void stream_enabled(struct bt_bap_stream *stream)
 
 	err = bt_bap_ep_get_info(stream->ep, &ep_info);
 	if (err != 0) {
-		printk("Failed to get ep info: %d\n", err);
+		PRINTF("Failed to get ep info: %d\n", err);
 		return;
 	}
 
@@ -327,7 +326,7 @@ static void stream_enabled(struct bt_bap_stream *stream)
 		err = bt_bap_stream_start(stream);
 
 		if (err != 0) {
-			printk("Failed to start stream %p: %d", stream, err);
+			PRINTF("Failed to start stream %p: %d", stream, err);
 		}
 	}
 }
@@ -380,7 +379,7 @@ int bap_unicast_sr_init(void)
 
 	err = bt_pacs_register(&pacs_param);
 	if (err) {
-		printk("Could not register PACS (err %d)\n", err);
+		PRINTF("Could not register PACS (err %d)\n", err);
 		return err;
 	}
 

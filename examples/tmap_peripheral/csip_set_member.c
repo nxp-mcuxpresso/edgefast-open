@@ -17,7 +17,6 @@
 #include <zephyr/bluetooth/audio/csip.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/kernel.h>
-#include <zephyr/sys/printk.h>
 
 static struct bt_csip_set_member_svc_inst *svc_inst;
 
@@ -25,7 +24,7 @@ static void csip_lock_changed_cb(struct bt_conn *conn,
 				 struct bt_csip_set_member_svc_inst *inst,
 				 bool locked)
 {
-	printk("Client %p %s the lock\n", conn, locked ? "locked" : "released");
+	PRINTF("Client %p %s the lock\n", conn, locked ? "locked" : "released");
 }
 
 static struct bt_csip_set_member_cb csip_cb = {
@@ -54,7 +53,7 @@ int csip_generate_rsi(uint8_t *rsi)
 
 	err = bt_csip_set_member_generate_rsi(svc_inst, rsi);
 	if (err) {
-		printk("Failed to generate RSI (err %d)\n", err);
+		PRINTF("Failed to generate RSI (err %d)\n", err);
 		return err;
 	}
 

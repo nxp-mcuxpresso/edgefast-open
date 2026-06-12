@@ -123,7 +123,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
     if (err)
     {
-        printk("Failed to connect %s (err %u)\n", addr, err);
+        PRINTF("Failed to connect %s (err %u)\n", addr, err);
     }
     else
     {
@@ -132,7 +132,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
         err = bt_conn_get_info(conn, &info);
         if (err) {
-            printk("Failed to get info");
+            PRINTF("Failed to get info");
             return;
         }
 
@@ -142,7 +142,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
             {
                 if (conn == g_WirelessUartState.peerCentral[i].conn)
                 {
-                    printk("the connection 0x08X is attached\r\n", conn);
+                    PRINTF("the connection 0x08X is attached\r\n", conn);
                     return;
                 }
                 else if (NULL == g_WirelessUartState.peerCentral[i].conn)
@@ -176,17 +176,17 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
         if (-1 == index)
         {
-            printk("All connection slots are used\r\n");
+            PRINTF("All connection slots are used\r\n");
             return;
         }
         bt_gatt_wu_connected(conn);
-        printk("Connected to %s\n", addr);
+        PRINTF("Connected to %s\n", addr);
 #if CONFIG_BT_SMP
         if(BT_HCI_ROLE_PERIPHERAL == info.role)
         {
             if (bt_conn_set_security(conn, BT_SECURITY_L2))
             {
-                printk("Failed to set security\n");
+                PRINTF("Failed to set security\n");
             }
         }
 #endif
@@ -228,14 +228,14 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
     }
     if (0 == found)
     {
-        printk("The connection 0x%08X is not found.\r\n", conn);
+        PRINTF("The connection 0x%08X is not found.\r\n", conn);
         return;
     }
     bt_gatt_wu_disconnected(conn);
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Disconnected from %s (reason %u)\n", addr, reason);
+    PRINTF("Disconnected from %s (reason %u)\n", addr, reason);
 }
 
 #if CONFIG_BT_SMP
@@ -246,15 +246,15 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Security changed: %s level %u (error %d)\n", addr, level, err);
+    PRINTF("Security changed: %s level %u (error %d)\n", addr, level, err);
     if (err == BT_SECURITY_ERR_PIN_OR_KEY_MISSING) {
-        printk("PIN or key missing for %s. Removing bonding info...", addr);
+        PRINTF("PIN or key missing for %s. Removing bonding info...", addr);
         if ((bt_conn_get_info(conn, &info) == 0) && (info.role == BT_HCI_ROLE_CENTRAL)) {
             if (bt_unpair(info.id, info.le.dst) != 0) {
-                printk("Fail to remove bonding info for %s", addr);
+                PRINTF("Fail to remove bonding info for %s", addr);
             }
         } else {
-            printk("Fail to get conn info for %s", addr);
+            PRINTF("Fail to get conn info for %s", addr);
         }
     }
 }
@@ -265,7 +265,7 @@ static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Passkey for %s: %06u\n", addr, passkey);
+    PRINTF("Passkey for %s: %06u\n", addr, passkey);
 }
 
 static void auth_cancel(struct bt_conn *conn)
@@ -274,7 +274,7 @@ static void auth_cancel(struct bt_conn *conn)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Pairing cancelled: %s\n", addr);
+    PRINTF("Pairing cancelled: %s\n", addr);
 }
 #endif
 
@@ -337,12 +337,12 @@ static int wireless_uart_data_received(struct bt_conn *conn, uint8_t* buffer, ss
 {
     char addr[BT_ADDR_LE_STR_LEN];
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
-    printk("Data received from %s(length %d):", addr, length);
+    PRINTF("Data received from %s(length %d):", addr, length);
     for (int i = 0;i < length; i++)
     {
-        printk("%c", ((uint8_t*)buffer)[i]);
+        PRINTF("%c", ((uint8_t*)buffer)[i]);
     }
-    printk("\r\n");
+    PRINTF("\r\n");
     return 0;
 }
 
@@ -407,14 +407,14 @@ static bool wu_central_parse_callback(struct bt_data *data, void *user_data)
     uint8_t          index;
 
 #if 0
-    printk("[AD]: %u data_len %u\n", data->type, data->data_len);
+    PRINTF("[AD]: %u data_len %u\n", data->type, data->data_len);
 #endif
     switch (data->type)
     {
     case BT_DATA_UUID128_SOME:
     case BT_DATA_UUID128_ALL:
         if (data->data_len % (sizeof(struct bt_uuid_128) - sizeof(struct bt_uuid)) != 0) {
-            printk("AD malformed\n");
+            PRINTF("AD malformed\n");
             return true;
         }
 
@@ -428,7 +428,7 @@ static bool wu_central_parse_callback(struct bt_data *data, void *user_data)
             }
 
             bt_addr_le_to_str(deviceInfo->addr, dev, sizeof(dev));
-            printk("[DEVICE]: %s, AD evt type %u, AD data len %u, RSSI %i\n", dev, deviceInfo->ad_type, deviceInfo->ad_len, deviceInfo->rssi);
+            PRINTF("[DEVICE]: %s, AD evt type %u, AD data len %u, RSSI %i\n", dev, deviceInfo->ad_type, deviceInfo->ad_len, deviceInfo->rssi);
 
 
             for (index = 0;index < CONFIG_BT_MAX_CONN;index++)
@@ -506,7 +506,7 @@ static void wu_central_scan_callback(const bt_addr_le_t *addr, int8_t rssi, uint
     char dev[BT_ADDR_LE_STR_LEN];
 
     bt_addr_le_to_str(addr, dev, sizeof(dev));
-    printk("[DEVICE]: %s, AD evt type %u, AD data len %u, RSSI %i\n",
+    PRINTF("[DEVICE]: %s, AD evt type %u, AD data len %u, RSSI %i\n",
            deviceInfo.dev, deviceInfo.ad_type, deviceInfo.ad_len, deviceInfo.rssi);
 #endif
     /* We're only interested in connectable events */
@@ -541,11 +541,11 @@ static button_status_t button_event_precess(button_callback_message_t *message, 
             int error = bt_le_scan_start(BT_LE_SCAN_ACTIVE, wu_central_scan_callback);
             if (error)
             {
-                printk("Scanning failed to start (err %d)\n", error);
+                PRINTF("Scanning failed to start (err %d)\n", error);
             }
             else
             {
-                printk("Scanning successfully started\n");
+                PRINTF("Scanning successfully started\n");
             }
         }
     }
@@ -559,11 +559,11 @@ static button_status_t button_event_precess(button_callback_message_t *message, 
             int error = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
             if (error)
             {
-                printk("Advertising failed to start (error %d)\n", error);
+                PRINTF("Advertising failed to start (error %d)\n", error);
             }
             else
             {
-                printk("Advertising successfully started\n");
+                PRINTF("Advertising successfully started\n");
             }
         }
     }
@@ -580,11 +580,11 @@ static button_status_t button_event_precess(button_callback_message_t *message, 
                 int error = bt_le_scan_start(BT_LE_SCAN_ACTIVE, wu_central_scan_callback);
                 if (error)
                 {
-                    printk("Scanning failed to start (err %d)\n", error);
+                    PRINTF("Scanning failed to start (err %d)\n", error);
                 }
                 else
                 {
-                    printk("Scanning successfully started\n");
+                    PRINTF("Scanning successfully started\n");
                 }
             }
             else
@@ -603,16 +603,16 @@ static button_status_t button_event_precess(button_callback_message_t *message, 
                 int error = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
                 if (error)
                 {
-                    printk("Advertising failed to start (error %d)\n", error);
+                    PRINTF("Advertising failed to start (error %d)\n", error);
                 }
                 else
                 {
-                    printk("Advertising successfully started\n");
+                    PRINTF("Advertising successfully started\n");
                 }
             }
             break;
         case kBUTTON_EventError:
-            printk("kBUTTON_EventError\r\n");
+            PRINTF("kBUTTON_EventError\r\n");
             break;
         default:
             status = kStatus_BUTTON_Error;
@@ -660,7 +660,7 @@ static void bt_ready(int error)
     bt_gatt_wu_config_t wuConfig;
     if (error)
     {
-        printk("Bluetooth init failed (error %d)\n", error);
+        PRINTF("Bluetooth init failed (error %d)\n", error);
         return;
     }
 
@@ -668,7 +668,7 @@ static void bt_ready(int error)
     {
         settings_load();
     }
-    printk("Bluetooth initialized\n");
+    PRINTF("Bluetooth initialized\n");
 
     wuConfig.data_received = wireless_uart_data_received;
     wuConfig.read = wireless_uart_read;
@@ -693,10 +693,10 @@ static void bt_ready(int error)
     error = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
     if (error)
     {
-        printk("Advertising failed to start (error %d)\n", error);
+        PRINTF("Advertising failed to start (error %d)\n", error);
         return;
     }
-    printk("Advertising successfully started\n");
+    PRINTF("Advertising successfully started\n");
 #endif
 }
 
@@ -710,7 +710,7 @@ void wireless_uart_task(void *argument)
     status_t status;
     extern serial_handle_t g_serialHandle; /*!< serial manager handle */
 
-    printk("BLE Wireless Uart demo start...\n");
+    PRINTF("BLE Wireless Uart demo start...\n");
 
     assert(NULL != g_serialHandle);
 
@@ -740,7 +740,7 @@ void wireless_uart_task(void *argument)
     err = bt_enable(bt_ready);
     if (err)
     {
-        printk("Bluetooth init failed (err %d)\n", err);
+        PRINTF("Bluetooth init failed (err %d)\n", err);
         while (1)
         {
             vTaskDelay(2000);

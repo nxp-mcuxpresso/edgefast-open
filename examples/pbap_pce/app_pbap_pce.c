@@ -136,7 +136,7 @@ static uint8_t pbap_pce_ascii_to_unicode(const char *src, uint8_t *dest, uint16_
 
     if (dest_size < required_size)
     {
-        printk("Buffer too small: required %u, available %u", required_size, dest_size);
+        PRINTF("Buffer too small: required %u, available %u", required_size, dest_size);
         return 0;
     }
 
@@ -167,7 +167,7 @@ static int pbap_alloc_tx_buf(struct app_pbap_pce *app_pce)
 {
     if (app_pce->tx_buf != NULL)
     {
-        printk("Buf %p is using\n", app_pce->tx_buf);
+        PRINTF("Buf %p is using\n", app_pce->tx_buf);
         return -EBUSY;
     }
 
@@ -175,7 +175,7 @@ static int pbap_alloc_tx_buf(struct app_pbap_pce *app_pce)
 
     if (app_pce->tx_buf == NULL)
     {
-        printk("Fail to allocate tx buffer\n");
+        PRINTF("Fail to allocate tx buffer\n");
         return -ENOBUFS;
     }
     return 0;
@@ -193,14 +193,14 @@ static int pbap_pce_add_initial_headers(struct app_pbap_pce *app_pce, const char
     err = pbap_alloc_tx_buf(app_pce);
     if (err != 0)
     {
-        printk("Fail to allocate tx buffer %d\n", err);
+        PRINTF("Fail to allocate tx buffer %d\n", err);
         goto failed;
     }
 
     err = bt_obex_add_header_conn_id(app_pce->tx_buf, app_pce->conn_id);
     if (err != 0)
     {
-        printk("Fail to add connection id %d", err);
+        PRINTF("Fail to add connection id %d", err);
         goto failed;
     }
 
@@ -209,7 +209,7 @@ static int pbap_pce_add_initial_headers(struct app_pbap_pce *app_pce, const char
         err = bt_obex_add_header_srm(app_pce->tx_buf, 0x01);
         if (err != 0)
         {
-            printk("Fail to add srm header %d", err);
+            PRINTF("Fail to add srm header %d", err);
             goto failed;
         }
         app_pce->srm_srmp |= LOCAL_SRM_ENABLED;
@@ -219,7 +219,7 @@ static int pbap_pce_add_initial_headers(struct app_pbap_pce *app_pce, const char
     err    = bt_obex_add_header_name(app_pce->tx_buf, length, unicode_trans);
     if (err != 0)
     {
-        printk("Fail to add name header %d", err);
+        PRINTF("Fail to add name header %d", err);
         goto failed;
     }
 
@@ -227,7 +227,7 @@ static int pbap_pce_add_initial_headers(struct app_pbap_pce *app_pce, const char
     err = bt_obex_add_header_type(app_pce->tx_buf, strlen(type) + 1U, type);
     if (err != 0)
     {
-        printk("Fail to add type header %d", err);
+        PRINTF("Fail to add type header %d", err);
         goto failed;
     }
 
@@ -252,7 +252,7 @@ static void pbap_pce_test_func_pull_phone_book(struct app_pbap_pce *app_pce, cha
     err = bt_pbap_pce_pull_phone_book(&app_pce->pbap_pce, app_pce->tx_buf);
     if (err != 0)
     {
-        printk("Fail to pull phonebook %d\n", err);
+        PRINTF("Fail to pull phonebook %d\n", err);
     }
 
     app_pce->tx_buf = NULL;
@@ -267,7 +267,7 @@ static void pbap_pce_test_func_set_phone_book(struct app_pbap_pce *app_pce, char
     err = pbap_alloc_tx_buf(app_pce);
     if (err != 0)
     {
-        printk("Fail to allocate tx buffer %d\n", err);
+        PRINTF("Fail to allocate tx buffer %d\n", err);
         return;
     }
 
@@ -275,21 +275,21 @@ static void pbap_pce_test_func_set_phone_book(struct app_pbap_pce *app_pce, char
     err = bt_obex_add_header_conn_id(app_pce->tx_buf, app_pce->conn_id);
     if (err != 0)
     {
-        printk("Fail to add connection id %d", err);
+        PRINTF("Fail to add connection id %d", err);
         goto failed;
     }
 
     err = bt_obex_add_header_name(app_pce->tx_buf, len, unicode_trans);
     if (err != 0)
     {
-        printk("Fail to add name header %d", err);
+        PRINTF("Fail to add name header %d", err);
         goto failed;
     }
 
     err = bt_pbap_pce_set_phone_book(&app_pce->pbap_pce, BT_PBAP_SET_PHONE_BOOK_FLAGS_DOWN_OR_ROOT, app_pce->tx_buf);
     if (err != 0)
     {
-        printk("Fail to create set path cmd %d", err);
+        PRINTF("Fail to create set path cmd %d", err);
         goto failed;
     }
 
@@ -313,7 +313,7 @@ static void pbap_pce_test_func_pull_vcard_listing(struct app_pbap_pce *app_pce, 
     err = bt_pbap_pce_pull_vcard_listing(&app_pce->pbap_pce, app_pce->tx_buf);
     if (err != 0)
     {
-        printk("Fail to pull vcard listing %d\n", err);
+        PRINTF("Fail to pull vcard listing %d\n", err);
     }
 
     app_pce->tx_buf = NULL;
@@ -332,7 +332,7 @@ static void pbap_pce_test_func_pull_vcard_entry(struct app_pbap_pce *app_pce, ch
     err = bt_pbap_pce_pull_vcard_entry(&app_pce->pbap_pce, app_pce->tx_buf);
     if (err != 0)
     {
-        printk("Fail to pull vcard entry %d\n", err);
+        PRINTF("Fail to pull vcard entry %d\n", err);
     }
 
     app_pce->tx_buf = NULL;
@@ -378,11 +378,11 @@ static void pbap_pce_connected(
     int err;
     struct app_pbap_pce *app_pce = CONTAINER_OF(pbap_pce, struct app_pbap_pce, pbap_pce);
 
-    printk("pbap connect result %s, mopl %d\n", bt_obex_rsp_code_to_str(rsp_code), mopl);
+    PRINTF("pbap connect result %s, mopl %d\n", bt_obex_rsp_code_to_str(rsp_code), mopl);
     err = bt_obex_get_header_conn_id(buf, &app_pce->conn_id);
     if (err != 0)
     {
-        printk("No connection ID header found (err: %d)", err);
+        PRINTF("No connection ID header found (err: %d)", err);
         return;
     }
     app_pce->current_state        = PBAP_STATE_CONNECTED;
@@ -406,13 +406,13 @@ static int pbap_check_srm(struct net_buf *buf)
     err = bt_obex_get_header_srm(buf, &srm);
     if (err != 0)
     {
-        printk("Failed to get header SRM %d", err);
+        PRINTF("Failed to get header SRM %d", err);
         return err;
     }
 
     if (srm != 0x01)
     {
-        printk("SRM mismatched %u != 0x01", srm);
+        PRINTF("SRM mismatched %u != 0x01", srm);
         return -EINVAL;
     }
 
@@ -463,7 +463,7 @@ static void pbap_pce_pull_phone_book_cb(struct bt_pbap_pce *pbap_pce, uint8_t rs
     body.length = 0;
     body.value  = NULL;
 
-    printk("pbap pull phone book result %s\n", bt_obex_rsp_code_to_str(rsp_code));
+    PRINTF("pbap pull phone book result %s\n", bt_obex_rsp_code_to_str(rsp_code));
 
     if (rsp_code != BT_PBAP_RSP_CODE_SUCCESS && rsp_code != BT_PBAP_RSP_CODE_CONTINUE)
     {
@@ -493,9 +493,9 @@ static void pbap_pce_pull_phone_book_cb(struct bt_pbap_pce *pbap_pce, uint8_t rs
     pce_get_body_data(rsp_code, buf, &body);
     if (body.length > 0 && body.value != NULL)
     {
-        printk("=========body=========\n");
-        printk("%.*s\n", body.length, body.value);
-        printk("=========body=========\n");
+        PRINTF("=========body=========\n");
+        PRINTF("%.*s\n", body.length, body.value);
+        PRINTF("=========body=========\n");
     }
 
     if (rsp_code == BT_PBAP_RSP_CODE_SUCCESS)
@@ -510,7 +510,7 @@ static void pbap_pce_pull_phone_book_cb(struct bt_pbap_pce *pbap_pce, uint8_t rs
             err = pbap_alloc_tx_buf(app_pce);
             if (err != 0)
             {
-                printk("Fail to allocate tx buffer %d\n", err);
+                PRINTF("Fail to allocate tx buffer %d\n", err);
                 return;
             }
 
@@ -518,7 +518,7 @@ static void pbap_pce_pull_phone_book_cb(struct bt_pbap_pce *pbap_pce, uint8_t rs
             if (err != 0)
             {
                 net_buf_unref(app_pce->tx_buf);
-                printk("Fail to pull phonebook %d\n", err);
+                PRINTF("Fail to pull phonebook %d\n", err);
             }
             app_pce->tx_buf = NULL;
             return;
@@ -536,7 +536,7 @@ static void pbap_pce_pull_vcard_listing_cb(struct bt_pbap_pce *pbap_pce, uint8_t
     body.length = 0;
     body.value  = NULL;
 
-    printk("pbap pull vcard listing result %s\n", bt_obex_rsp_code_to_str(rsp_code));
+    PRINTF("pbap pull vcard listing result %s\n", bt_obex_rsp_code_to_str(rsp_code));
     if (rsp_code != BT_PBAP_RSP_CODE_SUCCESS && rsp_code != BT_PBAP_RSP_CODE_CONTINUE)
     {
         return;
@@ -565,9 +565,9 @@ static void pbap_pce_pull_vcard_listing_cb(struct bt_pbap_pce *pbap_pce, uint8_t
     pce_get_body_data(rsp_code, buf, &body);
     if (body.length > 0 && body.value != NULL)
     {
-        printk("=========body=========\n");
-        printk("%.*s\n", body.length, body.value);
-        printk("=========body=========\n");
+        PRINTF("=========body=========\n");
+        PRINTF("%.*s\n", body.length, body.value);
+        PRINTF("=========body=========\n");
     }
 
     if (rsp_code == BT_PBAP_RSP_CODE_SUCCESS)
@@ -582,7 +582,7 @@ static void pbap_pce_pull_vcard_listing_cb(struct bt_pbap_pce *pbap_pce, uint8_t
             err = pbap_alloc_tx_buf(app_pce);
             if (err != 0)
             {
-                printk("Fail to allocate tx buffer %d\n", err);
+                PRINTF("Fail to allocate tx buffer %d\n", err);
                 return;
             }
 
@@ -590,7 +590,7 @@ static void pbap_pce_pull_vcard_listing_cb(struct bt_pbap_pce *pbap_pce, uint8_t
             if (err != 0)
             {
                 net_buf_unref(app_pce->tx_buf);
-                printk("Fail to pull vcard listing %d\n", err);
+                PRINTF("Fail to pull vcard listing %d\n", err);
             }
             app_pce->tx_buf = NULL;
             return;
@@ -608,7 +608,7 @@ static void pbap_pce_pull_vcard_entry_cb(struct bt_pbap_pce *pbap_pce, uint8_t r
     body.length = 0;
     body.value  = NULL;
 
-    printk("pbap pull vcard entry result %s\n", bt_obex_rsp_code_to_str(rsp_code));
+    PRINTF("pbap pull vcard entry result %s\n", bt_obex_rsp_code_to_str(rsp_code));
     if (rsp_code != BT_PBAP_RSP_CODE_SUCCESS && rsp_code != BT_PBAP_RSP_CODE_CONTINUE)
     {
         return;
@@ -637,9 +637,9 @@ static void pbap_pce_pull_vcard_entry_cb(struct bt_pbap_pce *pbap_pce, uint8_t r
     pce_get_body_data(rsp_code, buf, &body);
     if (body.length > 0 && body.value != NULL)
     {
-        printk("=========body=========\n");
-        printk("%.*s\n", body.length, body.value);
-        printk("=========body=========\n");
+        PRINTF("=========body=========\n");
+        PRINTF("%.*s\n", body.length, body.value);
+        PRINTF("=========body=========\n");
     }
 
     if (rsp_code == BT_PBAP_RSP_CODE_SUCCESS)
@@ -647,7 +647,7 @@ static void pbap_pce_pull_vcard_entry_cb(struct bt_pbap_pce *pbap_pce, uint8_t r
         err = bt_pbap_pce_disconnect(&app_pce->pbap_pce, NULL);
         if (err != 0)
         {
-            printk("Fail to disconnect %d\n", err);
+            PRINTF("Fail to disconnect %d\n", err);
         }
     }
     else
@@ -657,14 +657,14 @@ static void pbap_pce_pull_vcard_entry_cb(struct bt_pbap_pce *pbap_pce, uint8_t r
             err = pbap_alloc_tx_buf(app_pce);
             if (err != 0)
             {
-                printk("Fail to allocate tx buffer %d\n", err);
+                PRINTF("Fail to allocate tx buffer %d\n", err);
                 return;
             }
             err = bt_pbap_pce_pull_vcard_entry(&app_pce->pbap_pce, app_pce->tx_buf);
             if (err != 0)
             {
                 net_buf_unref(app_pce->tx_buf);
-                printk("Fail to pull vcard entry %d\n", err);
+                PRINTF("Fail to pull vcard entry %d\n", err);
             }
             app_pce->tx_buf = NULL;
             return;
@@ -677,7 +677,7 @@ static void pbap_pce_set_phone_book_cb(struct bt_pbap_pce *pbap_pce, uint8_t rsp
 {
     struct app_pbap_pce *app_pce = CONTAINER_OF(pbap_pce, struct app_pbap_pce, pbap_pce);
 
-    printk("PBAP set phonebook result %s\n", bt_obex_rsp_code_to_str(rsp_code));
+    PRINTF("PBAP set phonebook result %s\n", bt_obex_rsp_code_to_str(rsp_code));
     if (app_pce->set_phone_book_count == 0)
     {
         app_pce->set_phone_book_count++;
@@ -693,7 +693,7 @@ static void pbap_pce_set_phone_book_cb(struct bt_pbap_pce *pbap_pce, uint8_t rsp
 
 static void pbap_pce_disconnected(struct bt_pbap_pce *pbap, uint8_t rsp_code, struct net_buf *buf)
 {
-    printk("pbap disconnect result %s\n", bt_obex_rsp_code_to_str(rsp_code));
+    PRINTF("pbap disconnect result %s\n", bt_obex_rsp_code_to_str(rsp_code));
 }
 
 static int pbap_pce_obex_connect(struct app_pbap_pce *app_pbap_pce, uint16_t mopl)
@@ -704,11 +704,11 @@ static int pbap_pce_obex_connect(struct app_pbap_pce *app_pbap_pce, uint16_t mop
     err = pbap_alloc_tx_buf(app_pbap_pce);
     if (err != 0)
     {
-        printk("Fail to allocate tx buffer %d\n", err);
+        PRINTF("Fail to allocate tx buffer %d\n", err);
         return err;
     }
 
-    printk("create pbap obex connection\n");
+    PRINTF("create pbap obex connection\n");
 
     if (app_pbap_pce->goep_v2)
     {
@@ -719,7 +719,7 @@ static int pbap_pce_obex_connect(struct app_pbap_pce *app_pbap_pce, uint16_t mop
         err                         = bt_obex_add_header_app_param(app_pbap_pce->tx_buf, 1, &appl_param);
         if (err != 0)
         {
-            printk("Fail to add application parameter %d\n", err);
+            PRINTF("Fail to add application parameter %d\n", err);
             return err;
         }
     }
@@ -727,7 +727,7 @@ static int pbap_pce_obex_connect(struct app_pbap_pce *app_pbap_pce, uint16_t mop
     err = bt_pbap_pce_connect(&app_pbap_pce->pbap_pce, mopl, app_pbap_pce->tx_buf);
     if (err != 0)
     {
-        printk("Fail to connect %d\n", err);
+        PRINTF("Fail to connect %d\n", err);
     }
 
     app_pbap_pce->tx_buf = NULL;
@@ -740,11 +740,11 @@ static void pbap_pce_rfcomm_transport_connected(struct bt_conn *conn, struct bt_
     struct app_pbap_pce *app_pce = CONTAINER_OF(pbap_pce, struct app_pbap_pce, pbap_pce);
 
     app_pce->goep_v2 = false;
-    printk("PBAP PCE %p rfcomm transport connected on %p\n", pbap_pce, conn);
+    PRINTF("PBAP PCE %p rfcomm transport connected on %p\n", pbap_pce, conn);
     err = pbap_pce_obex_connect(app_pce, PBAP_PCE_APP_MOPL);
     if (err != 0)
     {
-        printk("Fail to obex connect %d\n", err);
+        PRINTF("Fail to obex connect %d\n", err);
     }
 
     return;
@@ -754,7 +754,7 @@ static void pbap_pce_rfcomm_transport_disconnected(struct bt_pbap_pce *pbap_pce)
 {
     struct app_pbap_pce *app_pce = CONTAINER_OF(pbap_pce, struct app_pbap_pce, pbap_pce);
 
-    printk("PBAP PCE %p rfcomm transport disconnected\n", pbap_pce);
+    PRINTF("PBAP PCE %p rfcomm transport disconnected\n", pbap_pce);
     app_pce->tx_buf = NULL;
 }
 
@@ -764,11 +764,11 @@ static void pbap_pce_l2cap_transport_connected(struct bt_conn *conn, struct bt_p
     struct app_pbap_pce *app_pce = CONTAINER_OF(pbap_pce, struct app_pbap_pce, pbap_pce);
 
     app_pce->goep_v2 = true;
-    printk("PBAP PCE %p l2cap transport connected on %p\n", pbap_pce, conn);
+    PRINTF("PBAP PCE %p l2cap transport connected on %p\n", pbap_pce, conn);
     err = pbap_pce_obex_connect(app_pce, PBAP_PCE_APP_MOPL);
     if (err != 0)
     {
-        printk("Fail to obex connect %d\n", err);
+        PRINTF("Fail to obex connect %d\n", err);
     }
 
     return;
@@ -778,7 +778,7 @@ static void pbap_pce_l2cap_transport_disconnected(struct bt_pbap_pce *pbap_pce)
 {
     struct app_pbap_pce *app_pce = CONTAINER_OF(pbap_pce, struct app_pbap_pce, pbap_pce);
 
-    printk("PBAP PCE %p l2cap transport disconnected\n", pbap_pce);
+    PRINTF("PBAP PCE %p l2cap transport disconnected\n", pbap_pce);
     app_pce->tx_buf = NULL;
 }
 
@@ -815,7 +815,7 @@ static void bt_ready(int err)
     err = bt_sdp_register_service(&pbap_pce_rec);
     if (err != 0)
     {
-        printk("Failed to register SDP record");
+        PRINTF("Failed to register SDP record");
         return;
     }
 

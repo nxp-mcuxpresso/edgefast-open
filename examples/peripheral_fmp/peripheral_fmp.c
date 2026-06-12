@@ -51,7 +51,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
     if (err)
     {
-        printk("Failed to connect to %s (err %u)\n", addr, err);
+        PRINTF("Failed to connect to %s (err %u)\n", addr, err);
     }
     else
     {
@@ -65,13 +65,13 @@ static void connected(struct bt_conn *conn, uint8_t err)
         uint8_t alert_level = NO_ALERT;
 
         default_conn = bt_conn_ref(conn);
-        printk("Connected to peer: %s\n", addr);
+        PRINTF("Connected to peer: %s\n", addr);
 
         alert_ui(alert_level);
 #if CONFIG_BT_SMP
         if (bt_conn_set_security(conn, BT_SECURITY_L2))
         {
-            printk("Failed to set security\n");
+            PRINTF("Failed to set security\n");
         }
 #endif
     }
@@ -79,7 +79,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-    printk("Disconnected (reason 0x%02x)\n", reason);
+    PRINTF("Disconnected (reason 0x%02x)\n", reason);
 
     if (default_conn)
     {
@@ -101,15 +101,15 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Security changed: %s level %u (error %d)\n", addr, level, err);
+    PRINTF("Security changed: %s level %u (error %d)\n", addr, level, err);
     if (err == BT_SECURITY_ERR_PIN_OR_KEY_MISSING) {
-        printk("PIN or key missing for %s. Removing bonding info...", addr);
+        PRINTF("PIN or key missing for %s. Removing bonding info...", addr);
         if (bt_conn_get_info(conn, &info) == 0) {
             if (bt_unpair(info.id, info.le.dst) != 0) {
-                printk("Fail to remove bonding info for %s", addr);
+                PRINTF("Fail to remove bonding info for %s", addr);
             }
         } else {
-            printk("Fail to get conn info for %s", addr);
+            PRINTF("Fail to get conn info for %s", addr);
         }
     }
 }
@@ -120,7 +120,7 @@ static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Passkey for %s: %06u\n", addr, passkey);
+    PRINTF("Passkey for %s: %06u\n", addr, passkey);
 }
 
 static void auth_cancel(struct bt_conn *conn)
@@ -129,7 +129,7 @@ static void auth_cancel(struct bt_conn *conn)
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
 
-    printk("Pairing cancelled: %s\n", addr);
+    PRINTF("Pairing cancelled: %s\n", addr);
 }
 #endif
 static struct bt_conn_cb conn_callbacks = {
@@ -154,15 +154,15 @@ static void alert_ui(uint8_t alert_level)
     switch(alert_level)
     {
         case NO_ALERT:
-            printk("\r\nALERT: OFF\r\n");
+            PRINTF("\r\nALERT: OFF\r\n");
             break;
 
         case MILD_ALERT:
-            printk("\r\nALERT: MILD\r\n");
+            PRINTF("\r\nALERT: MILD\r\n");
             break;
 
         case HIGH_ALERT:
-            printk("\r\nALERT: HIGH\r\n");
+            PRINTF("\r\nALERT: HIGH\r\n");
             break;
 
         default:
@@ -175,11 +175,11 @@ static void bt_app_start_advertising(void)
     int err = bt_le_adv_start(BT_LE_ADV_PARAMS, ad, ARRAY_SIZE(ad), NULL, 0);
     if (err)
     {
-        printk("Fast Advertising failed to start (err %d)\n", err);
+        PRINTF("Fast Advertising failed to start (err %d)\n", err);
         return;
     }
 
-    printk("Fast Advertising successfully started\n");
+    PRINTF("Fast Advertising successfully started\n");
 
     if (adv_timer == NULL)
     {
@@ -216,18 +216,18 @@ static void advertising_timeout_process(void)
     int err = bt_le_adv_stop();
     if (err)
     {
-        printk("Advertising failed to stop (err %d)\n", err);
+        PRINTF("Advertising failed to stop (err %d)\n", err);
     }
 
     /* Enable slow advertising to preserve power */
     err = bt_le_adv_start(BT_LE_ADV_LP_PARAMS, ad, ARRAY_SIZE(ad), NULL, 0);
     if (err)
     {
-        printk("Slow Advertising failed to start (err %d)\n", err);
+        PRINTF("Slow Advertising failed to start (err %d)\n", err);
         return;
     }
 
-    printk("Slow Advertising successfully started\n");
+    PRINTF("Slow Advertising successfully started\n");
 }
 
 
@@ -235,7 +235,7 @@ static void bt_ready(int err)
 {
     if (err)
     {
-        printk("Bluetooth init failed (err %d)\n", err);
+        PRINTF("Bluetooth init failed (err %d)\n", err);
         return;
     }
 
@@ -243,7 +243,7 @@ static void bt_ready(int err)
     {
         settings_load();
     }
-    printk("Bluetooth initialized\n");
+    PRINTF("Bluetooth initialized\n");
 
     fmp_init(alert_ui);
 
@@ -262,13 +262,13 @@ void peripheral_fmp_task(void *pvParameters)
     adv_timeout_sync = xSemaphoreCreateCounting(0xFFu, 0u);
     if (NULL == adv_timeout_sync)
     {
-        printk("faile to create adv_timeout_sync\n");
+        PRINTF("faile to create adv_timeout_sync\n");
     }
 
     err = bt_enable(bt_ready);
     if (err)
     {
-        printk("Bluetooth init failed (err %d)\n", err);
+        PRINTF("Bluetooth init failed (err %d)\n", err);
         while (1)
         {
             vTaskDelay(2000);

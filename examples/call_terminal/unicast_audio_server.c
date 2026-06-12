@@ -381,7 +381,7 @@ int unicast_audio_server_init(void)
 
     ret = bt_pacs_register(&pacs_param);
     if (ret) {
-        printk("Could not register PACS (err %d)\n", ret);
+        PRINTF("Could not register PACS (err %d)\n", ret);
         return 0;
     }
 

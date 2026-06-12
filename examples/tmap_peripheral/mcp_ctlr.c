@@ -15,7 +15,6 @@
 #include <zephyr/bluetooth/audio/media_proxy.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/kernel.h>
-#include <zephyr/sys/printk.h>
 
 static struct bt_conn *default_conn;
 
@@ -24,9 +23,9 @@ static K_SEM_DEFINE(sem_discovery_done, 0, K_SEM_MAX_LIMIT);
 static void mcc_discover_mcs_cb(struct bt_conn *conn, int err)
 {
 	if (err) {
-		printk("MCP: Discovery of MCS failed (%d)\n", err);
+		PRINTF("MCP: Discovery of MCS failed (%d)\n", err);
 	} else {
-		printk("MCP: Discovered MCS\n");
+		PRINTF("MCP: Discovered MCS\n");
 	}
 	k_sem_give(&sem_discovery_done);
 }
@@ -34,10 +33,10 @@ static void mcc_discover_mcs_cb(struct bt_conn *conn, int err)
 static void mcc_send_command_cb(struct bt_conn *conn, int err, const struct mpl_cmd *cmd)
 {
 	if (err) {
-		printk("MCP: Command send failed (%d) - opcode: %u, param: %d\n",
+		PRINTF("MCP: Command send failed (%d) - opcode: %u, param: %d\n",
 			err, cmd->opcode, cmd->param);
 	} else {
-		printk("MCP: Successfully sent command (%d) - opcode: %u, param: %d\n",
+		PRINTF("MCP: Successfully sent command (%d) - opcode: %u, param: %d\n",
 			err, cmd->opcode, cmd->param);
 	}
 }
@@ -74,13 +73,13 @@ int mcp_send_cmd(uint8_t mcp_opcode)
 	cmd.use_param = false;
 
 	if (default_conn == NULL) {
-		printk("MCP: No connection\n");
+		PRINTF("MCP: No connection\n");
 		return -EINVAL;
 	}
 
 	err = bt_mcc_send_cmd(default_conn, &cmd);
 	if (err != 0) {
-		printk("MCP: Command failed: %d\n", err);
+		PRINTF("MCP: Command failed: %d\n", err);
 	}
 
 	return err;

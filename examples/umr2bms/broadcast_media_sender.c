@@ -206,13 +206,13 @@ static int setup_broadcast_source(struct bt_bap_broadcast_source **source)
 		memcpy(create_param.broadcast_code, broadcast_code, BT_ISO_BROADCAST_CODE_SIZE);
 	}
 
-	printk("BMS: Creating broadcast source with %zu subgroups with %zu streams\r\n",
+	PRINTF("BMS: Creating broadcast source with %zu subgroups with %zu streams\r\n",
 	       ARRAY_SIZE(subgroup_param),
 	       ARRAY_SIZE(subgroup_param) * streams_per_subgroup);
 
 	err = bt_bap_broadcast_source_create(&create_param, source);
 	if (err != 0) {
-		printk("BMS: Unable to create broadcast source: %d\r\n", err);
+		PRINTF("BMS: Unable to create broadcast source: %d\r\n", err);
 		return err;
 	}
 
@@ -224,15 +224,15 @@ static void print_lc3_preset(const char *name, const struct bt_bap_lc3_preset *p
 	const struct bt_audio_codec_cfg *codec_cfg = &preset->codec_cfg;
 	const struct bt_bap_qos_cfg *qos = &preset->qos;
 
-	printk("BMS: %s:\r\n", name);
+	PRINTF("BMS: %s:\r\n", name);
 
-	printk("BMS: \tcodec_cfg - sample_rate: %d, duration: %d, len: %d\r\n",
+	PRINTF("BMS: \tcodec_cfg - sample_rate: %d, duration: %d, len: %d\r\n",
 			bt_audio_codec_cfg_freq_to_freq_hz((enum bt_audio_codec_cfg_freq)bt_audio_codec_cfg_get_freq(codec_cfg)),
 			bt_audio_codec_cfg_frame_dur_to_frame_dur_us((enum bt_audio_codec_cfg_frame_dur)bt_audio_codec_cfg_get_frame_dur(codec_cfg)),
 			bt_audio_codec_cfg_get_octets_per_frame(codec_cfg)
 		);
 
-	printk("BMS: \tqos - interval: %d, framing: %d, phy: %d, sdu: %d, rtn: %d, pd: %d\r\n",
+	PRINTF("BMS: \tqos - interval: %d, framing: %d, phy: %d, sdu: %d, rtn: %d, pd: %d\r\n",
 			qos->interval,
 			qos->framing,
 			qos->phy,
@@ -297,7 +297,7 @@ int config_broadcast_code(uint8_t *data, int len)
 		memcpy(broadcast_code, data, len);
 		broadcast_code_set = true;
 
-		printk("BMS: broadcast_code: %s\r\n", bt_hex(broadcast_code, BT_ISO_BROADCAST_CODE_SIZE));
+		PRINTF("BMS: broadcast_code: %s\r\n", bt_hex(broadcast_code, BT_ISO_BROADCAST_CODE_SIZE));
 	}
 	else
 	{
@@ -383,7 +383,7 @@ int bms_init(void)
 	/* Create a non-connectable non-scannable advertising set */
 	err = bt_le_ext_adv_create(BT_LE_EXT_ADV_NCONN, NULL, &adv);
 	if (err != 0) {
-		printk("BMS: Unable to create extended advertising set: %d\r\n",
+		PRINTF("BMS: Unable to create extended advertising set: %d\r\n",
 			err);
 		return err;
 	}
@@ -391,15 +391,15 @@ int bms_init(void)
 	/* Set periodic advertising parameters */
 	err = bt_le_per_adv_set_param(adv, BT_LE_PER_ADV_DEFAULT);
 	if (err) {
-		printk("BMS: Failed to set periodic advertising parameters"
+		PRINTF("BMS: Failed to set periodic advertising parameters"
 		" (err %d)\r\n", err);
 		return err;
 	}
 
-	printk("BMS: Creating broadcast source\r\n");
+	PRINTF("BMS: Creating broadcast source\r\n");
 	err = setup_broadcast_source(&broadcast_source);
 	if (err != 0) {
-		printk("BMS: Unable to setup broadcast source: %d\r\n", err);
+		PRINTF("BMS: Unable to setup broadcast source: %d\r\n", err);
 		return err;
 	}
 
@@ -408,7 +408,7 @@ int bms_init(void)
 #else
 	err = bt_rand(&broadcast_id, BT_AUDIO_BROADCAST_ID_SIZE);
 	if (err) {
-		printk("Unable to generate broadcast ID: %d\n", err);
+		PRINTF("Unable to generate broadcast ID: %d\n", err);
 		return err;
 	}
 #endif /* CONFIG_STATIC_BROADCAST_ID */
@@ -423,7 +423,7 @@ int bms_init(void)
 						sizeof(CONFIG_BT_DEVICE_NAME) - 1);
 	err = bt_le_ext_adv_set_data(adv, ext_ad, ARRAY_SIZE(ext_ad), NULL, 0);
 	if (err != 0) {
-		printk("BMS: Failed to set extended advertising data: %d\r\n",
+		PRINTF("BMS: Failed to set extended advertising data: %d\r\n",
 			err);
 		return err;
 	}
@@ -431,7 +431,7 @@ int bms_init(void)
 	/* Setup periodic advertising data */
 	err = bt_bap_broadcast_source_get_base(broadcast_source, &base_buf);
 	if (err != 0) {
-		printk("BMS: Failed to get encoded BASE: %d\r\n", err);
+		PRINTF("BMS: Failed to get encoded BASE: %d\r\n", err);
 		return err;
 	}
 
@@ -440,7 +440,7 @@ int bms_init(void)
 	per_ad.data = base_buf.data;
 	err = bt_le_per_adv_set_data(adv, &per_ad, 1);
 	if (err != 0) {
-		printk("BMS: Failed to set periodic advertising data: %d\r\n",
+		PRINTF("BMS: Failed to set periodic advertising data: %d\r\n",
 			err);
 		return err;
 	}
@@ -448,7 +448,7 @@ int bms_init(void)
 	/* Start extended advertising */
 	err = bt_le_ext_adv_start(adv, BT_LE_EXT_ADV_START_DEFAULT);
 	if (err) {
-		printk("BMS: Failed to start extended advertising: %d\r\n",
+		PRINTF("BMS: Failed to start extended advertising: %d\r\n",
 			err);
 		return err;
 	}
@@ -456,7 +456,7 @@ int bms_init(void)
 	/* Enable Periodic Advertising */
 	err = bt_le_per_adv_start(adv);
 	if (err) {
-		printk("BMS: Failed to enable periodic advertising: %d\r\n",
+		PRINTF("BMS: Failed to enable periodic advertising: %d\r\n",
 			err);
 		return err;
 	}
@@ -475,14 +475,14 @@ int bms_start(void)
 		return 0;
 	}
 
-	printk("BMS: Starting broadcast source\r\n");
+	PRINTF("BMS: Starting broadcast source\r\n");
 	err = bt_bap_broadcast_source_start(broadcast_source, adv);
 	if (err != 0) {
-		printk("BMS: Unable to start broadcast source: %d\r\n", err);
+		PRINTF("BMS: Unable to start broadcast source: %d\r\n", err);
 		return err;
 	}
 
-	printk("BMS: Waiting stream start event\r\n");
+	PRINTF("BMS: Waiting stream start event\r\n");
 	/* Wait for all to be started */
 	for (size_t i = 0U; i < ARRAY_SIZE(streams); i++) {
 		k_sem_take(&streams[i].sem, K_FOREVER);
@@ -490,7 +490,7 @@ int bms_start(void)
 			return -EINVAL;
 		}
 	}
-	printk("BMS: Broadcast source started\r\n");
+	PRINTF("BMS: Broadcast source started\r\n");
 
 	started = true;
 	return 0;
@@ -504,10 +504,10 @@ int bms_stop(void)
 		return -EINVAL;
 	}
 
-	printk("BMS: Stopping broadcast source\r\n");
+	PRINTF("BMS: Stopping broadcast source\r\n");
 	err = bt_bap_broadcast_source_stop(broadcast_source);
 	if (err != 0) {
-		printk("BMS: Unable to stop broadcast source: %d\r\n", err);
+		PRINTF("BMS: Unable to stop broadcast source: %d\r\n", err);
 		return err;
 	}
 
@@ -518,7 +518,7 @@ int bms_stop(void)
 			return -EINVAL;
 		}
 	}
-	printk("BMS: Broadcast source stopped\r\n");
+	PRINTF("BMS: Broadcast source stopped\r\n");
 	started = false;
 
 	return 0;
@@ -532,33 +532,33 @@ int bms_deinit(void)
 		return -EINVAL;
 	}
 
-	printk("BMS: Deleting broadcast source\r\n");
+	PRINTF("BMS: Deleting broadcast source\r\n");
 	err = bt_bap_broadcast_source_delete(broadcast_source);
 	if (err != 0) {
-		printk("BMS: Unable to delete broadcast source: %d\r\n", err);
+		PRINTF("BMS: Unable to delete broadcast source: %d\r\n", err);
 		return err;
 	}
-	printk("BMS: Broadcast source deleted\r\n");
+	PRINTF("BMS: Broadcast source deleted\r\n");
 	broadcast_source = NULL;
 	seq_num = 0;
 
 	err = bt_le_per_adv_stop(adv);
 	if (err) {
-		printk("BMS: Failed to stop periodic advertising (err %d)\r\n",
+		PRINTF("BMS: Failed to stop periodic advertising (err %d)\r\n",
 			err);
 		return err;
 	}
 
 	err = bt_le_ext_adv_stop(adv);
 	if (err) {
-		printk("BMS: Failed to stop extended advertising (err %d)\r\n",
+		PRINTF("BMS: Failed to stop extended advertising (err %d)\r\n",
 			err);
 		return err;
 	}
 
 	err = bt_le_ext_adv_delete(adv);
 	if (err) {
-		printk("BMS: Failed to delete extended advertising (err %d)\r\n",
+		PRINTF("BMS: Failed to delete extended advertising (err %d)\r\n",
 			err);
 		return err;
 	}
@@ -616,12 +616,12 @@ static int bms_stream_pending(enum bt_audio_location chan_allocation, struct net
 
 	tx_buf = net_buf_alloc(&tx_pool, K_NO_WAIT);
 	if (tx_buf == NULL) {
-		printk("BMS: Unable to allocate tx_buf for pending data\r\n");
+		PRINTF("BMS: Unable to allocate tx_buf for pending data\r\n");
 		return -ENOMEM;
 	}
 
 	if (buf->len > net_buf_tailroom(tx_buf)) {
-		printk("BMS: Not enough space in tx_buf to hold pending data\r\n");
+		PRINTF("BMS: Not enough space in tx_buf to hold pending data\r\n");
 		net_buf_unref(tx_buf);
 		return -ENOMEM;
 	}
@@ -649,7 +649,7 @@ static void bms_stream_send_pending(void)
 
 		int err = bms_stream_send(pending_data->chan_allocation, tx_buf);
 		if (err != 0) {
-			printk("BMS: Failed to send pending data: %d\r\n", err);
+			PRINTF("BMS: Failed to send pending data: %d\r\n", err);
 		}
 		net_buf_unref(tx_buf);
 	}
@@ -733,7 +733,7 @@ int bms_stream_send(enum bt_audio_location chan_allocation, struct net_buf *buf)
 
 			err = bt_bap_stream_send_ts(&stream->stream, tx_buf, (uint16_t)(seq_num & 0xffff), sdu_time_stamp);
 			if (err < 0) {
-				printk("BMS: Unable to broadcast data on %p: %d\r\n", stream, err);
+				PRINTF("BMS: Unable to broadcast data on %p: %d\r\n", stream, err);
 				net_buf_unref(tx_buf);
 			}
 		}
