@@ -12,29 +12,24 @@ config BT_LONG_WQ_STACK_SIZE
 
 config BT_LONG_WQ_PRIO
 	range 0 NUM_PREEMPT_PRIORITIES
-	default 5
 
 endif # BT_LONG_WQ
 
 config SYSTEM_WORKQUEUE_PRIORITY
 	range 0 NUM_PREEMPT_PRIORITIES
-	default 4
 
 config BT_RX_PRIO
 	range 0 NUM_PREEMPT_PRIORITIES
-	default 5
+	default 9
 
 config BT_HCI_TX_PRIO
 	range 0 NUM_PREEMPT_PRIORITIES
-	default 3
 
 config BT_CONN_TX_NOTIFY_WQ_PRIO
 	range 0 NUM_PREEMPT_PRIORITIES
-	default 4
 
 config BT_DRIVER_RX_HIGH_PRIO
 	range 0 NUM_PREEMPT_PRIORITIES
-	default 2
 
 config BT_MPL_MEDIA_PLAYER_NAME
 	help

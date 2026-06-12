@@ -88,19 +88,23 @@ static void _k_thread_function_wrap( void * pvParameters )
 
 static int _k_thread_format_prio(int prio)
 {
+	int updated_prio;
+
 	if (prio < 0) {
-		if (prio <= -CONFIG_NUM_PREEMPT_PRIORITIES) {
-			return CONFIG_NUM_PREEMPT_PRIORITIES + CONFIG_NUM_PREEMPT_PRIORITIES;
-		} else {
-			return CONFIG_NUM_PREEMPT_PRIORITIES + prio * -1;
-		}
+		updated_prio = prio * -1;
+	} else {
+		updated_prio = prio;
 	}
 
-	if (prio > CONFIG_NUM_PREEMPT_PRIORITIES) {
-		return CONFIG_NUM_PREEMPT_PRIORITIES;
+	if (updated_prio >= CONFIG_NUM_PREEMPT_PRIORITIES) {
+		updated_prio = CONFIG_NUM_PREEMPT_PRIORITIES - 1;
 	}
 
-	return prio;
+	if (updated_prio == 0) {
+		updated_prio = 1;
+	}
+
+	return prio < 0 ? updated_prio : CONFIG_NUM_PREEMPT_PRIORITIES - updated_prio;
 }
 
 /**
