@@ -1027,6 +1027,7 @@ int k_is_preempt_thread(void)
 }
 
 __maybe_unused static atomic_t sched_lock_count;
+__maybe_unused static int sched_lock_priority;
 
 /**
  * @brief Lock the scheduler.
@@ -1055,7 +1056,23 @@ __maybe_unused static atomic_t sched_lock_count;
  */
 void k_sched_lock(void)
 {
-	vTaskSuspendAll();
+	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SCHEDULER)) {
+		vTaskSuspendAll();
+		return;
+	}
+
+	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_HIGHEST_PRIO)) {
+		vTaskSuspendAll();
+		if (atomic_inc(&sched_lock_count) == 0) {
+			sched_lock_priority = k_thread_priority_get(NULL);
+			k_thread_priority_set(NULL, configMAX_PRIORITIES - 2);
+		}
+		if (!xTaskResumeAll())
+		{
+			taskYIELD();
+		}
+		return;
+	}
 }
 
 /**
@@ -1067,9 +1084,29 @@ void k_sched_lock(void)
  */
 void k_sched_unlock(void)
 {
-	if (!xTaskResumeAll())
-	{
-		taskYIELD();
+	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SCHEDULER)) {
+		if (!xTaskResumeAll())
+		{
+			taskYIELD();
+		}
+		return;
+	}
+
+	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_HIGHEST_PRIO)) {
+		vTaskSuspendAll();
+		if (atomic_get(&sched_lock_count) < 1) {
+			goto resume;
+		}
+
+		if (atomic_dec(&sched_lock_count) == 1) {
+			k_thread_priority_set(NULL, sched_lock_priority);
+		}
+resume:
+		if (!xTaskResumeAll())
+		{
+			taskYIELD();
+		}
+		return;
 	}
 }
 
