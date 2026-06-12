@@ -1,46 +1,8 @@
 # Copyright 2026 NXP
 # SPDX-License-Identifier: Apache-2.0
 
-choice BT_THREAD_SCHEDULER_LOCK
-  prompt "Enable Bluetooth Thread Scheduler Lock"
-  default BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD
-  help
-    Enable the Bluetooth thread scheduler lock to protect critical sections in the Bluetooth stack.
-    This ensures thread-safe operations when accessing shared resources in the Bluetooth
-    implementation.
-
-  config BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD
-    bool "Suspend preempt threads for Bluetooth Thread Scheduler Lock"
-    help
-      Suspend preempt threads for Bluetooth Thread Scheduler Lock. This provides a simple and
-      efficient mechanism for synchronizing access to critical sections in the Bluetooth stack.
-
-  config BT_THREAD_SCHEDULER_LOCK_VIA_SCHEDULER
-    bool "Use Scheduler for Bluetooth Thread Scheduler Lock"
-    help
-      Use the scheduler's built-in locking mechanism to implement the Bluetooth thread scheduler
-      lock.
-      This may provide better performance in certain scenarios but may not be supported on all
-      platforms.
-
-  config BT_THREAD_SCHEDULER_LOCK_NONE
-    bool "Do not use Bluetooth Thread Scheduler Lock"
-    help
-      Do not use any locking mechanism for the Bluetooth thread scheduler. This may lead to
-      potential race conditions and is not recommended for production use.
-
-endchoice # BT_THREAD_SCHEDULER_LOCK
-
 config THREAD_NAME
   bool "Enable custom thread naming"
   default y
   help
     Enable support for custom thread names in the Bluetooth thread implementation.
-
-config BT_THREAD_SCHEDULER_LOCK_ALL_THREADS
-  bool "Lock all threads for Bluetooth Thread Scheduler Lock"
-  depends on BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD
-  help
-    Lock all threads, including cooperative threads, for Bluetooth Thread Scheduler Lock. This
-    provides comprehensive synchronization across all threads in the system to protect critical
-    sections in the Bluetooth stack.

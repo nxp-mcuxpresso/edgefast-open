@@ -1051,37 +1051,7 @@ __maybe_unused static atomic_t sched_lock_count;
  */
 void k_sched_lock(void)
 {
-	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SCHEDULER)) {
-		vTaskSuspendAll();
-		return;
-	}
-
-	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD)) {
-		struct k_thread *thread, *next;
-
-		vTaskSuspendAll();
-		if (atomic_inc(&sched_lock_count) == 0) {
-			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
-
-				atomic_clear_bit(&thread->flags, THREAD_FLAG_ACTIVE_RESUMED);
-
-				if (thread != k_current_get()) {
-					if (atomic_test_bit(&thread->flags, THREAD_FLAG_COOP)) {
-						if (!IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_ALL_THREADS)) {
-							continue;
-						}
-					}
-
-					k_thread_suspend(thread);
-				}
-			}
-		}
-		if (!xTaskResumeAll())
-		{
-			taskYIELD();
-		}
-		return;
-	}
+	vTaskSuspendAll();
 }
 
 /**
@@ -1093,39 +1063,9 @@ void k_sched_lock(void)
  */
 void k_sched_unlock(void)
 {
-	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SCHEDULER)) {
-		if (!xTaskResumeAll())
-		{
-			taskYIELD();
-		}
-		return;
-	}
-
-	if (IS_ENABLED(CONFIG_BT_THREAD_SCHEDULER_LOCK_VIA_SUSPEND_THREAD)) {
-		struct k_thread *thread, *next;
-		atomic_val_t value;
-
-		vTaskSuspendAll();
-
-		value = atomic_get(&sched_lock_count);
-
-		__ASSERT(value >= 1, "Invalid scheduler unlock");
-		if (value < 1) {
-			goto out;
-		}
-
-		if (atomic_dec(&sched_lock_count) == 1) {
-			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&threads, thread, next, node) {
-				k_thread_resume(thread);
-			}
-		}
-
-out:
-		if (!xTaskResumeAll())
-		{
-			taskYIELD();
-		}
-		return;
+	if (!xTaskResumeAll())
+	{
+		taskYIELD();
 	}
 }
 
