@@ -155,16 +155,16 @@ static void connected(struct bt_conn *conn, uint8_t err)
                 {
                     if (-1 == index)
                     {
-                        unsigned int key;
+                        unsigned int reg;
 
                         index = (int)i;
 
-                        key = irq_lock();
+                        reg = DisableGlobalIRQ();
                         g_WirelessUartState.peerCentral[index].conn = conn;
                         g_WirelessUartState.peerCentralConnCount++;
                         g_WirelessUartState.peerCentral[index].wait4SendingBuffer = g_WirelessUartState.orignialBuffer;
                         g_WirelessUartState.peerCentral[index].wait4SendingLength = g_WirelessUartState.orignialBufferLength;
-                        irq_unlock(key);
+                        EnableGlobalIRQ(reg);
                     }
                 }
                 else
@@ -175,9 +175,9 @@ static void connected(struct bt_conn *conn, uint8_t err)
         case BT_HCI_ROLE_CENTRAL:
             for (i = 0;i < CONFIG_BT_MAX_CONN;i++)
             {
-                unsigned int key;
+                unsigned int reg;
 
-                key = irq_lock();
+                reg = DisableGlobalIRQ();
                 if (conn == g_WirelessUartState.peerPeripheral[i].conn)
                 {
                     index = (int)i;
@@ -188,7 +188,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
                 else
                 {
                 }
-                irq_unlock(key);
+                EnableGlobalIRQ(reg);
             }
             break;
         }
@@ -807,9 +807,9 @@ status_t BLE_WuDeinit(void)
 status_t BLE_WuWrite(uint8_t *buffer, uint32_t length);
 status_t BLE_WuWrite(uint8_t *buffer, uint32_t length)
 {
-    unsigned int key;
+    unsigned int reg;
 
-    key = irq_lock();
+    reg = DisableGlobalIRQ();
     for (int index = 0;index < CONFIG_BT_MAX_CONN;index++)
     {
         if (NULL != g_WirelessUartState.peerCentral[index].conn)
@@ -825,7 +825,7 @@ status_t BLE_WuWrite(uint8_t *buffer, uint32_t length)
     }
     g_WirelessUartState.orignialBuffer = buffer;
     g_WirelessUartState.orignialBufferLength = length;
-    irq_unlock(key);
+    EnableGlobalIRQ(reg);
     return kStatus_Success;
 }
 

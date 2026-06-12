@@ -283,7 +283,7 @@ static void wireless_uart_rx_callback(void *callbackParam,
                                                serial_manager_status_t status)
 {
     uint32_t             count = 0;
-    unsigned int key;
+    unsigned int reg;
     uint8_t              recvChar[8];
     uint8_t              going = 0;
 
@@ -293,7 +293,7 @@ static void wireless_uart_rx_callback(void *callbackParam,
         {
             break;
         }
-        key = irq_lock();
+        reg = DisableGlobalIRQ();
         for (int index = 0;index < CONFIG_BT_MAX_CONN;index++)
         {
             if (NULL != g_WirelessUartState.peerCentral[index].conn)
@@ -329,7 +329,7 @@ static void wireless_uart_rx_callback(void *callbackParam,
                 }
             }
         }
-        irq_unlock(key);
+        EnableGlobalIRQ(reg);
     } while (going);
 }
 
@@ -350,7 +350,7 @@ static int wireless_uart_read(struct bt_conn *conn, bt_gatt_wu_read_response_t r
 {
     uint8_t * buffer;
     ssize_t length;
-    unsigned int key;
+    unsigned int reg;
     uint32_t index;
     int ret = -1;
 
@@ -362,13 +362,13 @@ static int wireless_uart_read(struct bt_conn *conn, bt_gatt_wu_read_response_t r
             {
                 if (g_WirelessUartState.peerCentral[index].wait4SendingLength > 0U)
                 {
-                    key = irq_lock();
+                    reg = DisableGlobalIRQ();
                     buffer = &g_WirelessUartState.peerCentral[index].wait4SendingBuffer[0];
                     length = (ssize_t)g_WirelessUartState.peerCentral[index].wait4SendingLength;
                     g_WirelessUartState.peerCentral[index].wait4SendingLength = 0;
                     g_WirelessUartState.peerCentral[index].wait4SendingBufferIndex = 1 - g_WirelessUartState.peerCentral[index].wait4SendingBufferIndex;
                     g_WirelessUartState.peerCentral[index].wait4SendingBuffer = &g_WirelessUartState.peerCentral[index].wait4SendingBufferPool[g_WirelessUartState.peerCentral[index].wait4SendingBufferIndex][0];
-                    irq_unlock(key);
+                    EnableGlobalIRQ(reg);
 
                     ret = response(param, buffer, length);
                 }
@@ -381,13 +381,13 @@ static int wireless_uart_read(struct bt_conn *conn, bt_gatt_wu_read_response_t r
             {
                 if (g_WirelessUartState.peerPeripheral[index].wait4SendingLength > 0U)
                 {
-                    key = irq_lock();
+                    reg = DisableGlobalIRQ();
                     buffer = &g_WirelessUartState.peerPeripheral[index].wait4SendingBuffer[0];
                     length = (ssize_t)g_WirelessUartState.peerPeripheral[index].wait4SendingLength;
                     g_WirelessUartState.peerPeripheral[index].wait4SendingLength = 0;
                     g_WirelessUartState.peerPeripheral[index].wait4SendingBufferIndex = 1 - g_WirelessUartState.peerPeripheral[index].wait4SendingBufferIndex;
                     g_WirelessUartState.peerPeripheral[index].wait4SendingBuffer = &g_WirelessUartState.peerPeripheral[index].wait4SendingBufferPool[g_WirelessUartState.peerPeripheral[index].wait4SendingBufferIndex][0];
-                    irq_unlock(key);
+                    EnableGlobalIRQ(reg);
 
                     ret = response(param, buffer, length);
                 }

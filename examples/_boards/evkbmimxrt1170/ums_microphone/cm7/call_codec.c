@@ -213,19 +213,19 @@ static void BOARD_CodecTask(void* param)
 {
     hal_audio_transfer_t xfer;
     uint8_t need2Callback = 0U;
-    unsigned int key;
+    unsigned int reg;
 
     while (true)
     {
         k_sem_take(&s_audioTaskSync, K_FOREVER);
 
-        key = irq_lock();
+        reg = DisableGlobalIRQ();
         if (s_audioInitialized < 1)
         {
-            irq_unlock(key);
+            EnableGlobalIRQ(reg);
             continue;
         }
-        irq_unlock(key);
+        EnableGlobalIRQ(reg);
 
         if (stop_codec == true)
         {
@@ -234,7 +234,7 @@ static void BOARD_CodecTask(void* param)
             continue;
         }
 
-        key = irq_lock();
+        reg = DisableGlobalIRQ();
         if (codecTxBufferPrimeCount < CODEC_TX_BUFFER_COUNT)
         {
             xfer.data     = &codecTxBuffer[codecTxBufferPrimeIndex * CODEC_TX_BUFFER_SIZE_MAX];
@@ -251,14 +251,14 @@ static void BOARD_CodecTask(void* param)
             codecTxBufferPrimeCount ++;
             need2Callback = 1U;
         }
-        irq_unlock(key);
+        EnableGlobalIRQ(reg);
 
         if (need2Callback > 0U)
         {
             need2Callback = 0U;
         }
 
-        key = irq_lock();
+        reg = DisableGlobalIRQ();
         if (codecRxBufferPrimeCount < CODEC_RX_BUFFER_COUNT)
         {
             xfer.data     = codecRxBuffer + codecRxBufferPrimeIndex * CODEC_RX_BUFFER_SIZE_MAX;
@@ -275,7 +275,7 @@ static void BOARD_CodecTask(void* param)
             codecRxBufferPrimeCount ++;
             need2Callback = 1U;
         }
-        irq_unlock(key);
+        EnableGlobalIRQ(reg);
 
         if (need2Callback > 0U)
         {
@@ -324,9 +324,9 @@ static int BOARD_AudioTaskInit(void)
 void BOARD_StartStream(void)
 {
     hal_audio_transfer_t xfer;
-    unsigned int key;
+    unsigned int reg;
 
-    key = irq_lock();
+    reg = DisableGlobalIRQ();
     for (uint8_t index = 0; index < (CODEC_TX_BUFFER_COUNT - codecTxBufferPrimeCount); ++index)
     {
         xfer.data     = &codecTxBuffer[codecTxBufferPrimeIndex * CODEC_TX_BUFFER_SIZE_MAX];
@@ -360,7 +360,7 @@ void BOARD_StartStream(void)
         codecRxBufferPrimeCount++;
     }
 
-    irq_unlock(key);
+    EnableGlobalIRQ(reg);
 }
 
 uint8_t *BOARD_GetRxReadBuffer(void)

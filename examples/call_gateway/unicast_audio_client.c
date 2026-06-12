@@ -1570,7 +1570,7 @@ static void sink_recv_stream_task(void *param)
     uint32_t handled_sync_index_current = 0;
     uint32_t handled_flag_last = 0;
 
-    unsigned int key;
+    unsigned int reg;
 
     while (true)
     {
@@ -1665,7 +1665,7 @@ static void sink_recv_stream_task(void *param)
                     }
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
-                    key = irq_lock();
+                    reg = DisableGlobalIRQ();
                     if (0 == state->src[0].status.start_slot)
                     {
                         /* Get cig_sync_delay_us */
@@ -1697,7 +1697,7 @@ static void sink_recv_stream_task(void *param)
                         state->snk[0].status.start_slot = state->src[0].status.start_slot + 4;
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
                     }
-                    irq_unlock(key);
+                    EnableGlobalIRQ(reg);
 
                     srCvtUpdateFreqOffset(&state->src[0].resampler[i].upSrc, update_delta);
 
@@ -1716,13 +1716,13 @@ static void sink_recv_stream_task(void *param)
                 pcm = (int16_t *)state->src[0].in_buffer;
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
-                key = irq_lock();
+                reg = DisableGlobalIRQ();
                 state->src[0].status.output_length += (output_length/state->src_cap_required.channel_count) * HW_CODEC_CHANNEL_COUNT;
                 state->src[0].status.received_length += (received_length/state->src_cap_required.channel_count) * HW_CODEC_CHANNEL_COUNT;
                 state->src[0].status.received_count++;
                 state->src[0].status.resampler_added_samples += (resampler_added_samples/state->src_cap_required.channel_count) * HW_CODEC_CHANNEL_COUNT;
                 state->src[0].status.resampler_internal_samples = (resampler_internal_samples/state->src_cap_required.channel_count) * HW_CODEC_CHANNEL_COUNT;
-                irq_unlock(key);
+                EnableGlobalIRQ(reg);
 
                 channel_delta = state->src[0].resampler[0].out_length - state->src[0].resampler[1].out_length;
 
@@ -1996,7 +1996,7 @@ static void ringtone_prime_timeout(struct k_work *work)
 int unicast_client_start_voice(void)
 {
     struct conn_state *state = NULL;
-    unsigned int key;
+    unsigned int reg;
 
     for (uint32_t index = 0; index < ARRAY_SIZE(server_state); index++)
     {
@@ -2011,21 +2011,21 @@ int unicast_client_start_voice(void)
     }
 
     voice_is_started = 1U;
-    key = irq_lock();
+    reg = DisableGlobalIRQ();
     voice_start_flag = 1U;
-    irq_unlock(key);
+    EnableGlobalIRQ(reg);
 
     return 0;
 }
 
 int unicast_client_stop_voice(void)
 {
-    unsigned int key;
+    unsigned int reg;
 
     voice_is_started = 0U;
-    key = irq_lock();
+    reg = DisableGlobalIRQ();
     voice_start_flag = 0U;
-    irq_unlock(key);
+    EnableGlobalIRQ(reg);
 
     return 0;
 }

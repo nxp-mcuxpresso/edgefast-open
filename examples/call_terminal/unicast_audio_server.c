@@ -883,7 +883,7 @@ static void sink_recv_stream_task(void *param)
     uint32_t handled_sync_index_current = 0;
     uint32_t handled_flag_last = 0;
 
-    unsigned int key;
+    unsigned int reg;
 
     while (true)
     {
@@ -962,7 +962,7 @@ static void sink_recv_stream_task(void *param)
                 }
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
-                key = irq_lock();
+                reg = DisableGlobalIRQ();
                 if (0 == connection.snk.status.start_slot)
                 {
                     /* Get cig_sync_delay_us */
@@ -994,7 +994,7 @@ static void sink_recv_stream_task(void *param)
                     connection.src.status.start_slot = connection.snk.status.start_slot + 4;
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
                 }
-                irq_unlock(key);
+                EnableGlobalIRQ(reg);
 
                 srCvtUpdateFreqOffset(&connection.snk.resampler[i].upSrc, update_delta);
 
@@ -1013,13 +1013,13 @@ static void sink_recv_stream_task(void *param)
             pcm = (int16_t *)connection.snk.in_buffer;
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
-            key = irq_lock();
+            reg = DisableGlobalIRQ();
             connection.snk.status.output_length += output_length;
             connection.snk.status.received_length += received_length;
             connection.snk.status.received_count ++;
             connection.snk.status.resampler_added_samples += resampler_added_samples;
             connection.snk.status.resampler_internal_samples = resampler_internal_samples;
-            irq_unlock(key);
+            EnableGlobalIRQ(reg);
 
             channel_delta = connection.snk.resampler[0].out_length - connection.snk.resampler[1].out_length;
 
@@ -1147,7 +1147,7 @@ static void source_send_stream_task(void *param)
     double resampler_added_samples;
     double resampler_internal_samples;
 
-    unsigned int key;
+    unsigned int reg;
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
 
     while (true)
@@ -1200,12 +1200,12 @@ static void source_send_stream_task(void *param)
                 connection.src.resampler[i].out_length += length;
                 out_length += connection.src.resampler[i].out_length;
             }
-            key = irq_lock();
+            reg = DisableGlobalIRQ();
             connection.src.status.output_length += output_length;
             connection.src.status.received_length += received_length;
             connection.src.status.resampler_added_samples += resampler_added_samples;
             connection.src.status.resampler_internal_samples = resampler_internal_samples;
-            irq_unlock(key);
+            EnableGlobalIRQ(reg);
         }
 
         if (out_length >= (tx_len * snk_config_cap.channel_count))
