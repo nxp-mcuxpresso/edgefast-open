@@ -13,13 +13,17 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define BT_LE_ADV_PARAMS    BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN, \
-                                            BT_GAP_ADV_FAST_INT_MIN_1, \
-                                            BT_GAP_ADV_FAST_INT_MAX_1, NULL)
+#define BT_LE_ADV_PARAMS BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN, \
+					 BT_GAP_ADV_FAST_INT_MIN_1, \
+					 BT_GAP_ADV_FAST_INT_MAX_1, NULL)
 
 #define BT_LE_ADV_LP_PARAMS BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN, \
                                             BT_GAP_ADV_SLOW_INT_MIN, \
                                             BT_GAP_ADV_SLOW_INT_MAX, NULL)
+
+#define BT_LE_ADV_LP_PARAMS BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN, \
+					    BT_GAP_ADV_SLOW_INT_MIN, \
+					    BT_GAP_ADV_SLOW_INT_MAX, NULL)
 
 #define ADV_PERIOD_MS       30000
 
