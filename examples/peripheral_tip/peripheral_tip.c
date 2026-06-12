@@ -223,7 +223,7 @@ static void notifications_enabled(void)
 static void cts_notification_timeout_handler(TimerHandle_t timer_id)
 {
     /* get local timestamp */
-    local_time = k_uptime_get_32() / 1000U;
+    local_time = pdTICKS_TO_MS(xTaskGetTickCount()) / 1000U;
     /* add to epoch */
     local_time += EPOCH_TIMESTAMP;
 
