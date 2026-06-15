@@ -200,7 +200,7 @@ static int audio_stream_decode(void)
 	int lc3_res;
 
 	do {
-		sdu_buf = k_fifo_get(&sdu_fifo, 10);
+		sdu_buf = k_fifo_get(&sdu_fifo, K_MSEC(10));
 		if(NULL == sdu_buf)
 		{
 			if(stream_stoped)

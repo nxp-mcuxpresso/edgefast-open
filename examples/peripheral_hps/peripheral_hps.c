@@ -203,7 +203,7 @@ void peripheral_hps_task(void *pvParameters)
 
     while(1)
     {
-        rx_data = k_fifo_get(&app_queue, 1000);
+        rx_data = k_fifo_get(&app_queue, K_MSEC(1000));
         if (NULL != rx_data)
         {
             hps_process_request(rx_data);

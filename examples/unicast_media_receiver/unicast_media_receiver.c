@@ -205,7 +205,7 @@ static int audio_stream_decode(void)
 	int plc_flag = 1;
 	uint8_t *temp_audio_buff;
 
-	sdu_buf = k_fifo_get(&sdu_fifo, 100);
+	sdu_buf = k_fifo_get(&sdu_fifo, K_MSEC(100));
 	if(NULL == sdu_buf)
 	{
 		return 0;
