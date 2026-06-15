@@ -112,7 +112,7 @@ int bt_avrcp_tg_register_cb(const struct bt_avrcp_tg_cb *cb)
 
 ## 4. CT (Controller) Functions
 
-> ℹ️ edgefast_bluetooth sends CT commands via `struct bt_conn *` with implicit role edgefast_open uses explicit `struct bt_avrcp_ct *ct` typed objects with an explicit `uint8_t tid` on every call All TG response functions are in the separate [Section 5](#s5).
+> ℹ️ edgefast_bluetooth sends CT commands via `struct bt_conn *` with implicit role edgefast_open uses explicit `struct bt_avrcp_ct *ct` typed objects with an explicit `uint8_t tid` on every call All TG response functions are in the separate Section 5.
 
 > Both take `struct bt_conn *`. In edgefast_open the resulting typed `struct bt_avrcp_ct *` / `struct bt_avrcp_tg *` objects are delivered via `connected` callbacks. Callback registration is split into two role-specific calls in edgefast_open vs one combined call in edgefast_bluetooth.
 
