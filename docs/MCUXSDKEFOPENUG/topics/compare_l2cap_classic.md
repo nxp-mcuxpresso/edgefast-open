@@ -21,7 +21,7 @@ The following compares the L2CAP Classic differences between EdgeFast Open Bluet
 |**Mode negotiation**|Implicit|Explicit (get_cfg / cfg_req / cfg_rsp)|
 |**Who drives config**|Local side before connect|Both sides during config phase|
 
-## L2CAP Classic on EdgeFast Open
+## L2CAP Classic in EdgeFast Open
 
 ```c
 static int l2cap_recv(struct bt_l2cap_chan *chan, struct net_buf *buf)
@@ -76,7 +76,7 @@ if (err < 0) {
 }
 ```
 
-## L2CAP Classic on EdgeFast Bluetooth PAL
+## L2CAP Classic in EdgeFast Bluetooth PAL
 
 ```c
 
