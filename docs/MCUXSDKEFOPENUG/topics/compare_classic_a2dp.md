@@ -12,18 +12,6 @@
 
 ---
 
-| Count | Description |
-| --- | --- |
-| 2 | edgefast_bluetooth headers `bluetooth/a2dp.h` + `bluetooth/a2dp_codec_sbc.h` |
-| 2 | edgefast_open headers `classic/a2dp.h` + `classic/a2dp_codec_sbc.h` |
-| `struct bt_a2dp_endpoint` | edgefast_bluetooth core object -  bundles codec, config, buffers and callbacks |
-| `struct bt_a2dp_ep` + `struct bt_a2dp_stream` | edgefast_open splits endpoint from stream; stream carries per-connection state |
-| `bt_a2dp_configure` / `bt_a2dp_start` / `bt_a2dp_stop` | edgefast_bluetooth endpoint-centric AVDTP control |
-| `bt_a2dp_stream_config` / `bt_a2dp_stream_start` / `bt_a2dp_stream_suspend` / `bt_a2dp_stream_release` | edgefast_open stream-centric AVDTP control, one function per AVDTP signal |
-| `bt_a2dp_src_media_write` / `bt_a2dp_snk_media_sync` | edgefast_bluetooth raw-buffer media I/O with codec embedded in the stack |
-| `bt_a2dp_stream_send` + `bt_a2dp_stream_create_pdu` | edgefast_open net_buf–based media send; sink receives via `recv` stream callback |
-
-
 ## Contents
 
 - [1. Architecture & Design Philosophy](#1-architecture--design-philosophy)
