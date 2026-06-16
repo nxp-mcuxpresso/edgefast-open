@@ -9,7 +9,6 @@
 #include "board.h"
 #include "pin_mux.h"
 #include "fsl_debug_console.h"
-#include "controller.h"
 #include "fsl_power.h"
 #if (defined(BUTTON_COUNT) && (BUTTON_COUNT > 0U))
 #include "fsl_component_button.h"

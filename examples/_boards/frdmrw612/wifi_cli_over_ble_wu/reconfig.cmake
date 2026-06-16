@@ -21,6 +21,7 @@ mcux_add_include(
     ${board_root}/${board}/wifi_examples/common
     ${board_root}/${board}/wifi_examples/common/lpm
     middleware/edgefast_open/examples/_boards/${board}/wifi_cli_over_ble_wu
+    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls
 )
 mcux_add_macro(
   CC "-DAPPL_USE_STANDARD_IO\

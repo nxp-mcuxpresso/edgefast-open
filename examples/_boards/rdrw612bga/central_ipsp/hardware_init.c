@@ -9,7 +9,6 @@
 #include "board.h"
 #include "pin_mux.h"
 #include "fsl_debug_console.h"
-#include "controller.h"
 #include "fsl_power.h"
 #if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
 #include "ksdk_mbedtls.h"
