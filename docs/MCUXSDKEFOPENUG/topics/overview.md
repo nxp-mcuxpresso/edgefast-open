@@ -19,7 +19,10 @@ The EdgeFast Open Bluetooth Host stack software is built based on MCUXpresso SDK
 :heading-offset: 1
 ```
 
-```{include} ../topics/examples_list.md
+```{include} ../topics/integration.md
 :heading-offset: 1
 ```
 
+```{include} ../topics/examples_list.md
+:heading-offset: 1
+```
