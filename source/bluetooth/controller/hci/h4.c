@@ -153,7 +153,7 @@ static int h4_uart_sending(uint8_t *buffer, uint32_t len)
 	return 0;
 }
 
-static void h4_reset_rx(const struct device *dev)
+static int h4_reset_rx(const struct device *dev)
 {
 	struct h4_data *h4 = dev->data;
 
@@ -169,7 +169,7 @@ static void h4_reset_rx(const struct device *dev)
 	h4->rx.discardable = false;
 	h4->rx.have_hdr = false;
 	h4->rx.done = false;
-	(void)h4_starting_recv(dev, net_buf_simple_tail(h4->rx.hci_buffer), h4->rx.remaining);
+	return h4_starting_recv(dev, net_buf_simple_tail(h4->rx.hci_buffer), h4->rx.remaining);
 }
 
 static struct net_buf *get_rx(struct h4_data *h4, k_timeout_t timeout)
@@ -609,7 +609,23 @@ int __weak controller_hci_uart_get_configuration(controller_hci_uart_config_t *c
 	return -ENOTSUP;
 }
 
-static int hci_init(const struct device *dev, bool default_speed, bool flow_control)
+static bool hci_uart_mode;
+
+int bt_hci_uart_deinit(const struct device *dev)
+{
+#if defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U)
+	if (hci_uart_mode) {
+		(void)HAL_UartDMAAbortReceive((hal_uart_handle_t)hci_uart_handle);
+		(void)HAL_UartDMADeinit((hal_uart_handle_t)hci_uart_handle);
+		return 0;
+	}
+#endif
+	(void)HAL_UartAbortReceive((hal_uart_handle_t)hci_uart_handle);
+	(void)HAL_UartDeinit((hal_uart_handle_t)hci_uart_handle);
+	return 0;
+}
+
+int bt_hci_uart_init(const struct device *dev, bool dma_mode, uint32_t speed, bool flow_control)
 {
 	/*misra 13.1*/
 	controller_hci_uart_config_t hci_config = {0};
@@ -620,6 +636,8 @@ static int hci_init(const struct device *dev, bool default_speed, bool flow_cont
 #endif
 	int err;
 
+	hci_uart_mode = dma_mode;
+
 	err = controller_hci_uart_get_configuration(&hci_config);
 	if (err < 0) {
 		return err;
@@ -627,7 +645,7 @@ static int hci_init(const struct device *dev, bool default_speed, bool flow_cont
 
 	uartConfig.instance = hci_config.instance,
 	uartConfig.srcClock_Hz = hci_config.clockSrc,
-	uartConfig.baudRate_Bps = default_speed ? hci_config.defaultBaudrate : hci_config.runningBaudrate,
+	uartConfig.baudRate_Bps = speed,
 	uartConfig.parityMode = kHAL_UartParityDisabled,
 	uartConfig.stopBitCount = kHAL_UartOneStopBit,
 	uartConfig.enableRx = 1,
@@ -643,6 +661,10 @@ static int hci_init(const struct device *dev, bool default_speed, bool flow_cont
 	if (kStatus_HAL_UartSuccess != status)
 	{
 		return -EIO;
+	}
+
+	if (!dma_mode) {
+		return 0;
 	}
 
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
@@ -661,8 +683,8 @@ static int hci_init(const struct device *dev, bool default_speed, bool flow_cont
 
 #if (defined(FSL_FEATURE_EDMA_HAS_CHANNEL_MUX) && (FSL_FEATURE_EDMA_HAS_CHANNEL_MUX > 0U))
 	dma_channel_mux_configure_t dmaChannelMux;
-	dmaChannelMux.dma_dmamux_configure.dma_rx_channel_mux = config->rx_request;
-	dmaChannelMux.dma_dmamux_configure.dma_tx_channel_mux = config->tx_request;
+	dmaChannelMux.dma_dmamux_configure.dma_rx_channel_mux = hci_config.rx_request;
+	dmaChannelMux.dma_dmamux_configure.dma_tx_channel_mux = hci_config.tx_request;
 	dmaConfig.dma_channel_mux_configure = &dmaChannelMux;
 #endif /* (defined(FSL_FEATURE_EDMA_HAS_CHANNEL_MUX) && (FSL_FEATURE_EDMA_HAS_CHANNEL_MUX > 0U)) */
 
@@ -672,6 +694,16 @@ static int hci_init(const struct device *dev, bool default_speed, bool flow_cont
 		return -EIO;
 	}
 #endif /* HAL_UART_DMA_ENABLE */
+
+	return 0;
+}
+
+static int bt_hci_install_callback(const struct device *dev)
+{
+	hal_uart_status_t status;
+#if defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U)
+	hal_uart_dma_status_t status_dma;
+#endif
 
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
 	status_dma = HAL_UartDMATransferInstallCallback((hal_uart_handle_t)hci_uart_handle, hci_uartdma_transmit_cb, (void *)dev);
@@ -690,27 +722,58 @@ static int hci_init(const struct device *dev, bool default_speed, bool flow_cont
 		return -EIO;
 	}
 
-	h4_reset_rx(dev);
-
-	return 0;
-}
-
-static int bt_hci_deinit(const struct device *dev)
-{
-	HAL_UartAbortReceive((hal_uart_handle_t)hci_uart_handle);
-	HAL_UartDeinit((hal_uart_handle_t)hci_uart_handle);
 	return 0;
 }
 
 int bt_hci_reinit(const struct device *dev, bool default_speed, bool flow_control)
 {
-	bt_hci_deinit(dev);
-	return hci_init(dev, default_speed, flow_control);
+	/*misra 13.1*/
+	controller_hci_uart_config_t hci_config = {0};
+	int err;
+
+	bt_hci_uart_deinit(dev);
+	err = controller_hci_uart_get_configuration(&hci_config);
+	if (err < 0) {
+		return err;
+	}
+
+	err = bt_hci_uart_init(dev, true, default_speed ? hci_config.defaultBaudrate : hci_config.runningBaudrate, flow_control);
+	if (err != 0) {
+		return err;
+	}
+
+	err = bt_hci_install_callback(dev);
+	if (err != 0) {
+		return err;
+	}
+
+	err = h4_reset_rx(dev);
+	return err;
 }
 
 static int bt_hci_init(const struct device *dev, bool default_speed, bool flow_control)
 {
-	return hci_init(dev, default_speed, flow_control);
+	/*misra 13.1*/
+	controller_hci_uart_config_t hci_config = {0};
+	int err;
+
+	err = controller_hci_uart_get_configuration(&hci_config);
+	if (err < 0) {
+		return err;
+	}
+
+	err = bt_hci_uart_init(dev, true, default_speed ? hci_config.defaultBaudrate : hci_config.runningBaudrate, flow_control);
+	if (err != 0) {
+		return err;
+	}
+
+	err = bt_hci_install_callback(dev);
+	if (err != 0) {
+		return err;
+	}
+
+	err = h4_reset_rx(dev);
+	return err;
 }
 
 /** Setup the HCI transport, which usually means to reset the Bluetooth IC
@@ -746,9 +809,6 @@ static int h4_open(const struct device *dev, bt_hci_recv_t recv)
 		return err;
 	}
 
-#if defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U)
-	HAL_UartDMADeinit((hal_uart_handle_t)hci_uart_handle);
-#endif
 	err = bt_hci_transport_setup(cfg->uart);
 	if (err < 0) {
 		return err;

@@ -768,39 +768,19 @@ static void hci_uart_transmit_cb(hal_uart_handle_t handle, hal_uart_status_t sta
 	}
 }
 
+extern int bt_hci_uart_init(const struct device *dev, bool dma_mode, uint32_t speed, bool flow_control);
+extern int bt_hci_uart_deinit(const struct device *dev);
 
-static int fw_upload_uart_init(uint32_t speed, bool flow_control)
+static int fw_upload_uart_reconfig(uint32_t speed, bool flow_control)
 {
-	/*misra 13.1*/
-	controller_hci_uart_config_t hci_config = {0};
-	hal_uart_config_t uartConfig;
 	hal_uart_status_t status;
 	int err;
 
-	err = controller_hci_uart_get_configuration(&hci_config);
-	if (err < 0) {
+	bt_hci_uart_deinit(uart_dev);
+	fw_upload_read_to_clear();
+	err = bt_hci_uart_init(uart_dev, false, speed, flow_control);
+	if (err != 0) {
 		return err;
-	}
-
-	uartConfig.instance = hci_config.instance,
-	uartConfig.srcClock_Hz = hci_config.clockSrc,
-	uartConfig.baudRate_Bps = speed,
-	uartConfig.parityMode = kHAL_UartParityDisabled,
-	uartConfig.stopBitCount = kHAL_UartOneStopBit,
-	uartConfig.enableRx = 1,
-	uartConfig.enableTx = 1,
-	uartConfig.enableRxRTS = flow_control,
-	uartConfig.enableTxCTS = flow_control,
-#if (defined(HAL_UART_ADAPTER_FIFO) && (HAL_UART_ADAPTER_FIFO > 0u))
-	uartConfig.txFifoWatermark = 0U;
-	uartConfig.rxFifoWatermark = 0U;
-#endif
-
-	(void)HAL_UartDeinit((hal_uart_handle_t)uart_dev->obj);
-	status = HAL_UartInit((hal_uart_handle_t)uart_dev->obj, &uartConfig);
-	if (kStatus_HAL_UartSuccess != status)
-	{
-		return -EIO;
 	}
 
 	/* Install the UART TX-RX Callback */
@@ -808,20 +788,6 @@ static int fw_upload_uart_init(uint32_t speed, bool flow_control)
 	if (status != kStatus_HAL_UartSuccess)
 	{
 		return -EIO;
-	}
-
-	return 0;
-}
-
-static int fw_upload_uart_reconfig(uint32_t speed, bool flow_control)
-{
-	int err;
-
-	HAL_UartAbortReceive((hal_uart_handle_t)uart_dev->obj);
-	fw_upload_read_to_clear();
-	err = fw_upload_uart_init(speed, flow_control);
-	if (err != 0) {
-		return err;
 	}
 
 	(void)h4_starting_recv(&rx_buffer, sizeof(rx_buffer));
@@ -1520,9 +1486,6 @@ int bt_h4_vnd_setup(const struct device *dev, const struct bt_hci_setup_params *
 		(void)k_msleep(CONFIG_BT_H4_NXP_CTLR_WAIT_TIME_AFTER_BAUDRATE_UPDATE);
 	}
 
-#if defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U)
-	HAL_UartDMADeinit((hal_uart_handle_t)uart_dev->obj);
-#endif
 	err = fw_upload_uart_reconfig(operation_speed, flowcontrol_of_hci);
 	if (err) {
 		LOG_ERR("Fail to update uart bandrate");
@@ -1552,9 +1515,6 @@ int bt_h4_vnd_setup(const struct device *dev, const struct bt_hci_setup_params *
 		fw_upload.is_setup_done = true;
 	}
 
-#if defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U)
-	HAL_UartDMADeinit((hal_uart_handle_t)uart_dev->obj);
-#endif
 	err = fw_upload_uart_reconfig(operation_speed, flowcontrol_of_hci);
 	if (err) {
 		LOG_ERR("Fail to update uart bandrate");
