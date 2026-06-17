@@ -13,16 +13,13 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define BT_LE_ADV_PARAMS BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN | \
-					 BT_LE_ADV_OPT_USE_NAME, \
-					 BT_GAP_ADV_FAST_INT_MIN_1, \
-					 BT_GAP_ADV_FAST_INT_MAX_1, NULL)
+#define BT_LE_ADV_PARAMS    BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN, \
+                                            BT_GAP_ADV_FAST_INT_MIN_1, \
+                                            BT_GAP_ADV_FAST_INT_MAX_1, NULL)
 
-
-#define BT_LE_ADV_LP_PARAMS BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN | \
-					    BT_LE_ADV_OPT_USE_NAME, \
-					    BT_GAP_ADV_SLOW_INT_MIN, \
-					    BT_GAP_ADV_SLOW_INT_MAX, NULL)
+#define BT_LE_ADV_LP_PARAMS BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN, \
+                                            BT_GAP_ADV_SLOW_INT_MIN, \
+                                            BT_GAP_ADV_SLOW_INT_MAX, NULL)
 
 #define ADV_PERIOD_MS       30000
 
@@ -32,8 +29,8 @@
 struct bt_conn *default_conn;
 static const struct bt_data ad[] = {
     BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-    BT_DATA_BYTES(BT_DATA_UUID16_ALL,
-                  BT_UUID_16_ENCODE(BT_UUID_IAS_VAL))
+    BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
+    BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(BT_UUID_IAS_VAL)),
 };
 static TimerHandle_t adv_timer = NULL;
 static QueueHandle_t adv_timeout_sync;
