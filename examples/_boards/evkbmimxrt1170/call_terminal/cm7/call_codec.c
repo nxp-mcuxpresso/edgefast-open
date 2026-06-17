@@ -143,7 +143,7 @@ static bool APP_CodecCheckState(uint32_t state, uint32_t timeout)
 	}
 
 	while (atomic_get(&codec_state) != state) {
-		k_sleep(K_MSEC(1));
+		vTaskDelay(pdMS_TO_TICKS(1))
 		timeout--;
 
 		if (timeout == 0U) {
