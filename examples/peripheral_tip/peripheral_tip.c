@@ -50,6 +50,8 @@ static const struct bt_data ad[] = {
               BT_UUID_16_ENCODE(BT_UUID_CTS_VAL)),
     BT_DATA_BYTES(BT_DATA_UUID16_ALL,
           BT_UUID_16_ENCODE(BT_UUID_RTUS_VAL)),
+    BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME,
+                  sizeof(CONFIG_BT_DEVICE_NAME) - 1)
 };
 #if CONFIG_BT_SMP
 static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_security_err err)
