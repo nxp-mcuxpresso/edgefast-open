@@ -68,6 +68,14 @@ mcux_add_mdk_configuration(
        --legacyalign\
        --diag_suppress=3912"
 )
+mcux_remove_armgcc_configuration(
+    TARGETS flexspi_nor_debug
+    CC "-O0"
+)
+mcux_add_armgcc_configuration(
+    TARGETS flexspi_nor_debug
+    CC "-Og"
+)
 mcux_remove_iar_linker_script(
   BASE_PATH ${SdkRootDirPath}
   LINKER ${device_root}/RT/RT1180/MIMXRT1189/iar/MIMXRT1189xxxxx_cm33_flexspi_nor.icf

@@ -71,6 +71,8 @@ AT_NONCACHEABLE_SECTION(uint32_t g_AudioTxDummyBuffer[AUDIO_DUMMY_SIZE / 4U]);
 StaticSemaphore_t xSemaphoreScoAudio_buff;
 SemaphoreHandle_t xSemaphoreScoAudio;
 
+static uint8_t s_consumerActualData = 0;
+static uint8_t s_8978ConsumerActualData = 0;
 static volatile uint8_t saiEnable= 0;
 static uint32_t txMic_index = 0U, rxMic_index = 0U;
 atomic_t emptyMicBlock = BUFFER_NUMBER;
@@ -142,7 +144,6 @@ static void txMicCallback(hal_audio_handle_t handle, hal_audio_status_t completi
 #else
 static void txMicCallback(hal_audio_handle_t handle, hal_audio_status_t completionStatus, void *callbackParam)
 {
-    static volatile uint8_t s_8978ConsumerActualData = 0;
     hal_audio_transfer_t xfer;
     if (s_ringTone == 1U)
     {
@@ -209,7 +210,6 @@ static void txMicCallback(hal_audio_handle_t handle, hal_audio_status_t completi
             }
             else
             {
-                PRINTF("mic dummy\r\n");
                 s_8978ConsumerActualData = 0;
                 xfer.dataSize            = AUDIO_DUMMY_SIZE;
                 xfer.data                = (uint8_t *)&g_AudioTxDummyBuffer[0];
@@ -221,7 +221,6 @@ static void txMicCallback(hal_audio_handle_t handle, hal_audio_status_t completi
 #endif
 static void txSpeakerCallback(hal_audio_handle_t handle, hal_audio_status_t completionStatus, void *callbackParam)
 {
-    static volatile uint8_t s_consumerActualData = 0;
     hal_audio_transfer_t xfer;
     if (s_ringTone == 1U)
     {
@@ -448,6 +447,8 @@ static int audio_setup_pl_ext(uint8_t isRing, sco_audio_ep_info *ep_info)
     txMic_index     = 0U;
     rxMic_index     = 0U;
     txSpeaker_index = 0U, rxSpeaker_index = 0U;
+    s_consumerActualData = 0U;
+    s_8978ConsumerActualData = 0U;
     (void)atomic_set(&emptySpeakerBlock, BUFFER_NUMBER);
     (void)atomic_set(&emptyMicBlock, BUFFER_NUMBER);
     if (isRing)
@@ -604,7 +605,6 @@ int sco_audio_start_pl_ext(void)
         (void)result;
     }
 
-    (void)atomic_set(&emptyMicBlock, 0);
     for (uint8_t index = 0; index < BUFFER_NUMBER; ++index)
     {
         xfer.data     = MicBuffer + rxMic_index * BUFFER_SIZE;
@@ -620,7 +620,6 @@ int sco_audio_start_pl_ext(void)
         }
     }
 
-    (void)atomic_set(&emptySpeakerBlock, 0);
     for (uint8_t index = 0; index < BUFFER_NUMBER; ++index)
     {
         xfer.data     = SpeakerBuffer + rxSpeaker_index * BUFFER_SIZE;
