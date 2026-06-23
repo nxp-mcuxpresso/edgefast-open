@@ -41,7 +41,8 @@ static void timeout_process(void);
 struct bt_conn *default_conn;
 static QueueHandle_t adv_timeout_sync;
 
-K_SEM_DEFINE(app_queue, 0, 10);
+StaticSemaphore_t app_queue_buff;
+SemaphoreHandle_t app_queue;
 
 static const struct bt_data ad[] = {
     BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
@@ -228,7 +229,7 @@ static void cts_notification_timeout_handler(TimerHandle_t timer_id)
     local_time += EPOCH_TIMESTAMP;
 
     /* Post message and wake up application task */
-	k_sem_give(&app_queue);
+	xSemaphoreGive(app_queue);
     if (NULL != adv_timeout_sync)
     {
     	xSemaphoreGive(adv_timeout_sync);
@@ -350,6 +351,12 @@ void peripheral_tip_task(void *pvParameters)
 		PRINTF("failed to create adv_timeout_sync\n");
 	}
 
+	app_queue = xSemaphoreCreateCountingStatic(10, 0, &app_queue_buffer);
+	if (NULL == app_queue)
+	{
+		PRINTF("failed to create app_queue\n");
+	}
+
 	/* Initialize the Bluetooth Subsystem */
 	err = bt_enable(bt_ready);
 	if (err)
@@ -367,8 +374,7 @@ void peripheral_tip_task(void *pvParameters)
 			}
 		}
 
-		err = k_sem_take(&app_queue, K_SECONDS(1));
-		if (0 == err)
+		if (pdTRUE == xSemaphoreTake(app_queue, pdMS_TO_TICKS(1000)))
 		{
 			bt_cts_set_current_time(default_conn, current_time, local_time);
 		}

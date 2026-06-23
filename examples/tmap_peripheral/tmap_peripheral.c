@@ -72,10 +72,14 @@ static const struct bt_data ad[] = {
 	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 };
 
-static K_SEM_DEFINE(sem_connected, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_security_updated, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_disconnected, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_discovery_done, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t sem_connected_buff;
+static SemaphoreHandle_t sem_connected;
+static StaticSemaphore_t sem_security_updated_buff;
+static SemaphoreHandle_t sem_security_updated;
+static StaticSemaphore_t sem_disconnected_buff;
+static SemaphoreHandle_t sem_disconnected;
+static StaticSemaphore_t sem_discovery_done_buff;
+static SemaphoreHandle_t sem_discovery_done;
 
 void tmap_discovery_complete(enum bt_tmap_role peer_role, struct bt_conn *conn, int err)
 {
@@ -91,7 +95,7 @@ void tmap_discovery_complete(enum bt_tmap_role peer_role, struct bt_conn *conn, 
 	peer_is_cg = (peer_role & BT_TMAP_ROLE_CG) != 0;
 	peer_is_ums = (peer_role & BT_TMAP_ROLE_UMS) != 0;
 	PRINTF("TMAP discovery done\n");
-	k_sem_give(&sem_discovery_done);
+	xSemaphoreGive(sem_discovery_done);
 }
 
 static struct bt_tmap_cb tmap_callbacks = {
@@ -113,7 +117,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 	PRINTF("Connected: %s\n", addr);
 	default_conn = bt_conn_ref(conn);
-	k_sem_give(&sem_connected);
+	xSemaphoreGive(sem_connected);
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
@@ -131,7 +135,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	bt_conn_unref(default_conn);
 	default_conn = NULL;
 
-	k_sem_give(&sem_disconnected);
+	xSemaphoreGive(sem_disconnected);
 }
 
 static void security_changed(struct bt_conn *conn, bt_security_t level,
@@ -139,7 +143,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level,
 {
 	if (err == 0) {
 		PRINTF("Security changed: %u\n", err);
-		k_sem_give(&sem_security_updated);
+		xSemaphoreGive(sem_security_updated);
 	} else {
 		PRINTF("Failed to set security level: %s(%u)", bt_security_err_to_str(err), err);
 	}
@@ -207,6 +211,12 @@ static int main_func(void)
 {
 	int err;
 	struct bt_le_ext_adv *adv;
+	BaseType_t ret;
+
+	sem_connected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_connected_buff);
+	sem_security_updated = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_security_updated_buff);
+	sem_disconnected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_disconnected_buff);
+	sem_discovery_done = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_discovery_done_buff);
 
 	err = bt_enable(NULL);
 	if (err != 0) {
@@ -270,14 +280,14 @@ static int main_func(void)
 	}
 
 	PRINTF("Advertising successfully started\n");
-	k_sem_take(&sem_connected, K_FOREVER);
-	k_sem_take(&sem_security_updated, K_FOREVER);
+	xSemaphoreTake(sem_connected, portMAX_DELAY);
+	xSemaphoreTake(sem_security_updated, portMAX_DELAY);
 
 	err = bt_tmap_discover(default_conn, &tmap_callbacks);
 	if (err != 0) {
 		return err;
 	}
-	k_sem_take(&sem_discovery_done, K_FOREVER);
+	xSemaphoreTake(sem_discovery_done, portMAX_DELAY);
 
 	err = ccp_call_ctrl_init(default_conn);
 	if (err != 0) {
@@ -311,9 +321,9 @@ static int main_func(void)
 		/* Start timer to send media pause command */
 		k_work_schedule(&media_pause_set_work, K_MSEC(2000));
 
-		err = k_sem_take(&sem_disconnected, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem_disconnected (err %d)\n", err);
+		ret = xSemaphoreTake(sem_disconnected, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem_disconnected\n");
 		}
 	}
 

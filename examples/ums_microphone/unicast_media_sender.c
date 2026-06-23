@@ -88,7 +88,8 @@ static struct audio_sink {
 	struct bt_bap_ep *ep;
 	enum bt_audio_location loc;
 	atomic_t flags;
-	struct k_sem sem;
+	StaticSemaphore_t sem_buff;
+	SemaphoreHandle_t sem;
 } sinks[1]; /* Only support one sink instead of CONFIG_BT_BAP_UNICAST_CLIENT_ASE_SNK_COUNT. */
 
 NET_BUF_POOL_FIXED_DEFINE(tx_pool, TOTAL_BUF_NEEDED,
@@ -159,19 +160,32 @@ static struct bt_le_conn_param conn_param = {
 	.timeout = 30,
 };
 
-static K_SEM_DEFINE(sem_wav_opened, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_lc3_preset, 0, K_SEM_MAX_LIMIT);
-K_SEM_DEFINE(sem_scan, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_device_selected, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_connected, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_csip_discovered, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_member_discovered, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_disconnected, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_mtu_exchanged, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_security_updated, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_sinks_discovered, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_vcs_discovered, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_sources_discovered, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t sem_wav_opened_buff;
+static SemaphoreHandle_t sem_wav_opened;
+static StaticSemaphore_t sem_lc3_preset_buff;
+static SemaphoreHandle_t sem_lc3_preset;
+StaticSemaphore_t sem_scan_buff;
+SemaphoreHandle_t sem_scan;
+static StaticSemaphore_t sem_device_selected_buff;
+static SemaphoreHandle_t sem_device_selected;
+static StaticSemaphore_t sem_connected_buff;
+static SemaphoreHandle_t sem_connected;
+static StaticSemaphore_t sem_csip_discovered_buff;
+static SemaphoreHandle_t sem_csip_discovered;
+static StaticSemaphore_t sem_member_discovered_buff;
+static SemaphoreHandle_t sem_member_discovered;
+static StaticSemaphore_t sem_disconnected_buff;
+static SemaphoreHandle_t sem_disconnected;
+static StaticSemaphore_t sem_mtu_exchanged_buff;
+static SemaphoreHandle_t sem_mtu_exchanged;
+static StaticSemaphore_t sem_security_updated_buff;
+static SemaphoreHandle_t sem_security_updated;
+static StaticSemaphore_t sem_sinks_discovered_buff;
+static SemaphoreHandle_t sem_sinks_discovered;
+static StaticSemaphore_t sem_vcs_discovered_buff;
+static SemaphoreHandle_t sem_vcs_discovered;
+static StaticSemaphore_t sem_sources_discovered_buff;
+static SemaphoreHandle_t sem_sources_discovered;
 
 static bool cis_stream_play = true;
 static bool cis_stream_play_update = false;
@@ -375,7 +389,7 @@ int select_lc3_preset(char *preset_name)
 
 	lc3_preset.qos.sdu = bt_audio_codec_cfg_get_octets_per_frame(&lc3_preset.codec_cfg) * channel_count;
 
-	(void)k_sem_give(&sem_lc3_preset);
+	(void)xSemaphoreGive(sem_lc3_preset);
 
 	return 0;
 }
@@ -586,7 +600,7 @@ static void stream_configured(struct bt_bap_stream *stream,
 	PRINTF("Audio Stream %p configured\r\n", stream);
 
 	atomic_set_bit(&sink->flags, AUDIO_SINK_CONFIGURED);
-	k_sem_give(&sink->sem);
+	xSemaphoreGive(sink->sem);
 }
 
 static void stream_qos_set(struct bt_bap_stream *stream)
@@ -595,7 +609,7 @@ static void stream_qos_set(struct bt_bap_stream *stream)
 	PRINTF("Audio Stream %p QoS set\r\n", stream);
 
 	atomic_set_bit(&sink->flags, AUDIO_SINK_QOS_SET);
-	k_sem_give(&sink->sem);
+	xSemaphoreGive(sink->sem);
 }
 
 static void stream_enabled(struct bt_bap_stream *stream)
@@ -611,7 +625,7 @@ static void stream_enabled(struct bt_bap_stream *stream)
 	}
 
 	atomic_set_bit(&sink->flags, AUDIO_SINK_ENABLED);
-	k_sem_give(&sink->sem);
+	xSemaphoreGive(sink->sem);
 }
 
 static void stream_connected(struct bt_bap_stream *stream)
@@ -620,7 +634,7 @@ static void stream_connected(struct bt_bap_stream *stream)
 	PRINTF("Audio Stream %p connected\r\n", stream);
 
 	atomic_set_bit(&sink->flags, AUDIO_SINK_CONNECTED);
-	k_sem_give(&sink->sem);
+	xSemaphoreGive(sink->sem);
 }
 
 static void stream_started(struct bt_bap_stream *stream)
@@ -629,7 +643,7 @@ static void stream_started(struct bt_bap_stream *stream)
 	PRINTF("Audio Stream %p started\r\n", stream);
 
 	atomic_set_bit(&sink->flags, AUDIO_SINK_STARTED);
-	k_sem_give(&sink->sem);
+	xSemaphoreGive(sink->sem);
 }
 
 static void stream_metadata_updated(struct bt_bap_stream *stream)
@@ -638,7 +652,7 @@ static void stream_metadata_updated(struct bt_bap_stream *stream)
 	PRINTF("Audio Stream %p metadata updated\r\n", stream);
 
 	atomic_set_bit(&sink->flags, AUDIO_SINK_META_UPDATED);
-	k_sem_give(&sink->sem);
+	xSemaphoreGive(sink->sem);
 }
 
 static void stream_disabled(struct bt_bap_stream *stream)
@@ -649,7 +663,7 @@ static void stream_disabled(struct bt_bap_stream *stream)
 	atomic_clear_bit(&sink->flags, AUDIO_SINK_ENABLED);
 	atomic_clear_bit(&sink->flags, AUDIO_SINK_CONNECTED);
 	atomic_clear_bit(&sink->flags, AUDIO_SINK_STARTED);
-	k_sem_give(&sink->sem);
+	xSemaphoreGive(sink->sem);
 }
 
 static void stream_stopped(struct bt_bap_stream *stream, uint8_t reason)
@@ -661,7 +675,7 @@ static void stream_stopped(struct bt_bap_stream *stream, uint8_t reason)
 	PRINTF("Audio Stream %p stopped with reason 0x%02X\r\n", stream, reason);
 
 	atomic_clear_bit(&sink->flags, AUDIO_SINK_STARTED);
-	k_sem_give(&sink->sem);
+	xSemaphoreGive(sink->sem);
 }
 
 static void stream_released(struct bt_bap_stream *stream)
@@ -670,7 +684,7 @@ static void stream_released(struct bt_bap_stream *stream)
 	PRINTF("Audio Stream %p released\r\n", stream);
 
 	atomic_set(&sink->flags, 0);
-	k_sem_give(&sink->sem);
+	xSemaphoreGive(sink->sem);
 }
 
 static struct bt_bap_stream_ops stream_ops = {
@@ -692,7 +706,7 @@ static void add_remote_sink(struct bt_bap_ep *ep)
 	for (int i = 0; i < ARRAY_SIZE(sinks); i++) {
 		if (sinks[i].ep == NULL) {
 			sinks[i].ep = ep;
-			k_sem_init(&sinks[i].sem, 0, 0xff);
+			sinks[i].sem = xSemaphoreCreateCountingStatic(0xff, 0, &sinks[i].sem_buff);
 			return;
 		}
 	}
@@ -721,7 +735,7 @@ static void discover_sinks_cb(struct bt_conn *conn, int err, enum bt_audio_dir d
 		PRINTF("Discover sinks complete: err %d\r\n", err);
 	}
 
-	k_sem_give(&sem_sinks_discovered);
+	xSemaphoreGive(sem_sinks_discovered);
 
 }
 
@@ -752,7 +766,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 		PRINTF("LE Connected: %s\r\n", addr);
 
-		k_sem_give(&sem_connected);
+		xSemaphoreGive(sem_connected);
 	}
 }
 
@@ -791,7 +805,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 		bt_conn_unref(default_conn[i]);
 		default_conn[i] = NULL;
 
-		k_sem_give(&sem_disconnected);
+		xSemaphoreGive(sem_disconnected);
 	}
 }
 
@@ -805,7 +819,7 @@ static void security_changed_cb(struct bt_conn *conn, bt_security_t level,
     	if(info.type == BT_CONN_TYPE_LE)
 	{
 		if (err == 0) {
-			k_sem_give(&sem_security_updated);
+			xSemaphoreGive(sem_security_updated);
 		} else {
 			PRINTF("LE Failed to set security level: %u", err);
 		}
@@ -821,7 +835,7 @@ static struct bt_conn_cb conn_callbacks = {
 static void att_mtu_updated(struct bt_conn *conn, uint16_t tx, uint16_t rx)
 {
 	PRINTF("MTU exchanged: %u/%u\r\n", tx, rx);
-	k_sem_give(&sem_mtu_exchanged);
+	xSemaphoreGive(sem_mtu_exchanged);
 }
 
 static struct bt_gatt_cb gatt_callbacks = {
@@ -874,6 +888,20 @@ static struct bt_bap_unicast_client_cb unicast_client_cbs = {
 static int init(void)
 {
 	k_fifo_init(&tx_fifo);
+
+	sem_wav_opened = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_wav_opened_buff);
+	sem_lc3_preset = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_lc3_preset_buff);
+	sem_scan = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_scan_buff);
+	sem_device_selected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_device_selected_buff);
+	sem_connected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_connected_buff);
+	sem_csip_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_csip_discovered_buff);
+	sem_member_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_member_discovered_buff);
+	sem_disconnected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_disconnected_buff);
+	sem_mtu_exchanged = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_mtu_exchanged_buff);
+	sem_security_updated = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_security_updated_buff);
+	sem_sinks_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_sinks_discovered_buff);
+	sem_vcs_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_vcs_discovered_buff);
+	sem_sources_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_sources_discovered_buff);
 
 	int err = bt_enable(NULL);
 	if (err != 0) {
@@ -1010,7 +1038,7 @@ int device_select(int index)
 		PRINTF("scan stop fail with err %d\r\n", err);
 	}
 
-	(void)k_sem_give(&sem_device_selected);
+	(void)xSemaphoreGive(sem_device_selected);
 
 	return 0;
 }
@@ -1055,12 +1083,13 @@ static void member_scan_cb(const bt_addr_le_t *addr, int8_t rssi, uint8_t adv_ty
 		PRINTF("scan stop fail with err %d\r\n", err);
 	}
 
-	(void)k_sem_give(&sem_member_discovered);
+	(void)xSemaphoreGive(sem_member_discovered);
 }
 
 static int device_connect(int index)
 {
 	int err;
+	BaseType_t ret;
 
 	if(index == 0)
 	{
@@ -1081,15 +1110,15 @@ static int device_connect(int index)
 		return err;
 	}
 
-	err = k_sem_take(&sem_connected, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem_connected (err %d)\r\n", err);
+	ret = xSemaphoreTake(sem_connected, portMAX_DELAY);
+	if (ret != pdTRUE) {
+		PRINTF("failed to take sem_connected\r\n");
 		return err;
 	}
 
-	err = k_sem_take(&sem_mtu_exchanged, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem_mtu_exchanged (err %d)\r\n", err);
+	ret = xSemaphoreTake(sem_mtu_exchanged, portMAX_DELAY);
+	if (ret != pdTRUE) {
+		PRINTF("failed to take sem_mtu_exchanged\r\n");
 		return err;
 	}
 
@@ -1098,9 +1127,9 @@ static int device_connect(int index)
 		PRINTF("failed to set security (err %d)\r\n", err);
 	}
 
-	err = k_sem_take(&sem_security_updated, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem_security_updated (err %d)\r\n", err);
+	ret = xSemaphoreTake(sem_security_updated, portMAX_DELAY);
+	if (ret != pdTRUE) {
+		PRINTF("failed to take sem_security_updated\r\n");
 		return err;
 	}
 
@@ -1115,7 +1144,7 @@ static void vcs_client_discover_callback(struct bt_conn *conn, int err)
 		return;
 	}
 
-	(void)k_sem_give(&sem_vcs_discovered);
+	(void)xSemaphoreGive(sem_vcs_discovered);
 }
 
 static int discover_vcs(int index)
@@ -1128,14 +1157,15 @@ static int discover_vcs(int index)
 		return -1;
 	}
 
-	(void)k_sem_take(&sem_vcs_discovered, K_FOREVER);
+	(void)xSemaphoreTake(sem_vcs_discovered, portMAX_DELAY);
 
-        return 0;
+	return 0;
 }
 
 static int discover_sinks(int index)
 {
 	int err;
+	BaseType_t ret;
 
 	unicast_client_cbs.discover = discover_sinks_cb;
 
@@ -1145,10 +1175,10 @@ static int discover_sinks(int index)
 		return err;
 	}
 
-	err = k_sem_take(&sem_sinks_discovered, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem_sinks_discovered (err %d)\r\n", err);
-		return err;
+	ret = xSemaphoreTake(sem_sinks_discovered, portMAX_DELAY);
+	if (ret != pdTRUE) {
+		PRINTF("failed to take sem_sinks_discovered\r\n");
+		return -1;
 	}
 
 	return 0;
@@ -1157,6 +1187,7 @@ static int discover_sinks(int index)
 static int configure_stream(struct audio_sink *sink)
 {
 	int err;
+	BaseType_t ret;
 
 	/* change channel allocation. */
 	bt_audio_codec_cfg_set_chan_allocation(&lc3_preset.codec_cfg, sink->loc);
@@ -1167,10 +1198,10 @@ static int configure_stream(struct audio_sink *sink)
 		return err;
 	}
 
-	err = k_sem_take(&sink->sem, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem (err %d)\r\n", err);
-		return err;
+	ret = xSemaphoreTake(sink->sem, portMAX_DELAY);
+	if (ret != pdTRUE) {
+		PRINTF("failed to take sem\r\n");
+		return -1;
 	}
 
 	if (!atomic_test_bit(&sink->flags, AUDIO_SINK_CONFIGURED)) {
@@ -1252,6 +1283,7 @@ static int delete_group(void)
 static int set_stream_qos(int index)
 {
 	int err;
+	BaseType_t ret;
 
 	err = bt_bap_stream_qos(default_conn[index], unicast_group);
 	if (err != 0) {
@@ -1266,10 +1298,10 @@ static int set_stream_qos(int index)
 
 		PRINTF("QoS: waiting for %zu sink\r\n", index);
 
-		err = k_sem_take(&sinks[index].sem, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem (err %d)\r\n", err);
-			return err;
+		ret = xSemaphoreTake(sinks[index].sem, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem\r\n");
+			return -1;
 		}
 
 		if (!atomic_test_bit(&sinks[index].flags, AUDIO_SINK_QOS_SET)) {
@@ -1286,6 +1318,7 @@ static int set_stream_qos(int index)
 static int enable_streams()
 {
 	int err;
+	BaseType_t ret;
 
 	for (int index = 0; index < ARRAY_SIZE(sinks); index++ ) {
 		if (sinks[index].ep == NULL) {
@@ -1300,10 +1333,10 @@ static int enable_streams()
 			return err;
 		}
 
-		err = k_sem_take(&sinks[index].sem, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem (err %d)\r\n", err);
-			return err;
+		ret = xSemaphoreTake(sinks[index].sem, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem\r\n");
+			return -1;
 		}
 
 		if (!atomic_test_bit(&sinks[index].flags, AUDIO_SINK_ENABLED)) {
@@ -1320,6 +1353,7 @@ static int enable_streams()
 static int disable_streams()
 {
 	int err;
+	BaseType_t ret;
 
 	/* MCUX-62728: workaround to disconnect 2rd CIS first for controller fw limitation. */
 
@@ -1334,10 +1368,10 @@ static int disable_streams()
 			return err;
 		}
 
-		err = k_sem_take(&sinks[index].sem, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem (err %d)\r\n", err);
-			return err;
+		ret = xSemaphoreTake(sinks[index].sem, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem\r\n");
+			return -1;
 		}
 
 		if (atomic_test_bit(&sinks[index].flags, AUDIO_SINK_ENABLED)) {
@@ -1354,6 +1388,7 @@ static int disable_streams()
 static int connect_streams()
 {
 	int err;
+	BaseType_t ret;
 
 	for (int index = 0; index < ARRAY_SIZE(sinks); index++ ) {
 		if (sinks[index].ep == NULL) {
@@ -1366,10 +1401,10 @@ static int connect_streams()
 			return err;
 		}
 
-		err = k_sem_take(&sinks[index].sem, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem (err %d)\r\n", err);
-			return err;
+		ret = xSemaphoreTake(sinks[index].sem, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem\r\n");
+			return -1;
 		}
 
 		if (!atomic_test_bit(&sinks[index].flags, AUDIO_SINK_CONNECTED)) {
@@ -1386,16 +1421,17 @@ static int connect_streams()
 static int start_streams()
 {
 	int err;
+	BaseType_t ret;
 
 	for (int index = 0; index < ARRAY_SIZE(sinks); index++ ) {
 		if (sinks[index].ep == NULL) {
 			continue;
 		}
 
-		err = k_sem_take(&sinks[index].sem, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem (err %d)\r\n", err);
-			return err;
+		ret = xSemaphoreTake(sinks[index].sem, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem\r\n");
+			return -1;
 		}
 
 		if (!atomic_test_bit(&sinks[index].flags, AUDIO_SINK_STARTED)) {
@@ -1411,19 +1447,33 @@ static int start_streams()
 
 static void reset_data(void)
 {
-	(void)k_sem_reset(&sem_wav_opened);
-	(void)k_sem_reset(&sem_lc3_preset);
-	(void)k_sem_reset(&sem_scan);
-	(void)k_sem_reset(&sem_device_selected);
-	(void)k_sem_reset(&sem_connected);
-	(void)k_sem_reset(&sem_csip_discovered);
-	(void)k_sem_reset(&sem_member_discovered);
-	(void)k_sem_reset(&sem_disconnected);
-	(void)k_sem_reset(&sem_mtu_exchanged);
-	(void)k_sem_reset(&sem_security_updated);
-	(void)k_sem_reset(&sem_sinks_discovered);
-	(void)k_sem_reset(&sem_vcs_discovered);
-	(void)k_sem_reset(&sem_sources_discovered);
+	vSemaphoreDelete(sem_wav_opened);
+	vSemaphoreDelete(sem_lc3_preset);
+	vSemaphoreDelete(sem_scan);
+	vSemaphoreDelete(sem_device_selected);
+	vSemaphoreDelete(sem_connected);
+	vSemaphoreDelete(sem_csip_discovered);
+	vSemaphoreDelete(sem_member_discovered);
+	vSemaphoreDelete(sem_disconnected);
+	vSemaphoreDelete(sem_mtu_exchanged);
+	vSemaphoreDelete(sem_security_updated);
+	vSemaphoreDelete(sem_sinks_discovered);
+	vSemaphoreDelete(sem_vcs_discovered);
+	vSemaphoreDelete(sem_sources_discovered);
+
+	sem_wav_opened = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_wav_opened_buff);
+	sem_lc3_preset = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_lc3_preset_buff);
+	sem_scan = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_scan_buff);
+	sem_device_selected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_device_selected_buff);
+	sem_connected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_connected_buff);
+	sem_csip_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_csip_discovered_buff);
+	sem_member_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_member_discovered_buff);
+	sem_disconnected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_disconnected_buff);
+	sem_mtu_exchanged = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_mtu_exchanged_buff);
+	sem_security_updated = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_security_updated_buff);
+	sem_sinks_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_sinks_discovered_buff);
+	sem_vcs_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_vcs_discovered_buff);
+	sem_sources_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_sources_discovered_buff);
 
 	memset(sinks, 0, sizeof(sinks));
 
@@ -1462,6 +1512,7 @@ void mcs_server_state_cb(int state)
 void ums_microphone_task(void *param)
 {
 	int err;
+	BaseType_t ret;
 
 #if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
 	extern void bt_psa_crypto_init(void);
@@ -1492,7 +1543,7 @@ void ums_microphone_task(void *param)
 
 	/* Select LC3 preset */
 	PRINTF("\nPlease select lc3 preset use \"lc3_preset <name>\" command.\r\n");
-	k_sem_take(&sem_lc3_preset, K_FOREVER);
+	xSemaphoreTake(sem_lc3_preset, portMAX_DELAY);
 	/* Config audio parameters. */
 	selected_sample_rate = bt_audio_codec_cfg_freq_to_freq_hz((enum bt_audio_codec_cfg_freq)bt_audio_codec_cfg_get_freq(&lc3_preset.codec_cfg));
 	config_audio_parameters(selected_sample_rate, selected_bits);
@@ -1535,9 +1586,9 @@ void ums_microphone_task(void *param)
 		PRINTF("Unicast group created\r\n");
 
 		PRINTF("Please scan and connect the devices you want!\r\n");
-		err = k_sem_take(&sem_scan, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem_scan (err %d)\r\n", err);
+		ret = xSemaphoreTake(sem_scan, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem_scan\r\n");
 			break;
 		}
 
@@ -1548,9 +1599,9 @@ void ums_microphone_task(void *param)
 		}
 		PRINTF("Scanning successfully started\r\n");
 
-		err = k_sem_take(&sem_device_selected, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem_device_selected (err %d)\r\n", err);
+		ret = xSemaphoreTake(sem_device_selected, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem_device_selected\r\n");
 			break;
 		}
 		PRINTF("device selected!\r\n");
@@ -1653,9 +1704,9 @@ void ums_microphone_task(void *param)
 		} while (0 == err);
 
 		/* Wait for disconnect */
-		err = k_sem_take(&sem_disconnected, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem_disconnected (err %d)\r\n", err);
+		ret = xSemaphoreTake(sem_disconnected, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem_disconnected\r\n");
 			break;
 		}
 

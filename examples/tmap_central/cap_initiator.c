@@ -37,10 +37,14 @@ NET_BUF_POOL_FIXED_DEFINE(tx_pool, CONFIG_BT_BAP_UNICAST_CLIENT_ASE_SNK_COUNT,
 			  BT_ISO_SDU_BUF_SIZE(CONFIG_BT_ISO_TX_MTU),
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
-static K_SEM_DEFINE(sem_cas_discovery, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_discover_sink, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_discover_source, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_audio_start, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t sem_cas_discovery_buff;
+static SemaphoreHandle_t sem_cas_discovery;
+static StaticSemaphore_t sem_discover_sink_buff;
+static SemaphoreHandle_t sem_discover_sink;
+static StaticSemaphore_t sem_discover_source_buff;
+static SemaphoreHandle_t sem_discover_source;
+static StaticSemaphore_t sem_audio_start_buff;
+static SemaphoreHandle_t sem_audio_start;
 
 static void unicast_stream_configured(struct bt_bap_stream *stream,
 				      const struct bt_bap_qos_cfg_pref *pref)
@@ -66,7 +70,7 @@ static void unicast_stream_started(struct bt_bap_stream *stream)
 {
 	PRINTF("Started stream %p\n", stream);
 
-	k_sem_give(&sem_audio_start);
+	xSemaphoreGive(sem_audio_start);
 }
 
 static void unicast_stream_metadata_updated(struct bt_bap_stream *stream)
@@ -127,7 +131,7 @@ static void cap_discovery_complete_cb(struct bt_conn *conn, int err,
 		PRINTF("Found CAS\n");
 	}
 
-	k_sem_give(&sem_cas_discovery);
+	xSemaphoreGive(sem_cas_discovery);
 }
 
 static void unicast_start_complete_cb(int err, struct bt_conn *conn)
@@ -137,7 +141,7 @@ static void unicast_start_complete_cb(int err, struct bt_conn *conn)
 		return;
 	}
 
-	k_sem_give(&sem_audio_start);
+	xSemaphoreGive(sem_audio_start);
 }
 
 static void unicast_update_complete_cb(int err, struct bt_conn *conn)
@@ -166,6 +170,7 @@ static struct bt_cap_initiator_cb cap_cb = {
 static int discover_cas(struct bt_conn *conn)
 {
 	int err;
+	BaseType_t ret;
 
 	err = bt_cap_initiator_unicast_discover(conn);
 	if (err != 0) {
@@ -173,10 +178,10 @@ static int discover_cas(struct bt_conn *conn)
 		return err;
 	}
 
-	err = k_sem_take(&sem_cas_discovery, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem_cas_discovery (err %d)\n", err);
-		return err;
+	ret = xSemaphoreTake(sem_cas_discovery, portMAX_DELAY);
+	if (ret != pdTRUE) {
+	    PRINTF("failed to take sem_cas_discovery\n");
+	    return -1;
 	}
 
 	return err;
@@ -247,10 +252,10 @@ static void discover_cb(struct bt_conn *conn, int err, enum bt_audio_dir dir)
 
 	if (dir == BT_AUDIO_DIR_SINK) {
 		PRINTF("Sink discover complete\n");
-		k_sem_give(&sem_discover_sink);
+		xSemaphoreGive(sem_discover_sink);
 	} else if (dir == BT_AUDIO_DIR_SOURCE) {
 		PRINTF("Discover sources complete: err %d\n", err);
-		k_sem_give(&sem_discover_source);
+		xSemaphoreGive(sem_discover_source);
 	}
 }
 
@@ -272,6 +277,7 @@ static void endpoint_cb(struct bt_conn *conn, enum bt_audio_dir dir, struct bt_b
 static int discover_sinks(struct bt_conn *conn)
 {
 	int err;
+	BaseType_t ret;
 
 	err = bt_bap_unicast_client_discover(conn, BT_AUDIO_DIR_SINK);
 	if (err != 0) {
@@ -279,10 +285,10 @@ static int discover_sinks(struct bt_conn *conn)
 		return err;
 	}
 
-	err = k_sem_take(&sem_discover_sink, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem_discover_sink (err %d)\n", err);
-		return err;
+	ret = xSemaphoreTake(sem_discover_sink, portMAX_DELAY);
+	if (ret != pdTRUE) {
+	    PRINTF("failed to take sem_discover_sink\n");
+	    return -1;
 	}
 
 	return err;
@@ -291,6 +297,7 @@ static int discover_sinks(struct bt_conn *conn)
 static int discover_sources(struct bt_conn *conn)
 {
 	int err;
+	BaseType_t ret;
 
 	err = bt_bap_unicast_client_discover(conn, BT_AUDIO_DIR_SOURCE);
 	if (err != 0) {
@@ -298,10 +305,10 @@ static int discover_sources(struct bt_conn *conn)
 		return err;
 	}
 
-	err = k_sem_take(&sem_discover_source, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem_discover_source (err %d)\n", err);
-		return err;
+	ret = xSemaphoreTake(sem_discover_source, portMAX_DELAY);
+	if (ret != pdTRUE) {
+	    PRINTF("failed to take sem_discover_source\n");
+	    return -1;
 	}
 
 	return 0;
@@ -418,6 +425,11 @@ int cap_initiator_init(void)
 {
 	int err = 0;
 
+	sem_cas_discovery = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_cas_discovery_buff);
+	sem_discover_sink = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_discover_sink_buff);
+	sem_discover_source = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_discover_source_buff);
+	sem_audio_start = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_audio_start_buff);
+
 	if (IS_ENABLED(CONFIG_BT_BAP_UNICAST_CLIENT)) {
 		err = bt_cap_initiator_register_cb(&cap_cb);
 		if (err != 0) {
@@ -446,10 +458,15 @@ int cap_initiator_setup(struct bt_conn *conn)
 	int err = 0;
 	struct bt_cap_unicast_group *unicast_group;
 
-	k_sem_reset(&sem_cas_discovery);
-	k_sem_reset(&sem_discover_sink);
-	k_sem_reset(&sem_discover_source);
-	k_sem_reset(&sem_audio_start);
+	vSemaphoreDelete(sem_cas_discovery);
+	vSemaphoreDelete(sem_discover_sink);
+	vSemaphoreDelete(sem_discover_source);
+	vSemaphoreDelete(sem_audio_start);
+
+	sem_cas_discovery = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_cas_discovery_buff);
+	sem_discover_sink = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_discover_sink_buff);
+	sem_discover_source = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_discover_source_buff);
+	sem_audio_start = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_audio_start_buff);
 
 	err = discover_cas(conn);
 	if (err != 0) {
@@ -476,7 +493,7 @@ int cap_initiator_setup(struct bt_conn *conn)
 		return err;
 	}
 
-	k_sem_take(&sem_audio_start, K_FOREVER);
+	xSemaphoreTake(sem_audio_start, portMAX_DELAY);
 
 	k_work_schedule(&audio_send_work, K_MSEC(0));
 

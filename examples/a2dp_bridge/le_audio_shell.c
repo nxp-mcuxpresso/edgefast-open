@@ -21,7 +21,7 @@
 shell_handle_t s_shellHandle;
 SDK_ALIGN(static uint8_t s_shellHandleBuffer[SHELL_HANDLE_SIZE], 4);
 extern serial_handle_t g_serialHandle;
-extern struct k_sem sem_scan;
+extern SemaphoreHandle_t sem_scan;
 extern int device_select(int index);
 extern int select_lc3_preset(char *preset_name);
 extern void print_all_preset(int sample_rate);
@@ -56,7 +56,7 @@ static shell_status_t lc3_preset(shell_handle_t shellHandle, int32_t argc, char 
 
 static shell_status_t scan(shell_handle_t shellHandle, int32_t argc, char **argv)
 {
-	(void)k_sem_give(&sem_scan);
+	(void)xSemaphoreGive(sem_scan);
 
 	return kStatus_SHELL_Success;
 }

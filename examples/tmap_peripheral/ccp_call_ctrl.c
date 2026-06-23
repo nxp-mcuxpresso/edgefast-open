@@ -23,7 +23,8 @@
 static uint8_t new_call_index;
 static char remote_uri[CONFIG_BT_TBS_MAX_URI_LENGTH];
 
-static K_SEM_DEFINE(sem_discovery_done, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t sem_discovery_done_buff;
+static SemaphoreHandle_t sem_discovery_done;
 
 static struct bt_conn *default_conn;
 
@@ -110,7 +111,7 @@ static void read_uri_schemes_string_cb(struct bt_conn *conn, int err,
 	remote_uri[i] = '\0';
 
 	PRINTF("CCP: Discovered remote URI: %s\n", remote_uri);
-	k_sem_give(&sem_discovery_done);
+	xSemaphoreGive(sem_discovery_done);
 }
 
 struct bt_tbs_client_cb tbs_client_cb = {
@@ -124,6 +125,8 @@ int ccp_call_ctrl_init(struct bt_conn *conn)
 {
 	int err;
 
+	sem_discovery_done = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_discovery_done_buff);
+
 	default_conn = bt_conn_ref(conn);
 	err = bt_tbs_client_register_cb(&tbs_client_cb);
 	if (err != 0) {
@@ -134,7 +137,7 @@ int ccp_call_ctrl_init(struct bt_conn *conn)
 	if (err != 0) {
 		return err;
 	}
-	k_sem_take(&sem_discovery_done, K_FOREVER);
+	xSemaphoreTake(sem_discovery_done, portMAX_DELAY);
 
 	return err;
 }

@@ -74,7 +74,8 @@ enum {
 struct stream_state
 {
     struct bt_bap_stream stream;
-    struct k_sem sem;
+    StaticSemaphore_t sem_buff;
+    SemaphoreHandle_t sem;
     ATOMIC_DEFINE(flags, BT_STREAM_STATE_NUM_FLAGS);
     sys_snode_t             node;
 };
@@ -640,7 +641,7 @@ int unicast_client_release_streams_of_conn(struct bt_conn *conn)
 
                     do
                     {
-                        if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
+                        if (pdTRUE != xSemaphoreTake(state->src[ep_index].stream->sem, portMAX_DELAY))
                         {
                             PRINTF("Fail to wait stream configuration sem!\n");
                             return -EIO;
@@ -665,7 +666,7 @@ int unicast_client_release_streams_of_conn(struct bt_conn *conn)
 
                     do
                     {
-                        if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
+                        if (pdTRUE != xSemaphoreTake(state->snk[ep_index].stream->sem, portMAX_DELAY))
                         {
                             PRINTF("Fail to wait stream configuration sem!\n");
                             return -EIO;
@@ -786,7 +787,7 @@ int unicast_client_configure_streams(void)
 
                     do
                     {
-                        if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
+                        if (pdTRUE != xSemaphoreTake(state->src[ep_index].stream->sem, portMAX_DELAY))
                         {
                             PRINTF("Fail to wait stream configuration sem!\n");
                             return -EIO;
@@ -839,7 +840,7 @@ int unicast_client_configure_streams(void)
 
                     do
                     {
-                        if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
+                        if (pdTRUE != xSemaphoreTake(state->snk[ep_index].stream->sem, portMAX_DELAY))
                         {
                             PRINTF("Fail to wait stream configuration sem!\n");
                             return -EIO;
@@ -975,7 +976,7 @@ int unicast_client_enable_stream_unidirectional(uint8_t is_tx, uint16_t context)
 
                         do
                         {
-                            if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
+                            if (pdTRUE != xSemaphoreTake(state->src[ep_index].stream->sem, portMAX_DELAY))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1004,7 +1005,7 @@ int unicast_client_enable_stream_unidirectional(uint8_t is_tx, uint16_t context)
 
                         do
                         {
-                            if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
+                            if (pdTRUE != xSemaphoreTake(state->snk[ep_index].stream->sem, portMAX_DELAY))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1067,7 +1068,7 @@ int unicast_client_connect_stream_unidirectional(uint8_t is_tx)
 
                         do
                         {
-                            if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
+                            if (pdTRUE != xSemaphoreTake(state->src[ep_index].stream->sem, portMAX_DELAY))
                             {
                                 PRINTF("Fail to wait stream connected sem!\n");
                                 return -EIO;
@@ -1095,7 +1096,7 @@ int unicast_client_connect_stream_unidirectional(uint8_t is_tx)
 
                         do
                         {
-                            if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
+                            if (pdTRUE != xSemaphoreTake(state->snk[ep_index].stream->sem, portMAX_DELAY))
                             {
                                 PRINTF("Fail to wait stream connected sem!\n");
                                 return -EIO;
@@ -1224,7 +1225,7 @@ int unicast_client_disable_stream_unidirectional_of_conn(struct bt_conn *conn, u
 
                         do
                         {
-                            if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
+                            if (pdTRUE != xSemaphoreTake(state->src[ep_index].stream->sem, portMAX_DELAY))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1252,7 +1253,7 @@ int unicast_client_disable_stream_unidirectional_of_conn(struct bt_conn *conn, u
 
                         do
                         {
-                            if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
+                            if (pdTRUE != xSemaphoreTake(state->snk[ep_index].stream->sem, portMAX_DELAY))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1381,7 +1382,7 @@ int unicast_client_start_stream_unidirectional(uint8_t is_tx)
 
                         do
                         {
-                            if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
+                            if (pdTRUE != xSemaphoreTake(state->src[ep_index].stream->sem, portMAX_DELAY))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1465,7 +1466,7 @@ int unicast_client_stop_stream_unidirectional(uint8_t is_tx)
 
                         do
                         {
-                            if (0 != k_sem_take(&state->src[ep_index].stream->sem, K_FOREVER))
+                            if (pdTRUE != xSemaphoreTake(state->src[ep_index].stream->sem, portMAX_DELAY))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -1493,7 +1494,7 @@ int unicast_client_stop_stream_unidirectional(uint8_t is_tx)
 
                         do
                         {
-                            if (0 != k_sem_take(&state->snk[ep_index].stream->sem, K_FOREVER))
+                            if (pdTRUE != xSemaphoreTake(state->snk[ep_index].stream->sem, portMAX_DELAY))
                             {
                                 PRINTF("Fail to wait stream configuration sem!\n");
                                 return -EIO;
@@ -2142,7 +2143,8 @@ int unicast_client_retrieve(void)
                     PRINTF("Clear other sources, stream %p, ep %p\n", server_state[i].src[j].stream, server_state[i].src[j].ep);
                     if (server_state[i].src[j].stream != NULL)
                     {
-                        (void)k_sem_reset(&server_state[i].src[j].stream->sem);
+                        vSemaphoreDelete(server_state[i].src[j].stream->sem);
+                        server_state[i].src[j].stream->sem = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &server_state[i].src[j].stream->sem_buff);
                         k_fifo_put(&free_streams, server_state[i].src[j].stream);
                         server_state[i].src[j].stream = NULL;
                     }
@@ -2557,7 +2559,7 @@ static void unicast_client_stream_configured(struct bt_bap_stream *stream,
     stream_base = (struct stream_state *)stream;
 
     atomic_set_bit(stream_base->flags, BT_STREAM_STATE_CONFIGURED);
-    (void)k_sem_give(&stream_base->sem);
+    (void)xSemaphoreGive(stream_base->sem);
 }
 
 static void unicast_client_stream_qos_set(struct bt_bap_stream *stream)
@@ -2569,7 +2571,7 @@ static void unicast_client_stream_qos_set(struct bt_bap_stream *stream)
     stream_base = (struct stream_state *)stream;
 
     atomic_set_bit(stream_base->flags, BT_STREAM_STATE_QOS);
-    (void)k_sem_give(&stream_base->sem);
+    (void)xSemaphoreGive(stream_base->sem);
 }
 
 static void unicast_client_stream_enabled(struct bt_bap_stream *stream)
@@ -2610,7 +2612,7 @@ static void unicast_client_stream_enabled(struct bt_bap_stream *stream)
     }
 
     atomic_set_bit(stream_base->flags, BT_STREAM_STATE_ENABLED);
-    (void)k_sem_give(&stream_base->sem);
+    (void)xSemaphoreGive(stream_base->sem);
 }
 
 static void unicast_client_stream_connected(struct bt_bap_stream *stream)
@@ -2622,7 +2624,7 @@ static void unicast_client_stream_connected(struct bt_bap_stream *stream)
     stream_base = (struct stream_state *)stream;
 
     atomic_set_bit(stream_base->flags, BT_STREAM_STATE_CONNECTED);
-    (void)k_sem_give(&stream_base->sem);
+    (void)xSemaphoreGive(stream_base->sem);
 }
 
 static void unicast_client_stream_started(struct bt_bap_stream *stream)
@@ -2744,7 +2746,7 @@ static void unicast_client_stream_started(struct bt_bap_stream *stream)
 #endif /* UNICAST_AUDIO_SYNC_MODE */
 
     atomic_set_bit(stream_base->flags, BT_STREAM_STATE_STARTED);
-    (void)k_sem_give(&stream_base->sem);
+    (void)xSemaphoreGive(stream_base->sem);
 
     (void)snk;
 }
@@ -2783,7 +2785,7 @@ static void unicast_client_stream_disabled(struct bt_bap_stream *stream)
     }
 
     atomic_clear_bit(stream_base->flags, BT_STREAM_STATE_ENABLED);
-    (void)k_sem_give(&stream_base->sem);
+    (void)xSemaphoreGive(stream_base->sem);
 }
 
 static void unicast_client_stream_stopped(struct bt_bap_stream *stream, uint8_t reason)
@@ -2808,7 +2810,7 @@ static void unicast_client_stream_stopped(struct bt_bap_stream *stream, uint8_t 
     }
 
     atomic_clear_bit(stream_base->flags, BT_STREAM_STATE_STARTED);
-    (void)k_sem_give(&stream_base->sem);
+    (void)xSemaphoreGive(stream_base->sem);
 }
 
 static void release_stream(struct bt_bap_stream *stream)
@@ -2831,7 +2833,8 @@ static void release_stream(struct bt_bap_stream *stream)
 		{
 			if (server_state[index].src[ep_index].stream == stream_base)
 			{
-				(void)k_sem_reset(&stream_base->sem);
+				vSemaphoreDelete(stream_base->sem);
+                stream_base->sem = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &stream_base->sem_buff);
 				k_fifo_put(&free_streams, stream_base);
 				server_state[index].src[ep_index].stream = NULL;
 				if (server_state[index].src[ep_index].decoder != NULL)
@@ -2853,7 +2856,8 @@ static void release_stream(struct bt_bap_stream *stream)
 		{
 			if (server_state[index].snk[ep_index].stream == stream_base)
 			{
-				(void)k_sem_reset(&stream_base->sem);
+                vSemaphoreDelete(stream_base->sem);
+                stream_base->sem = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &stream_base->sem_buff);
 				k_fifo_put(&free_streams, stream_base);
 				server_state[index].snk[ep_index].stream = NULL;
 				if (server_state[index].snk[ep_index].encoder != NULL)
@@ -2936,7 +2940,7 @@ static void unicast_client_stream_released(struct bt_bap_stream *stream)
     atomic_clear_bit(stream_base->flags, BT_STREAM_STATE_CONNECTED);
     atomic_clear_bit(stream_base->flags, BT_STREAM_STATE_STARTED);
 
-    (void)k_sem_give(&stream_base->sem);
+    (void)xSemaphoreGive(stream_base->sem);
 
     release_stream(stream);
     (void)stream_base;
@@ -3207,7 +3211,8 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 				if ((atomic_get(stream_base->flags) != 0) && !atomic_test_bit(stream_base->flags, BT_STREAM_STATE_RELEASED)) {
 					continue;
 				}
-				(void)k_sem_reset(&stream_base->sem);
+                vSemaphoreDelete(stream_base->sem);
+                stream_base->sem = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &stream_base->sem_buff);
 				k_fifo_put(&free_streams, stream_base);
 				server_state[index].src[ep_index].stream = NULL;
 				if (server_state[index].src[ep_index].decoder != NULL)
@@ -3227,7 +3232,8 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 				if ((atomic_get(stream_base->flags) != 0) && !atomic_test_bit(stream_base->flags, BT_STREAM_STATE_RELEASED)) {
 					continue;
 				}
-				(void)k_sem_reset(&stream_base->sem);
+                vSemaphoreDelete(stream_base->sem);
+                stream_base->sem = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &stream_base->sem_buff);
 				k_fifo_put(&free_streams, stream_base);
 				server_state[index].snk[ep_index].stream = NULL;
 				if (server_state[index].snk[ep_index].encoder != NULL)
@@ -3502,11 +3508,14 @@ static void unicast_client_endpoint(struct bt_conn *conn, enum bt_audio_dir dir,
 
     if (failed == 0U)
     {
-		ret = k_sem_init(&stream->sem, 0, K_SEM_MAX_LIMIT);
-        if (0 != ret)
+        if (NULL == stream->sem)
         {
-            assert(0 != ret);
-            failed = 1U;
+			stream->sem = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &stream->sem_buff);
+			if(NULL == stream->sem)
+			{
+				assert(NULL == stream->sem);
+				failed = 1U;
+			}
         }
     }
 
@@ -3614,7 +3623,8 @@ static void unicast_client_endpoint(struct bt_conn *conn, enum bt_audio_dir dir,
     {
         if (NULL != stream)
         {
-            (void)k_sem_reset(&stream->sem);
+            vSemaphoreDelete(stream->sem);
+            stream->sem = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &stream->sem_buff);
             k_fifo_put(&free_streams, stream);
         }
 
@@ -3815,7 +3825,7 @@ static void sync_timer_callback(uint32_t sync_index, uint64_t bclk_count)
 
             while (sem_post_count > 0)
             {
-                if (0 != k_sem_give(&sync_sem))
+                if (pdTRUE != xSemaphoreGive(sync_sem))
                 {
 #if 0
                     PRINTF("Post sem failed!\n");

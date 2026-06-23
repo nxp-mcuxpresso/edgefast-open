@@ -35,18 +35,16 @@ AT_NONCACHEABLE_SECTION_ALIGN(static HAL_AUDIO_HANDLE_DEFINE(audio_tx_handle), 4
 static codec_handle_t codec_handle;
 static bool codec_initialized;
 
-static QueueHandle_t codec_sem;
+static SemaphoreHandle_t codec_sem;
 
 extern uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate);
 
 static void codec_tx_callback(hal_audio_handle_t handle, hal_audio_status_t completionStatus, void *callbackParam)
 {
 	if (0U != __get_IPSR()) {
-		portBASE_TYPE task_to_wake = pdFALSE;
-
-		if (pdTRUE == xSemaphoreGiveFromISR(codec_sem, &task_to_wake)) {
-			portYIELD_FROM_ISR((task_to_wake));
-		}
+		BaseType_t task_to_wake = pdFALSE;
+		(void)xSemaphoreGiveFromISR(codec_sem, &task_to_wake);
+		portYIELD_FROM_ISR((task_to_wake));
 	} else {
 		xSemaphoreGive(codec_sem);
 	}

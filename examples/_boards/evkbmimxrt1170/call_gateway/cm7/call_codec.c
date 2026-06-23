@@ -68,7 +68,8 @@ volatile uint32_t codecTxBufferPrimeIndex = 0;
 volatile uint32_t codecTxBufferWriteIndex = 0;
 volatile uint32_t codecTxBufferPrimeCount = 0;
 
-static K_SEM_DEFINE(s_audioTaskSync, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t s_audioTaskSync_buff;
+static SemaphoreHandle_t s_audioTaskSync;
 
 enum {
 	CODEC_STATE_AUDIO_DEINITIATED = 0,
@@ -117,7 +118,14 @@ static void APP_CodecTxCallback(hal_audio_handle_t handle, hal_audio_status_t co
 		codecTxBufferPrimeCount --;
 	}
 	tx_played_count += CODEC_TX_BUFFER_SIZE;
-	k_sem_give(&s_audioTaskSync);
+
+	if (0U != __get_IPSR()) {
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		(void)xSemaphoreGiveFromISR(s_audioTaskSync, &xHigherPriorityTaskWoken);
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	} else {
+		xSemaphoreGive(s_audioTaskSync);
+	}
 }
 
 static void APP_CodecRxCallback(hal_audio_handle_t handle, hal_audio_status_t completionStatus, void *callbackParam)
@@ -129,7 +137,14 @@ static void APP_CodecRxCallback(hal_audio_handle_t handle, hal_audio_status_t co
 		codecRxBufferPrimeCount --;
 	}
 	rx_new_count += CODEC_RX_BUFFER_SIZE;
-	k_sem_give(&s_audioTaskSync);
+
+	if (0U != __get_IPSR()) {
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		(void)xSemaphoreGiveFromISR(s_audioTaskSync, &xHigherPriorityTaskWoken);
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	} else {
+		xSemaphoreGive(s_audioTaskSync);
+	}
 }
 
 static bool APP_CodecCheckState(uint32_t state, uint32_t timeout)
@@ -143,7 +158,7 @@ static bool APP_CodecCheckState(uint32_t state, uint32_t timeout)
 	}
 
 	while (atomic_get(&codec_state) != state) {
-		vTaskDelay(pdMS_TO_TICKS(1))
+		vTaskDelay(pdMS_TO_TICKS(1));
 		timeout--;
 
 		if (timeout == 0U) {
@@ -159,7 +174,7 @@ int BOARD_AudioInit(uint32_t samplingRate, uint32_t bitWidth)
 	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STOPPED, 0) &&
 	    !APP_CodecCheckState(CODEC_STATE_AUDIO_DEINITIATED, 0)) {
 		atomic_set(&codec_state, CODEC_STATE_AUDIO_STOPPED);
-		k_sem_give(&s_audioTaskSync);
+		xSemaphoreGive(s_audioTaskSync);
 	}
 
 	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_DEINITIATED, 5000U))
@@ -259,7 +274,7 @@ static void BOARD_CodecTask(void* param)
 
 	while (true)
 	{
-		k_sem_take(&s_audioTaskSync, K_FOREVER);
+		xSemaphoreTake(s_audioTaskSync, portMAX_DELAY);
 
 		if (APP_CodecCheckState(CODEC_STATE_AUDIO_STOPPED, 0)) {
 			BOARD_AudioDeinit();
@@ -336,6 +351,9 @@ static int BOARD_AudioTaskInit(void)
 	if (0u == s_audioStarted)
 	{
 		s_audioStarted = 1U;
+
+		s_audioTaskSync = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &s_audioTaskSync_buff);
+		assert(s_audioTaskSync != NULL);
 
 		result = xTaskCreate(BOARD_CodecTask, "BOARD_CodecTask", 1024, NULL, configMAX_PRIORITIES / 2, NULL);
 		assert(pdPASS == result);
@@ -507,7 +525,7 @@ int BOARD_StopCodec(void)
 	if (!APP_CodecCheckState(CODEC_STATE_AUDIO_STOPPED, 0) &&
 	    !APP_CodecCheckState(CODEC_STATE_AUDIO_DEINITIATED, 0)) {
 		atomic_set(&codec_state, CODEC_STATE_AUDIO_STOPPED);
-		k_sem_give(&s_audioTaskSync);
+		xSemaphoreGive(s_audioTaskSync);
 	}
 
 	return 0;

@@ -84,7 +84,8 @@ struct stream_state
 {
     struct bt_bap_stream stream;
 #if 0
-    struct k_sem sem;
+    StaticSemaphore_t sem_buff;
+    SemaphoreHandle_t sem;
 #endif
     uint16_t max_sdu;
     uint16_t pd;
@@ -340,7 +341,8 @@ struct ringtone_prime_work ringtone_work;
 volatile uint8_t sync_timer_started;
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE_TX) && (UNICAST_AUDIO_SYNC_MODE_TX > 0))
-K_SEM_DEFINE(sync_sem, 0, K_SEM_MAX_LIMIT);
+StaticSemaphore_t sync_sem_buff;
+SemaphoreHandle_t sync_sem;
 #endif /* UNICAST_AUDIO_SYNC_MODE_TX */
 
 #if (defined(UNICAST_AUDIO_SYNC_MODE) && (UNICAST_AUDIO_SYNC_MODE > 0))
@@ -361,6 +363,8 @@ int unicast_audio_server_init(void)
 		.src_loc = true,
 	};
 
+    
+
     if (xTaskCreate(sink_recv_stream_task, "sink_recv_stream_task", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, NULL) != pdPASS)
     {
         PRINTF("Source stream recv task creation failed!\r\n");
@@ -372,6 +376,14 @@ int unicast_audio_server_init(void)
         PRINTF("Source stream send task creation failed!\r\n");
         return ret;
     }
+
+#if (defined(UNICAST_AUDIO_SYNC_MODE_TX) && (UNICAST_AUDIO_SYNC_MODE_TX > 0))
+	sync_sem = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sync_sem_buff);
+    if (sync_sem == NULL)
+    {
+        return -ENOMEM;
+    }
+#endif /* UNICAST_AUDIO_SYNC_MODE_TX */
 
     k_work_init_delayable(&ringtone_work.work, ringtone_prime_timeout);
 
@@ -1153,7 +1165,7 @@ static void source_send_stream_task(void *param)
     while (true)
     {
 #if (defined(UNICAST_AUDIO_SYNC_MODE_TX) && (UNICAST_AUDIO_SYNC_MODE_TX > 0))
-        if ( 0 != k_sem_take(&sync_sem, K_FOREVER) )
+        if ( pdTRUE != xSemaphoreTake(sync_sem, portMAX_DELAY) )
         {
             continue;
         }
@@ -1320,7 +1332,7 @@ static void codec_rx_callback(uint8_t *rx_buffer)
 
         while (sem_post_count > 0)
         {
-            if (0 != k_sem_give(&sync_sem))
+            if (pdTRUE != xSemaphoreGive(sync_sem))
             {
 #if 0
                 PRINTF("Post sem failed!\n");
@@ -1703,7 +1715,7 @@ static void sync_timer_callback(uint32_t sync_index, uint64_t bclk_count)
 
             while (sem_post_count > 0)
             {
-                if (0 != k_sem_give(&sync_sem))
+                if (pdTRUE != xSemaphoreGive(sync_sem))
                 {
 #if 0
                     PRINTF("Post sem failed!\n");

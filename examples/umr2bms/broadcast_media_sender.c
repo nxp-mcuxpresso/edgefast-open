@@ -110,7 +110,8 @@ static struct broadcast_source_stream {
 	enum bt_audio_location loc;
 	uint16_t seq_num;
 	size_t sent_cnt;
-	struct k_sem sem;
+	StaticSemaphore_t sem_buff;
+	SemaphoreHandle_t sem;
 	ATOMIC_DEFINE(flags, BMS_NUM_FLAGS);
 } streams[CONFIG_BT_BAP_BROADCAST_SRC_STREAM_COUNT];
 static struct bt_bap_broadcast_source *broadcast_source;
@@ -143,7 +144,7 @@ static void stream_started_cb(struct bt_bap_stream *stream)
 	source_stream->seq_num = 0U;
 	source_stream->sent_cnt = 0U;
 	atomic_set_bit(source_stream->flags, BMS_START);
-	k_sem_give(&source_stream->sem);
+	xSemaphoreGive(source_stream->sem);
 }
 
 static void stream_stopped_cb(struct bt_bap_stream *stream, uint8_t reason)
@@ -154,7 +155,7 @@ static void stream_stopped_cb(struct bt_bap_stream *stream, uint8_t reason)
 	BOARD_SyncSignal_Stop();
 
 	atomic_clear_bit(source_stream->flags, BMS_START);
-	k_sem_give(&source_stream->sem);
+	xSemaphoreGive(source_stream->sem);
 }
 
 struct bt_bap_stream_ops stream_ops = {
@@ -175,7 +176,7 @@ static int setup_broadcast_source(struct bt_bap_broadcast_source **source)
 	(void)memset(streams, 0, sizeof(streams));
 
 	for (size_t i = 0U; i < ARRAY_SIZE(streams); i++) {
-		k_sem_init(&streams[i].sem, 0, 0xFF);
+        streams[i].sem = xSemaphoreCreateCountingStatic(0xff, 0, &streams[i].sem_buff);
 	}
 
 	for (size_t i = 0U; i < ARRAY_SIZE(subgroup_param); i++) {
@@ -485,7 +486,7 @@ int bms_start(void)
 	PRINTF("BMS: Waiting stream start event\r\n");
 	/* Wait for all to be started */
 	for (size_t i = 0U; i < ARRAY_SIZE(streams); i++) {
-		k_sem_take(&streams[i].sem, K_FOREVER);
+		xSemaphoreTake(streams[i].sem, portMAX_DELAY);
 		if (!atomic_test_bit(streams[i].flags, BMS_START)) {
 			return -EINVAL;
 		}
@@ -513,7 +514,7 @@ int bms_stop(void)
 
 	/* Wait for all to be stopped */
 	for (size_t i = 0U; i < ARRAY_SIZE(streams); i++) {
-		k_sem_take(&streams[i].sem, K_FOREVER);
+		xSemaphoreTake(streams[i].sem, portMAX_DELAY);
 		if (atomic_test_bit(streams[i].flags, BMS_START)) {
 			return -EINVAL;
 		}

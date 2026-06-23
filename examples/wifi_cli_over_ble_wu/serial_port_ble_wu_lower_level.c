@@ -527,7 +527,8 @@ static void wu_central_scan_callback(const bt_addr_le_t *addr, int8_t rssi, uint
 #if (defined(BUTTON_COUNT) && (BUTTON_COUNT > 0U))
 struct button_event_work {
     struct k_work worker;
-    struct k_sem sem;
+    StaticSemaphore_t sem_buff;
+    SemaphoreHandle_t sem;
     button_callback_message_t *message;
     void *callbackParam;
     button_status_t status;
@@ -636,12 +637,12 @@ static void button_event_worker(struct k_work *work)
 
     event_work->status = button_event_precess(event_work->message, event_work->callbackParam);
 
-    k_sem_give(&event_work->sem);
+    xSemaphoreGive(event_work->sem);
 }
 
 static struct button_event_work button_worker = {
     .worker = Z_WORK_INITIALIZER(button_event_worker),
-    .sem = Z_SEM_INITIALIZER(worker.sem, 0, 1),
+    .sem = NULL,
     .message = NULL,
     .callbackParam = NULL,
     .status = kStatus_BUTTON_Success,
@@ -649,7 +650,8 @@ static struct button_event_work button_worker = {
 
 static button_status_t wireless_uart_button_callback(void *buttonHandle, button_callback_message_t *message, void *callbackParam)
 {
-    k_sem_reset(&button_worker.sem);
+    vSemaphoreDelete(button_worker.sem);
+    button_worker.sem = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &button_worker.sem_buff);
 
     button_worker.status = kStatus_BUTTON_Success;
     button_worker.message = message;
@@ -657,7 +659,13 @@ static button_status_t wireless_uart_button_callback(void *buttonHandle, button_
 
     k_work_submit(&button_worker.worker);
 
-    k_sem_take(&button_worker.sem, K_FOREVER);
+	if (0U != __get_IPSR()) {
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		(void)xSemaphoreTakeFromISR(button_worker.sem, &xHigherPriorityTaskWoken);
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	} else {
+		xSemaphoreTake(button_worker.sem, portMAX_DELAY);
+	}
 
     return button_worker.status;
 }
@@ -715,6 +723,8 @@ void wireless_uart_task(void *argument)
 {
     uint32_t index;
     int err;
+
+    button_worker.sem = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &button_worker.sem_buff);
 
     for (index = 0;index < CONFIG_BT_MAX_CONN;index++)
     {

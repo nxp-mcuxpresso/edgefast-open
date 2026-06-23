@@ -33,7 +33,8 @@ SDK_ALIGN(static uint8_t s_shellHandleBuffer[SHELL_HANDLE_SIZE], 4);
 extern serial_handle_t g_serialHandle;
 extern struct bt_csip_set_member_register_param csip_set_memeber_param;
 
-static K_SEM_DEFINE(sem_mode_role_selected, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t sem_mode_role_selected_buff;
+static SemaphoreHandle_t sem_mode_role_selected;
 
 static shell_status_t sink_init(shell_handle_t shellHandle, int32_t argc, char **argv)
 {
@@ -59,7 +60,7 @@ static shell_status_t sink_init(shell_handle_t shellHandle, int32_t argc, char *
 		return kStatus_SHELL_RetUsage;
 	}
 
-	k_sem_give(&sem_mode_role_selected);
+	xSemaphoreGive(sem_mode_role_selected);
 
 	SHELL_ChangePrompt(shellHandle, new_prompt);
 
@@ -292,9 +293,11 @@ void le_audio_shell_init(void)
 	SHELL_RegisterCommand(s_shellHandle, SHELL_COMMAND(sync_test_mode));
 	SHELL_RegisterCommand(s_shellHandle, SHELL_COMMAND(set_sirk));
 
+	sem_mode_role_selected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_mode_role_selected_buff);
+
 	SHELL_Printf(s_shellHandle, "\r\nUnicast Media Receiver.\r\n");
 	SHELL_Printf(s_shellHandle, "\r\nPlease select sink role \"left\"|\"right\" use \"init\" command.\r\n");
 
 	SHELL_PrintPrompt(s_shellHandle);
-	(void)k_sem_take(&sem_mode_role_selected, K_FOREVER);
+	(void)xSemaphoreTake(sem_mode_role_selected, portMAX_DELAY);
 }

@@ -18,7 +18,8 @@
 
 static struct bt_conn *default_conn;
 
-static K_SEM_DEFINE(sem_discovery_done, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t sem_discovery_done_buff;
+static SemaphoreHandle_t sem_discovery_done;
 
 static void mcc_discover_mcs_cb(struct bt_conn *conn, int err)
 {
@@ -27,7 +28,7 @@ static void mcc_discover_mcs_cb(struct bt_conn *conn, int err)
 	} else {
 		PRINTF("MCP: Discovered MCS\n");
 	}
-	k_sem_give(&sem_discovery_done);
+	xSemaphoreGive(sem_discovery_done);
 }
 
 static void mcc_send_command_cb(struct bt_conn *conn, int err, const struct mpl_cmd *cmd)
@@ -50,6 +51,8 @@ int mcp_ctlr_init(struct bt_conn *conn)
 {
 	int err;
 
+	sem_discovery_done = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_discovery_done_buff);
+
 	default_conn = bt_conn_ref(conn);
 
 	err = bt_mcc_init(&mcc_cb);
@@ -59,7 +62,7 @@ int mcp_ctlr_init(struct bt_conn *conn)
 
 	err = bt_mcc_discover_mcs(default_conn, true);
 	if (err == 0) {
-		k_sem_take(&sem_discovery_done, K_FOREVER);
+		xSemaphoreTake(sem_discovery_done, portMAX_DELAY);
 	}
 	return err;
 }

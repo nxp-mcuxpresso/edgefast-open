@@ -91,9 +91,12 @@ static const struct bt_data ad[] = {
 static frame_packet_t frame;
 #endif
 
-static K_SEM_DEFINE(sem_disconnected, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_security_changed, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_mcs_server_discovered, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t sem_disconnected_buff;
+static SemaphoreHandle_t sem_disconnected;
+static StaticSemaphore_t sem_security_changed_buff;
+static SemaphoreHandle_t sem_security_changed;
+static StaticSemaphore_t sem_mcs_server_discovered_buff;
+static SemaphoreHandle_t sem_mcs_server_discovered;
 
 
 extern void umr_to_bms_vol_control(uint8_t volume, uint8_t mute);
@@ -438,7 +441,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	bt_conn_unref(default_conn);
 	default_conn = NULL;
 
-	k_sem_give(&sem_disconnected);
+	xSemaphoreGive(sem_disconnected);
 }
 
 #if CONFIG_BT_SMP
@@ -450,7 +453,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     PRINTF("UMR: Security changed: %s level %u (error %d)\r\n", addr, level, err);
 
-	(void)k_sem_give(&sem_security_changed);
+	(void)xSemaphoreGive(sem_security_changed);
 }
 
 static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
@@ -559,7 +562,7 @@ static void mcc_discover_mcs_cb(struct bt_conn *conn, int err)
 		return;
 	}
 
-	k_sem_give(&sem_mcs_server_discovered);
+	xSemaphoreGive(sem_mcs_server_discovered);
 	mcs_server_conn = conn;
 
 	(void)mcs_server_conn;
@@ -647,6 +650,11 @@ void unicast_media_receiver_task(void *param)
 		.snk_loc = true,
 	};
 	int err;
+	BaseType_t ret;
+
+	sem_disconnected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_disconnected_buff);
+	sem_mcs_server_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_mcs_server_discovered_buff);
+	sem_security_changed = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_security_changed_buff);
 
 	bt_conn_cb_register(&conn_callbacks);
 #if CONFIG_BT_SMP
@@ -711,9 +719,9 @@ void unicast_media_receiver_task(void *param)
 
 		PRINTF("UMR: Advertising successfully started\r\n");
 
-		err = k_sem_take(&sem_security_changed, K_FOREVER);
-		if (err != 0) {
-			PRINTF("UMR: failed to take sem_security_changed (err %d)\r\n", err);
+		ret = xSemaphoreTake(sem_security_changed, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("UMR: failed to take sem_security_changed\r\n");
 			while(1);
 		}
 
@@ -721,16 +729,16 @@ void unicast_media_receiver_task(void *param)
 
 		(void)le_audio_mcs_discover(default_conn);
 
-		err = k_sem_take(&sem_mcs_server_discovered, K_FOREVER);
-		if (err != 0) {
-			PRINTF("UMR: failed to take sem_mcs_server_discovered (err %d)\r\n", err);
+		ret = xSemaphoreTake(sem_mcs_server_discovered, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("UMR: failed to take sem_mcs_server_discovered\r\n");
 			while(1);
 		}
 		PRINTF("UMR: MCS server discovered.\r\n");
 
-		err = k_sem_take(&sem_disconnected, K_FOREVER);
-		if (err != 0) {
-			PRINTF("UMR: failed to take sem_disconnected (err %d)\r\n", err);
+		ret = xSemaphoreTake(sem_disconnected, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("UMR: failed to take sem_disconnected\r\n");
 			break;
 		}
 	}

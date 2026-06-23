@@ -41,7 +41,8 @@ enum event_bitmap
     KAPP_EventUnicastDiscoverDone = BIT(0),
 };
 
-static K_SEM_DEFINE(sem_discover_done, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t sem_discover_done_buff;
+static SemaphoreHandle_t sem_discover_done;
 
 static shell_status_t scanning(shell_handle_t shellHandle, int32_t argc, char **argv);
 static shell_status_t passkey_confirm(shell_handle_t shellHandle, int32_t argc, char **argv);
@@ -338,7 +339,7 @@ static void unicast_client_discover_done_callback(struct bt_conn *conn, int err)
 {
     if (err == 0)
     {
-        k_sem_give(&sem_discover_done);
+        xSemaphoreGive(sem_discover_done);
     }
 }
 
@@ -597,21 +598,24 @@ static shell_status_t unpair(shell_handle_t shellHandle, int32_t argc, char **ar
 
 void call_gateway_task(void *param)
 {
-    int ret;
+    int err;
+    BaseType_t ret;
 
 #if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
     extern void bt_psa_crypto_init(void);
     bt_psa_crypto_init();
 #endif /* CONFIG_BT_SMP */
 
+    sem_discover_done = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_discover_done_buff);
+
     /* Init SHELL */
     s_shellHandle = &s_shellHandleBuffer[0];
     SHELL_Init(s_shellHandle, g_serialHandle, "call_gateway>> ");
 
-    ret = bt_enable(bt_ready);
-    if (ret)
+    err = bt_enable(bt_ready);
+    if (err)
     {
-        PRINTF("Bluetooth init failed (error %d)\n", ret);
+        PRINTF("Bluetooth init failed (error %d)\n", err);
         while (true)
         {
             vTaskDelay(2000);
@@ -620,8 +624,8 @@ void call_gateway_task(void *param)
 
     while (true)
     {
-        ret = k_sem_take(&sem_discover_done, K_FOREVER);
-        if (0 == ret)
+        ret = xSemaphoreTake(sem_discover_done, portMAX_DELAY);
+        if (pdTRUE == ret)
         {
             call_server_enable_command();
         }

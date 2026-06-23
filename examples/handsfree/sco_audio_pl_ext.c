@@ -68,7 +68,8 @@ AT_NONCACHEABLE_SECTION_ALIGN(static uint8_t MicBuffer[BUFFER_NUMBER * BUFFER_SI
 AT_NONCACHEABLE_SECTION_ALIGN(static uint8_t SpeakerBuffer[BUFFER_NUMBER * BUFFER_SIZE], 4);
 AT_NONCACHEABLE_SECTION(uint32_t g_AudioTxDummyBuffer[AUDIO_DUMMY_SIZE / 4U]);
 
-K_SEM_DEFINE(xSemaphoreScoAudio, 0, K_SEM_MAX_LIMIT);
+StaticSemaphore_t xSemaphoreScoAudio_buff;
+SemaphoreHandle_t xSemaphoreScoAudio;
 
 static volatile uint8_t saiEnable= 0;
 static uint32_t txMic_index = 0U, rxMic_index = 0U;
@@ -102,7 +103,14 @@ static void rxMicCallback(hal_audio_handle_t handle, hal_audio_status_t completi
     else
     {
         rxMic_test++;
-        k_sem_give(&xSemaphoreScoAudio);
+
+        if (0U != __get_IPSR()) {
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            (void)xSemaphoreGiveFromISR(xSemaphoreScoAudio, &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        } else {
+            xSemaphoreGive(xSemaphoreScoAudio);
+        }
     }
 }
 
@@ -121,7 +129,14 @@ static void txMicCallback(hal_audio_handle_t handle, hal_audio_status_t completi
         (void)atomic_inc(&emptyMicBlock);
 #endif
         rxMic_test++;
-        k_sem_give(&xSemaphoreScoAudio);
+
+        if (0U != __get_IPSR()) {
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            (void)xSemaphoreGiveFromISR(xSemaphoreScoAudio, &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        } else {
+            xSemaphoreGive(xSemaphoreScoAudio);
+        }
     }
 }
 #else
@@ -142,7 +157,14 @@ static void txMicCallback(hal_audio_handle_t handle, hal_audio_status_t completi
         {
             s_8978ConsumerActualData = 0;
             (void)atomic_inc(&emptyMicBlock);
-            k_sem_give(&xSemaphoreScoAudio);
+
+            if (0U != __get_IPSR()) {
+                BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+                (void)xSemaphoreGiveFromISR(xSemaphoreScoAudio, &xHigherPriorityTaskWoken);
+                portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+            } else {
+                xSemaphoreGive(xSemaphoreScoAudio);
+            }
 
             if (atomic_get(&emptyMicBlock) < (BUFFER_NUMBER))
             {
@@ -231,7 +253,14 @@ static void txSpeakerCallback(hal_audio_handle_t handle, hal_audio_status_t comp
         {
             s_consumerActualData = 0;
             (void)atomic_inc(&emptySpeakerBlock);
-            k_sem_give(&xSemaphoreScoAudio);
+
+            if (0U != __get_IPSR()) {
+                BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+                (void)xSemaphoreGiveFromISR(xSemaphoreScoAudio, &xHigherPriorityTaskWoken);
+                portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+            } else {
+                xSemaphoreGive(xSemaphoreScoAudio);
+            }
 
             if (atomic_get(&emptySpeakerBlock) < (BUFFER_NUMBER))
             {
@@ -291,7 +320,14 @@ static void rxSpeakerCallback(hal_audio_handle_t handle, hal_audio_status_t comp
     }
     else
     {
-        k_sem_give(&xSemaphoreScoAudio);
+        if (0U != __get_IPSR()) {
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            (void)xSemaphoreGiveFromISR(xSemaphoreScoAudio, &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        } else {
+            xSemaphoreGive(xSemaphoreScoAudio);
+        }
+
         rxSpeaker_test++;
     }
 }
@@ -434,7 +470,7 @@ void SCO_Edma_Task(void *handle)
 
     while (1)
     {
-        k_sem_take(&xSemaphoreScoAudio, K_FOREVER);
+        xSemaphoreTake(xSemaphoreScoAudio, portMAX_DELAY);
         if(saiEnable == 0)
         {
             Deinit_Board_Audio();
@@ -561,6 +597,7 @@ int sco_audio_start_pl_ext(void)
     }
     if (taskCreated == 0)
     {
+		xSemaphoreScoAudio = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &xSemaphoreScoAudio_buff);
         result = xTaskCreate(SCO_Edma_Task, "SCO_Edma", 1024, NULL, HFP_STREAMER_TASK_PRIORITY, NULL);
         assert(pdPASS == result);
         taskCreated = 1U;

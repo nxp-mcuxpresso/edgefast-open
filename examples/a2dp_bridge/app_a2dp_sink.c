@@ -26,7 +26,9 @@
 #if 1 /* Code change for bridge. */
 #include "unicast_media_sender.h"
 
-static K_SEM_DEFINE(a2dp_sink_init_done, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t a2dp_sink_init_done_buff;
+static SemaphoreHandle_t a2dp_sink_init_done;
+
 extern int a2dp_sink_audio_frame_size;
 bt_addr_t a2dp_bdaddr;
 
@@ -174,7 +176,7 @@ void sbc_stream_started(struct bt_a2dp_stream *stream)
 	sbc_setup_decoder(&decoder);
 	ring_buf_reset(&a2dp_ring_buf);
 	sbc_first_data = true;
-	k_sem_give(&a2dp_sink_init_done);
+	xSemaphoreGive(a2dp_sink_init_done);
 #endif
 }
 
@@ -354,6 +356,8 @@ void app_a2dp_sink_task(void *pvParameters)
 {
 	int err;
 
+	a2dp_sink_init_done = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &a2dp_sink_init_done_buff);
+
     PRINTF("Bluetooth A2dp Bridge demo start...\n");
 
 	/* Initializate BT Host stack */
@@ -366,7 +370,7 @@ void app_a2dp_sink_task(void *pvParameters)
 	}
 
 #if 1 /* Code change for bridge. */
-    k_sem_take(&a2dp_sink_init_done, K_FOREVER);
+    xSemaphoreTake(a2dp_sink_init_done, portMAX_DELAY);
 
     if (NULL == xTaskCreateStatic(unicast_media_sender_task, "unicast_media_sender_task", configMINIMAL_STACK_SIZE * 8, NULL, tskIDLE_PRIORITY + 1, xStack, &xTaskBuffer))
     {

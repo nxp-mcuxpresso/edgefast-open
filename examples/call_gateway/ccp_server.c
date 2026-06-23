@@ -43,7 +43,8 @@ static struct bt_conn_cb conn_callbacks = {
     .disconnected = disconnected,
 };
 
-static K_SEM_DEFINE(semHandle, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t semHandle_buff;
+static SemaphoreHandle_t semHandle;
 
 enum
 {
@@ -316,7 +317,7 @@ static bool app_bt_tbs_originate_call_cb(struct bt_conn *conn,
         reg_mask = DisableGlobalIRQ();
         s_call_status = KSTATUS_APP_CPP_SERVER_ORIGINATE_CALL;
         EnableGlobalIRQ(reg_mask);
-        (void)k_sem_give(&semHandle);
+        (void)xSemaphoreGive(semHandle);
 #if 0
         err = start_ringtone();
         if (err < 0)
@@ -343,7 +344,7 @@ static void app_bt_tbs_terminate_call_cb(struct bt_conn *conn,
         reg_mask = DisableGlobalIRQ();
         s_call_status = KSTATUS_APP_CPP_SERVER_TERMINATE_CALL;
         EnableGlobalIRQ(reg_mask);
-        (void)k_sem_give(&semHandle);
+        (void)xSemaphoreGive(semHandle);
 #if 0
         stop_call();
 #endif
@@ -369,7 +370,7 @@ static void app_bt_tbs_join_calls_cb(struct bt_conn *conn,
     reg_mask = DisableGlobalIRQ();
     s_call_status = KSTATUS_APP_CPP_SERVER_JOINS_CALL;
     EnableGlobalIRQ(reg_mask);
-    (void)k_sem_give(&semHandle);
+    (void)xSemaphoreGive(semHandle);
 }
 
 static void app_bt_tbs_call_hold_change_cb(struct bt_conn *conn,
@@ -384,7 +385,7 @@ static void app_bt_tbs_call_hold_change_cb(struct bt_conn *conn,
         reg_mask = DisableGlobalIRQ();
         s_call_status = KSTATUS_APP_CPP_SERVER_HOLD;
         EnableGlobalIRQ(reg_mask);
-        (void)k_sem_give(&semHandle);
+        (void)xSemaphoreGive(semHandle);
     }
 }
 
@@ -404,7 +405,7 @@ static void app_bt_tbs_call_accept_change_cb(struct bt_conn *conn,
         reg_mask = DisableGlobalIRQ();
         s_call_status = KSTATUS_APP_CPP_SERVER_ACCEPT;
         EnableGlobalIRQ(reg_mask);
-        (void)k_sem_give(&semHandle);
+        (void)xSemaphoreGive(semHandle);
 #if 0
         stop_ringtone_light();
         err = start_voice_light();
@@ -430,7 +431,7 @@ static void app_bt_tbs_call_retrieve_change_cb(struct bt_conn *conn,
         reg_mask = DisableGlobalIRQ();
         s_call_status = KSTATUS_APP_CPP_SERVER_RETRIEVE;
         EnableGlobalIRQ(reg_mask);
-        (void)k_sem_give(&semHandle);
+        (void)xSemaphoreGive(semHandle);
     }
 }
 
@@ -1042,7 +1043,7 @@ static void call_server_task(void* parm)
 
     while (true)
     {
-        (void)k_sem_take(&semHandle, K_FOREVER);
+        (void)xSemaphoreTake(semHandle, portMAX_DELAY);
 
         reg_mask = DisableGlobalIRQ();
         status = s_call_status;
@@ -1119,6 +1120,8 @@ int call_server_init(shell_handle_t shellHandle)
 		PRINTF("Fail to create call server task!\r\n");
 		return err;
 	}
+
+    semHandle = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &semHandle_buff);
 
 	const struct bt_tbs_register_param gtbs_param = {
 		.provider_name = "Generic TBS",

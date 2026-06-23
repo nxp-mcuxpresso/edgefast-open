@@ -38,7 +38,8 @@ enum {
 };
 
 static atomic_t flags;
-static struct k_sem sem;
+static StaticSemaphore_t sem_buff;
+static SemaphoreHandle_t sem;
 
 static int change_trigger_pin_mapping(void)
 {
@@ -72,7 +73,7 @@ void umr_to_bms_task(void *param)
 	bt_psa_crypto_init();
 #endif /* CONFIG_BT_SMP */
 
-	k_sem_init(&sem, 0, 0xFF);
+	sem = xSemaphoreCreateCountingStatic(0xff, 0, &sem_buff);
 
 	/* shell init. */
 	le_audio_shell_init();
@@ -100,7 +101,7 @@ void umr_to_bms_task(void *param)
 	}
 
 	while (1) {
-		k_sem_take(&sem, K_FOREVER);
+		xSemaphoreTake(sem, portMAX_DELAY);
 		if (atomic_test_and_clear_bit(&flags, UMR_TO_BMS_FLAG_AUDIO_ENABLED)) {
 			bms_init();
 		}
@@ -126,7 +127,7 @@ void umr_to_bms_vol_control(uint8_t volume, uint8_t mute)
 	} else {
 		atomic_set_bit(&flags, UMR_TO_BMS_FLAG_AUDIO_STARTED);
 	}
-	k_sem_give(&sem);
+	xSemaphoreGive(sem);
 }
 
 int umr_to_bms_audio_codec_cfg(const struct bt_audio_codec_cfg *cfg)
@@ -148,28 +149,28 @@ int umr_to_bms_audio_start(void)
 {
 	atomic_set_bit(&flags, UMR_TO_BMS_FLAG_AUDIO_ENABLED);
 	atomic_set_bit(&flags, UMR_TO_BMS_FLAG_AUDIO_STARTED);
-	k_sem_give(&sem);
+	xSemaphoreGive(sem);
 	return 0;
 }
 
 int umr_to_bms_audio_stop(void)
 {
 	atomic_set_bit(&flags, UMR_TO_BMS_FLAG_AUDIO_STOPED);
-	k_sem_give(&sem);
+	xSemaphoreGive(sem);
 	return 0;
 }
 
 int umr_to_bms_audio_disable(void)
 {
 	atomic_set_bit(&flags, UMR_TO_BMS_FLAG_AUDIO_DISABLED);
-	k_sem_give(&sem);
+	xSemaphoreGive(sem);
 	return 0;
 }
 
 int umr_to_bms_audio_release(void)
 {
 	atomic_set_bit(&flags, UMR_TO_BMS_FLAG_AUDIO_RELEASED);
-	k_sem_give(&sem);
+	xSemaphoreGive(sem);
 	return 0;
 }
 

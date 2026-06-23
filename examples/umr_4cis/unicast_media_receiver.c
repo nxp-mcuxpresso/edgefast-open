@@ -135,10 +135,14 @@ static frame_packet_t frame;
 
 static lc3_codec_info_t lc3_codec_info;
 
-static K_SEM_DEFINE(sem_disconnected, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_stream_enabled, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_security_changed, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_mcs_server_discovered, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t sem_disconnected_buff;
+static SemaphoreHandle_t sem_disconnected;
+static StaticSemaphore_t sem_stream_enabled_buff;
+static SemaphoreHandle_t sem_stream_enabled;
+static StaticSemaphore_t sem_security_changed_buff;
+static SemaphoreHandle_t sem_security_changed;
+static StaticSemaphore_t sem_mcs_server_discovered_buff;
+static SemaphoreHandle_t sem_mcs_server_discovered;
 
 static bool stream_stop = false;
 
@@ -503,7 +507,7 @@ static int lc3_enable(struct bt_bap_stream *stream, const uint8_t meta[], size_t
 		}
 	}
 
-	k_sem_give(&sem_stream_enabled);
+	xSemaphoreGive(sem_stream_enabled);
 
 	return 0;
 }
@@ -722,7 +726,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	bt_conn_unref(default_conn);
 	default_conn = NULL;
 
-	k_sem_give(&sem_disconnected);
+	xSemaphoreGive(sem_disconnected);
 }
 
 #if CONFIG_BT_SMP
@@ -734,7 +738,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
 
     PRINTF("Security changed: %s level %u (error %d)\n", addr, level, err);
 
-	(void)k_sem_give(&sem_security_changed);
+	(void)xSemaphoreGive(sem_security_changed);
 }
 
 static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
@@ -844,7 +848,7 @@ static int set_available_contexts(void)
 
 static void mcs_server_discover_cb(struct bt_conn *conn)
 {
-	k_sem_give(&sem_mcs_server_discovered);
+	xSemaphoreGive(sem_mcs_server_discovered);
 }
 
 static void vcs_server_vol_callback(uint8_t volume, uint8_t mute)
@@ -878,11 +882,17 @@ void unicast_media_receiver_task(void *param)
 		.snk_loc = true,
 	};
 	int err;
+	BaseType_t ret;
 
 #if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
 	extern void bt_psa_crypto_init(void);
 	bt_psa_crypto_init();
 #endif /* CONFIG_BT_SMP */
+
+	sem_stream_enabled = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_stream_enabled_buff);
+	sem_disconnected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_disconnected_buff);
+	sem_mcs_server_discovered = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_mcs_server_discovered_buff);
+	sem_security_changed = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_security_changed_buff);
 
 	/* shell init. */
 	le_audio_shell_init();
@@ -990,9 +1000,9 @@ void unicast_media_receiver_task(void *param)
 
 		PRINTF("Advertising successfully started\n");
 
-		err = k_sem_take(&sem_security_changed, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem_security_changed (err %d)\n", err);
+		ret = xSemaphoreTake(sem_security_changed, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem_security_changed\n");
 			while(1);
 		}
 
@@ -1000,16 +1010,16 @@ void unicast_media_receiver_task(void *param)
 
 		(void)le_audio_mcs_discover(default_conn);
 
-		err = k_sem_take(&sem_mcs_server_discovered, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem_mcs_server_discovered (err %d)\n", err);
+		ret = xSemaphoreTake(sem_mcs_server_discovered, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem_mcs_server_discovered\n");
 			while(1);
 		}
 		PRINTF("MCS server discovered.\n");
 
-		err = k_sem_take(&sem_stream_enabled, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem_stream_enabled (err %d)\n", err);
+		ret = xSemaphoreTake(sem_stream_enabled, portMAX_DELAY);
+		if (ret != pdTRUE) {
+			PRINTF("failed to take sem_stream_enabled\n");
 			while(1);
 		}
 
@@ -1024,10 +1034,10 @@ void unicast_media_receiver_task(void *param)
 
 		PRINTF("Unicast stream stoped\n");
 
-		err = k_sem_take(&sem_disconnected, K_FOREVER);
-		if (err != 0) {
-			PRINTF("failed to take sem_disconnected (err %d)\n", err);
-			break;
+		ret = xSemaphoreTake(sem_disconnected, portMAX_DELAY);
+		if (ret != pdTRUE) {
+		    PRINTF("failed to take sem_disconnected\n");
+		    break;
 		}
 	}
 

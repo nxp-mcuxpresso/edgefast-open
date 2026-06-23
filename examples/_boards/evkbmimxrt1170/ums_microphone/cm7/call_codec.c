@@ -65,7 +65,8 @@ volatile uint32_t codecTxBufferPrimeIndex = 0;
 volatile uint32_t codecTxBufferWriteIndex = 0;
 volatile uint32_t codecTxBufferPrimeCount = 0;
 
-static K_SEM_DEFINE(s_audioTaskSync, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t s_audioTaskSync_buff;
+static SemaphoreHandle_t s_audioTaskSync;
 
 static volatile uint8_t s_audioInitialized = 0u;
 static volatile bool stop_codec;
@@ -107,7 +108,14 @@ static void APP_CodecTxCallback(hal_audio_handle_t handle, hal_audio_status_t co
         codecTxBufferPrimeCount --;
     }
     tx_played_count += CODEC_TX_BUFFER_SIZE_MAX;
-    k_sem_give(&s_audioTaskSync);
+
+	if (0U != __get_IPSR()) {
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		(void)xSemaphoreGiveFromISR(s_audioTaskSync, &xHigherPriorityTaskWoken);
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	} else {
+		xSemaphoreGive(s_audioTaskSync);
+	}
 }
 
 static void APP_CodecRxCallback(hal_audio_handle_t handle, hal_audio_status_t completionStatus, void *callbackParam)
@@ -119,7 +127,14 @@ static void APP_CodecRxCallback(hal_audio_handle_t handle, hal_audio_status_t co
         codecRxBufferPrimeCount --;
     }
     rx_new_count += CODEC_RX_BUFFER_SIZE_MAX;
-    k_sem_give(&s_audioTaskSync);
+
+	if (0U != __get_IPSR()) {
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		(void)xSemaphoreGiveFromISR(s_audioTaskSync, &xHigherPriorityTaskWoken);
+		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+	} else {
+		xSemaphoreGive(s_audioTaskSync);
+	}
 }
 
 int BOARD_AudioInit(uint32_t samplingRate, uint32_t bitWidth, uint32_t duration_us)
@@ -217,7 +232,7 @@ static void BOARD_CodecTask(void* param)
 
     while (true)
     {
-        k_sem_take(&s_audioTaskSync, K_FOREVER);
+		xSemaphoreTake(s_audioTaskSync, portMAX_DELAY);
 
         reg = DisableGlobalIRQ();
         if (s_audioInitialized < 1)
@@ -296,6 +311,9 @@ static int BOARD_AudioTaskInit(void)
     if (0u == s_audioStarted)
     {
         s_audioStarted = 1U;
+
+		s_audioTaskSync = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &s_audioTaskSync_buff);
+		assert(s_audioTaskSync != NULL);
 
         result = xTaskCreate(BOARD_CodecTask, "BOARD_CodecTask", 1024, NULL, configMAX_PRIORITIES / 2, NULL);
         assert(pdPASS == result);
@@ -409,7 +427,7 @@ int BOARD_StartCodec(codec_rx_callback_t rx_cb, uint32_t simpleBitRate, uint32_t
 int BOARD_StopCodec(void)
 {
     stop_codec = true;
-    k_sem_give(&s_audioTaskSync);
+    xSemaphoreGive(s_audioTaskSync);
     return 0;
 }
 

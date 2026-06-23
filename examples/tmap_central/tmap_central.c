@@ -29,16 +29,21 @@
 
 static struct bt_conn *default_conn;
 
-static K_SEM_DEFINE(sem_connected, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_security_updated, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_disconnected, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_mtu_exchanged, 0, K_SEM_MAX_LIMIT);
-static K_SEM_DEFINE(sem_discovery_done, 0, K_SEM_MAX_LIMIT);
+static StaticSemaphore_t sem_connected_buff;
+static SemaphoreHandle_t sem_connected;
+static StaticSemaphore_t sem_security_updated_buff;
+static SemaphoreHandle_t sem_security_updated;
+static StaticSemaphore_t sem_disconnected_buff;
+static SemaphoreHandle_t sem_disconnected;
+static StaticSemaphore_t sem_mtu_exchanged_buff;
+static SemaphoreHandle_t sem_mtu_exchanged;
+static StaticSemaphore_t sem_discovery_done_buff;
+static SemaphoreHandle_t sem_discovery_done;
 
 static void att_mtu_updated(struct bt_conn *conn, uint16_t tx, uint16_t rx)
 {
 	PRINTF("MTU exchanged: %u/%u\n", tx, rx);
-	k_sem_give(&sem_mtu_exchanged);
+	xSemaphoreGive(sem_mtu_exchanged);
 }
 
 static struct bt_gatt_cb gatt_callbacks = {
@@ -56,7 +61,7 @@ void tmap_discovery_complete(enum bt_tmap_role role, struct bt_conn *conn, int e
 		return;
 	}
 	PRINTF("TMAS discovery done\n");
-	k_sem_give(&sem_discovery_done);
+	xSemaphoreGive(sem_discovery_done);
 }
 
 static struct bt_tmap_cb tmap_callbacks = {
@@ -102,7 +107,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	}
 
 	PRINTF("Connected: %s\n", addr);
-	k_sem_give(&sem_connected);
+	xSemaphoreGive(sem_connected);
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
@@ -120,7 +125,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	bt_conn_unref(default_conn);
 	default_conn = NULL;
 
-	k_sem_give(&sem_disconnected);
+	xSemaphoreGive(sem_disconnected);
 }
 
 static void security_changed(struct bt_conn *conn, bt_security_t level,
@@ -128,7 +133,7 @@ static void security_changed(struct bt_conn *conn, bt_security_t level,
 {
 	if (err == 0) {
 		PRINTF("Security changed: %u\n", err);
-		k_sem_give(&sem_security_updated);
+		xSemaphoreGive(sem_security_updated);
 	} else {
 		PRINTF("Failed to set security level: %s(%u)\n", bt_security_err_to_str(err), err);
 	}
@@ -237,19 +242,20 @@ static void start_scan(void)
 static int scan_and_connect(void)
 {
 	int err;
+	BaseType_t ret;
 
 	start_scan();
 
-	err = k_sem_take(&sem_connected, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem_connected (err %d)\n", err);
-		return err;
+	ret = xSemaphoreTake(sem_connected, portMAX_DELAY);
+	if (ret != pdTRUE) {
+	    PRINTF("failed to take sem_connected\n");
+	    return -1;
 	}
 
-	err = k_sem_take(&sem_mtu_exchanged, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem_mtu_exchanged (err %d)\n", err);
-		return err;
+	ret = xSemaphoreTake(sem_mtu_exchanged, portMAX_DELAY);
+	if (ret != pdTRUE) {
+	    PRINTF("failed to take sem_mtu_exchanged\n");
+	    return -1;
 	}
 
 	err = bt_conn_set_security(default_conn, BT_SECURITY_L2);
@@ -258,10 +264,10 @@ static int scan_and_connect(void)
 		return err;
 	}
 
-	err = k_sem_take(&sem_security_updated, K_FOREVER);
-	if (err != 0) {
-		PRINTF("failed to take sem_security_updated (err %d)\n", err);
-		return err;
+	ret = xSemaphoreTake(sem_security_updated, portMAX_DELAY);
+	if (ret != pdTRUE) {
+	    PRINTF("failed to take sem_security_updated\n");
+	    return -1;
 	}
 
 	return 0;
@@ -270,6 +276,12 @@ static int scan_and_connect(void)
 int main_func(void)
 {
 	int err;
+
+	sem_connected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_connected_buff);
+	sem_security_updated = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_security_updated_buff);
+	sem_disconnected = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_disconnected_buff);
+	sem_mtu_exchanged = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_mtu_exchanged_buff);
+	sem_discovery_done = xSemaphoreCreateCountingStatic(UINT32_MAX, 0, &sem_discovery_done_buff);
 
 	err = init();
 	if (err != 0) {
@@ -323,7 +335,7 @@ int main_func(void)
 		return err;
 	}
 
-	k_sem_take(&sem_discovery_done, K_FOREVER);
+	xSemaphoreTake(sem_discovery_done, portMAX_DELAY);
 
 	/* Send a VCP command */
 	err = vcp_vol_ctlr_mute();
