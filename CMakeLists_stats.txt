@@ -3,14 +3,16 @@ MCUX_ADD_* COMMANDS STATISTICS
 ================================================================================
 Total mcux_add_* commands: 487
   - Conditional: 487
+Total mcux_add_* commands: 487
+  - Conditional: 487
   - Unconditional: 0
   - Duplicates removed: 0
 Unique conditions: 175
 
 Command types distribution:
   - mcux_add_source: 439 (90.1%)
-  - mcux_add_include: 18 (3.7%)
-  - mcux_add_iar_configuration: 16 (3.3%)
+  - mcux_add_include: 19 (3.9%)
+  - mcux_add_iar_configuration: 15 (3.1%)
   - mcux_add_configuration: 5 (1.0%)
   - mcux_add_mdk_configuration: 5 (1.0%)
   - mcux_add_armgcc_configuration: 4 (0.8%)
