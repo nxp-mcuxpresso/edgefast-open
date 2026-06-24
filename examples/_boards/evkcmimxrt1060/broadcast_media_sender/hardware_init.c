@@ -10,7 +10,9 @@
 #include "board.h"
 #include "clock_config.h"
 #include "fsl_adapter_uart.h"
-
+#include "usb_host_config.h"
+#include "usb_phy.h"
+#include "usb_host.h"
 #include <zephyr/drivers/bluetooth.h>
 #include "fsl_lpuart_edma.h"
 #include "fsl_dmamux.h"
@@ -24,6 +26,13 @@
 /*${header:end}*/
 
 /*${macro:start}*/
+#if defined(__GIC_PRIO_BITS)
+#define USB_HOST_INTERRUPT_PRIORITY (25U)
+#elif defined(__NVIC_PRIO_BITS) && (__NVIC_PRIO_BITS >= 3)
+#define USB_HOST_INTERRUPT_PRIORITY (6U)
+#else
+#define USB_HOST_INTERRUPT_PRIORITY (3U)
+#endif
 /*${macro:end}*/
 
 /*${variable:start}*/
@@ -135,4 +144,40 @@ int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
 }
 #endif
 
+void USB_HostClockInit(void)
+{
+    usb_phy_config_struct_t phyConfig = {
+        BOARD_USB_PHY_D_CAL,
+        BOARD_USB_PHY_TXCAL45DP,
+        BOARD_USB_PHY_TXCAL45DM,
+    };
+
+    if (CONTROLLER_ID == kUSB_ControllerEhci0)
+    {
+        CLOCK_EnableUsbhs0PhyPllClock(kCLOCK_Usbphy480M, 480000000U);
+        CLOCK_EnableUsbhs0Clock(kCLOCK_Usb480M, 480000000U);
+    }
+    else
+    {
+        CLOCK_EnableUsbhs1PhyPllClock(kCLOCK_Usbphy480M, 480000000U);
+        CLOCK_EnableUsbhs1Clock(kCLOCK_Usb480M, 480000000U);
+    }
+    USB_EhciPhyInit(CONTROLLER_ID, BOARD_XTAL0_CLK_HZ, &phyConfig);
+}
+
+void USB_HostIsrEnable(void)
+{
+    uint8_t irqNumber;
+
+    uint8_t usbHOSTEhciIrq[] = USBHS_IRQS;
+    irqNumber                = usbHOSTEhciIrq[CONTROLLER_ID - kUSB_ControllerEhci0];
+
+/* Install isr, set priority, and enable IRQ. */
+#if defined(__GIC_PRIO_BITS)
+    GIC_SetPriority((IRQn_Type)irqNumber, USB_HOST_INTERRUPT_PRIORITY);
+#else
+    NVIC_SetPriority((IRQn_Type)irqNumber, USB_HOST_INTERRUPT_PRIORITY);
+#endif
+    EnableIRQ((IRQn_Type)irqNumber);
+}
 /*${function:end}*/
