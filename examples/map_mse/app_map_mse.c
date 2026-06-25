@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/settings/settings.h>
@@ -17,6 +16,9 @@
 #include <diskio.h>
 #include <string.h>
 #include <stdio.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
 #include "app_connect.h"
 #include "app_map_mse.h"
 
@@ -125,7 +127,6 @@ struct mse_mas_msg {
 };
 
 struct mse_mns_msg {
-	sys_snode_t node;
 	enum map_cmd cmd;
 };
 
@@ -139,16 +140,20 @@ NET_BUF_POOL_FIXED_DEFINE(sdp_discover_pool, CONFIG_BT_MAX_CONN,
 			  BT_L2CAP_BUF_SIZE(CONFIG_BT_L2CAP_TX_MTU),
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 NET_BUF_POOL_FIXED_DEFINE(mas_rx_pool, CONFIG_BT_MAP_MSE_MAS_MSGQ_COUNT,
-			  BT_RFCOMM_BUF_SIZE(CONFIG_BT_GOEP_RFCOMM_MTU), sizeof(struct mse_mas_msg),
-			  NULL);
-K_MEM_SLAB_DEFINE(mns_rx_slab, sizeof(struct mse_mns_msg), CONFIG_BT_MAP_MSE_MNS_MSGQ_COUNT, 4);
+			  BT_RFCOMM_BUF_SIZE(CONFIG_BT_GOEP_RFCOMM_MTU), 0, NULL);
 
-static struct k_work_q map_workq;
-static K_THREAD_STACK_DEFINE(map_workq_stack, CONFIG_BT_MAP_MSE_WORKQ_STACK_SIZE);
-struct k_work mas_work;
-struct k_work mns_work;
-K_FIFO_DEFINE(mas_msgq);
-K_FIFO_DEFINE(mns_msgq);
+#define MAS_TASK_STACK_SIZE 4096
+#define MNS_TASK_STACK_SIZE 4096
+static StackType_t mas_task_stack[MAS_TASK_STACK_SIZE / sizeof(StackType_t)];
+static StackType_t mns_task_stack[MNS_TASK_STACK_SIZE / sizeof(StackType_t)];
+static StaticTask_t mas_task_buffer;
+static StaticTask_t mns_task_buffer;
+static QueueHandle_t mas_msgq;
+static QueueHandle_t mns_msgq;
+static StaticQueue_t mas_msgq_buffer;
+static StaticQueue_t mns_msgq_buffer;
+static uint8_t mas_msgq_storage[CONFIG_BT_MAP_MSE_MAS_MSGQ_COUNT * sizeof(struct mse_mas_msg)];
+static uint8_t mns_msgq_storage[CONFIG_BT_MAP_MSE_MNS_MSGQ_COUNT * sizeof(struct mse_mns_msg)];
 
 static struct mse_mas_instance mas_inst;
 static struct mse_mns_instance mns_inst;
@@ -828,18 +833,11 @@ static int map_parse_name(struct net_buf *buf, char *name, uint16_t name_len)
 /* MSE MNS callbacks */
 static void mns_work_submit(enum map_cmd cmd)
 {
-	struct mse_mns_msg *msg;
-	int ret;
+	struct mse_mns_msg msg = {
+		.cmd = cmd,
+	};
 
-	ret = k_mem_slab_alloc(&mns_rx_slab, (void **)&msg, K_FOREVER);
-	if (ret != 0) {
-		printk("Failed to allocate buffer for MNS message (err %d)\n", ret);
-		return;
-	}
-
-	msg->cmd = cmd;
-	k_fifo_put(&mns_msgq, msg);
-	k_work_submit_to_queue(&map_workq, &mns_work);
+	(void)xQueueSend(mns_msgq, &msg, portMAX_DELAY);
 }
 
 static void mse_mns_rfcomm_connected(struct bt_conn *conn, struct bt_map_mse_mns *mse_mns)
@@ -1229,18 +1227,19 @@ static struct bt_sdp_discover_params sdp_discover = {
 	.uuid = BT_UUID_DECLARE_16(BT_SDP_MAP_MCE_SVCLASS),
 };
 
-static void mns_work_handler(struct k_work *work)
+static void mns_task(void *arg)
 {
-	struct mse_mns_msg *msg;
+	struct mse_mns_msg msg;
 	int err;
 
-	while (true) {
-		msg = k_fifo_get(&mns_msgq, K_NO_WAIT);
-		if (msg == NULL) {
-			return;
+	(void)arg;
+
+	for (;;) {
+		if (xQueueReceive(mns_msgq, &msg, portMAX_DELAY) != pdTRUE) {
+			continue;
 		}
 
-		switch (msg->cmd) {
+		switch (msg.cmd) {
 		case CMD_SEND_EVENT:
 			err = app_mse_mns_send_event(&mns_inst);
 			break;
@@ -1267,8 +1266,6 @@ static void mns_work_handler(struct k_work *work)
 			break;
 		}
 
-		k_mem_slab_free(&mns_rx_slab, msg);
-
 		if (err != 0) {
 			printk("MNS work handler error (err %d)\n", err);
 		}
@@ -1279,7 +1276,7 @@ static void mns_work_handler(struct k_work *work)
 static void mas_work_submit(enum map_cmd cmd, bool final, struct net_buf *buf)
 {
 	struct net_buf *new_buf;
-	struct mse_mas_msg *msg;
+	struct mse_mas_msg msg;
 
 	new_buf = net_buf_alloc(&mas_rx_pool, K_FOREVER);
 	if (new_buf == NULL) {
@@ -1297,13 +1294,11 @@ static void mas_work_submit(enum map_cmd cmd, bool final, struct net_buf *buf)
 		net_buf_add_mem(new_buf, buf->data, buf->len);
 	}
 
-	msg = net_buf_user_data(new_buf);
+	msg.buf = new_buf;
+	msg.cmd = cmd;
+	msg.final = final;
 
-	msg->buf = new_buf;
-	msg->cmd = cmd;
-	msg->final = final;
-	k_fifo_put(&mas_msgq, new_buf);
-	k_work_submit_to_queue(&map_workq, &mas_work);
+	(void)xQueueSend(mas_msgq, &msg, portMAX_DELAY);
 }
 
 static void mse_mas_rfcomm_connected(struct bt_conn *conn, struct bt_map_mse_mas *mse_mas)
@@ -1526,17 +1521,15 @@ static struct bt_map_mse_mas_cb mse_mas_cb = {
 /* MSE MAS commands */
 static int app_mse_mas_abort(struct mse_mas_instance *inst, struct mse_mas_msg *msg)
 {
-	struct net_buf *buf;
+	struct mse_mas_msg data;
 
 	map_parse_headers(msg->buf, NULL);
 
 	/* clear queue */
-	while (true) {
-		buf = k_fifo_get(&mas_msgq, K_NO_WAIT);
-		if (buf == NULL) {
-			break;
+	while (xQueueReceive(mas_msgq, &data, 0) == pdTRUE) {
+		if (data.buf != NULL) {
+			net_buf_unref(data.buf);
 		}
-		net_buf_unref(buf);
 	}
 
 	inst->tx_cnt = 0;
@@ -2784,66 +2777,68 @@ static int app_mse_mas_set_ntf_filter(struct mse_mas_instance *inst, struct mse_
 	return bt_map_mse_mas_set_ntf_filter(&inst->mse_mas, BT_OBEX_RSP_CODE_SUCCESS, NULL);
 }
 
-static void mas_work_handler(struct k_work *work)
+static void mas_task(void *arg)
 {
-	struct net_buf *buf;
-	struct mse_mas_msg *msg;
+	struct mse_mas_msg msg;
 	int err;
 
-	while (true) {
-		buf = k_fifo_get(&mas_msgq, K_NO_WAIT);
-		if (buf == NULL) {
-			return;
+	(void)arg;
+
+	for (;;) {
+		if (xQueueReceive(mas_msgq, &msg, portMAX_DELAY) != pdTRUE) {
+			continue;
 		}
 
-		msg = net_buf_user_data(buf);
+		if (msg.buf == NULL) {
+			continue;
+		}
 
-		switch (msg->cmd) {
+		switch (msg.cmd) {
 		case CMD_ABORT:
-			err = app_mse_mas_abort(&mas_inst, msg);
+			err = app_mse_mas_abort(&mas_inst, &msg);
 			break;
 		case CMD_GET_FOLDER_LISTING:
-			err = app_mse_mas_get_folder_listing(&mas_inst, msg);
+			err = app_mse_mas_get_folder_listing(&mas_inst, &msg);
 			break;
 		case CMD_GET_MSG_LISTING:
-			err = app_mse_mas_get_msg_listing(&mas_inst, msg);
+			err = app_mse_mas_get_msg_listing(&mas_inst, &msg);
 			break;
 		case CMD_GET_MSG:
-			err = app_mse_mas_get_msg(&mas_inst, msg);
+			err = app_mse_mas_get_msg(&mas_inst, &msg);
 			break;
 		case CMD_SET_MSG_STATUS:
-			err = app_mse_mas_set_msg_status(&mas_inst, msg);
+			err = app_mse_mas_set_msg_status(&mas_inst, &msg);
 			break;
 		case CMD_PUSH_MSG:
-			err = app_mse_mas_push_msg(&mas_inst, msg);
+			err = app_mse_mas_push_msg(&mas_inst, &msg);
 			break;
 		case CMD_SET_NTF_REG:
-			err = app_mse_mas_set_ntf_reg(&mas_inst, msg);
+			err = app_mse_mas_set_ntf_reg(&mas_inst, &msg);
 			break;
 		case CMD_UPDATE_INBOX:
-			err = app_mse_mas_update_inbox(&mas_inst, msg);
+			err = app_mse_mas_update_inbox(&mas_inst, &msg);
 			break;
 		case CMD_GET_MAS_INST_INFO:
-			err = app_mse_mas_get_mas_inst_info(&mas_inst, msg);
+			err = app_mse_mas_get_mas_inst_info(&mas_inst, &msg);
 			break;
 		case CMD_SET_OWNER_STATUS:
-			err = app_mse_mas_set_owner_status(&mas_inst, msg);
+			err = app_mse_mas_set_owner_status(&mas_inst, &msg);
 			break;
 		case CMD_GET_OWNER_STATUS:
-			err = app_mse_mas_get_owner_status(&mas_inst, msg);
+			err = app_mse_mas_get_owner_status(&mas_inst, &msg);
 			break;
 		case CMD_GET_CONVO_LISTING:
-			err = app_mse_mas_get_convo_listing(&mas_inst, msg);
+			err = app_mse_mas_get_convo_listing(&mas_inst, &msg);
 			break;
 		case CMD_SET_NTF_FILTER:
-			err = app_mse_mas_set_ntf_filter(&mas_inst, msg);
+			err = app_mse_mas_set_ntf_filter(&mas_inst, &msg);
 			break;
 		default:
 			err = 0;
 			break;
 		}
 
-		net_buf_unref(buf);
+		net_buf_unref(msg.buf);
 
 		if (err != 0) {
 			printk("MAS work handler error (err %d)\n", err);
@@ -3018,6 +3013,8 @@ static struct bt_sdp_record mse_mas_rec = BT_SDP_RECORD(mse_mas_attrs);
 
 static void bt_ready(int err)
 {
+	TaskHandle_t task_handle;
+
 	if (err) {
 		printk("Bluetooth init failed: %d\n", err);
 		return;
@@ -3049,13 +3046,35 @@ static void bt_ready(int err)
 		return;
 	}
 
-	k_work_queue_init(&map_workq);
-	k_work_queue_start(&map_workq, map_workq_stack, K_THREAD_STACK_SIZEOF(map_workq_stack),
-			   K_PRIO_COOP(CONFIG_BT_MAP_MSE_WORKQ_PRIORITY), NULL);
-	k_thread_name_set(&map_workq.thread, "map tx");
+	mas_msgq = xQueueCreateStatic(CONFIG_BT_MAP_MSE_MAS_MSGQ_COUNT, sizeof(struct mse_mas_msg),
+				      mas_msgq_storage, &mas_msgq_buffer);
+	if (mas_msgq == NULL) {
+		printk("Failed to create MAS queue\n");
+		return;
+	}
 
-	k_work_init(&mas_work, mas_work_handler);
-	k_work_init(&mns_work, mns_work_handler);
+	mns_msgq = xQueueCreateStatic(CONFIG_BT_MAP_MSE_MNS_MSGQ_COUNT, sizeof(struct mse_mns_msg),
+				      mns_msgq_storage, &mns_msgq_buffer);
+	if (mns_msgq == NULL) {
+		printk("Failed to create MNS queue\n");
+		return;
+	}
+
+	task_handle =
+		xTaskCreateStatic(mas_task, "mas_task", (uint32_t)ARRAY_SIZE(mas_task_stack), NULL,
+				  tskIDLE_PRIORITY + 2, mas_task_stack, &mas_task_buffer);
+	if (task_handle == NULL) {
+		printk("Failed to create MAS task\n");
+		return;
+	}
+
+	task_handle =
+		xTaskCreateStatic(mns_task, "mns_task", (uint32_t)ARRAY_SIZE(mns_task_stack), NULL,
+				  tskIDLE_PRIORITY + 2, mns_task_stack, &mns_task_buffer);
+	if (task_handle == NULL) {
+		printk("Failed to create MNS task\n");
+		return;
+	}
 
 	err = bt_br_set_connectable(true, NULL);
 	if (err) {

@@ -61,13 +61,5 @@ config BT_MAP_MSE_NAME_MAX_LEN
 	help
 	  The minimal value is 17 to accommodate the longest message handle.
 
-config BT_MAP_MSE_WORKQ_STACK_SIZE
-	int "Data sending work queue stack size"
-	default 8192
-
-config BT_MAP_MSE_WORKQ_PRIORITY
-	int "Data sending work queue priority"
-	default SYSTEM_WORKQUEUE_PRIORITY
-
 source "middleware/edgefast_open/Kconfig"
 source "Kconfig.mcuxpresso"

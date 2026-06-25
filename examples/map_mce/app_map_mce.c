@@ -21,6 +21,9 @@
 #include <zephyr/bluetooth/classic/rfcomm.h>
 #include <zephyr/bluetooth/classic/map.h>
 #include <zephyr/settings/settings.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
 #include "app_map_mce.h"
 #include "app_connect.h"
 #include "app_discover.h"
@@ -42,9 +45,12 @@ NET_BUF_POOL_FIXED_DEFINE(mns_tx_pool, CONFIG_BT_MAP_MCE_MNS_DATA_BUF_COUNT,
 			  BT_RFCOMM_BUF_SIZE(CONFIG_BT_MAP_MCE_MNS_DATA_BUF_SIZE),
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
-static struct k_work_q map_workq;
-static K_THREAD_STACK_DEFINE(map_workq_stack, CONFIG_BT_MAP_MCE_WORKQ_STACK_SIZE);
-static struct k_work mas_work;
+#define MAS_TASK_STACK_SIZE 4096
+static StackType_t mas_task_stack[MAS_TASK_STACK_SIZE / sizeof(StackType_t)];
+static StaticTask_t mas_task_buffer;
+static SemaphoreHandle_t mas_sem;
+static StaticSemaphore_t mas_sem_buffer;
+
 struct k_work_delayable sm_work;
 
 struct mce_mas_instance mas_inst;
@@ -631,7 +637,7 @@ static void mce_mas_push_msg(struct bt_map_mce_mas *mce_mas, uint8_t rsp_code, s
 		mas_inst.tx_cnt = 0;
 		(void)k_work_schedule(&sm_work, K_NO_WAIT);
 	} else if (rsp_code == BT_OBEX_RSP_CODE_CONTINUE && mas_inst.tx_cnt != 0U) {
-		(void)k_work_submit_to_queue(&map_workq, &mas_work);
+		(void)xSemaphoreGive(mas_sem);
 	} else {
 		mas_inst.srm = 0;
 		mas_inst.tx_cnt = 0;
@@ -1602,7 +1608,7 @@ static int app_push_msg(const char *folder_name)
 	if (!final) {
 		mas_inst.tx_cnt += len;
 		if (srm_no_wait(mas_inst.srm)) {
-			(void)k_work_submit_to_queue(&map_workq, &mas_work);
+			(void)xSemaphoreGive(mas_sem);
 		}
 	} else {
 		mas_inst.tx_cnt = 0;
@@ -1738,13 +1744,19 @@ static void sm_work_handler(struct k_work *work)
 	}
 }
 
-static void mas_work_handler(struct k_work *work)
+static void mas_task(void *param)
 {
 	int err;
 
-	err = app_push_msg(NULL);
-	if (err != 0) {
-		printk("Push message failed (err %d)\n", err);
+	(void)param;
+
+	for (;;) {
+		(void)xSemaphoreTake(mas_sem, portMAX_DELAY);
+
+		err = app_push_msg(NULL);
+		if (err != 0) {
+			printk("Push message failed (err %d)\n", err);
+		}
 	}
 }
 
@@ -2004,6 +2016,8 @@ static struct bt_sdp_record mce_mns_rec = BT_SDP_RECORD(mce_mns_attrs);
 
 static void bt_ready(int err)
 {
+	TaskHandle_t task_handle;
+
 	if (err) {
 		printk("Bluetooth init failed (err %d)\n", err);
 		return;
@@ -2036,13 +2050,21 @@ static void bt_ready(int err)
 		return;
 	}
 
-	k_work_queue_init(&map_workq);
-	k_work_queue_start(&map_workq, map_workq_stack, K_THREAD_STACK_SIZEOF(map_workq_stack),
-			   K_PRIO_COOP(CONFIG_BT_MAP_MCE_WORKQ_PRIORITY), NULL);
-	k_thread_name_set(&map_workq.thread, "map tx");
+	mas_sem = xSemaphoreCreateBinaryStatic(&mas_sem_buffer);
+	if (mas_sem == NULL) {
+		printk("Failed to create MAS semaphore\n");
+		return;
+	}
+
+	task_handle =
+		xTaskCreateStatic(mas_task, "mas_task", (uint32_t)ARRAY_SIZE(mas_task_stack), NULL,
+				  tskIDLE_PRIORITY + 2U, mas_task_stack, &mas_task_buffer);
+	if (task_handle == NULL) {
+		printk("Failed to create MAS task\n");
+		return;
+	}
 
 	k_work_init_delayable(&sm_work, sm_work_handler);
-	k_work_init(&mas_work, mas_work_handler);
 
 	app_discover();
 }
