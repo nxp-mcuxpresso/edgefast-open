@@ -180,7 +180,7 @@ static uint8_t sdp_discover_cb(struct bt_conn *conn, struct bt_sdp_client_result
 	uint8_t msg_type = 0;
 	char service_name[32] = {0};
 
-	printk("Discover done\n");
+	PRINTF("Discover done\n");
 
 	if (result == NULL || result->resp_buf == NULL) {
 		return BT_SDP_DISCOVER_UUID_CONTINUE;
@@ -188,52 +188,52 @@ static uint8_t sdp_discover_cb(struct bt_conn *conn, struct bt_sdp_client_result
 
 	err = bt_sdp_get_proto_param(result->resp_buf, BT_SDP_PROTO_RFCOMM, &rfcomm_channel);
 	if (err != 0) {
-		printk("Failed to get RFCOMM channel: %d\n", err);
+		PRINTF("Failed to get RFCOMM channel: %d\n", err);
 	} else {
-		printk("Found RFCOMM channel %u\n", rfcomm_channel);
+		PRINTF("Found RFCOMM channel %u\n", rfcomm_channel);
 	}
 
 	err = map_sdp_get_goep_l2cap_psm(result->resp_buf, &l2cap_psm);
 	if (err != 0) {
-		printk("Failed to get GOEP L2CAP PSM: %d\n", err);
+		PRINTF("Failed to get GOEP L2CAP PSM: %d\n", err);
 	} else {
-		printk("Found GOEP L2CAP PSM 0x%04x\n", l2cap_psm);
+		PRINTF("Found GOEP L2CAP PSM 0x%04x\n", l2cap_psm);
 	}
 
 	err = bt_sdp_get_profile_version(result->resp_buf, BT_SDP_MAP_SVCLASS, &version);
 	if (err != 0) {
-		printk("Failed to get MAP profile version: %d\n", err);
+		PRINTF("Failed to get MAP profile version: %d\n", err);
 	} else {
-		printk("Found MAP profile version 0x%04x\n", version);
+		PRINTF("Found MAP profile version 0x%04x\n", version);
 	}
 
 	err = map_sdp_get_features(result->resp_buf, &features);
 	if (err != 0) {
 		features = BT_MAP_MANDATORY_SUPPORTED_FEATURES;
-		printk("Failed to get MAP features: %d\n", err);
+		PRINTF("Failed to get MAP features: %d\n", err);
 	} else {
-		printk("Found MAP features 0x%08x\n", features);
+		PRINTF("Found MAP features 0x%08x\n", features);
 	}
 
 	err = map_sdp_get_service_name(result->resp_buf, service_name, sizeof(service_name));
 	if (err != 0) {
-		printk("Failed to get service name: %d\n", err);
+		PRINTF("Failed to get service name: %d\n", err);
 	} else {
-		printk("Found service name: %s\n", service_name);
+		PRINTF("Found service name: %s\n", service_name);
 	}
 
 	err = map_sdp_get_instance_id(result->resp_buf, &instance_id);
 	if (err != 0) {
-		printk("Failed to get MAP instance ID: %d\n", err);
+		PRINTF("Failed to get MAP instance ID: %d\n", err);
 	} else {
-		printk("Found MAP instance ID %u\n", instance_id);
+		PRINTF("Found MAP instance ID %u\n", instance_id);
 	}
 
 	err = map_sdp_get_msg_type(result->resp_buf, &msg_type);
 	if (err != 0) {
-		printk("Failed to get MAP MSG type: %d\n", err);
+		PRINTF("Failed to get MAP MSG type: %d\n", err);
 	} else {
-		printk("Found MAP MSG type 0x%02x\n", msg_type);
+		PRINTF("Found MAP MSG type 0x%02x\n", msg_type);
 	}
 
 	mas_inst.instance_id = instance_id;
@@ -258,7 +258,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	struct bt_conn_info info;
 
 	if (err != 0) {
-		printk("Connection failed, err 0x%02x %s\n", err, bt_hci_err_to_str(err));
+		PRINTF("Connection failed, err 0x%02x %s\n", err, bt_hci_err_to_str(err));
 	}
 
 	if (mas_inst.conn != conn) {
@@ -270,19 +270,19 @@ static void connected(struct bt_conn *conn, uint8_t err)
 		return;
 	}
 
-	printk("Connected\n");
+	PRINTF("Connected\n");
 
 	err = bt_sdp_discover(mas_inst.conn, &sdp_discover);
 	if (err != 0) {
-		printk("SDP discovery failed (err %d)\r\n", err);
+		PRINTF("SDP discovery failed (err %d)\r\n", err);
 	} else {
-		printk("SDP discovery started\r\n");
+		PRINTF("SDP discovery started\r\n");
 	}
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
+	PRINTF("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
 
 	if (mas_inst.conn == conn) {
 		mas_inst.conn = NULL;

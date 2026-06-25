@@ -5,7 +5,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <zephyr/sys/printk.h>
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/settings/settings.h>
 #include <zephyr/bluetooth/bluetooth.h>
@@ -19,6 +18,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "fsl_debug_console.h"
 #include "app_connect.h"
 #include "app_map_mse.h"
 
@@ -468,9 +468,9 @@ static int map_fs_init(void)
 
 	tot_sect = (fs->n_fatent - 2) * fs->csize;
 	fre_sect = fre_clust * fs->csize;
-	printk("File system mounted\r\n");
-	printk("Total drive space - %lluB\r\n", (uint64_t)tot_sect * (uint64_t)sector_size);
-	printk("Free drive space - %lluB\r\n", (uint64_t)fre_sect * (uint64_t)sector_size);
+	PRINTF("File system mounted\r\n");
+	PRINTF("Total drive space - %lluB\r\n", (uint64_t)tot_sect * (uint64_t)sector_size);
+	PRINTF("Free drive space - %lluB\r\n", (uint64_t)fre_sect * (uint64_t)sector_size);
 
 	memcpy(mas_inst.path, MAP_ROOT_PATH, sizeof(MAP_ROOT_PATH));
 
@@ -511,76 +511,76 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 {
 	struct map_app_param *app_param = (struct map_app_param *)user_data;
 
-	printk("  "); /* print indent */
+	PRINTF("  "); /* print indent */
 
 	switch (tlv->type) {
 	case BT_MAP_APPL_PARAM_TAG_ID_MAX_LIST_CNT:
 		if (tlv->data_len == 2) {
-			printk("MaxListCount: %u\n", sys_get_be16(tlv->data));
+			PRINTF("MaxListCount: %u\n", sys_get_be16(tlv->data));
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_LIST_START_OFFSET:
 		if (tlv->data_len == 2) {
-			printk("ListStartOffset: %u\n", sys_get_be16(tlv->data));
+			PRINTF("ListStartOffset: %u\n", sys_get_be16(tlv->data));
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FILTER_MSG_TYPE:
 		if (tlv->data_len == 1) {
 			uint8_t type = tlv->data[0];
-			printk("FilterMessageType: 0x%02x\n", type);
-			printk("  SMS_GSM=%s, SMS_CDMA=%s, EMAIL=%s, MMS=%s, IM=%s\n",
+			PRINTF("FilterMessageType: 0x%02x\n", type);
+			PRINTF("  SMS_GSM=%s, SMS_CDMA=%s, EMAIL=%s, MMS=%s, IM=%s\n",
 			       (type & BIT(0)) ? "Y" : "N", (type & BIT(1)) ? "Y" : "N",
 			       (type & BIT(2)) ? "Y" : "N", (type & BIT(3)) ? "Y" : "N",
 			       (type & BIT(4)) ? "Y" : "N");
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FILTER_PERIOD_BEGIN:
-		printk("FilterPeriodBegin: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("FilterPeriodBegin: %.*s\n", tlv->data_len, tlv->data);
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FILTER_PERIOD_END:
-		printk("FilterPeriodEnd: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("FilterPeriodEnd: %.*s\n", tlv->data_len, tlv->data);
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FILTER_READ_STATUS:
 		if (tlv->data_len == 1) {
 			const char *status[] = {"no_filtering", "unread_only", "read_only"};
 			uint8_t val = tlv->data[0];
-			printk("FilterReadStatus: %u (%s)\n", val,
+			PRINTF("FilterReadStatus: %u (%s)\n", val,
 			       val <= 2 ? status[val] : "invalid");
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FILTER_RECIPIENT:
-		printk("FilterRecipient: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("FilterRecipient: %.*s\n", tlv->data_len, tlv->data);
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FILTER_ORIGINATOR:
-		printk("FilterOriginator: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("FilterOriginator: %.*s\n", tlv->data_len, tlv->data);
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FILTER_PRIORITY:
 		if (tlv->data_len == 1) {
 			const char *priority[] = {"no_filtering", "high_priority",
 						  "non_high_priority"};
 			uint8_t val = tlv->data[0];
-			printk("FilterPriority: %u (%s)\n", val,
+			PRINTF("FilterPriority: %u (%s)\n", val,
 			       val <= 2 ? priority[val] : "invalid");
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_ATTACHMENT:
 		if (tlv->data_len == 1) {
-			printk("Attachment: %s\n", tlv->data[0] ? "ON" : "OFF");
+			PRINTF("Attachment: %s\n", tlv->data[0] ? "ON" : "OFF");
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_TRANSPARENT:
 		if (tlv->data_len == 1) {
-			printk("Transparent: %s\n", tlv->data[0] ? "ON" : "OFF");
+			PRINTF("Transparent: %s\n", tlv->data[0] ? "ON" : "OFF");
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_RETRY:
 		if (tlv->data_len == 1) {
-			printk("Retry: %s\n", tlv->data[0] ? "ON" : "OFF");
+			PRINTF("Retry: %s\n", tlv->data[0] ? "ON" : "OFF");
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_NTF_STATUS:
 		if (tlv->data_len == 1) {
-			printk("NotificationStatus: %s\n", tlv->data[0] ? "ON" : "OFF");
+			PRINTF("NotificationStatus: %s\n", tlv->data[0] ? "ON" : "OFF");
 
 			if (app_param != NULL) {
 				app_param->ntf_status = tlv->data[0];
@@ -591,27 +591,27 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_MAS_INST_ID:
 		if (tlv->data_len == 1) {
-			printk("MASInstanceID: %u\n", tlv->data[0]);
+			PRINTF("MASInstanceID: %u\n", tlv->data[0]);
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_PARAM_MASK:
 		if (tlv->data_len == 4) {
-			printk("ParameterMask: 0x%08x\n", sys_get_be32(tlv->data));
+			PRINTF("ParameterMask: 0x%08x\n", sys_get_be32(tlv->data));
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_SUBJECT_LEN:
 		if (tlv->data_len == 1) {
-			printk("SubjectLength: %u\n", tlv->data[0]);
+			PRINTF("SubjectLength: %u\n", tlv->data[0]);
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_CHARSET:
 		if (tlv->data_len == 1) {
-			printk("Charset: %s\n", tlv->data[0] ? "UTF-8" : "Native");
+			PRINTF("Charset: %s\n", tlv->data[0] ? "UTF-8" : "Native");
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FRACTION_REQUEST:
 		if (tlv->data_len == 1) {
-			printk("FractionRequest: %s\n", tlv->data[0] ? "Next" : "First");
+			PRINTF("FractionRequest: %s\n", tlv->data[0] ? "Next" : "First");
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_STATUS_IND:
@@ -619,7 +619,7 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 			const char *status[] = {"ReadStatus", "DeletedStatus", "ExtendedData"};
 			uint8_t val = tlv->data[0];
 
-			printk("StatusIndicator: %u (%s)\n", val,
+			PRINTF("StatusIndicator: %u (%s)\n", val,
 			       val <= 2 ? status[val] : "invalid");
 
 			if (app_param != NULL) {
@@ -631,7 +631,7 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_STATUS_VAL:
 		if (tlv->data_len == 1) {
-			printk("StatusValue: %s\n", tlv->data[0] ? "Yes" : "No");
+			PRINTF("StatusValue: %s\n", tlv->data[0] ? "Yes" : "No");
 
 			if (app_param != NULL) {
 				app_param->status_val = tlv->data[0];
@@ -645,7 +645,7 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 			const char *presence[] = {"Unknown",      "Offline", "Online",   "Away",
 						  "DoNotDisturb", "Busy",    "InMeeting"};
 			uint8_t val = tlv->data[0];
-			printk("PresenceAvailability: %u (%s)\n", val,
+			PRINTF("PresenceAvailability: %u (%s)\n", val,
 			       val <= 6 ? presence[val] : "invalid");
 
 			if (app_param != NULL) {
@@ -656,7 +656,7 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_PRESENCE_TEXT:
-		printk("PresenceText: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("PresenceText: %.*s\n", tlv->data_len, tlv->data);
 
 		if (app_param != NULL) {
 			uint8_t len = tlv->data_len > sizeof(app_param->pres_text) - 1U
@@ -668,7 +668,7 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_LAST_ACTIVITY:
-		printk("LastActivity: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("LastActivity: %.*s\n", tlv->data_len, tlv->data);
 
 		if (app_param != NULL) {
 			uint8_t len = tlv->data_len > sizeof(app_param->last_activity) - 1U
@@ -680,10 +680,10 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FILTER_LAST_ACTIVITY_BEGIN:
-		printk("FilterLastActivityBegin: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("FilterLastActivityBegin: %.*s\n", tlv->data_len, tlv->data);
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FILTER_LAST_ACTIVITY_END:
-		printk("FilterLastActivityEnd: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("FilterLastActivityEnd: %.*s\n", tlv->data_len, tlv->data);
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_CHAT_STATE:
 		if (tlv->data_len == 1) {
@@ -691,7 +691,7 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 					       "Composing", "PausedComposing", "Gone"};
 			uint8_t val = tlv->data[0];
 
-			printk("ChatState: %u (%s)\n", val, val <= 5 ? state[val] : "invalid");
+			PRINTF("ChatState: %u (%s)\n", val, val <= 5 ? state[val] : "invalid");
 
 			if (app_param != NULL) {
 				app_param->chat_state = val;
@@ -701,7 +701,7 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_CONVO_ID:
-		printk("ConversationID: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("ConversationID: %.*s\n", tlv->data_len, tlv->data);
 
 		if (app_param != NULL) {
 			uint8_t len = tlv->data_len > sizeof(app_param->convo_id) - 1U
@@ -713,36 +713,36 @@ static bool map_parse_tlvs_cb(struct bt_obex_tlv *tlv, void *user_data)
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_FILTER_MSG_HANDLE:
-		printk("FilterMsgHandle: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("FilterMsgHandle: %.*s\n", tlv->data_len, tlv->data);
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_NTF_FILTER_MASK:
 		if (tlv->data_len == 4) {
-			printk("NotificationFilterMask: 0x%08x\n", sys_get_be32(tlv->data));
+			PRINTF("NotificationFilterMask: 0x%08x\n", sys_get_be32(tlv->data));
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_CONVO_PARAM_MASK:
 		if (tlv->data_len == 4) {
-			printk("ConvoParameterMask: 0x%08x\n", sys_get_be32(tlv->data));
+			PRINTF("ConvoParameterMask: 0x%08x\n", sys_get_be32(tlv->data));
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_EXT_DATA:
-		printk("ExtendedData: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("ExtendedData: %.*s\n", tlv->data_len, tlv->data);
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_MAP_SUPPORTED_FEATURES:
 		if (tlv->data_len == 4) {
-			printk("MAPSupportedFeatures: 0x%08x\n", sys_get_be32(tlv->data));
+			PRINTF("MAPSupportedFeatures: 0x%08x\n", sys_get_be32(tlv->data));
 		}
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_MSG_HANDLE:
-		printk("MessageHandle: %.*s\n", tlv->data_len, tlv->data);
+		PRINTF("MessageHandle: %.*s\n", tlv->data_len, tlv->data);
 		break;
 	case BT_MAP_APPL_PARAM_TAG_ID_MODIFY_TEXT:
 		if (tlv->data_len == 1) {
-			printk("ModifyText: %s\n", tlv->data[0] ? "PREPEND" : "REPLACE");
+			PRINTF("ModifyText: %s\n", tlv->data[0] ? "PREPEND" : "REPLACE");
 		}
 		break;
 	default:
-		printk("tag=0x%02x len=%u\n", tlv->type, tlv->data_len);
+		PRINTF("tag=0x%02x len=%u\n", tlv->type, tlv->data_len);
 		break;
 	}
 
@@ -758,40 +758,40 @@ static bool map_parse_headers_cb(struct bt_obex_hdr *hdr, void *user_data)
 	case BT_OBEX_HEADER_ID_NAME:
 		if (map_unicode_to_str((const char *)hdr->data, hdr->len, name, sizeof(name)) ==
 		    0) {
-			printk("Name: %s\n", name[0] != '\0' ? name : "none");
+			PRINTF("Name: %s\n", name[0] != '\0' ? name : "none");
 		}
 		break;
 	case BT_OBEX_HEADER_ID_CONN_ID:
 		if (hdr->len == 4) {
-			printk("Conn ID: %08x\n", sys_get_be32(hdr->data));
+			PRINTF("Conn ID: %08x\n", sys_get_be32(hdr->data));
 		}
 		break;
 	case BT_OBEX_HEADER_ID_SRM:
 		if (hdr->len == 1) {
-			printk("OBEX SRM: %02x\n", hdr->data[0]);
+			PRINTF("OBEX SRM: %02x\n", hdr->data[0]);
 		}
 		break;
 	case BT_OBEX_HEADER_ID_SRM_PARAM:
 		if (hdr->len == 1) {
-			printk("OBEX SRMP: %02x\n", hdr->data[0]);
+			PRINTF("OBEX SRMP: %02x\n", hdr->data[0]);
 		}
 		break;
 	case BT_OBEX_HEADER_ID_APP_PARAM:
 		if (hdr->len == 0) {
 			break;
 		}
-		printk("Application Parameter:\n");
+		PRINTF("Application Parameter:\n");
 
 		err = bt_obex_tlv_parse(hdr->len, hdr->data, map_parse_tlvs_cb, user_data);
 		if (err != 0) {
-			printk("Fail to parse MAP TLV triplet (err %d)\n", err);
+			PRINTF("Fail to parse MAP TLV triplet (err %d)\n", err);
 		}
 		break;
 	case BT_OBEX_HEADER_ID_BODY:
 	case BT_OBEX_HEADER_ID_END_BODY:
-		printk("============== BODY ==============\n");
-		printk("%.*s\n", (int)hdr->len, hdr->data);
-		printk("============ END BODY ============\n");
+		PRINTF("============== BODY ==============\n");
+		PRINTF("%.*s\n", (int)hdr->len, hdr->data);
+		PRINTF("============ END BODY ============\n");
 		break;
 	default:
 		break;
@@ -810,7 +810,7 @@ static int map_parse_headers(struct net_buf *buf, void *user_data)
 
 	err = bt_obex_header_parse(buf, map_parse_headers_cb, user_data);
 	if (err != 0) {
-		printk("Fail to parse MAP Headers (err %d)", err);
+		PRINTF("Fail to parse MAP Headers (err %d)", err);
 	}
 
 	return err;
@@ -842,7 +842,7 @@ static void mns_work_submit(enum map_cmd cmd)
 
 static void mse_mns_rfcomm_connected(struct bt_conn *conn, struct bt_map_mse_mns *mse_mns)
 {
-	printk("MSE MNS RFCOMM connected\n");
+	PRINTF("MSE MNS RFCOMM connected\n");
 	mns_inst.conn = conn;
 	mns_inst.goep_v2 = true;
 	mns_work_submit(CMD_MNS_OBEX_CONNECT);
@@ -851,12 +851,12 @@ static void mse_mns_rfcomm_connected(struct bt_conn *conn, struct bt_map_mse_mns
 static void mse_mns_rfcomm_disconnected(struct bt_map_mse_mns *mse_mns)
 {
 	memset(&mns_inst.conn, 0, sizeof(mns_inst) - offsetof(struct mse_mns_instance, conn));
-	printk("MSE MNS RFCOMM disconnected\n");
+	PRINTF("MSE MNS RFCOMM disconnected\n");
 }
 
 static void mse_mns_l2cap_connected(struct bt_conn *conn, struct bt_map_mse_mns *mse_mns)
 {
-	printk("MSE MNS L2CAP connected\n");
+	PRINTF("MSE MNS L2CAP connected\n");
 	mns_inst.conn = conn;
 	mns_inst.goep_v2 = true;
 	mns_work_submit(CMD_MNS_OBEX_CONNECT);
@@ -865,7 +865,7 @@ static void mse_mns_l2cap_connected(struct bt_conn *conn, struct bt_map_mse_mns 
 static void mse_mns_l2cap_disconnected(struct bt_map_mse_mns *mse_mns)
 {
 	memset(&mns_inst.conn, 0, sizeof(mns_inst) - offsetof(struct mse_mns_instance, conn));
-	printk("MSE MNS L2CAP disconnected\n");
+	PRINTF("MSE MNS L2CAP disconnected\n");
 }
 
 static void mse_mns_connect(struct bt_map_mse_mns *mse_mns, uint8_t rsp_code, uint8_t version,
@@ -873,14 +873,14 @@ static void mse_mns_connect(struct bt_map_mse_mns *mse_mns, uint8_t rsp_code, ui
 {
 	int err;
 
-	printk("MSE MNS conn rsp, rsp_code %s, version %02x, mopl %u\n",
+	PRINTF("MSE MNS conn rsp, rsp_code %s, version %02x, mopl %u\n",
 	       bt_obex_rsp_code_to_str(rsp_code), version, mopl);
 	map_parse_headers(buf, NULL);
 
 	mns_inst.mopl = mopl;
 	err = bt_obex_get_header_conn_id(buf, &mns_inst.conn_id);
 	if (err != 0) {
-		printk("Failed to get connection id");
+		PRINTF("Failed to get connection id");
 	}
 
 	mns_work_submit(CMD_SEND_EVENT);
@@ -889,21 +889,21 @@ static void mse_mns_connect(struct bt_map_mse_mns *mse_mns, uint8_t rsp_code, ui
 static void mse_mns_disconnect(struct bt_map_mse_mns *mse_mns, uint8_t rsp_code,
 			       struct net_buf *buf)
 {
-	printk("MSE MNS disconn rsp, rsp_code %s\n", bt_obex_rsp_code_to_str(rsp_code));
+	PRINTF("MSE MNS disconn rsp, rsp_code %s\n", bt_obex_rsp_code_to_str(rsp_code));
 	map_parse_headers(buf, NULL);
 	mns_work_submit(CMD_MNS_TRANSPORT_DISCONNECT);
 }
 
 static void mse_mns_abort(struct bt_map_mse_mns *mse_mns, uint8_t rsp_code, struct net_buf *buf)
 {
-	printk("MSE MNS abort rsp, rsp_code %s\n", bt_obex_rsp_code_to_str(rsp_code));
+	PRINTF("MSE MNS abort rsp, rsp_code %s\n", bt_obex_rsp_code_to_str(rsp_code));
 	map_parse_headers(buf, NULL);
 }
 
 static void mse_mns_send_event(struct bt_map_mse_mns *mse_mns, uint8_t rsp_code,
 			       struct net_buf *buf)
 {
-	printk("MSE MNS %p send_event rsp, rsp_code %s, data len %u\n", mse_mns,
+	PRINTF("MSE MNS %p send_event rsp, rsp_code %s, data len %u\n", mse_mns,
 	       bt_obex_rsp_code_to_str(rsp_code), buf->len);
 	map_parse_headers(buf, NULL);
 	srm_parse_rsp(buf, &mns_inst.srm);
@@ -939,7 +939,7 @@ static int app_mse_mns_transport_connect(struct mse_mns_instance *inst)
 
 	err = bt_map_mse_mns_cb_register(&inst->mse_mns, &mse_mns_cb);
 	if (err != 0) {
-		printk("Failed to register MSE MNS cb (err %d)\n", err);
+		PRINTF("Failed to register MSE MNS cb (err %d)\n", err);
 		return err;
 	}
 
@@ -964,7 +964,7 @@ static int app_mse_mns_transport_disconnect(struct mse_mns_instance *inst)
 	}
 
 	if (err != 0) {
-		printk("MSE MNS transport disconnect failed (err %d)\n", err);
+		PRINTF("MSE MNS transport disconnect failed (err %d)\n", err);
 	}
 
 	return err;
@@ -979,7 +979,7 @@ static int app_mse_mns_connect(struct mse_mns_instance *inst)
 
 	buf = bt_map_mse_mns_create_pdu(&inst->mse_mns, &mns_tx_pool);
 	if (buf == NULL) {
-		printk("Fail to allocate tx buffer");
+		PRINTF("Fail to allocate tx buffer");
 		return -ENOBUFS;
 	}
 
@@ -988,14 +988,14 @@ static int app_mse_mns_connect(struct mse_mns_instance *inst)
 	err = bt_obex_add_header_target(buf, sizeof(val), val);
 	if (err != 0) {
 		net_buf_unref(buf);
-		printk("Fail to add target header (err %d)", err);
+		PRINTF("Fail to add target header (err %d)", err);
 		return err;
 	}
 
 	err = bt_map_mse_mns_connect(&inst->mse_mns, buf);
 	if (err != 0) {
 		net_buf_unref(buf);
-		printk("Connect failed (err %d)", err);
+		PRINTF("Connect failed (err %d)", err);
 	}
 
 	return err;
@@ -1018,7 +1018,7 @@ static int app_mse_mns_send_event(struct mse_mns_instance *inst)
 	bool final;
 	int err;
 
-	printk("MSE MAS send event\n");
+	PRINTF("MSE MAS send event\n");
 
 	buf = bt_map_mse_mns_create_pdu(&inst->mse_mns, &mns_tx_pool);
 	if (buf == NULL) {
@@ -1047,8 +1047,8 @@ static int app_mse_mns_send_event(struct mse_mns_instance *inst)
 		ap[0].type = BT_MAP_APPL_PARAM_TAG_ID_MAS_INST_ID;
 		ap[0].data_len = sizeof(inst_id);
 		ap[0].data = &inst_id;
-		printk("Application Parameter:\n");
-		printk("  MASInstanceID: %u\n", inst_id);
+		PRINTF("Application Parameter:\n");
+		PRINTF("  MASInstanceID: %u\n", inst_id);
 
 		err = bt_obex_add_header_app_param(buf, ARRAY_SIZE(ap), ap);
 		if (err != 0) {
@@ -1171,7 +1171,7 @@ static uint8_t sdp_discover_cb(struct bt_conn *conn, struct bt_sdp_client_result
 	uint16_t l2cap_psm = 0;
 	char service_name[32] = {0};
 
-	printk("Discover done\n");
+	PRINTF("Discover done\n");
 
 	if (result == NULL || result->resp_buf == NULL) {
 		return BT_SDP_DISCOVER_UUID_CONTINUE;
@@ -1179,38 +1179,38 @@ static uint8_t sdp_discover_cb(struct bt_conn *conn, struct bt_sdp_client_result
 
 	err = bt_sdp_get_proto_param(result->resp_buf, BT_SDP_PROTO_RFCOMM, &rfcomm_channel);
 	if (err != 0) {
-		printk("Failed to get RFCOMM channel: %d\n", err);
+		PRINTF("Failed to get RFCOMM channel: %d\n", err);
 	} else {
-		printk("Found RFCOMM channel %u\n", rfcomm_channel);
+		PRINTF("Found RFCOMM channel %u\n", rfcomm_channel);
 	}
 
 	err = map_sdp_get_goep_l2cap_psm(result->resp_buf, &l2cap_psm);
 	if (err != 0) {
-		printk("Failed to get GOEP L2CAP PSM: %d\n", err);
+		PRINTF("Failed to get GOEP L2CAP PSM: %d\n", err);
 	} else {
-		printk("Found GOEP L2CAP PSM 0x%04x\n", l2cap_psm);
+		PRINTF("Found GOEP L2CAP PSM 0x%04x\n", l2cap_psm);
 	}
 
 	err = bt_sdp_get_profile_version(result->resp_buf, BT_SDP_MAP_SVCLASS, &version);
 	if (err != 0) {
-		printk("Failed to get MAP profile version: %d\n", err);
+		PRINTF("Failed to get MAP profile version: %d\n", err);
 	} else {
-		printk("Found MAP profile version 0x%04x\n", version);
+		PRINTF("Found MAP profile version 0x%04x\n", version);
 	}
 
 	err = map_sdp_get_features(result->resp_buf, &features);
 	if (err != 0) {
 		features = BT_MAP_MANDATORY_SUPPORTED_FEATURES;
-		printk("Failed to get MAP features: %d\n", err);
+		PRINTF("Failed to get MAP features: %d\n", err);
 	} else {
-		printk("Found MAP features 0x%08x\n", features);
+		PRINTF("Found MAP features 0x%08x\n", features);
 	}
 
 	err = map_sdp_get_service_name(result->resp_buf, service_name, sizeof(service_name));
 	if (err != 0) {
-		printk("Failed to get service name: %d\n", err);
+		PRINTF("Failed to get service name: %d\n", err);
 	} else {
-		printk("Found service name: %s\n", service_name);
+		PRINTF("Found service name: %s\n", service_name);
 	}
 
 	mns_inst.psm = l2cap_psm;
@@ -1246,7 +1246,7 @@ static void mns_task(void *arg)
 		case CMD_MNS_SDP_DISCOVER:
 			err = bt_sdp_discover(mas_inst.conn, &sdp_discover);
 			if (err == 0) {
-				printk("SDP discovery started\n");
+				PRINTF("SDP discovery started\n");
 			}
 			break;
 		case CMD_MNS_TRANSPORT_CONNECT:
@@ -1267,7 +1267,7 @@ static void mns_task(void *arg)
 		}
 
 		if (err != 0) {
-			printk("MNS work handler error (err %d)\n", err);
+			PRINTF("MNS work handler error (err %d)\n", err);
 		}
 	}
 }
@@ -1280,13 +1280,13 @@ static void mas_work_submit(enum map_cmd cmd, bool final, struct net_buf *buf)
 
 	new_buf = net_buf_alloc(&mas_rx_pool, K_FOREVER);
 	if (new_buf == NULL) {
-		printk("Failed to allocate buffer for MAS message\n");
+		PRINTF("Failed to allocate buffer for MAS message\n");
 		return;
 	}
 
 	if (buf != NULL) {
 		if (buf->len > net_buf_tailroom(new_buf)) {
-			printk("Buffer cannot fit MAS message\n");
+			PRINTF("Buffer cannot fit MAS message\n");
 			net_buf_unref(new_buf);
 			return;
 		}
@@ -1303,10 +1303,10 @@ static void mas_work_submit(enum map_cmd cmd, bool final, struct net_buf *buf)
 
 static void mse_mas_rfcomm_connected(struct bt_conn *conn, struct bt_map_mse_mas *mse_mas)
 {
-	printk("MSE MAS RFCOMM connected\n");
+	PRINTF("MSE MAS RFCOMM connected\n");
 	mas_inst.goep_v2 = false;
 	if (map_fs_init() != 0) {
-		printk("File system init failed\n");
+		PRINTF("File system init failed\n");
 	}
 }
 
@@ -1314,15 +1314,15 @@ static void mse_mas_rfcomm_disconnected(struct bt_map_mse_mas *mse_mas)
 {
 	bt_conn_unref(mas_inst.conn);
 	memset(&mas_inst.conn, 0, sizeof(mas_inst) - offsetof(struct mse_mas_instance, conn));
-	printk("MSE MAS RFCOMM disconnected\n");
+	PRINTF("MSE MAS RFCOMM disconnected\n");
 }
 
 static void mse_mas_l2cap_connected(struct bt_conn *conn, struct bt_map_mse_mas *mse_mas)
 {
-	printk("MSE MAS L2CAP connected\n");
+	PRINTF("MSE MAS L2CAP connected\n");
 	mas_inst.goep_v2 = true;
 	if (map_fs_init() != 0) {
-		printk("File system init failed\n");
+		PRINTF("File system init failed\n");
 	}
 }
 
@@ -1330,13 +1330,13 @@ static void mse_mas_l2cap_disconnected(struct bt_map_mse_mas *mse_mas)
 {
 	bt_conn_unref(mas_inst.conn);
 	memset(&mas_inst.conn, 0, sizeof(mas_inst) - offsetof(struct mse_mas_instance, conn));
-	printk("MSE MAS L2CAP disconnected\n");
+	PRINTF("MSE MAS L2CAP disconnected\n");
 }
 
 static void mse_mas_connect(struct bt_map_mse_mas *mse_mas, uint8_t version, uint16_t mopl,
 			    struct net_buf *buf)
 {
-	printk("MSE MAS conn req, version %02x, mopl %u\n", version, mopl);
+	PRINTF("MSE MAS conn req, version %02x, mopl %u\n", version, mopl);
 	map_parse_headers(buf, NULL);
 	mas_inst.mopl = mopl;
 	(void)bt_map_mse_mas_connect(mse_mas, BT_OBEX_RSP_CODE_SUCCESS, NULL);
@@ -1344,14 +1344,14 @@ static void mse_mas_connect(struct bt_map_mse_mas *mse_mas, uint8_t version, uin
 
 static void mse_mas_disconnect(struct bt_map_mse_mas *mse_mas, struct net_buf *buf)
 {
-	printk("MSE MAS disconn req\n");
+	PRINTF("MSE MAS disconn req\n");
 	map_parse_headers(buf, NULL);
 	(void)bt_map_mse_mas_disconnect(mse_mas, BT_OBEX_RSP_CODE_SUCCESS, NULL);
 }
 
 static void mse_mas_abort(struct bt_map_mse_mas *mse_mas, struct net_buf *buf)
 {
-	printk("MSE MAS abort req\n");
+	PRINTF("MSE MAS abort req\n");
 	mas_work_submit(CMD_ABORT, true, buf);
 }
 
@@ -1362,7 +1362,7 @@ static void mse_mas_set_folder(struct bt_map_mse_mas *mse_mas, uint8_t flags, st
 	FILINFO fno;
 	int err;
 
-	printk("MSE MAS set_folder req, flags %u, data len %u\n", flags, buf->len);
+	PRINTF("MSE MAS set_folder req, flags %u, data len %u\n", flags, buf->len);
 
 	map_parse_headers(buf, NULL);
 	map_parse_name(buf, name, sizeof(name));
@@ -1401,57 +1401,57 @@ static void mse_mas_set_folder(struct bt_map_mse_mas *mse_mas, uint8_t flags, st
 	}
 
 rsp:
-	printk("MSE MAS path: %s\n", mas_inst.path);
+	PRINTF("MSE MAS path: %s\n", mas_inst.path);
 	err = bt_map_mse_mas_set_folder(mse_mas, rsp_code, NULL);
 	if (err != 0) {
-		printk("Failed to send set_folder response: %d\n", err);
+		PRINTF("Failed to send set_folder response: %d\n", err);
 	}
 }
 
 static void mse_mas_get_folder_listing(struct bt_map_mse_mas *mse_mas, bool final,
 				       struct net_buf *buf)
 {
-	printk("MSE MAS get_folder_listing req, final %s, data len %u\n", final ? "true" : "false",
+	PRINTF("MSE MAS get_folder_listing req, final %s, data len %u\n", final ? "true" : "false",
 	       buf->len);
 	mas_work_submit(CMD_GET_FOLDER_LISTING, final, buf);
 }
 
 static void mse_mas_get_msg_listing(struct bt_map_mse_mas *mse_mas, bool final, struct net_buf *buf)
 {
-	printk("MSE MAS get_msg_listing req, final %s, data len %u\n", final ? "true" : "false",
+	PRINTF("MSE MAS get_msg_listing req, final %s, data len %u\n", final ? "true" : "false",
 	       buf->len);
 	mas_work_submit(CMD_GET_MSG_LISTING, final, buf);
 }
 
 static void mse_mas_get_msg(struct bt_map_mse_mas *mse_mas, bool final, struct net_buf *buf)
 {
-	printk("MSE MAS get_msg req, final %s, data len %u\n", final ? "true" : "false", buf->len);
+	PRINTF("MSE MAS get_msg req, final %s, data len %u\n", final ? "true" : "false", buf->len);
 	mas_work_submit(CMD_GET_MSG, final, buf);
 }
 
 static void mse_mas_set_msg_status(struct bt_map_mse_mas *mse_mas, bool final, struct net_buf *buf)
 {
-	printk("MSE MAS set_msg_status req, final %s, data len %u\n", final ? "true" : "false",
+	PRINTF("MSE MAS set_msg_status req, final %s, data len %u\n", final ? "true" : "false",
 	       buf->len);
 	mas_work_submit(CMD_SET_MSG_STATUS, final, buf);
 }
 
 static void mse_mas_push_msg(struct bt_map_mse_mas *mse_mas, bool final, struct net_buf *buf)
 {
-	printk("MSE MAS push_msg req, final %s, data len %u\n", final ? "true" : "false", buf->len);
+	PRINTF("MSE MAS push_msg req, final %s, data len %u\n", final ? "true" : "false", buf->len);
 	mas_work_submit(CMD_PUSH_MSG, final, buf);
 }
 
 static void mse_mas_set_ntf_reg(struct bt_map_mse_mas *mse_mas, bool final, struct net_buf *buf)
 {
-	printk("MSE MAS set_ntf_reg req, final %s, data len %u\n", final ? "true" : "false",
+	PRINTF("MSE MAS set_ntf_reg req, final %s, data len %u\n", final ? "true" : "false",
 	       buf->len);
 	mas_work_submit(CMD_SET_NTF_REG, final, buf);
 }
 
 static void mse_mas_update_inbox(struct bt_map_mse_mas *mse_mas, bool final, struct net_buf *buf)
 {
-	printk("MSE MAS update_inbox req, final %s, data len %u\n", final ? "true" : "false",
+	PRINTF("MSE MAS update_inbox req, final %s, data len %u\n", final ? "true" : "false",
 	       buf->len);
 	mas_work_submit(CMD_UPDATE_INBOX, final, buf);
 }
@@ -1459,7 +1459,7 @@ static void mse_mas_update_inbox(struct bt_map_mse_mas *mse_mas, bool final, str
 static void mse_mas_get_mas_inst_info(struct bt_map_mse_mas *mse_mas, bool final,
 				      struct net_buf *buf)
 {
-	printk("MSE MAS get_mas_inst_info req, final %s, data len %u\n", final ? "true" : "false",
+	PRINTF("MSE MAS get_mas_inst_info req, final %s, data len %u\n", final ? "true" : "false",
 	       buf->len);
 	mas_work_submit(CMD_GET_MAS_INST_INFO, final, buf);
 }
@@ -1467,7 +1467,7 @@ static void mse_mas_get_mas_inst_info(struct bt_map_mse_mas *mse_mas, bool final
 static void mse_mas_set_owner_status(struct bt_map_mse_mas *mse_mas, bool final,
 				     struct net_buf *buf)
 {
-	printk("MSE MAS set_owner_status req, final %s, data len %u\n", final ? "true" : "false",
+	PRINTF("MSE MAS set_owner_status req, final %s, data len %u\n", final ? "true" : "false",
 	       buf->len);
 	mas_work_submit(CMD_SET_OWNER_STATUS, final, buf);
 }
@@ -1475,7 +1475,7 @@ static void mse_mas_set_owner_status(struct bt_map_mse_mas *mse_mas, bool final,
 static void mse_mas_get_owner_status(struct bt_map_mse_mas *mse_mas, bool final,
 				     struct net_buf *buf)
 {
-	printk("MSE MAS get_owner_status req, final %s, data len %u\n", final ? "true" : "false",
+	PRINTF("MSE MAS get_owner_status req, final %s, data len %u\n", final ? "true" : "false",
 	       buf->len);
 	mas_work_submit(CMD_GET_OWNER_STATUS, final, buf);
 }
@@ -1483,14 +1483,14 @@ static void mse_mas_get_owner_status(struct bt_map_mse_mas *mse_mas, bool final,
 static void mse_mas_get_convo_listing(struct bt_map_mse_mas *mse_mas, bool final,
 				      struct net_buf *buf)
 {
-	printk("MSE MAS get_convo_listing req, final %s, data len %u\n", final ? "true" : "false",
+	PRINTF("MSE MAS get_convo_listing req, final %s, data len %u\n", final ? "true" : "false",
 	       buf->len);
 	mas_work_submit(CMD_GET_CONVO_LISTING, final, buf);
 }
 
 static void mse_mas_set_ntf_filter(struct bt_map_mse_mas *mse_mas, bool final, struct net_buf *buf)
 {
-	printk("MSE MAS set_ntf_filter req, final %s, data len %u\n", final ? "true" : "false",
+	PRINTF("MSE MAS set_ntf_filter req, final %s, data len %u\n", final ? "true" : "false",
 	       buf->len);
 	mas_work_submit(CMD_SET_NTF_FILTER, final, buf);
 }
@@ -2490,13 +2490,13 @@ rsp:
 
 	if (inst->app_param.ntf_status == BT_MAP_NTF_STATUS_OFF) {
 		if (mns_inst.conn == NULL) {
-			printk("MNS already disconnected\n");
+			PRINTF("MNS already disconnected\n");
 			return err;
 		}
 		mns_work_submit(CMD_MNS_OBEX_DISCONNECT);
 	} else {
 		if (mns_inst.conn != NULL) {
-			printk("MNS already connected\n");
+			PRINTF("MNS already connected\n");
 			return err;
 		}
 		mns_work_submit(CMD_MNS_SDP_DISCOVER);
@@ -2841,7 +2841,7 @@ static void mas_task(void *arg)
 		net_buf_unref(msg.buf);
 
 		if (err != 0) {
-			printk("MAS work handler error (err %d)\n", err);
+			PRINTF("MAS work handler error (err %d)\n", err);
 		}
 	}
 }
@@ -2860,7 +2860,7 @@ static int mse_mas_rfcomm_accept(struct bt_conn *conn, struct bt_map_mse_mas_rfc
 	if (err != 0) {
 		bt_conn_unref(mas_inst.conn);
 		mas_inst.conn = NULL;
-		printk("Failed to register MSE MAS cb (err %d)", err);
+		PRINTF("Failed to register MSE MAS cb (err %d)", err);
 		return err;
 	}
 
@@ -2882,7 +2882,7 @@ static int mse_mas_l2cap_accept(struct bt_conn *conn, struct bt_map_mse_mas_l2ca
 	if (err != 0) {
 		bt_conn_unref(mas_inst.conn);
 		mas_inst.conn = NULL;
-		printk("Failed to register MSE MAS cb (err %d)", err);
+		PRINTF("Failed to register MSE MAS cb (err %d)", err);
 		return err;
 	}
 
@@ -3016,11 +3016,11 @@ static void bt_ready(int err)
 	TaskHandle_t task_handle;
 
 	if (err) {
-		printk("Bluetooth init failed: %d\n", err);
+		PRINTF("Bluetooth init failed: %d\n", err);
 		return;
 	}
 
-	printk("Bluetooth initialized\n");
+	PRINTF("Bluetooth initialized\n");
 
 	if (IS_ENABLED(CONFIG_BT_SETTINGS)) {
 		settings_load();
@@ -3030,33 +3030,33 @@ static void bt_ready(int err)
 
 	err = bt_sdp_register_service(&mse_mas_rec);
 	if (err < 0) {
-		printk("Failed to register MSE MAS SDP record (err %d)", err);
+		PRINTF("Failed to register MSE MAS SDP record (err %d)", err);
 		return;
 	}
 
 	err = bt_map_mse_mas_rfcomm_register(&mse_server.rfcomm_server);
 	if (err != 0) {
-		printk("Failed to register MAS RFCOMM server (err %d)\n", err);
+		PRINTF("Failed to register MAS RFCOMM server (err %d)\n", err);
 		return;
 	}
 
 	err = bt_map_mse_mas_l2cap_register(&mse_server.l2cap_server);
 	if (err != 0) {
-		printk("Failed to register MAS L2CAP server (err %d)\n", err);
+		PRINTF("Failed to register MAS L2CAP server (err %d)\n", err);
 		return;
 	}
 
 	mas_msgq = xQueueCreateStatic(CONFIG_BT_MAP_MSE_MAS_MSGQ_COUNT, sizeof(struct mse_mas_msg),
 				      mas_msgq_storage, &mas_msgq_buffer);
 	if (mas_msgq == NULL) {
-		printk("Failed to create MAS queue\n");
+		PRINTF("Failed to create MAS queue\n");
 		return;
 	}
 
 	mns_msgq = xQueueCreateStatic(CONFIG_BT_MAP_MSE_MNS_MSGQ_COUNT, sizeof(struct mse_mns_msg),
 				      mns_msgq_storage, &mns_msgq_buffer);
 	if (mns_msgq == NULL) {
-		printk("Failed to create MNS queue\n");
+		PRINTF("Failed to create MNS queue\n");
 		return;
 	}
 
@@ -3064,7 +3064,7 @@ static void bt_ready(int err)
 		xTaskCreateStatic(mas_task, "mas_task", (uint32_t)ARRAY_SIZE(mas_task_stack), NULL,
 				  tskIDLE_PRIORITY + 2, mas_task_stack, &mas_task_buffer);
 	if (task_handle == NULL) {
-		printk("Failed to create MAS task\n");
+		PRINTF("Failed to create MAS task\n");
 		return;
 	}
 
@@ -3072,21 +3072,21 @@ static void bt_ready(int err)
 		xTaskCreateStatic(mns_task, "mns_task", (uint32_t)ARRAY_SIZE(mns_task_stack), NULL,
 				  tskIDLE_PRIORITY + 2, mns_task_stack, &mns_task_buffer);
 	if (task_handle == NULL) {
-		printk("Failed to create MNS task\n");
+		PRINTF("Failed to create MNS task\n");
 		return;
 	}
 
 	err = bt_br_set_connectable(true, NULL);
 	if (err) {
-		printk("BR/EDR set connectable failed (err %d)\n", err);
+		PRINTF("BR/EDR set connectable failed (err %d)\n", err);
 	}
 
 	err = bt_br_set_discoverable(true, false);
 	if (err) {
-		printk("BR/EDR set discoverable failed (err %d)\n", err);
+		PRINTF("BR/EDR set discoverable failed (err %d)\n", err);
 	}
 
-	printk("BR/EDR set connectable and discoverable done\n");
+	PRINTF("BR/EDR set connectable and discoverable done\n");
 }
 
 void app_map_mse_task(void *pvParameters)
