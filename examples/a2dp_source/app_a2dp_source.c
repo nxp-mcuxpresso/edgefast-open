@@ -100,8 +100,12 @@ static void initiate_stream_work_handle(struct k_work *work);
 NET_BUF_POOL_DEFINE(sdp_discover_pool, 2, BT_L2CAP_BUF_SIZE(CONFIG_BT_L2CAP_TX_MTU),
 		    CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
-struct k_work_q audio_play_work_q;
-static K_KERNEL_STACK_DEFINE(audio_play_work_q_thread_stack, CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE);
+#define AUDIO_PLAY_TASK_SIZE (4096u)
+#define AUDIO_PLAY_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
+static StaticTask_t audio_play_task_buffer;
+static StackType_t audio_play_task_stack[AUDIO_PLAY_TASK_SIZE / sizeof(StackType_t)];
+static StaticSemaphore_t audio_play_sem_buf;
+static SemaphoreHandle_t audio_play_sem;
 
 static struct bt_sdp_attribute a2dp_source_attrs[] = {
 	BT_SDP_NEW_SERVICE,
@@ -421,7 +425,7 @@ static bool audio_stream_started(void)
 	return true;
 }
 
-static void audio_work_handler(struct k_work *work)
+static void audio_play_handler()
 {
 	int64_t period_ms;
 	uint32_t a2dp_src_num_samples;
@@ -557,11 +561,25 @@ static void audio_work_handler(struct k_work *work)
 	} while(remaining_frame_num > 0);
 }
 
-static K_WORK_DEFINE(audio_work, audio_work_handler);
+static void audio_play_task(void *arg)
+{
+	(void)arg;
+
+	for (;;) {
+		/* Wait for audio playback tick */
+		if (pdFALSE == xSemaphoreTake(audio_play_sem, portMAX_DELAY)) {
+			continue;
+		}
+
+		audio_play_handler();
+	}
+}
 
 static void a2dp_playback_timeout_handler(TimerHandle_t timer_id)
 {
-	k_work_submit_to_queue(&audio_play_work_q, &audio_work);
+	(void)timer_id;
+	/* Wake audio play task; drop if already pending (binary semaphore) */
+	(void)xSemaphoreGive(audio_play_sem);
 }
 
 static void a2dp_stop_playback_timer(void)
@@ -1154,6 +1172,8 @@ static struct bt_a2dp_cb a2dp_cb = {
 
 static void app_edgefast_a2dp_init(void)
 {
+	TaskHandle_t audio_play_task_handle;
+
 #if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
 	APP_SBC_SINK_EPS();
 	APP_SBC_SOURCE_EPS();
@@ -1174,11 +1194,14 @@ static void app_edgefast_a2dp_init(void)
 
 	bt_a2dp_register_cb(&a2dp_cb);
 
-	k_work_queue_init(&audio_play_work_q);
-	k_work_queue_start(&audio_play_work_q, audio_play_work_q_thread_stack,
-		CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE,
-		K_PRIO_COOP(CONFIG_SYSTEM_WORKQUEUE_PRIORITY - 2), NULL);
-	k_thread_name_set(&audio_play_work_q.thread, "audio play");
+	audio_play_sem = xSemaphoreCreateBinaryStatic(&audio_play_sem_buf);
+	assert(audio_play_sem != NULL);
+
+	audio_play_task_handle = xTaskCreateStatic(audio_play_task, "audio play",
+					  (uint32_t)(sizeof(audio_play_task_stack) / sizeof(audio_play_task_stack[0])),
+					  NULL, AUDIO_PLAY_TASK_PRIORITY,
+					  audio_play_task_stack, &audio_play_task_buffer);
+	assert(audio_play_task_handle != NULL);
 }
 
 #if defined(CONFIG_BT_A2DP_SOURCE_DUAL)
