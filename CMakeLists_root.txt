@@ -172,4 +172,8 @@ edgefast_open_add_subdirectory_ifdef(CONFIG_BT source)
 edgefast_open_add_subdirectory_ifdef(CONFIG_BT include)
 edgefast_open_add_subdirectory_ifdef(CONFIG_BT lib)
 
+zephyr_library_sources_ifdef(CONFIG_BT source/bluetooth/host/classic/*.h)
+# To avoid inconsistency issue, default adding header files, Remove this once the root cause is fixed upstream.
+zephyr_library_sources_ifdef(CONFIG_BT source/bluetooth/services/ots/*.h)
+zephyr_library_sources_ifdef(CONFIG_BT source/bluetooth/audio/shell/*.h)
 zephyr_library_sources_ifdef(CONFIG_BT readme.txt)
