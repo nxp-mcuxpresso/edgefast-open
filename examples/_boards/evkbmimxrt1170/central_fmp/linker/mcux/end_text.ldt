@@ -37,7 +37,7 @@
     . = ALIGN(4);
   } > BOARD_FLASH
 
-  ._bt_sco_conn_cb:
+  ._bt_sco_conn_cb :
   {
     . = ALIGN(4);
     _bt_sco_conn_cb_list_start = .;
@@ -46,7 +46,7 @@
     . = ALIGN(4);
   } > BOARD_FLASH
 
-  ._bt_sco_hci_cb:
+  ._bt_sco_hci_cb :
   {
     . = ALIGN(4);
     _bt_sco_hci_cb_list_start = .;
