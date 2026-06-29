@@ -3036,6 +3036,7 @@ endif()
     # edgefast_open_add_subdirectory(common)
     # edgefast_open_add_subdirectory(iar)
     # edgefast_open_add_subdirectory(arm)
+    # edgefast_open_add_subdirectory(mcux)
 
 mcux_add_armgcc_configuration(
 	CC "-D__LINUX_ERRNO_EXTENSIONS__"
@@ -3159,6 +3160,71 @@ mcux_add_include(
 mcux_add_source(
     SOURCES ./lib/libc/arm/include/sys/*.*
     TOOLCHAINS mdk
+)
+
+    # ----------------------------------------
+    # Subdirectory: mcux
+    # Original: edgefast_open_add_subdirectory(mcux)
+    # ----------------------------------------
+
+    # ========================================
+    # Content from: lib/libc/mcux/CMakeLists.txt
+    # ========================================
+# SPDX-License-Identifier: Apache-2.0
+
+    # edgefast_open_add_subdirectory(include)
+    # edgefast_open_add_subdirectory(src)
+
+    # ----------------------------------------
+    # Subdirectory: include
+    # Original: edgefast_open_add_subdirectory(include)
+    # ----------------------------------------
+
+    # ========================================
+    # Content from: lib/libc/mcux/include/CMakeLists.txt
+    # ========================================
+# SPDX-License-Identifier: Apache-2.0
+
+mcux_add_source(
+    SOURCES ./lib/libc/mcux/include/*.*
+    TOOLCHAINS mcux
+)
+
+    # edgefast_open_add_subdirectory(sys)
+
+mcux_add_include(
+    INCLUDES ./lib/libc/mcux/include
+    TOOLCHAINS mcux
+)
+
+    # ----------------------------------------
+    # Subdirectory: sys
+    # Original: edgefast_open_add_subdirectory(sys)
+    # ----------------------------------------
+
+    # ========================================
+    # Content from: lib/libc/mcux/include/sys/CMakeLists.txt
+    # ========================================
+# SPDX-License-Identifier: Apache-2.0
+
+mcux_add_source(
+    SOURCES ./lib/libc/mcux/include/sys/*.*
+    TOOLCHAINS mcux
+)
+
+    # ----------------------------------------
+    # Subdirectory: src
+    # Original: edgefast_open_add_subdirectory(src)
+    # ----------------------------------------
+
+    # ========================================
+    # Content from: lib/libc/mcux/src/CMakeLists.txt
+    # ========================================
+# SPDX-License-Identifier: Apache-2.0
+
+mcux_add_source(
+    SOURCES ./lib/libc/mcux/src/*.*
+    TOOLCHAINS mcux
 )
 
     # ----------------------------------------
