@@ -9,6 +9,7 @@
 #define __HW_CODEC_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define HW_CODEC_ERROR -1
 
@@ -22,5 +23,6 @@ int hw_codec_vol_up(void);
 int hw_codec_vol_down(void);
 int hw_codec_mute(void);
 int hw_codec_unmute(void);
+bool hw_codec_is_muted(void);
 
 #endif /* __HW_CODEC_H_ */

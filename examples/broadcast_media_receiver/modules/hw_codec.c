@@ -6,7 +6,6 @@
  */
 
 #include "hw_codec.h"
-
 #include "fsl_codec_common.h"
 
 static codec_handle_t codec_handle;
@@ -18,6 +17,9 @@ extern uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate);
 
 static uint8_t volume_step = 10;
 static uint8_t volume      = 90;
+
+static bool init = false;
+static bool mute = false;
 
 int hw_codec_init(int sample_rate, int channels, int bits)
 {
@@ -32,10 +34,11 @@ int hw_codec_init(int sample_rate, int channels, int bits)
 		return HW_CODEC_ERROR;
 	}
 
-    if(hw_codec_mute())
-    {
-        return HW_CODEC_ERROR;
-    }
+    status = CODEC_SetMute(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, true);
+    if (kStatus_Success != status)
+	{
+		return HW_CODEC_ERROR;
+	}
 
     status = CODEC_SetFormat(&codec_handle, mclk, sample_rate, bits);
     if (kStatus_Success != status)
@@ -43,15 +46,16 @@ int hw_codec_init(int sample_rate, int channels, int bits)
 		return HW_CODEC_ERROR;
 	}
 
-    if(hw_codec_unmute())
+    if(!mute)
     {
-        return HW_CODEC_ERROR;
+        status = CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, volume);
+        if (kStatus_Success != status)
+        {
+            return HW_CODEC_ERROR;
+        }
     }
 
-    if(hw_codec_vol_set(volume))
-    {
-        return HW_CODEC_ERROR;
-    }
+    init = true;
 
     (void)channels;
 
@@ -60,15 +64,20 @@ int hw_codec_init(int sample_rate, int channels, int bits)
 
 int hw_codec_deinit()
 {
-    if(hw_codec_mute())
-    {
-        return HW_CODEC_ERROR;
-    }
+    status_t status;
+
+    status = CODEC_SetMute(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, true);
+    if (kStatus_Success != status)
+	{
+		return HW_CODEC_ERROR;
+	}
 
     if (CODEC_Deinit(&codec_handle) != kStatus_Success)
     {
         return HW_CODEC_ERROR;
     }
+
+    init = false;
 
     return 0;
 }
@@ -89,11 +98,20 @@ int hw_codec_vol_set(uint8_t vol)
 {
     status_t status;
 
-    status = CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, vol);
-    if (kStatus_Success != status)
-	{
-		return HW_CODEC_ERROR;
-	}
+    if(!init)
+    {
+        volume = vol;
+        return 0;
+    }
+
+    if(!mute)
+    {
+        status = CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, vol);
+        if (kStatus_Success != status)
+        {
+            return HW_CODEC_ERROR;
+        }
+    }
 
     volume = vol;
 
@@ -118,11 +136,19 @@ int hw_codec_mute(void)
 {
     status_t status;
 
+    if(!init)
+    {
+        mute = true;
+        return 0;
+    }
+
     status = CODEC_SetMute(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, true);
     if (kStatus_Success != status)
 	{
 		return HW_CODEC_ERROR;
 	}
+
+    mute = true;
 
     return 0;
 }
@@ -131,11 +157,33 @@ int hw_codec_unmute(void)
 {
     status_t status;
 
+    if(!init)
+    {
+        mute = false;
+        return 0;
+    }
+
+#if 0 /* set volume will unmute, so we don't need to unmute here. */
     status = CODEC_SetMute(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, false);
     if (kStatus_Success != status)
-	{
-		return HW_CODEC_ERROR;
-	}
+    {
+        return HW_CODEC_ERROR;
+    }
+#endif
+
+    /* apply the volume setting when unmuting. */
+    status = CODEC_SetVolume(&codec_handle, kCODEC_VolumeHeadphoneLeft | kCODEC_VolumeHeadphoneRight, volume);
+    if (kStatus_Success != status)
+    {
+        return HW_CODEC_ERROR;
+    }
+
+    mute = false;
 
     return 0;
+}
+
+bool hw_codec_is_muted(void)
+{
+    return mute;
 }

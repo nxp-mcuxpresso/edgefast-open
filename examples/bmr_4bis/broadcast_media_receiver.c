@@ -307,7 +307,6 @@ static void stream_started_cb(struct bt_bap_stream *stream)
 	memcpy(&lc3_preset.qos, stream->qos, sizeof(struct bt_bap_qos_cfg));
 
 	/* Start Sync. */
-	hw_codec_vol_set(hw_codec_vol_get());
 #if defined(LE_AUDIO_SYNC_ENABLE) && (LE_AUDIO_SYNC_ENABLE > 0)
 	le_audio_sync_set(get_iso_interval(), get_big_sync_delay(), lc3_preset.qos.pd);
 #endif
@@ -318,7 +317,6 @@ static void stream_stopped_cb(struct bt_bap_stream *stream, uint8_t reason)
 	PRINTF("Stream %p stopped\n", stream);
 	stream_stoped = true;
 
-	hw_codec_mute();
 	/* SAI_SW signal will available even their is no data transfer, until the SAI deinit. */
 	audio_i2s_deinit();
 	(void)audio_i2s_init(lc3_codec_info.sample_rate, 2, 16, AUDIO_I2S_MODE_TX);

@@ -645,7 +645,6 @@ static void stream_started(struct bt_bap_stream *stream)
 	memcpy(&lc3_preset.qos, stream->qos, sizeof(struct bt_bap_qos_cfg));
 
 	/* Start Sync. */
-	hw_codec_vol_set(hw_codec_vol_get());
 #if defined(LE_AUDIO_SYNC_ENABLE) && (LE_AUDIO_SYNC_ENABLE > 0)
 	le_audio_sync_set(get_iso_interval(), get_cig_sync_delay(), lc3_preset.qos.pd);
 #endif
@@ -655,7 +654,6 @@ static void stream_stopped(struct bt_bap_stream *stream, uint8_t reason)
 {
 	PRINTF("Audio Stream %p stopped with reason 0x%02X\n", stream, reason);
 
-	hw_codec_mute();
 	/* SAI_SW signal will available even their is no data transfer, until the SAI deinit. */
 	audio_i2s_deinit();
 	(void)audio_i2s_init(lc3_codec_info.sample_rate, 2, 16, AUDIO_I2S_MODE_TX);
@@ -860,12 +858,16 @@ static void vcs_server_vol_callback(uint8_t volume, uint8_t mute)
 	}
 	else
 	{
-		if(hw_codec_vol_set(volume * 100 / 255))
+		if(hw_codec_unmute())
 		{
-			PRINTF("\nHW Codec set volume fail!\r\n");
+			PRINTF("\nHW Codec set mute fail!\r\n");
 		}
 	}
-
+	
+	if(hw_codec_vol_set(volume * 100 / 255))
+	{
+		PRINTF("\nHW Codec set volume fail!\r\n");
+	}
 }
 
 void unicast_media_receiver_task(void *param)
