@@ -25,6 +25,19 @@ a2dp_source:
       - -mdk@release
       - -mdk@sdram_debug
       - -mdk@sdram_release
+   evkbmimxrt1170@cm4:
+      - -armgcc@debug
+      - -armgcc@release
+      - -armgcc@sdram_debug
+      - -armgcc@sdram_release
+      - -iar@debug
+      - -iar@release
+      - -iar@sdram_debug
+      - -iar@sdram_release
+      - -mdk@debug
+      - -mdk@release
+      - -mdk@sdram_debug
+      - -mdk@sdram_release
 a2dp_source@dual:
   section-type: custom_application
   contents:
