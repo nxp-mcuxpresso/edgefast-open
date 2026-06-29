@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -22,6 +22,7 @@ processor_version: 24.12.10
 pin_labels:
 - {pin_num: L5, pin_signal: PIO1_21/TRIG_OUT2/FC5_P5/FC4_P1/CT3_MAT3/SCT0_OUT9/FLEXIO0_D29/SMARTDMA_PIO17/PLU_OUT7/ENET0_MDIO/SAI1_MCLK/CAN1_RXD/ADC1_A21/CMP2_IN3,
   label: WL_RST, identifier: WL_RST}
+- {pin_num: L4, pin_signal: PIO1_22/TRIG_IN3/FC5_P6/FC4_P2/CT_INP14/SCT0_OUT4/FLEXIO0_D30/SMARTDMA_PIO18/ADC1_A22, label: SDIO_RST, identifier: SDIO_RST}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -464,6 +465,7 @@ BOARD_InitPinsWifi:
 - pin_list:
   - {pin_num: L5, peripheral: GPIO1, signal: 'GPIO, 21', pin_signal: PIO1_21/TRIG_OUT2/FC5_P5/FC4_P1/CT3_MAT3/SCT0_OUT9/FLEXIO0_D29/SMARTDMA_PIO17/PLU_OUT7/ENET0_MDIO/SAI1_MCLK/CAN1_RXD/ADC1_A21/CMP2_IN3,
     direction: OUTPUT}
+  - {pin_num: L4, peripheral: GPIO1, signal: 'GPIO, 22', pin_signal: PIO1_22/TRIG_IN3/FC5_P6/FC4_P2/CT_INP14/SCT0_OUT4/FLEXIO0_D30/SMARTDMA_PIO18/ADC1_A22, direction: OUTPUT}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -488,10 +490,27 @@ void BOARD_InitPinsWifi(void)
     /* Initialize GPIO functionality on pin PIO1_21 (pin L5)  */
     GPIO_PinInit(BOARD_INITPINSWIFI_WL_RST_GPIO, BOARD_INITPINSWIFI_WL_RST_PIN, &WL_RST_config);
 
+    gpio_pin_config_t SDIO_RST_config = {
+        .pinDirection = kGPIO_DigitalOutput,
+        .outputLogic = 0U
+    };
+    /* Initialize GPIO functionality on pin PIO1_22 (pin L4)  */
+    GPIO_PinInit(BOARD_INITPINSWIFI_SDIO_RST_GPIO, BOARD_INITPINSWIFI_SDIO_RST_PIN, &SDIO_RST_config);
+
     /* PORT1_21 (pin L5) is configured as PIO1_21 */
     PORT_SetPinMux(BOARD_INITPINSWIFI_WL_RST_PORT, BOARD_INITPINSWIFI_WL_RST_PIN, kPORT_MuxAlt0);
 
     PORT1->PCR[21] = ((PORT1->PCR[21] &
+                       /* Mask bits to zero which are setting */
+                       (~(PORT_PCR_IBE_MASK)))
+
+                      /* Input Buffer Enable: Enables. */
+                      | PORT_PCR_IBE(PCR_IBE_ibe1));
+
+    /* PORT1_22 (pin L4) is configured as PIO1_22 */
+    PORT_SetPinMux(BOARD_INITPINSWIFI_SDIO_RST_PORT, BOARD_INITPINSWIFI_SDIO_RST_PIN, kPORT_MuxAlt0);
+
+    PORT1->PCR[22] = ((PORT1->PCR[22] &
                        /* Mask bits to zero which are setting */
                        (~(PORT_PCR_IBE_MASK)))
 

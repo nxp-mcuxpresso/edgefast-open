@@ -82,7 +82,7 @@
 #define __init_start Load$$ER_z_init_PRE_KERNEL_1$$Base
 #define __init_end Load$$ER_z_init_APPLICATION$$Limit
 
-#define LITTLEFS_REGION_SIZE             0x00080000
+#define LITTLEFS_REGION_SIZE             0x00020000
 
 #if (defined(__qspi_xip__))
   #define  m_interrupts_start            0x80001000

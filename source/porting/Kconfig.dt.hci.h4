@@ -25,7 +25,7 @@ config DT_N_INST_0_hci_uart_P_instance
 
 config DT_N_INST_0_hci_uart_P_current_speed
 	int "UART Current Speed"
-	default 3000000 if MCUX_HW_BOARD_frdmmcxn947
+	default 3000000 if MCUX_COMPONENT_component.wifi_bt_module.board_aw_am510_arduino
 	default 115200
 	help
 	  Configure the default UART communication speed for Bluetooth HCI UART interface.
@@ -113,7 +113,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_fw_download_secondary_flowcontrol_EXISTS
 # sdio_reset_gpios
 config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_EXISTS
 	bool "SDIO reset GPIO"
-	default n if MCUX_HW_BOARD_frdmmcxn947
+	default n if MCUX_COMPONENT_component.wifi_bt_module.board_aw_am510_arduino
 	default y
 	help
 	  No prefix in generated macro
@@ -122,6 +122,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_port
 	int "SDIO reset GPIO port"
 	default 3 if MCUX_HW_DEVICE_MCXN547
 	default 3 if MCUX_HW_BOARD_mcxn9xxevk
+	default 1 if MCUX_HW_BOARD_frdmmcxn947
 	default 3 if MCUX_HW_DEVICE_MIMXRT1042
 	default 1 if MCUX_HW_DEVICE_MIMXRT1052
 	default 1 if MCUX_HW_DEVICE_MIMXRT1062
@@ -138,6 +139,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_pin
 	int "SDIO reset GPIO pin"
 	default 5 if MCUX_HW_DEVICE_MCXN547
 	default 5 if MCUX_HW_BOARD_mcxn9xxevk
+	default 22 if MCUX_HW_BOARD_frdmmcxn947
 	default 4 if MCUX_HW_DEVICE_MIMXRT1042
 	default 19 if MCUX_HW_DEVICE_MIMXRT1052
 	default 24 if MCUX_HW_DEVICE_MIMXRT1062
@@ -154,6 +156,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_flags
 	int "SDIO reset GPIO flags"
 	default 1 if MCUX_HW_DEVICE_MCXN547
 	default 1 if MCUX_HW_BOARD_mcxn9xxevk
+	default 1 if MCUX_HW_BOARD_frdmmcxn947
 	default 1 if MCUX_HW_DEVICE_MIMXRT1042
 	default 1 if MCUX_HW_DEVICE_MIMXRT1052
 	default 1 if MCUX_HW_DEVICE_MIMXRT1062

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NXP
+ * Copyright 2025-2026 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -10,87 +10,101 @@
  * will be overwritten if the respective MCUXpresso Config Tools is used to update this file.
  **********************************************************************************************************************/
 
- #ifndef _PIN_MUX_H_
- #define _PIN_MUX_H_
- 
- /*!
-  * @addtogroup pin_mux
-  * @{
-  */
- 
- /***********************************************************************************************************************
-  * API
-  **********************************************************************************************************************/
- 
- #if defined(__cplusplus)
- extern "C" {
- #endif
- 
- /*!
-  * @brief Calls initialization functions.
-  *
-  */
- void BOARD_InitBootPins(void);
- 
- #define PCR_IBE_ibe1 0x01u /*!<@brief Input Buffer Enable: Enables */
- 
- /*!
-  * @brief Configures pin routing and optionally pin electrical features.
-  *
-  */
- void BOARD_InitPins(void);
- 
- /*!
-  * @brief Configures pin routing and optionally pin electrical features.
-  *
-  */
- void BOARD_InitDEBUG_UARTPins(void);
- 
- /*!
-  * @brief Configures pin routing and optionally pin electrical features.
-  *
-  */
- void BOARD_InitUSDHCPins(void);
- 
- /*!
-  * @brief Configures pin routing and optionally pin electrical features.
-  *
-  */
- void BOARD_InitArduinoUARTPins(void);
- 
- #define PCR_IBE_ibe1 0x01u /*!<@brief Input Buffer Enable: Enables */
- 
- /*! @name PORT1_21 (coord L5), WL_RST
-   @{ */
- 
- /* Symbols to be used with GPIO driver */
- #define BOARD_INITPINSWIFI_WL_RST_GPIO GPIO1                /*!<@brief GPIO peripheral base pointer */
- #define BOARD_INITPINSWIFI_WL_RST_INIT_GPIO_VALUE 0U        /*!<@brief GPIO output initial state */
- #define BOARD_INITPINSWIFI_WL_RST_GPIO_PIN 21U              /*!<@brief GPIO pin number */
- #define BOARD_INITPINSWIFI_WL_RST_GPIO_PIN_MASK (1U << 21U) /*!<@brief GPIO pin mask */
- 
- /* Symbols to be used with PORT driver */
- #define BOARD_INITPINSWIFI_WL_RST_PORT PORT1                /*!<@brief PORT peripheral base pointer */
- #define BOARD_INITPINSWIFI_WL_RST_PIN 21U                   /*!<@brief PORT pin number */
- #define BOARD_INITPINSWIFI_WL_RST_PIN_MASK (1U << 21U)      /*!<@brief PORT pin mask */
-                                                                /* @} */
- 
- /*!
-  * @brief Configures pin routing and optionally pin electrical features.
-  *
-  */
- void BOARD_InitPinsWifi(void);
- 
- #if defined(__cplusplus)
- }
- #endif
- 
- /*!
-  * @}
-  */
- #endif /* _PIN_MUX_H_ */
- 
- /***********************************************************************************************************************
-  * EOF
-  **********************************************************************************************************************/
- 
+#ifndef _PIN_MUX_H_
+#define _PIN_MUX_H_
+
+/*!
+ * @addtogroup pin_mux
+ * @{
+ */
+
+/***********************************************************************************************************************
+ * API
+ **********************************************************************************************************************/
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+/*!
+ * @brief Calls initialization functions.
+ *
+ */
+void BOARD_InitBootPins(void);
+
+#define PCR_IBE_ibe1 0x01u /*!<@brief Input Buffer Enable: Enables */
+
+/*!
+ * @brief Configures pin routing and optionally pin electrical features.
+ *
+ */
+void BOARD_InitPins(void);
+
+/*!
+ * @brief Configures pin routing and optionally pin electrical features.
+ *
+ */
+void BOARD_InitDEBUG_UARTPins(void);
+
+/*!
+ * @brief Configures pin routing and optionally pin electrical features.
+ *
+ */
+void BOARD_InitUSDHCPins(void);
+
+/*!
+ * @brief Configures pin routing and optionally pin electrical features.
+ *
+ */
+void BOARD_InitArduinoUARTPins(void);
+
+#define PCR_IBE_ibe1 0x01u /*!<@brief Input Buffer Enable: Enables */
+
+/*! @name PORT1_21 (coord L5), WL_RST
+  @{ */
+
+/* Symbols to be used with GPIO driver */
+#define BOARD_INITPINSWIFI_WL_RST_GPIO GPIO1                /*!<@brief GPIO peripheral base pointer */
+#define BOARD_INITPINSWIFI_WL_RST_INIT_GPIO_VALUE 0U        /*!<@brief GPIO output initial state */
+#define BOARD_INITPINSWIFI_WL_RST_GPIO_PIN 21U              /*!<@brief GPIO pin number */
+#define BOARD_INITPINSWIFI_WL_RST_GPIO_PIN_MASK (1U << 21U) /*!<@brief GPIO pin mask */
+
+/* Symbols to be used with PORT driver */
+#define BOARD_INITPINSWIFI_WL_RST_PORT PORT1                /*!<@brief PORT peripheral base pointer */
+#define BOARD_INITPINSWIFI_WL_RST_PIN 21U                   /*!<@brief PORT pin number */
+#define BOARD_INITPINSWIFI_WL_RST_PIN_MASK (1U << 21U)      /*!<@brief PORT pin mask */
+                                                            /* @} */
+
+/*! @name PORT1_22 (coord L4), SDIO_RST
+  @{ */
+
+/* Symbols to be used with GPIO driver */
+#define BOARD_INITPINSWIFI_SDIO_RST_GPIO GPIO1                /*!<@brief GPIO peripheral base pointer */
+#define BOARD_INITPINSWIFI_SDIO_RST_INIT_GPIO_VALUE 0U        /*!<@brief GPIO output initial state */
+#define BOARD_INITPINSWIFI_SDIO_RST_GPIO_PIN 22U              /*!<@brief GPIO pin number */
+#define BOARD_INITPINSWIFI_SDIO_RST_GPIO_PIN_MASK (1U << 22U) /*!<@brief GPIO pin mask */
+
+/* Symbols to be used with PORT driver */
+#define BOARD_INITPINSWIFI_SDIO_RST_PORT PORT1                /*!<@brief PORT peripheral base pointer */
+#define BOARD_INITPINSWIFI_SDIO_RST_PIN 22U                   /*!<@brief PORT pin number */
+#define BOARD_INITPINSWIFI_SDIO_RST_PIN_MASK (1U << 22U)      /*!<@brief PORT pin mask */
+                                                              /* @} */
+
+/*!
+ * @brief Configures pin routing and optionally pin electrical features.
+ *
+ */
+void BOARD_InitPinsWifi(void);
+
+#if defined(__cplusplus)
+}
+#endif
+
+/*!
+ * @}
+ */
+#endif /* _PIN_MUX_H_ */
+
+/***********************************************************************************************************************
+ * EOF
+ **********************************************************************************************************************/

@@ -85,7 +85,8 @@ void BOARD_InitHardware(void)
 #endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 }
 
-#if (defined(WIFI_IW416_BOARD_AW_AM510_ARDUINO) || defined(WIFI_IW610_BOARD_MURATA_2LL_M2))
+#if (defined(WIFI_IW416_BOARD_AW_AM510_ARDUINO) || defined(WIFI_IW610_BOARD_MURATA_2LL_M2) || \
+     defined(WIFI_IW416_BOARD_MURATA_1XK_M2))
 int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
 {
     if (NULL == config)
@@ -93,7 +94,11 @@ int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
         return -1;
     }
     config->clockSrc        = BOARD_BT_UART_CLK_FREQ;
+#if defined(WIFI_IW416_BOARD_AW_AM510_ARDUINO)
     config->defaultBaudrate = BOARD_BT_UART_BAUDRATE;
+#else
+    config->defaultBaudrate = 115200u;
+#endif
     config->runningBaudrate = BOARD_BT_UART_BAUDRATE;
     config->instance        = BOARD_BT_UART_INSTANCE;
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
