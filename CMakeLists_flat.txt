@@ -2823,6 +2823,15 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings)
         CX "--diag_suppress=Pe068,Pe1143,Pe111,Pe1675,Pe054,Pe223"
     )
 
+    # Dedicated suppression for Pa217 (label is defined but never used).
+    # TODO(upstream): Remove this once the root cause is fixed upstream.
+    # Rationale: Keeping this separate avoids unintentionally masking new Pa217
+    # warnings introduced by Edgefast Open.
+    mcux_add_iar_configuration(
+        CC "--diag_suppress=Pa217"
+        CX "--diag_suppress=Pa217"
+    )
+
     if(NOT W MATCHES "3")
         # Pe381: extra ";" ignored
         mcux_add_iar_configuration(

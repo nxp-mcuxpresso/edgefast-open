@@ -1,16 +1,16 @@
 ================================================================================
 MCUX_ADD_* COMMANDS STATISTICS
 ================================================================================
-Total mcux_add_* commands: 479
-  - Conditional: 479
+Total mcux_add_* commands: 480
+  - Conditional: 480
   - Unconditional: 0
   - Duplicates removed: 0
 Unique conditions: 172
 
 Command types distribution:
-  - mcux_add_source: 433 (90.4%)
+  - mcux_add_source: 433 (90.2%)
   - mcux_add_include: 17 (3.5%)
-  - mcux_add_iar_configuration: 15 (3.1%)
+  - mcux_add_iar_configuration: 16 (3.3%)
   - mcux_add_configuration: 5 (1.0%)
   - mcux_add_mdk_configuration: 5 (1.0%)
   - mcux_add_armgcc_configuration: 4 (0.8%)
@@ -222,7 +222,7 @@ All unique conditions (sorted alphabetically):
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc) (33 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.net_buf) (3 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.port_shell) (3 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) (1 command(s))
+  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) AND (NOT W MATCHES "1" AND NOT W MATCHES "2" AND NOT W MATCHES "3") (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) AND (NOT W MATCHES "2" AND NOT W MATCHES "3") (1 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) AND (NOT W MATCHES "3") (1 command(s))

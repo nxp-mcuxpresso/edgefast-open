@@ -8,22 +8,22 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 6
 
-  [mcux_add_iar_configuration] (Line 3265)
+  [mcux_add_iar_configuration] (Line 3274)
     CC "--diag_suppress=Pa211"
 
-  [mcux_add_include] (Line 3269)
+  [mcux_add_include] (Line 3278)
     INCLUDES ./lib/asrc_sw/
 
-  [mcux_add_source] (Line 3273)
+  [mcux_add_source] (Line 3282)
     SOURCES ./lib/asrc_sw/downSmplAllRates.dat
 
-  [mcux_add_source] (Line 3276)
+  [mcux_add_source] (Line 3285)
     SOURCES ./lib/asrc_sw/upSmpl_32_32_rev.dat
 
-  [mcux_add_source] (Line 3279)
+  [mcux_add_source] (Line 3288)
     SOURCES ./lib/asrc_sw/srCvtFrm.c
 
-  [mcux_add_source] (Line 3282)
+  [mcux_add_source] (Line 3291)
     SOURCES ./lib/asrc_sw/*.h
 
 
@@ -2109,13 +2109,13 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 3
 
-  [mcux_add_source] (Line 2937)
+  [mcux_add_source] (Line 2946)
     SOURCES ./lib/crc/crc16_sw.c
 
-  [mcux_add_source] (Line 2940)
+  [mcux_add_source] (Line 2949)
     SOURCES ./lib/crc/*.h
 
-  [mcux_add_source] (Line 2943)
+  [mcux_add_source] (Line 2952)
     SOURCES ./lib/crc/crc8_sw.c
 
 
@@ -2176,16 +2176,16 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 4
 
-  [mcux_add_source] (Line 2970)
+  [mcux_add_source] (Line 2979)
     SOURCES ./lib/utils/getopt/getopt.c
 
-  [mcux_add_source] (Line 2973)
+  [mcux_add_source] (Line 2982)
     SOURCES ./lib/utils/getopt/*.h
 
-  [mcux_add_source] (Line 2976)
+  [mcux_add_source] (Line 2985)
     SOURCES ./lib/utils/getopt/getopt_common.c
 
-  [mcux_add_source] (Line 2979)
+  [mcux_add_source] (Line 2988)
     SOURCES ./lib/utils/getopt/getopt_common.h
 
 
@@ -2195,10 +2195,10 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 2
 
-  [mcux_add_source] (Line 2984)
+  [mcux_add_source] (Line 2993)
     SOURCES ./lib/utils/getopt/getopt_long.c
 
-  [mcux_add_source] (Line 2987)
+  [mcux_add_source] (Line 2996)
     SOURCES ./lib/utils/getopt/*.h
 
 
@@ -2208,55 +2208,55 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 17
 
-  [mcux_add_iar_configuration] (Line 3301)
+  [mcux_add_iar_configuration] (Line 3310)
     CC "--diag_suppress=Pa211"
 
-  [mcux_add_include] (Line 3305)
+  [mcux_add_include] (Line 3314)
     INCLUDES ./lib/liblc3/include
 
-  [mcux_add_include] (Line 3308)
+  [mcux_add_include] (Line 3317)
     INCLUDES ./lib/liblc3/src
 
-  [mcux_add_source] (Line 3312)
+  [mcux_add_source] (Line 3321)
     SOURCES ./lib/liblc3/src/attdet.c
 
-  [mcux_add_source] (Line 3315)
+  [mcux_add_source] (Line 3324)
     SOURCES ./lib/liblc3/src/*.h
 
-  [mcux_add_source] (Line 3318)
+  [mcux_add_source] (Line 3327)
     SOURCES ./lib/liblc3/src/bits.c
 
-  [mcux_add_source] (Line 3321)
+  [mcux_add_source] (Line 3330)
     SOURCES ./lib/liblc3/src/bwdet.c
 
-  [mcux_add_source] (Line 3324)
+  [mcux_add_source] (Line 3333)
     SOURCES ./lib/liblc3/src/energy.c
 
-  [mcux_add_source] (Line 3327)
+  [mcux_add_source] (Line 3336)
     SOURCES ./lib/liblc3/src/lc3.c
 
-  [mcux_add_source] (Line 3330)
+  [mcux_add_source] (Line 3339)
     SOURCES ./lib/liblc3/src/ltpf.c
 
-  [mcux_add_source] (Line 3333)
+  [mcux_add_source] (Line 3342)
     SOURCES ./lib/liblc3/src/mdct.c
 
-  [mcux_add_source] (Line 3336)
+  [mcux_add_source] (Line 3345)
     SOURCES ./lib/liblc3/src/plc.c
 
-  [mcux_add_source] (Line 3339)
+  [mcux_add_source] (Line 3348)
     SOURCES ./lib/liblc3/src/sns.c
 
-  [mcux_add_source] (Line 3342)
+  [mcux_add_source] (Line 3351)
     SOURCES ./lib/liblc3/src/spec.c
 
-  [mcux_add_source] (Line 3345)
+  [mcux_add_source] (Line 3354)
     SOURCES ./lib/liblc3/src/tables.c
 
-  [mcux_add_source] (Line 3348)
+  [mcux_add_source] (Line 3357)
     SOURCES ./lib/liblc3/src/tns.c
 
-  [mcux_add_source] (Line 3351)
+  [mcux_add_source] (Line 3360)
     SOURCES ./lib/liblc3/include/*.h
 
 
@@ -2272,97 +2272,97 @@ Total commands: 33
   [mcux_add_source] (Line 2027)
     SOURCES ./source/bluetooth/lib/*.h
 
-  [mcux_add_iar_configuration] (Line 3151)
+  [mcux_add_iar_configuration] (Line 3160)
     CC "--diag_suppress=Pa211"
 
-  [mcux_add_include] (Line 3155)
+  [mcux_add_include] (Line 3164)
     INCLUDES ./lib/libsbc/encoder/include
 
-  [mcux_add_include] (Line 3159)
+  [mcux_add_include] (Line 3168)
     INCLUDES ./lib/libsbc/decoder/include
 
-  [mcux_add_include] (Line 3162)
+  [mcux_add_include] (Line 3171)
     INCLUDES ./lib/libsbc/decoder/srce
 
-  [mcux_add_source] (Line 3166)
+  [mcux_add_source] (Line 3175)
     SOURCES ./lib/libsbc/encoder/include/*.h
 
-  [mcux_add_source] (Line 3170)
+  [mcux_add_source] (Line 3179)
     SOURCES ./lib/libsbc/decoder/include/*.h
 
-  [mcux_add_source] (Line 3174)
+  [mcux_add_source] (Line 3183)
     SOURCES ./lib/libsbc/encoder/srce/sbc_analysis.c
 
-  [mcux_add_source] (Line 3177)
+  [mcux_add_source] (Line 3186)
     SOURCES ./lib/libsbc/encoder/srce/*.h
 
-  [mcux_add_source] (Line 3180)
+  [mcux_add_source] (Line 3189)
     SOURCES ./lib/libsbc/encoder/srce/sbc_dct.c
 
-  [mcux_add_source] (Line 3183)
+  [mcux_add_source] (Line 3192)
     SOURCES ./lib/libsbc/encoder/srce/sbc_dct_coeffs.c
 
-  [mcux_add_source] (Line 3186)
+  [mcux_add_source] (Line 3195)
     SOURCES ./lib/libsbc/encoder/srce/sbc_enc_bit_alloc_mono.c
 
-  [mcux_add_source] (Line 3189)
+  [mcux_add_source] (Line 3198)
     SOURCES ./lib/libsbc/encoder/srce/sbc_enc_bit_alloc_ste.c
 
-  [mcux_add_source] (Line 3192)
+  [mcux_add_source] (Line 3201)
     SOURCES ./lib/libsbc/encoder/srce/sbc_enc_coeffs.c
 
-  [mcux_add_source] (Line 3195)
+  [mcux_add_source] (Line 3204)
     SOURCES ./lib/libsbc/encoder/srce/sbc_encoder.c
 
-  [mcux_add_source] (Line 3198)
+  [mcux_add_source] (Line 3207)
     SOURCES ./lib/libsbc/encoder/srce/sbc_packing.c
 
-  [mcux_add_source] (Line 3202)
+  [mcux_add_source] (Line 3211)
     SOURCES ./lib/libsbc/decoder/srce/alloc.c
 
-  [mcux_add_source] (Line 3205)
+  [mcux_add_source] (Line 3214)
     SOURCES ./lib/libsbc/decoder/srce/*.h
 
-  [mcux_add_source] (Line 3208)
+  [mcux_add_source] (Line 3217)
     SOURCES ./lib/libsbc/decoder/srce/bitalloc.c
 
-  [mcux_add_source] (Line 3211)
+  [mcux_add_source] (Line 3220)
     SOURCES ./lib/libsbc/decoder/srce/bitalloc-sbc.c
 
-  [mcux_add_source] (Line 3214)
+  [mcux_add_source] (Line 3223)
     SOURCES ./lib/libsbc/decoder/srce/bitstream-decode.c
 
-  [mcux_add_source] (Line 3217)
+  [mcux_add_source] (Line 3226)
     SOURCES ./lib/libsbc/decoder/srce/decoder-oina.c
 
-  [mcux_add_source] (Line 3220)
+  [mcux_add_source] (Line 3229)
     SOURCES ./lib/libsbc/decoder/srce/decoder-private.c
 
-  [mcux_add_source] (Line 3223)
+  [mcux_add_source] (Line 3232)
     SOURCES ./lib/libsbc/decoder/srce/decoder-sbc.c
 
-  [mcux_add_source] (Line 3226)
+  [mcux_add_source] (Line 3235)
     SOURCES ./lib/libsbc/decoder/srce/dequant.c
 
-  [mcux_add_source] (Line 3229)
+  [mcux_add_source] (Line 3238)
     SOURCES ./lib/libsbc/decoder/srce/framing.c
 
-  [mcux_add_source] (Line 3232)
+  [mcux_add_source] (Line 3241)
     SOURCES ./lib/libsbc/decoder/srce/framing-sbc.c
 
-  [mcux_add_source] (Line 3235)
+  [mcux_add_source] (Line 3244)
     SOURCES ./lib/libsbc/decoder/srce/oi_codec_version.c
 
-  [mcux_add_source] (Line 3238)
+  [mcux_add_source] (Line 3247)
     SOURCES ./lib/libsbc/decoder/srce/readsamplesjoint.inc
 
-  [mcux_add_source] (Line 3241)
+  [mcux_add_source] (Line 3250)
     SOURCES ./lib/libsbc/decoder/srce/synthesis-8-generated.c
 
-  [mcux_add_source] (Line 3244)
+  [mcux_add_source] (Line 3253)
     SOURCES ./lib/libsbc/decoder/srce/synthesis-dct8.c
 
-  [mcux_add_source] (Line 3247)
+  [mcux_add_source] (Line 3256)
     SOURCES ./lib/libsbc/decoder/srce/synthesis-sbc.c
 
 
@@ -2372,13 +2372,13 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 3
 
-  [mcux_add_source] (Line 2912)
+  [mcux_add_source] (Line 2921)
     SOURCES ./lib/net_buf/buf.c
 
-  [mcux_add_source] (Line 2915)
+  [mcux_add_source] (Line 2924)
     SOURCES ./lib/net_buf/*.h
 
-  [mcux_add_source] (Line 2918)
+  [mcux_add_source] (Line 2927)
     SOURCES ./lib/net_buf/buf_simple.c
 
 
@@ -2403,11 +2403,15 @@ Total commands: 3
 Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings)
 ================================================================================
 
-Total commands: 1
+Total commands: 2
 
   [mcux_add_iar_configuration] (Line 2821)
     CC "--diag_suppress=Pe068,Pe1143,Pe111,Pe1675,Pe054,Pe223"
     CX "--diag_suppress=Pe068,Pe1143,Pe111,Pe1675,Pe054,Pe223"
+
+  [mcux_add_iar_configuration] (Line 2830)
+    CC "--diag_suppress=Pa217"
+    CX "--diag_suppress=Pa217"
 
 
 ================================================================================
@@ -2416,7 +2420,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_iar_configuration] (Line 2861)
+  [mcux_add_iar_configuration] (Line 2870)
     CC "--diag_suppress=Pe054,Pe186,Pe546,Pe550,Pe128,Pe188,Pe144,Pe167"
     CX "--diag_suppress=Pe054,Pe186,Pe546,Pe550,Pe128,Pe188,Pe144,Pe167"
 
@@ -2427,7 +2431,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_iar_configuration] (Line 2844)
+  [mcux_add_iar_configuration] (Line 2853)
     CC "--diag_suppress=Pe513,Pe177,Pe144,Pe167,Pe185,Pa084,Pa082,Pe1097"
     CX "--diag_suppress=Pe513,Pe177,Pe144,Pe167,Pe185,Pa084,Pa082,Pe1097"
 
@@ -2438,7 +2442,7 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 1
 
-  [mcux_add_iar_configuration] (Line 2828)
+  [mcux_add_iar_configuration] (Line 2837)
     CC "--diag_suppress=Pe381"
     CX "--diag_suppress=Pe381"
 
@@ -2449,10 +2453,10 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 2
 
-  [mcux_add_source] (Line 2993)
+  [mcux_add_source] (Line 3002)
     SOURCES ./lib/utils/utf8.c
 
-  [mcux_add_source] (Line 2996)
+  [mcux_add_source] (Line 3005)
     SOURCES ./lib/utils/*.h
 
 
@@ -2462,10 +2466,10 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 2
 
-  [mcux_add_source] (Line 3371)
+  [mcux_add_source] (Line 3380)
     SOURCES ./lib/uuid/uuid.c
 
-  [mcux_add_source] (Line 3374)
+  [mcux_add_source] (Line 3383)
     SOURCES ./lib/uuid/*.h
 
 
@@ -2636,51 +2640,51 @@ Total commands: 58
     CX "--diag_suppress=Pe1717"  # array of elements containing a flexible
     # array member is nonstandard
 
-  [mcux_add_source] (Line 2868)
+  [mcux_add_source] (Line 2877)
     TOOLCHAINS iar
     BASE_PATH ${SdkRootDirPath}
     SOURCES middleware/edgefast_open/include/zephyr/toolchain/iar/iar_missing_defs.h
     PREINCLUDE True
     PREINCLUDE_TYPE c_include cpp_include
 
-  [mcux_add_source] (Line 2959)
+  [mcux_add_source] (Line 2968)
     SOURCES ./lib/utils/dec.c
 
-  [mcux_add_source] (Line 2962)
+  [mcux_add_source] (Line 2971)
     SOURCES ./lib/utils/*.h
 
-  [mcux_add_source] (Line 2965)
+  [mcux_add_source] (Line 2974)
     SOURCES ./lib/utils/hex.c
 
-  [mcux_add_armgcc_configuration] (Line 3015)
+  [mcux_add_armgcc_configuration] (Line 3024)
     CC "-D__LINUX_ERRNO_EXTENSIONS__"
     CX "-D__LINUX_ERRNO_EXTENSIONS__"
 
-  [mcux_add_source] (Line 3048)
+  [mcux_add_source] (Line 3057)
     SOURCES ./lib/libc/iar/include/*.*
     TOOLCHAINS iar
 
-  [mcux_add_include] (Line 3055)
+  [mcux_add_include] (Line 3064)
     INCLUDES ./lib/libc/iar/include
     TOOLCHAINS iar
 
-  [mcux_add_source] (Line 3070)
+  [mcux_add_source] (Line 3079)
     SOURCES ./lib/libc/iar/include/sys/*.*
     TOOLCHAINS iar
 
-  [mcux_add_source] (Line 3085)
+  [mcux_add_source] (Line 3094)
     SOURCES ./lib/libc/iar/src/*.*
     TOOLCHAINS iar
 
-  [mcux_add_source] (Line 3112)
+  [mcux_add_source] (Line 3121)
     SOURCES ./lib/libc/arm/include/*.*
     TOOLCHAINS mdk
 
-  [mcux_add_include] (Line 3119)
+  [mcux_add_include] (Line 3128)
     INCLUDES ./lib/libc/arm/include
     TOOLCHAINS mdk
 
-  [mcux_add_source] (Line 3134)
+  [mcux_add_source] (Line 3143)
     SOURCES ./lib/libc/arm/include/sys/*.*
     TOOLCHAINS mdk
 
