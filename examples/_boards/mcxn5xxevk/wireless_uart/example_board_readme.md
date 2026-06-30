@@ -34,7 +34,3 @@ Whole memory must be erased before this demo is flashed.
 After downloaded binary into Quad SPI Flash and boot from Quad SPI Flash directly,
 please reset the board by pressing SW1 or power off and on the board to run the application.
 The SW3 is user button, please do role switch by pressing this button on the board.
-
-====
-If you want to get HCI log , please define macro CONGIF_BT_SNOOP to 1 in app_bluetooth_config.h , then connect JUMP26 [9,10] for extra power supply and connect the OTG with U-disk to the J27.
-You will get a file named btsnoop on the U-disk.You can change its extension to .cfa , then open it with ComProbe Protocol Analysis System to view the HCI logs.

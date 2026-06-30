@@ -48,7 +48,3 @@ Note:
 Whole memory must be erased before this demo is flashed.
 After downloaded binary into Quad SPI Flash and boot from Quad SPI Flash directly,
 please reset the board by pressing SW1 or power off and on the board to run the application.
-
-====
-If you want to get HCI log , please define macro CONGIF_BT_SNOOP to 1 in edgefast_bluetooth_app.h, then connect the OTG with U-disk to the J11.
-You will get a file named btsnoop on the U-disk.You can change its extension to .cfa , then open it with ComProbe Protocol Analysis System to view the HCI logs.
