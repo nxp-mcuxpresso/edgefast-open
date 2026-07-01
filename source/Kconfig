@@ -2,4 +2,5 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+rsource "./bluetooth/hci/Kconfig"
 rsource "./*/Kconfig"

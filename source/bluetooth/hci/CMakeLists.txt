@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
+zephyr_library()
+zephyr_library_property(ALLOW_EMPTY TRUE)
+zephyr_library_include_directories(.)
+add_subdirectory(hci)
+
 edgefast_open_add_subdirectory(configs)
 
 if (CONFIG_BUILD_ONLY_NO_BLOBS)
@@ -42,6 +47,13 @@ zephyr_library_sources_ifdef(CONFIG_BT_H4 h4.c)
 zephyr_library_sources_ifdef(CONFIG_BT_H4_NXP_CTLR hci_nxp_setup.c)
 zephyr_library_sources_ifdef(CONFIG_BT_NXP hci_nxp.c)
 # zephyr-keep-sorted-stop
+
+if(CONFIG_BT_H4)
+  mcux_add_configuration(
+    CC "-DDEBUG_CONSOLE_TRANSFER_NON_BLOCKING -DSERIAL_PORT_TYPE_UART=1"
+    CX "-DDEBUG_CONSOLE_TRANSFER_NON_BLOCKING -DSERIAL_PORT_TYPE_UART=1"
+  )
+endif()
 
 if (CONFIG_BT_H4_NXP_CTLR AND CONFIG_BT_CLASSIC)
   zephyr_library_sources(hci_nxp_sco.c)

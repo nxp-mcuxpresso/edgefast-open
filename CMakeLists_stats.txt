@@ -52,11 +52,11 @@ Top 20 most used conditions:
       Used by 3 command(s)
   17. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_goep)
       Used by 3 command(s)
-  18. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4)
+  18. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_conn) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots OR CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots_client) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_ots_client)
       Used by 3 command(s)
-  19. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.lwip.config)
+  19. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_gmap)
       Used by 3 command(s)
-  20. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.wifi.config)
+  20. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.port_shell)
       Used by 3 command(s)
 
 All unique conditions (sorted alphabetically):

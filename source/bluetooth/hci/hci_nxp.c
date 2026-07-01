@@ -582,7 +582,7 @@ int bt_nxp_setup(const struct device *dev, const struct bt_hci_setup_params *par
 				/* After send annex55 to CPU2, CPU2 need reset,
 				 * a delay of at least 20ms is required to continue sending annex100
 				 */
-				k_sleep(Z_TIMEOUT_MS(20));
+				k_sleep(K_MSEC(20));
 
 				ret = bt_nxp_set_calibration_data_annex100();
 				if (ret < 0) {

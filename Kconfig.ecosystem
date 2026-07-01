@@ -187,36 +187,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_l2cap_dynamic_channel
     # Original type: bool
     def_bool BT_L2CAP_DYNAMIC_CHANNEL
 
-config MCUX_COMPONENT_middleware.edgefast_open.bt_h4
-    # Original type: bool
-    def_bool BT_H4
-
-config MCUX_COMPONENT_middleware.edgefast_open.build_only_no_blobs
-    def_bool BUILD_ONLY_NO_BLOBS
-
-config MCUX_COMPONENT_middleware.edgefast_open.dt_has_espressif_esp32_bt_hci_enabled
-    def_bool DT_HAS_ESPRESSIF_ESP32_BT_HCI_ENABLED
-
-config MCUX_COMPONENT_middleware.edgefast_open.dt_has_silabs_bt_hci_efr32_enabled
-    def_bool DT_HAS_SILABS_BT_HCI_EFR32_ENABLED
-
-config MCUX_COMPONENT_middleware.edgefast_open.dt_has_infineon_bless_hci_enabled
-    def_bool DT_HAS_INFINEON_BLESS_HCI_ENABLED
-
-config MCUX_COMPONENT_middleware.edgefast_open.dt_has_renesas_bt_hci_da1469x_enabled
-    def_bool DT_HAS_RENESAS_BT_HCI_DA1469X_ENABLED
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_bflb
-    def_bool BT_BFLB
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr
-    # Original type: bool
-    def_bool BT_H4_NXP_CTLR
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_nxp
-    # Original type: bool
-    def_bool BT_NXP
-
 config MCUX_COMPONENT_middleware.edgefast_open.bt_ans
     # Original type: bool
     def_bool BT_ANS
@@ -517,6 +487,36 @@ config MCUX_COMPONENT_middleware.edgefast_open.port_shell
 config MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio
     # Original type: int
     def_int BT_RX_PRIO
+
+config MCUX_COMPONENT_middleware.edgefast_open.build_only_no_blobs
+    def_bool BUILD_ONLY_NO_BLOBS
+
+config MCUX_COMPONENT_middleware.edgefast_open.dt_has_espressif_esp32_bt_hci_enabled
+    def_bool DT_HAS_ESPRESSIF_ESP32_BT_HCI_ENABLED
+
+config MCUX_COMPONENT_middleware.edgefast_open.dt_has_silabs_bt_hci_efr32_enabled
+    def_bool DT_HAS_SILABS_BT_HCI_EFR32_ENABLED
+
+config MCUX_COMPONENT_middleware.edgefast_open.dt_has_infineon_bless_hci_enabled
+    def_bool DT_HAS_INFINEON_BLESS_HCI_ENABLED
+
+config MCUX_COMPONENT_middleware.edgefast_open.dt_has_renesas_bt_hci_da1469x_enabled
+    def_bool DT_HAS_RENESAS_BT_HCI_DA1469X_ENABLED
+
+config MCUX_COMPONENT_middleware.edgefast_open.bt_bflb
+    def_bool BT_BFLB
+
+config MCUX_COMPONENT_middleware.edgefast_open.bt_h4
+    # Original type: bool
+    def_bool BT_H4
+
+config MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr
+    # Original type: bool
+    def_bool BT_H4_NXP_CTLR
+
+config MCUX_COMPONENT_middleware.edgefast_open.bt_nxp
+    # Original type: bool
+    def_bool BT_NXP
 
 config MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings
     # Original type: bool
