@@ -20,5 +20,9 @@ config BT_PBAP_PSE_SUPPORTED_FEATURES
 	hex "Supported features bitmask for PBAP PSE"
         default 0x3ff
 
+config BT_PBAP_PSE_DATA_SEND_TASK_STACK_SIZE
+	int "Stack size for PSE data send task"
+	default 1024
+
 source "middleware/edgefast_open/Kconfig"
 source "Kconfig.mcuxpresso"

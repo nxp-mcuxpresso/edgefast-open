@@ -43,8 +43,9 @@ static atomic_t abort_req = ATOMIC_INIT(0);
 
 NET_BUF_POOL_FIXED_DEFINE(pse_tx_pool, CONFIG_BT_MAX_CONN, PBAP_POOL_BUF_SIZE, CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
-struct k_work_q data_send_work_q;
-static K_KERNEL_STACK_DEFINE(data_send_work_q_thread_stack, CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE);
+static TaskHandle_t data_send_task_handle;
+static StackType_t data_send_task_stack[CONFIG_BT_PBAP_PSE_DATA_SEND_TASK_STACK_SIZE];
+static StaticTask_t data_send_task_tcb;
 
 #define LOCAL_SRM_ENABLED  BIT(0)
 #define PEER_SRM_ENABLED   BIT(1)
@@ -58,7 +59,6 @@ struct rsp_data_operation
     uint16_t sent_length;
     uint16_t remain_length;
     operation_func func;
-    struct k_work send_data_work;
 };
 
 struct app_pbap_pse
@@ -319,40 +319,44 @@ static int send_body_chunk(struct app_pbap_pse *app_pse,
     return 0;
 }
 
-static void send_data_work_handle(struct k_work *work)
+static void data_send_task(void *pvParameters)
 {
+    struct app_pbap_pse *app_pse = (struct app_pbap_pse *)pvParameters;
     int err;
-    struct rsp_data_operation *opt = CONTAINER_OF(work, struct rsp_data_operation, send_data_work);
-    struct app_pbap_pse *app_pse   = CONTAINER_OF(opt, struct app_pbap_pse, operation);
 
-    while (app_pse->operation.remain_length > 0)
+    while (true)
     {
-        if (atomic_get(&abort_req) == 1)
-        {
-            break;
-        }
+        (void)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        if (wait_to_send_cmd(app_pse))
+        while (app_pse->operation.remain_length > 0)
         {
-            break;
-        }
-
-        err = pbap_alloc_tx_buf(app_pse);
-        if (err != 0)
-        {
-            return;
-        }
-
-        err = send_body_chunk(app_pse, &app_pse->operation.sent_length, &app_pse->operation.remain_length,
-                              PSE_SEND_DATA_LENGTH_MAX, app_pse->operation.func, app_pse->operation.data);
-        if (err != 0)
-        {
-            if (app_pse->tx_buf != NULL)
+            if (atomic_get(&abort_req) == 1)
             {
-                net_buf_unref(app_pse->tx_buf);
-                app_pse->tx_buf = NULL;
+                break;
             }
-            return;
+
+            if (wait_to_send_cmd(app_pse))
+            {
+                break;
+            }
+
+            err = pbap_alloc_tx_buf(app_pse);
+            if (err != 0)
+            {
+                break;
+            }
+
+            err = send_body_chunk(app_pse, &app_pse->operation.sent_length, &app_pse->operation.remain_length,
+                                  PSE_SEND_DATA_LENGTH_MAX, app_pse->operation.func, app_pse->operation.data);
+            if (err != 0)
+            {
+                if (app_pse->tx_buf != NULL)
+                {
+                    net_buf_unref(app_pse->tx_buf);
+                    app_pse->tx_buf = NULL;
+                }
+                break;
+            }
         }
     }
 }
@@ -420,7 +424,7 @@ static void pbap_pse_pull_rsp(struct bt_pbap_pse *pbap_pse, struct net_buf *buf,
     {
         app_pse->operation.func = func;
         app_pse->operation.data = data;
-        k_work_submit_to_queue(&data_send_work_q, &app_pse->operation.send_data_work);
+        xTaskNotifyGive(data_send_task_handle);
     }
     return;
 
@@ -491,7 +495,6 @@ static void pbap_pse_connected(struct bt_pbap_pse *pbap_pse, uint8_t version, ui
     app_pse->operation.data          = NULL;
     app_pse->srm_srmp                = 0;
     app_pse->first_recv              = true;
-    k_work_init(&app_pse->operation.send_data_work, send_data_work_handle);
 }
 
 static void pbap_pse_disconnected(struct bt_pbap_pse *pbap_pse, struct net_buf *buf)
@@ -693,10 +696,15 @@ static void bt_ready(int err)
 
     PRINTF("BR/EDR set connectable and discoverable done\n");
 
-    k_work_queue_init(&data_send_work_q);
-    k_work_queue_start(&data_send_work_q, data_send_work_q_thread_stack, CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE,
-                       K_PRIO_COOP(CONFIG_SYSTEM_WORKQUEUE_PRIORITY - 2), NULL);
-    k_thread_name_set(&data_send_work_q.thread, "data send");
+    data_send_task_handle = xTaskCreateStatic(data_send_task, "data send",
+                                              CONFIG_BT_PBAP_PSE_DATA_SEND_TASK_STACK_SIZE / sizeof(StackType_t),
+                                              &app_pse, tskIDLE_PRIORITY + 1,
+                                              data_send_task_stack, &data_send_task_tcb);
+    if (data_send_task_handle == NULL)
+    {
+        PRINTF("Failed to create data send task\n");
+        return;
+    }
 }
 
 void pbap_pse_task(void *pvParameters)
