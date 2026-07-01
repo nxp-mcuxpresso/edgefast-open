@@ -122,6 +122,13 @@ edgefast_open_shell:
     - -iar@release
     - -mdk@debug
     - -mdk@release
+    frdmimxrt700@cm33_core0:
+    - -armgcc@debug
+    - -armgcc@release
+    - -iar@debug
+    - -iar@release
+    - -mdk@debug
+    - -mdk@release
 
 edgefast_open_shell@classic:
   section-type: custom_application
@@ -152,6 +159,20 @@ edgefast_open_shell@classic:
     - -mdk@release
     - -mdk@sdram_debug
     - -mdk@sdram_release
+    mimxrt700evk@cm33_core0:
+    - -armgcc@debug
+    - -armgcc@release
+    - -iar@debug
+    - -iar@release
+    - -mdk@debug
+    - -mdk@release
+    frdmimxrt700@cm33_core0:
+    - -armgcc@debug
+    - -armgcc@release
+    - -iar@debug
+    - -iar@release
+    - -mdk@debug
+    - -mdk@release
 
 edgefast_open_shell@multiple_conns:
   section-type: custom_application
@@ -182,3 +203,17 @@ edgefast_open_shell@multiple_conns:
     - -mdk@release
     - -mdk@sdram_debug
     - -mdk@sdram_release
+    mimxrt700evk@cm33_core0:
+    - -armgcc@debug
+    - -armgcc@release
+    - -iar@debug
+    - -iar@release
+    - -mdk@debug
+    - -mdk@release
+    frdmimxrt700@cm33_core0:
+    - -armgcc@debug
+    - -armgcc@release
+    - -iar@debug
+    - -iar@release
+    - -mdk@debug
+    - -mdk@release

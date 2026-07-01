@@ -109,6 +109,13 @@ a2dp_source:
     - -iar@release
     - -mdk@debug
     - -mdk@release
+    frdmimxrt700@cm33_core0:
+    - -armgcc@debug
+    - -armgcc@release
+    - -iar@debug
+    - -iar@release
+    - -mdk@debug
+    - -mdk@release
 a2dp_source@dual:
   section-type: custom_application
   contents:
@@ -129,51 +136,3 @@ a2dp_source@dual:
       - -DCONFIG_BT_A2DP_SOURCE_DATA_BUF_COUNT=10
       - -DCONFIG_BT_BUF_ACL_TX_COUNT=10
       - -DCONFIG_BT_BUF_EVT_RX_COUNT=20
-  boards:
-    evkbmimxrt1170@cm7:
-      - -armgcc@debug
-      - -armgcc@release
-      - -armgcc@sdram_debug
-      - -armgcc@sdram_release
-      - -iar@debug
-      - -iar@release
-      - -iar@sdram_debug
-      - -iar@sdram_release
-      - -mdk@debug
-      - -mdk@release
-      - -mdk@sdram_debug
-      - -mdk@sdram_release
-a2dp_source@dual:
-  section-type: custom_application
-  contents:
-    meta_path: middleware/edgefast_open/examples/a2dp_source
-    project-root-path: boards/${board}/edgefast_open_examples/a2dp_source/${multicore_foldername}
-    document:
-      name: a2dp_source${core_id_suffix_name}
-      category: edgefast_open_examples/
-      brief: The Edgefast Bluetooth audio source with simplified application.
-      example_readme:
-      - middleware/edgefast_open/examples/a2dp_source/readme.md
-      - middleware/edgefast_open/examples/_boards/${board}/a2dp_source/example_board_readme.md
-      - ${board_root}/${board}/examples_shared_readme.md
-      extra_build_args:
-      - -DCONFIG_BT_A2DP_SOURCE_DUAL=y
-      - -DCONFIG_BT_MAX_CONN=2
-      - -DCONFIG_BT_MAX_PAIRED=2
-      - -DCONFIG_BT_A2DP_SOURCE_DATA_BUF_COUNT=10
-      - -DCONFIG_BT_BUF_ACL_TX_COUNT=10
-      - -DCONFIG_BT_BUF_EVT_RX_COUNT=20
-  boards:
-    evkbmimxrt1170@cm7:
-      - -armgcc@debug
-      - -armgcc@release
-      - -armgcc@sdram_debug
-      - -armgcc@sdram_release
-      - -iar@debug
-      - -iar@release
-      - -iar@sdram_debug
-      - -iar@sdram_release
-      - -mdk@debug
-      - -mdk@release
-      - -mdk@sdram_debug
-      - -mdk@sdram_release

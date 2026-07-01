@@ -1,0 +1,2 @@
+*(EXCLUDE_FILE(*fsl_xspi.o *mflash_drv.o *attdet.o *bits.o *bwdet.o *energy.o *lc3.o *ltpf.o *mdct.o *plc.o *sns.o *spec.o *tables.o *tns.o) .rodata*)
+*(EXCLUDE_FILE(*fsl_xspi.o *mflash_drv.o *attdet.o *bits.o *bwdet.o *energy.o *lc3.o *ltpf.o *mdct.o *plc.o *sns.o *spec.o *tables.o *tns.o) .rodata)

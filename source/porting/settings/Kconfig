@@ -32,8 +32,9 @@ choice SETTINGS_LITTLEFS_FLASH
                  MCUX_HW_BOARD_evkcmimxrt1060 || MCUX_HW_BOARD_evkmimxrt1040 || \
                  MCUX_HW_BOARD_evkmimxrt1180 || MCUX_HW_BOARD_mimxrt685audevk || \
                  MCUX_HW_BOARD_rdrw612bga || MCUX_HW_BOARD_frdmrw612 || \
-				 MCUX_HW_BOARD_mimxrt700evk || MCUX_HW_BOARD_evkbmimxrt1170 || \
-                 MCUX_HW_BOARD_evkmimxrt595 || MCUX_HW_BOARD_evkmimxrt685
+                 MCUX_HW_BOARD_mimxrt700evk || MCUX_HW_BOARD_evkbmimxrt1170 || \
+                 MCUX_HW_BOARD_evkmimxrt595 || MCUX_HW_BOARD_evkmimxrt685 || \
+                 MCUX_HW_BOARD_frdmimxrt700
     default SETTINGS_LITTLEFS_FLASH_MFLASH_ON_CHIP_FMU if MCUX_HW_BOARD_mcxn5xxevk || \
                  MCUX_HW_BOARD_mcxn9xxevk || MCUX_HW_BOARD_frdmmcxn947
     help
