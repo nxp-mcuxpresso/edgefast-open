@@ -353,7 +353,7 @@ void peripheral_tip_task(void *pvParameters)
 		PRINTF("failed to create adv_timeout_sync\n");
 	}
 
-	app_queue = xSemaphoreCreateCountingStatic(10, 0, &app_queue_buffer);
+	app_queue = xSemaphoreCreateCountingStatic(10, 0, &app_queue_buff);
 	if (NULL == app_queue)
 	{
 		PRINTF("failed to create app_queue\n");
