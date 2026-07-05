@@ -9,6 +9,7 @@ mcux_add_source(
             middleware/edgefast_open/examples/_boards/${board}/map_mce/pin_mux.c
             middleware/edgefast_open/examples/_boards/${board}/map_mce/pin_mux.h
             middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_config_client.h
+    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
             components/wifi_bt_module/incl/wifi_bt_module_config.h
 )
 

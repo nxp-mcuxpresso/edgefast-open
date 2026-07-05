@@ -38,19 +38,6 @@ handsfree:
     - -mdk@release
     - -mdk@sdram_debug
     - -mdk@sdram_release
-    evkmimxrt1040:
-    - -armgcc@debug
-    - -armgcc@release
-    - -armgcc@sdram_debug
-    - -armgcc@sdram_release
-    - -iar@debug
-    - -iar@release
-    - -iar@sdram_debug
-    - -iar@sdram_release
-    - -mdk@debug
-    - -mdk@release
-    - -mdk@sdram_debug
-    - -mdk@sdram_release
     evkmimxrt1180@cm33:
     - -armgcc@debug
     - -armgcc@hyperram_debug
