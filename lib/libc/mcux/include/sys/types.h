@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NXP
+ * Copyright 2026 NXP
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,6 @@
 typedef signed long ssize_t;
 #define _SSIZE_T_DECLARED
 
-/* ssize_t is signed long here, so SSIZE_MAX should match LONG_MAX.
- * This macro is used by some libc/posix consumers and lwIP shims.
- */
 #ifndef SSIZE_MAX
 #define SSIZE_MAX LONG_MAX
 #endif

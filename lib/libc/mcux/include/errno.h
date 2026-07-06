@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2025 IAR Systems AB
+ * Copyright 2026 NXP
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -9,27 +10,15 @@
  * @brief Defines additional error numbers based on POSIX
  */
 
-#ifndef EDGEFAST_OPEN_LIB_LIBC_MCUX_INCLUDE_ERRNO_H_
-#define EDGEFAST_OPEN_LIB_LIBC_MCUX_INCLUDE_ERRNO_H_
+#ifndef ZEPHYR_LIB_LIBC_IAR_INCLUDE_ERRNO_H_
+#define ZEPHYR_LIB_LIBC_IAR_INCLUDE_ERRNO_H_
 
-/*
- * MCUX toolchain errno glue.
- *
- * Provide a working `errno` lvalue backed by __aeabi_errno_addr() and
- * expose common POSIX-style error numbers for C.
- */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
-#define _ARMABI_PURE __attribute__((__nothrow__)) __attribute__((__const__))
-#else
-#define _ARMABI_PURE
-#endif
-
-extern _ARMABI_PURE volatile int *__aeabi_errno_addr(void);
+extern __attribute__((__nothrow__)) volatile int *__aeabi_errno_addr(void);
 
 #ifdef __cplusplus
 } /* extern "C" */
@@ -119,4 +108,4 @@ extern _ARMABI_PURE volatile int *__aeabi_errno_addr(void);
 #define EWOULDBLOCK  EAGAIN /**< Operation would block */
 #endif /* !__cplusplus */
 
-#endif /* EDGEFAST_OPEN_LIB_LIBC_MCUX_INCLUDE_ERRNO_H_ */
+#endif /* ZEPHYR_LIB_LIBC_IAR_INCLUDE_ERRNO_H_ */
