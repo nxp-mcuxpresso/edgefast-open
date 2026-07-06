@@ -1412,6 +1412,12 @@ static int bt_nxp_set_calibration_data_annex100(void)
 int bt_hci_transport_setup(const struct device *dev)
 {
 	int ret = 0;
+
+	if (!IS_ENABLED(CONFIG_BT_H4_NXP_CTLR)) {
+		/* H4 NXP controller not enabled */
+		return 0;
+	}
+
 	if (dev != uart_dev) {
 		return -EINVAL;
 	}
@@ -1458,6 +1464,11 @@ int bt_h4_vnd_setup(const struct device *dev, const struct bt_hci_setup_params *
 	bool flowcontrol_of_hci;
 
 	ARG_UNUSED(params);
+
+	if (!IS_ENABLED(CONFIG_BT_H4_NXP_CTLR)) {
+		/* H4 NXP controller not enabled */
+		return 0;
+	}
 
 	if (dev != uart_dev) {
 		return -EINVAL;
