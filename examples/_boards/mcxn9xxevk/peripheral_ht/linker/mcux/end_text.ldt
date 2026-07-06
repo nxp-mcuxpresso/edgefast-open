@@ -8,7 +8,7 @@
     __init_POST_KERNEL_start = .; KEEP(*(SORT(.z_init_POST_KERNEL_P_?_*))); KEEP(*(SORT(.z_init_POST_KERNEL_P_??_*))); KEEP(*(SORT(.z_init_POST_KERNEL_P_???_*)));
     __init_APPLICATION_start = .; KEEP(*(SORT(.z_init_APPLICATION_P_?_*))); KEEP(*(SORT(.z_init_APPLICATION_P_??_*))); KEEP(*(SORT(.z_init_APPLICATION_P_???_*)));
     __init_end = .;
-  } > BOARD_FLASH
+  } > PROGRAM_FLASH
 
   ._bt_settings_area :
   {
@@ -44,7 +44,7 @@
     KEEP(*(SORT(._bt_sco_conn_cb*)))
     _bt_sco_conn_cb_list_end = .;
     . = ALIGN(4);
-  } > BOARD_FLASH
+  } > PROGRAM_FLASH
 
   ._bt_sco_hci_cb :
   {
@@ -53,7 +53,7 @@
     KEEP(*(SORT(._bt_sco_hci_cb*)))
     _bt_sco_hci_cb_list_end = .;
     . = ALIGN(4);
-  } > BOARD_FLASH
+  } > PROGRAM_FLASH
 
   ._bt_ias_cb :
   {
