@@ -51,7 +51,7 @@ MEMORY
   m_interrupts          (RX)  : ORIGIN = 0x60002000, LENGTH = 0x00000400
   m_text                (RX)  : ORIGIN = m_text_start, LENGTH = m_text_size
   m_qacode              (RX)  : ORIGIN = 0x00000000, LENGTH = 0x00020000
-  m_data                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00040000
+  m_data                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
   m_data2               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x000C0000
 }
 

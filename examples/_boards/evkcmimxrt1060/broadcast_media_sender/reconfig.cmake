@@ -3,32 +3,12 @@ mcux_add_source(
   SOURCES
     components/wifi_bt_module/incl/wifi_bt_module_config.h
     ${board_root}/${board}/FreeRTOSConfigBoard.h
-    middleware/edgefast_open/examples/_boards/${board}/broadcast_media_sender/board.c
-    middleware/edgefast_open/examples/_boards/${board}/broadcast_media_sender/board.h
     middleware/edgefast_open/examples/_boards/${board}/broadcast_media_sender/hardware_init.c
     middleware/edgefast_open/examples/_boards/${board}/broadcast_media_sender/pin_mux.c
     middleware/edgefast_open/examples/_boards/${board}/broadcast_media_sender/pin_mux.h
     middleware/edgefast_open/examples/_boards/${board}/configs/freertos/FreeRTOSConfig.h
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_config_client.h
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
-)
-
-mcux_add_source(
-  BASE_PATH ${SdkRootDirPath}
-  SOURCES middleware/edgefast_open/examples/_boards/${board}/broadcast_media_sender/startup/iar/startup_MIMXRT1062.s
-  TOOLCHAINS iar
-)
-
-mcux_add_source(
-  BASE_PATH ${SdkRootDirPath}
-  SOURCES middleware/edgefast_open/examples/_boards/${board}/broadcast_media_sender/startup/gcc/startup_MIMXRT1062.S
-  TOOLCHAINS armgcc
-)
-
-mcux_add_source(
-  BASE_PATH ${SdkRootDirPath}
-  SOURCES middleware/edgefast_open/examples/_boards/${board}/broadcast_media_sender/startup/arm/startup_MIMXRT1062.S
-  TOOLCHAINS mdk
 )
 mcux_add_include(
   BASE_PATH ${SdkRootDirPath}
