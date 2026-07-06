@@ -11,7 +11,8 @@
 #define OSA_USED                    1
 #define PCM_MODE_CONFIG_TX_CLK_SYNC 1
 
-#if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW612_BOARD_MURATA_2EL_M2))
+#if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || \
+     defined(BT_NW61X_BOARD_NXP_RD_USD))
 #include "wifi_bt_module_config.h"
 #include "wifi_config.h"
 #else

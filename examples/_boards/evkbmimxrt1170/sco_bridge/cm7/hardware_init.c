@@ -29,7 +29,8 @@
 #else
 #define USB_HOST_INTERRUPT_PRIORITY (3U)
 #endif
-#if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW612_BOARD_MURATA_2EL_M2))
+#if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || \
+     defined(BT_NW61X_BOARD_NXP_RD_USD))
 #define M2_WIFI_RESET_GPIO     GPIO9
 #define M2_WIFI_RESET_GPIO_PIN 30U
 #endif
@@ -315,7 +316,8 @@ void BOARD_InitHardware(void)
 #endif
 }
 
-#if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW612_BOARD_MURATA_2EL_M2))
+#if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || \
+     defined(BT_NW61X_BOARD_NXP_RD_USD))
 int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
 {
     if (NULL == config)
