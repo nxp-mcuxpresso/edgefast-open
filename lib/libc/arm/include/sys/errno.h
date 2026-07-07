@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2025 IAR Systems AB
+ * Copyright 2026 NXP
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -11,41 +12,6 @@
 
 #ifndef ZEPHYR_LIB_LIBC_IAR_INCLUDE_ERRNO_H_
 #define ZEPHYR_LIB_LIBC_IAR_INCLUDE_ERRNO_H_
-
-// #include_next <errno.h>
-
-#define _ARMABI_PURE __attribute__((__nothrow__)) __attribute__((__const__))
-
-  #ifndef __ERRNO_DECLS
-  #define __ERRNO_DECLS
-
-    #undef __CLIBNS
-
-    #ifdef __cplusplus
-        namespace std {
-        #define __CLIBNS std::
-        extern "C" {
-    #else
-      #define __CLIBNS
-    #endif  /* __cplusplus */
-
-
-extern _ARMABI_PURE volatile int *__aeabi_errno_addr(void);
-
-
-    #ifdef __cplusplus
-         }  /* extern "C" */
-      }  /* namespace std */
-    #endif /* __cplusplus */
-  #endif /* __ERRNO_DECLS */
-
-  #ifdef __cplusplus
-    #ifndef __ERRNO_NO_EXPORTS
-      using ::std::__aeabi_errno_addr;
-    #endif /* __ERRNO_NO_EXPORTS */
-  #endif /* __cplusplus */
-
-#define errno (*__CLIBNS __aeabi_errno_addr())
 
 #ifndef __cplusplus
 #define EPERM            1  /**< Not owner */
@@ -128,4 +94,7 @@ extern _ARMABI_PURE volatile int *__aeabi_errno_addr(void);
 #define ECANCELED       140 /**< Operation canceled */
 #define EWOULDBLOCK  EAGAIN /**< Operation would block */
 #endif /* __cplusplus */
+
+#include_next <errno.h>
+
 #endif /* ZEPHYR_LIB_LIBC_IAR_INCLUDE_ERRNO_H_ */
