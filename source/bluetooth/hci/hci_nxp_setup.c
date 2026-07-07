@@ -1158,7 +1158,7 @@ static int bt_nxp_ctlr_init(void)
 	uart_dev_data.secondary_flowcontrol =
 		(bool)DT_PROP_OR(DT_DRV_INST(0), fw_download_secondary_flowcontrol, false);
 
-	if (!IS_ENABLED(CONFIG_BT_IND_DNLD)) {
+	if (IS_ENABLED(CONFIG_BT_BYPASS_DOWNLOAD)) {
 		(void)fw_upload_uart_reconfig(speed, flowcontrol_of_hci);
 		return 0;
 	}
