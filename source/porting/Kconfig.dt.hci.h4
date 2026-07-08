@@ -14,6 +14,13 @@ config DT_HAS_NXP_BT_HCI_UART_ENABLED
 	help
 	  No prefix in generated macro
 
+config DT_COMPAT_HAS_OKAY_zephyr_bt_hci_uart
+	bool
+	default y
+	depends on DT_HAS_ZEPHYR_BT_HCI_UART_ENABLED
+	help
+	  No prefix in generated macro
+
 if DT_HAS_NXP_BT_HCI_UART_ENABLED
 
 config DT_N_INST_0_hci_uart_P_instance
