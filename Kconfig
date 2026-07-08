@@ -53,6 +53,7 @@ menuconfig MCUX_COMPONENT_middleware.edgefast_open
 if MCUX_COMPONENT_middleware.edgefast_open
 
 # Load Kconfig.defconfig firstly
+rsource "Kconfig.constants"
 rsource "Kconfig.defconfig"
 
 rsource "Kconfig.ecosystem"
