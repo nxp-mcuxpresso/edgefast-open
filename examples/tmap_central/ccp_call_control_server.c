@@ -50,7 +50,7 @@ int ccp_call_control_server_init(void)
 		.gtbs = true,
 		.authorization_required = false,
 		.technology = BT_BEARER_TECH_3G,
-		.supported_features = BT_TBS_FEATURE_ALL,
+		.optional_opcodes = BT_TBS_OPTIONAL_OPCODE_ALL,
 	};
 
 	err = bt_tbs_register_bearer(&gtbs_param);
