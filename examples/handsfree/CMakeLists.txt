@@ -29,10 +29,24 @@ mcux_add_source(
     middleware/edgefast_open/examples/handsfree/app_shell.c
     middleware/edgefast_open/examples/handsfree/app_shell.h
     middleware/edgefast_open/examples/handsfree/main.c
-    middleware/edgefast_open/examples/handsfree/ringtone.h
-    middleware/edgefast_open/examples/handsfree/sco_audio_pl_ext.c
-	middleware/edgefast_open/examples/handsfree/sco_audio_pl_ext.h
 )
+
+if(CONFIG_HANDSFREE_BT_PCM_TO_CODEC_DIRECT)
+  mcux_add_source(
+    BASE_PATH ${SdkRootDirPath}
+    SOURCES
+      middleware/edgefast_open/examples/_boards/${board}/handsfree/sco_audio_pl_ext.c
+      middleware/edgefast_open/examples/handsfree/sco_audio_pl_ext.h
+  )
+else()
+  mcux_add_source(
+    BASE_PATH ${SdkRootDirPath}
+    SOURCES
+      middleware/edgefast_open/examples/handsfree/ringtone.h
+      middleware/edgefast_open/examples/handsfree/sco_audio_pl_ext.c
+      middleware/edgefast_open/examples/handsfree/sco_audio_pl_ext.h
+  )
+endif()
 
 mcux_add_include(
   BASE_PATH ${SdkRootDirPath}

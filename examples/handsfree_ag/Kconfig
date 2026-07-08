@@ -1,2 +1,11 @@
 source "middleware/edgefast_open/Kconfig"
 source "Kconfig.mcuxpresso"
+
+config HANDSFREE_BT_PCM_TO_CODEC_DIRECT
+	bool "Enable direct PCM routing from BT module to codec"
+	default y if MCUX_HW_BOARD_frdmimxrt1152
+	default n
+	help
+	  Enable direct hardware PCM routing from Bluetooth module
+	  to codec, bypassing the application layer processing.
+	  This reduces latency and CPU overhead for SCO audio data.

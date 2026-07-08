@@ -1,0 +1,312 @@
+/*
+ * Copyright 2022 NXP
+ * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/*${header:start}*/
+#include "clock_config.h"
+#include "board.h"
+#include "pin_mux.h"
+#include "fsl_dmamux.h"
+#include "fsl_edma.h"
+#include "fsl_adapter_audio.h"
+#include "fsl_codec_common.h"
+#include "fsl_wm8962.h"
+#include "fsl_codec_adapter.h"
+#include "fsl_debug_console.h"
+#include "fsl_adapter_uart.h"
+#include "fsl_lpuart_edma.h"
+#include "fsl_dmamux.h"
+#if (((defined(CONFIG_BT_SMP)) && (CONFIG_BT_SMP)))
+#include "psa/crypto.h"
+#endif /* CONFIG_BT_SMP */
+#include <zephyr/drivers/bluetooth.h>
+/*${header:end}*/
+
+/*${macro:start}*/
+
+/*${macro:end}*/
+
+/*${variable:start}*/
+
+/* Select Audio/Video PLL (393.24 MHz) as sai1 clock source */
+#define DEMO_SAI1_CLOCK_SOURCE_SELECT (4U)
+/* Clock divider for sai1 clock source */
+#define DEMO_SAI1_CLOCK_SOURCE_DIVIDER (32U)
+/* Get frequency of sai1 clock */
+#define DEMO_SAI_CLK_FREQ (CLOCK_GetFreq(kCLOCK_AudioPll) / DEMO_SAI1_CLOCK_SOURCE_DIVIDER)
+
+#define DEMO_AUDIO_INSTANCE (1U)
+
+/* DMA */
+#define EXAMPLE_DMAMUX_INSTANCE (0U)
+#define EXAMPLE_DMA_INSTANCE    (0U)
+#define EXAMPLE_TX_CHANNEL      (0U)
+#define EXAMPLE_SAI_TX_SOURCE   (kDmaRequestMuxSai1Tx)
+
+/* demo audio data channel */
+#define DEMO_AUDIO_DATA_CHANNEL (kHAL_AudioStereo)
+/* demo audio bit width */
+#define DEMO_AUDIO_BIT_WIDTH (kHAL_AudioWordWidth16bits)
+/* demo audio sample frequency */
+#define DEMO_AUDIO_SAMPLING_RATE (kHAL_AudioSampleRate16KHz)
+
+wm8962_config_t wm8962Config = {
+    .i2cConfig = {.codecI2CInstance = BOARD_CODEC_I2C_INSTANCE, .codecI2CSourceClock = BOARD_CODEC_I2C_CLOCK_FREQ},
+    .route =
+        {
+            .enableLoopBack            = false,
+            .leftInputPGASource        = kWM8962_InputPGASourceInput1,
+            .leftInputMixerSource      = kWM8962_InputMixerSourceInputPGA,
+            .rightInputPGASource       = kWM8962_InputPGASourceInput3,
+            .rightInputMixerSource     = kWM8962_InputMixerSourceInputPGA,
+            .leftHeadphoneMixerSource  = kWM8962_OutputMixerDisabled,
+            .leftHeadphonePGASource    = kWM8962_OutputPGASourceDAC,
+            .rightHeadphoneMixerSource = kWM8962_OutputMixerDisabled,
+            .rightHeadphonePGASource   = kWM8962_OutputPGASourceDAC,
+        },
+    .slaveAddress = WM8962_I2C_ADDR,
+    .bus          = kWM8962_BusI2S,
+    .format       = {.mclk_HZ    = 12288000U,
+                     .sampleRate = kWM8962_AudioSampleRate16KHz,
+                     .bitWidth   = kWM8962_AudioBitWidth16bit},
+    .masterSlave  = false,
+};
+codec_config_t boardCodecConfig = {.codecDevType = kCODEC_WM8962, .codecDevConfig = &wm8962Config};
+
+/*
+ * AUDIO PLL setting: Frequency = Fref * (DIV_SELECT + NUM / DENOM) / (2^POST)
+ *                              = 24 * (30 + 1056/10000)  / 2
+ *                              = 361.2672MHZ
+ */
+/*setting for 44.1Khz*/
+const clock_audio_pll_config_t audioPllConfig = {
+    .loopDivider = 30,    /* PLL loop divider. Valid range for DIV_SELECT divider value: 27~54. */
+    .postDivider = 1,     /* Divider after the PLL, 0x0=divided by 1, 0x1=divided by 2, 0x2=divided by 4,
+                             0x3=divided by 8, 0x4=divided by 16, 0x5=divided by 32.*/
+    .numerator   = 1056,  /* 30 bit numerator of fractional loop divider. */
+    .denominator = 10000, /* 30 bit denominator of fractional loop divider */
+};
+
+/*
+ * AUDIO PLL setting: Frequency = Fref * (DIV_SELECT + NUM / DENOM) / (2^POST)
+ *                              = 24 * (32 + 7680/10000) / 2
+ *                              = 393.216 MHZ
+ */
+const clock_audio_pll_config_t audioPllConfig1 = {
+    .loopDivider = 32,    /* PLL loop divider. Valid range for DIV_SELECT divider value: 27~54. */
+    .postDivider = 1,     /* Divider after the PLL, should only be 0, 1, 2, 3, 4, 5 */
+    .numerator   = 7680,  /* 30 bit numerator of fractional loop divider. */
+    .denominator = 10000, /* 30 bit denominator of fractional loop divider */
+};
+
+hal_audio_dma_mux_config_t audioTxDmaMuxConfig = {
+    .dmaMuxConfig.dmaMuxInstance   = EXAMPLE_DMAMUX_INSTANCE,
+    .dmaMuxConfig.dmaRequestSource = EXAMPLE_SAI_TX_SOURCE,
+};
+
+hal_audio_dma_config_t audioTxDmaConfig = {
+    .instance             = EXAMPLE_DMA_INSTANCE,
+    .channel              = EXAMPLE_TX_CHANNEL,
+    .enablePreemption     = false,
+    .enablePreemptAbility = false,
+    .priority             = kHAL_AudioDmaChannelPriorityDefault,
+    .dmaMuxConfig         = (void *)&audioTxDmaMuxConfig,
+    .dmaChannelMuxConfig  = NULL,
+};
+
+hal_audio_ip_config_t audioTxIpConfig = {
+    .sai.lineMask = 1U << 0U,
+    .sai.syncMode = kHAL_AudioSaiModeAsync,
+};
+
+hal_audio_config_t audioTxConfig = {
+    .dmaConfig     = &audioTxDmaConfig,
+    .ipConfig      = (void *)&audioTxIpConfig,
+    .srcClock_Hz   = 12288000U,
+    .sampleRate_Hz = (uint32_t)DEMO_AUDIO_SAMPLING_RATE,
+    //    .fifoWatermark     = FSL_FEATURE_SAI_FIFO_COUNTn(DEMO_SAI) / 2U,
+    /* Here we use this config to use 4bytes align, otherwise will trigger 32bytes align assert. */
+    .fifoWatermark     = FSL_FEATURE_SAI_FIFO_COUNTn(DEMO_SAI) - 2,
+    .masterSlave       = kHAL_AudioMaster,
+    .bclkPolarity      = kHAL_AudioSampleOnRisingEdge,
+    .frameSyncWidth    = kHAL_AudioFrameSyncWidthHalfFrame,
+    .frameSyncPolarity = kHAL_AudioBeginAtRisingEdge,
+    .lineChannels      = DEMO_AUDIO_DATA_CHANNEL,
+    .dataFormat        = kHAL_AudioDataFormatI2sClassic,
+    .bitWidth          = (uint8_t)DEMO_AUDIO_BIT_WIDTH,
+    .instance          = DEMO_AUDIO_INSTANCE,
+};
+/*${variable:end}*/
+
+/*${function:start}*/
+
+uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
+{
+    CLOCK_DeinitAudioPll();
+
+    if (0U == sampleRate)
+    {
+        /* Disable MCLK output */
+        IOMUXC_GPR->GPR0 &= (~IOMUXC_GPR_GPR0_SAI1_MCLK_DIR_MASK);
+    }
+    else
+    {
+        if (44100 == sampleRate)
+        {
+            CLOCK_InitAudioPll(&audioPllConfig);
+        }
+        else if (0U == sampleRate % 8000)
+        {
+            CLOCK_InitAudioPll(&audioPllConfig1);
+        }
+        else
+        {
+            /* no action */
+        }
+
+        /*Clock setting for LPI2C*/
+        CLOCK_SetRootClockMux(kCLOCK_Root_Lpi2c5, 1);
+
+        /*Clock setting for SAI1*/
+        CLOCK_SetRootClockMux(kCLOCK_Root_Sai1, DEMO_SAI1_CLOCK_SOURCE_SELECT);
+        CLOCK_SetRootClockDiv(kCLOCK_Root_Sai1, DEMO_SAI1_CLOCK_SOURCE_DIVIDER);
+
+        /* Enable MCLK output */
+        IOMUXC_GPR->GPR0 |= IOMUXC_GPR_GPR0_SAI1_MCLK_DIR_MASK;
+    }
+
+    return DEMO_SAI_CLK_FREQ;
+}
+
+#if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
+void bt_psa_crypto_init(void)
+{
+    psa_status_t status;
+
+    status = psa_crypto_init();
+    if (status != PSA_SUCCESS)
+    {
+        PRINTF("Failed to initialize PSA crypto");
+    }
+    assert(status == PSA_SUCCESS);
+}
+#endif /* CONFIG_BT_SMP */
+
+void BOARD_BT_Reset(void)
+{
+    pcal6524_handle_t *handle = BOARD_GetPCAL6524Handle();
+
+    /* Configure WL_RST (P0_4), BT_RST (P0_5), PDn (P0_6) as outputs */
+    status_t status = PCAL6524_SetDirection(handle,
+                                            (1UL << BOARD_PCAL6524_WL_RST) | (1UL << BOARD_PCAL6524_BT_RST) |
+                                                (1UL << BOARD_PCAL6524_PDn),
+                                            kPCAL6524_Output);
+
+    if (status != kStatus_Success)
+    {
+        (void)PRINTF("PCAL6524_SetDirection failed\r\n");
+        return;
+    }
+
+    /* Assert WL_RST# (set LOW = hold WiFi in reset) */
+    status = PCAL6524_ClearPins(handle, (1UL << BOARD_PCAL6524_WL_RST));
+    if (status != kStatus_Success)
+    {
+        (void)PRINTF("PCAL6524_ClearPins failed for WL_RST\r\n");
+        return;
+    }
+
+    /* Assert BT_RST# (set LOW = hold BT in reset) */
+    status = PCAL6524_ClearPins(handle, (1UL << BOARD_PCAL6524_BT_RST));
+    if (status != kStatus_Success)
+    {
+        (void)PRINTF("PCAL6524_ClearPins failed for BT_RST\r\n");
+        return;
+    }
+
+    /* Assert PDn (set LOW = power down module) */
+    status = PCAL6524_ClearPins(handle, (1UL << BOARD_PCAL6524_PDn));
+    if (status != kStatus_Success)
+    {
+        (void)PRINTF("PCAL6524_ClearPins failed for PDn\r\n");
+        return;
+    }
+
+    SDK_DelayAtLeastUs(100000, CLOCK_GetFreq(kCLOCK_CpuClk));
+
+    /* Power up and release resets */
+    status = PCAL6524_SetPins(handle, (1UL << BOARD_PCAL6524_PDn));
+    if (status != kStatus_Success)
+    {
+        (void)PRINTF("PCAL6524_SetPins failed for Pdn\r\n");
+        return;
+    }
+
+    SDK_DelayAtLeastUs(100000, CLOCK_GetFreq(kCLOCK_CpuClk));
+
+    /* De-assert WL_RST# (set HIGH = release WiFi from reset) */
+    status = PCAL6524_SetPins(handle, (1UL << BOARD_PCAL6524_WL_RST));
+    if (status != kStatus_Success)
+    {
+        (void)PRINTF("PCAL6524_SetPins failed for WL_RST\r\n");
+        return;
+    }
+
+    SDK_DelayAtLeastUs(100000, CLOCK_GetFreq(kCLOCK_CpuClk));
+
+    /* De-assert BT_RST# (set HIGH = release BT from reset) */
+    status = PCAL6524_SetPins(handle, (1UL << BOARD_PCAL6524_BT_RST));
+    if (status != kStatus_Success)
+    {
+        (void)PRINTF("PCAL6524_SetPins failed for BT_RST\r\n");
+        return;
+    }
+}
+
+void BOARD_InitHardware(void)
+{
+#if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
+    DMAMUX_Type *dmaMuxBases[] = DMAMUX_BASE_PTRS;
+    edma_config_t config;
+    DMA_Type *dmaBases[] = DMA_BASE_PTRS;
+#endif
+
+    BOARD_ConfigMPU();
+    BOARD_InitBootPins();
+    BOARD_InitBootClocks();
+    BOARD_InitDebugConsole();
+#if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
+    DMAMUX_Init(dmaMuxBases[EXAMPLE_DMAMUX_INSTANCE]);
+    EDMA_GetDefaultConfig(&config);
+    EDMA_Init(dmaBases[EXAMPLE_DMA_INSTANCE], &config);
+#endif
+
+    BOARD_BT_Reset();
+}
+
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
+{
+    if (NULL == config)
+    {
+        return -1;
+    }
+    config->clockSrc        = CLOCK_GetRootClockFreq(kCLOCK_Root_Lpuart8);
+    config->defaultBaudrate = 115200u;
+    config->runningBaudrate = BOARD_BT_UART_BAUDRATE;
+    config->instance        = 8;
+#if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
+    config->dma_instance     = 0U;
+    config->rx_channel       = 4U;
+    config->tx_channel       = 5U;
+    config->dma_mux_instance = 0U;
+    config->rx_request       = kDmaRequestMuxLPUART8Rx;
+    config->tx_request       = kDmaRequestMuxLPUART8Tx;
+#endif
+    config->enableRxRTS = 1u;
+    config->enableTxCTS = 1u;
+    return 0;
+}
+#endif

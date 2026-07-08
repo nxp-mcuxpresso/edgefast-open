@@ -20,6 +20,7 @@ menuconfig MCUX_COMPONENT_middleware.edgefast_open
 				MCUX_HW_DEVICE_MIMXRT1042 || \
 				MCUX_HW_DEVICE_MIMXRT1052 || \
 				MCUX_HW_DEVICE_MIMXRT1062 || \
+				MCUX_HW_DEVICE_MIMXRT1152 || \
 				MCUX_HW_DEVICE_MIMXRT1176 || \
 				MCUX_HW_DEVICE_MIMXRT1187 || \
 				MCUX_HW_DEVICE_MIMXRT1189 || \
@@ -35,7 +36,8 @@ menuconfig MCUX_COMPONENT_middleware.edgefast_open
 				MCUX_HW_DEVICE_MIMXRT1062 || \
 				MCUX_HW_DEVICE_MIMXRT1042
 	select MCUX_COMPONENT_component.psa_crypto_driver.caam if \
-				MCUX_HW_DEVICE_MIMXRT1176
+				MCUX_HW_DEVICE_MIMXRT1176 || \
+				MCUX_HW_DEVICE_MIMXRT1152
 	select MCUX_COMPONENT_component.psa_crypto_driver.casper if \
 				MCUX_HW_DEVICE_MIMXRT595S || \
 				MCUX_HW_DEVICE_MIMXRT685S

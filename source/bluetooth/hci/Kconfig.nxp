@@ -18,6 +18,13 @@ config HCI_NXP_SET_CAL_DATA_ANNEX100
 	  If enabled, the Host will send calibration data annex 100 to the Bluetooth Controller during HCI
 	  init.
 
+config BT_NXP_PCM_PINS_DIR_REVERSE
+	bool "Reverse Bluetooth Controller PCM TX/RX pins direction"
+	default n
+	help
+	  If enabled, the PCM_TX and PCM_RX pins direction of the Bluetooth Controller
+	  will be reversed.
+
 config HCI_NXP_CONFIG_IR
 	bool "Bluetooth Controller Independent Reset config"
 	depends on BT_H4_NXP_CTLR
