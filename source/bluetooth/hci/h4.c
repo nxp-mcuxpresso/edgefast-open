@@ -865,6 +865,9 @@ static int h4_close(const struct device *dev)
 	/* Abort TX thread */
 	k_thread_abort(cfg->tx_thread);
 
+	/* Deinitialize UART */
+	bt_hci_uart_deinit(dev);
+
 	return 0;
 }
 
