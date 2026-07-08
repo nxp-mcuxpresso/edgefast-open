@@ -204,6 +204,8 @@ struct _timeout
  */
 #define K_FOREVER K_TIMEOUT_TICKS(-1)
 
+#define Z_TIMEOUT_MS K_MSEC
+
 #include "zephyr/spinlock.h"
 
 #include "heap/heap.h"
