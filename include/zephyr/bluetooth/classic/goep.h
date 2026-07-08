@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef ZEPHYR_INCLUDE_BLUETOOTH_GOEP_H_
-#define ZEPHYR_INCLUDE_BLUETOOTH_GOEP_H_
+#ifndef ZEPHYR_INCLUDE_BLUETOOTH_CLASSIC_GOEP_H_
+#define ZEPHYR_INCLUDE_BLUETOOTH_CLASSIC_GOEP_H_
 
 /**
  * @brief Generic Object Exchange Profile (GOEP)
@@ -56,6 +56,44 @@ struct bt_goep_transport_ops {
 	 *  @param goep The GOEP object that has been disconnected.
 	 */
 	void (*disconnected)(struct bt_goep *goep);
+};
+
+/** @brief GOEP v1.1 structure. */
+struct bt_goep_transport_v1 {
+	/** @brief RFCOMM DLC used for transport */
+	struct bt_rfcomm_dlc dlc;
+
+	/** @brief Back-pointer to parent GOEP object
+	 *
+	 *  This must be initialized to point to the parent @ref bt_goep structure before
+	 *  calling any GOEP transport connect/register APIs. The parent @ref bt_goep must
+	 *  have its @ref bt_goep::v1 field pointing to this structure and @ref bt_goep::v2
+	 *  set to NULL for a valid GOEP v1.1 session.
+	 */
+	struct bt_goep *goep;
+};
+
+/** @brief GOEP v2 structure. */
+struct bt_goep_transport_v2 {
+	/** @brief L2CAP BR/EDR channel used for transport */
+	struct bt_l2cap_br_chan chan;
+
+	/** @brief Back-pointer to parent GOEP object
+	 *
+	 *  This must be initialized to point to the parent @ref bt_goep structure before
+	 *  calling any GOEP transport connect/register APIs. The parent @ref bt_goep must
+	 *  have its @ref bt_goep::v2 field pointing to this structure and @ref bt_goep::v1
+	 *  set to NULL for a valid GOEP v2.0 session.
+	 */
+	struct bt_goep *goep;
+};
+
+/** @brief GOEP transport unified structure. */
+struct bt_goep_transport {
+	/** @brief GOEP v1.1 transport */
+	struct bt_goep_transport_v1 v1;
+	/** @brief GOEP v2 transport */
+	struct bt_goep_transport_v2 v2;
 };
 
 /** @brief Life-span states of GOEP transport.
@@ -125,44 +163,6 @@ struct bt_goep {
 
 	/** @brief OBEX object */
 	struct bt_obex obex;
-};
-
-/** @brief GOEP v1.1 structure. */
-struct bt_goep_transport_v1 {
-	/** @brief RFCOMM DLC used for transport */
-	struct bt_rfcomm_dlc dlc;
-
-	/** @brief Back-pointer to parent GOEP object
-	 *
-	 *  This must be initialized to point to the parent @ref bt_goep structure before
-	 *  calling any GOEP transport connect/register APIs. The parent @ref bt_goep must
-	 *  have its @ref bt_goep::v1 field pointing to this structure and @ref bt_goep::v2
-	 *  set to NULL for a valid GOEP v1.1 session.
-	 */
-	struct bt_goep *goep;
-};
-
-/** @brief GOEP v2 structure. */
-struct bt_goep_transport_v2 {
-	/** @brief L2CAP BR/EDR channel used for transport */
-	struct bt_l2cap_br_chan chan;
-
-	/** @brief Back-pointer to parent GOEP object
-	 *
-	 *  This must be initialized to point to the parent @ref bt_goep structure before
-	 *  calling any GOEP transport connect/register APIs. The parent @ref bt_goep must
-	 *  have its @ref bt_goep::v2 field pointing to this structure and @ref bt_goep::v1
-	 *  set to NULL for a valid GOEP v2.0 session.
-	 */
-	struct bt_goep *goep;
-};
-
-/** @brief GOEP transport structure. */
-struct bt_goep_transport {
-	/** @brief GOEP v1.1 transport */
-	struct bt_goep_transport_v1 v1;
-	/** @brief GOEP v2 transport */
-	struct bt_goep_transport_v2 v2;
 };
 
 /** @brief Initialize the GOEP and GOEP v1 (RFCOMM) transport structures.
@@ -482,4 +482,4 @@ struct net_buf *bt_goep_create_pdu(struct bt_goep *goep, struct net_buf_pool *po
  * @}
  */
 
-#endif /* ZEPHYR_INCLUDE_BLUETOOTH_GOEP_H_ */
+#endif /* ZEPHYR_INCLUDE_BLUETOOTH_CLASSIC_GOEP_H_ */

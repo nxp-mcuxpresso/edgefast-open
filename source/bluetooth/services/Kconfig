@@ -33,7 +33,6 @@ rsource "Kconfig.pxr"
 
 rsource "Kconfig.tip"
 
-
 rsource "nus/Kconfig.nus"
 
 rsource "ias/Kconfig.ias"
@@ -43,3 +42,4 @@ rsource "ots/Kconfig"
 rsource "bas/Kconfig.bas"
 
 endmenu
+

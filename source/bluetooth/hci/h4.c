@@ -31,7 +31,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(bt_hci_h4);
 
-static UART_HANDLE_DEFINE(hci_uart_handle);
+UART_HANDLE_DEFINE(hci_uart_handle);
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
 UART_DMA_HANDLE_DEFINE(hci_uart_DmaHandle);
 #endif
@@ -43,10 +43,11 @@ UART_DMA_HANDLE_DEFINE(hci_uart_DmaHandle);
 static AT_NONCACHEABLE_SECTION_ALIGN(uint8_t h4_hci_recv_buffer[HCI_UART_RECV_BUFFER_SIZE], sizeof(uint32_t));
 
 struct h4_data {
-	struct k_spinlock       lock;
+	/* bt_hci_driver_data must be first */
+	struct bt_hci_driver_data common;
 
-	bt_hci_recv_t recv;
-        	struct
+	struct k_spinlock       lock;
+	struct
 	{
 		struct net_buf     *buf;
 		struct k_fifo       fifo;
@@ -221,6 +222,26 @@ static inline void h4_get_type(const struct device *dev)
 	}
 }
 
+static inline void get_acl_hdr(const struct device *dev)
+{
+	struct h4_data *h4 = dev->data;
+	struct bt_hci_acl_hdr *hdr = &h4->rx.acl;
+
+	h4->rx.remaining = sys_le16_to_cpu(hdr->len);
+	LOG_DBG("Got ACL header. Payload %u bytes", h4->rx.remaining);
+	h4->rx.have_hdr = true;
+}
+
+static inline void get_iso_hdr(const struct device *dev)
+{
+	struct h4_data *h4 = dev->data;
+	struct bt_hci_iso_hdr *hdr = &h4->rx.iso;
+
+	h4->rx.remaining = bt_iso_hdr_len(sys_le16_to_cpu(hdr->len));
+	LOG_DBG("Got ISO header. Payload %u bytes", h4->rx.remaining);
+	h4->rx.have_hdr = true;
+}
+
 static inline void get_evt_hdr(const struct device *dev)
 {
 	struct h4_data *h4 = dev->data;
@@ -246,26 +267,6 @@ static inline void get_evt_hdr(const struct device *dev)
 
 	h4->rx.remaining = hdr->len - (h4->rx.hdr_len - sizeof(*hdr));
 	LOG_DBG("Got event header. Payload %u bytes", hdr->len);
-	h4->rx.have_hdr = true;
-}
-
-static inline void get_acl_hdr(const struct device *dev)
-{
-	struct h4_data *h4 = dev->data;
-	struct bt_hci_acl_hdr *hdr = &h4->rx.acl;
-
-	h4->rx.remaining = sys_le16_to_cpu(hdr->len);
-	LOG_DBG("Got ACL header. Payload %u bytes", h4->rx.remaining);
-	h4->rx.have_hdr = true;
-}
-
-static inline void get_iso_hdr(const struct device *dev)
-{
-	struct h4_data *h4 = dev->data;
-	struct bt_hci_iso_hdr *hdr = &h4->rx.iso;
-
-	h4->rx.remaining = bt_iso_hdr_len(sys_le16_to_cpu(hdr->len));
-	LOG_DBG("Got ISO header. Payload %u bytes", h4->rx.remaining);
 	h4->rx.have_hdr = true;
 }
 
@@ -339,7 +340,7 @@ static inline void rx_payload_done(const struct device *dev)
 #endif
 
 	LOG_DBG("Calling bt_recv(%p) with length %d", buf, buf->len);
-	h4->recv(dev, buf);
+	bt_hci_recv(dev, buf);
 }
 
 static inline void read_payload(const struct device *dev)
@@ -459,7 +460,7 @@ static void hci_send(struct h4_data *h4)
 		h4->tx.buf = k_fifo_get(&h4->tx.fifo, K_NO_WAIT);
 
 		if (h4->tx.buf != NULL) {
-                        DCACHE_CleanByRange((uint32_t)h4->tx.buf->data, h4->tx.buf->len);
+			DCACHE_CleanByRange((uint32_t)h4->tx.buf->data, h4->tx.buf->len);
 			err = h4_uart_sending(h4->tx.buf->data, h4->tx.buf->len);
 			if (err != 0) {
 				LOG_ERR("Unable to write to UART (err %d)", err);
@@ -516,7 +517,7 @@ static void rx_thread(void *p1, void *p2, void *p3)
 		if (NULL != buf)
 		{
 			LOG_INF("Calling bt_recv(%p) with length %d", buf, buf->len);
-			h4->recv(dev, buf);
+			bt_hci_recv(dev, buf);
 		}
 #endif
 		/* Make sure we don't hog the CPU if the tx.fifo never
@@ -787,7 +788,7 @@ int __weak bt_hci_transport_setup(const struct device *uart)
 	return 0;
 }
 
-static int h4_open(const struct device *dev, bt_hci_recv_t recv)
+static int h4_open(const struct device *dev)
 {
 	const struct h4_config *cfg = dev->config;
 	struct h4_data *h4 = dev->data;
@@ -818,8 +819,6 @@ static int h4_open(const struct device *dev, bt_hci_recv_t recv)
 	if (err < 0) {
 		return err;
 	}
-
-	h4->recv = recv;
 
 	tid = k_thread_create(cfg->rx_thread, cfg->rx_thread_stack,
 			      cfg->rx_thread_stack_size,
@@ -866,8 +865,6 @@ static int h4_close(const struct device *dev)
 	/* Abort TX thread */
 	k_thread_abort(cfg->tx_thread);
 
-	h4->recv = NULL;
-
 	return 0;
 }
 
@@ -910,27 +907,22 @@ static DEVICE_API(bt_hci, h4_driver_api) = {
 #endif
 };
 
-static struct h4_data h4_data;
+#define BT_UART_DEVICE_INIT(inst) \
+	static K_KERNEL_STACK_DEFINE(rx_thread_stack_##inst, CONFIG_BT_DRV_RX_STACK_SIZE); \
+	static struct k_thread rx_thread_##inst; \
+	static K_KERNEL_STACK_DEFINE(tx_thread_stack_##inst, CONFIG_BT_DRV_TX_STACK_SIZE); \
+	static struct k_thread tx_thread_##inst; \
+	static const struct h4_config h4_config_##inst = { \
+		.uart = DEVICE_DT_GET(DT_INST_PARENT(inst)), \
+		.rx_thread_stack = rx_thread_stack_##inst, \
+		.rx_thread_stack_size = K_THREAD_STACK_SIZEOF(rx_thread_stack_##inst), \
+		.rx_thread = &rx_thread_##inst, \
+		.tx_thread_stack = tx_thread_stack_##inst, \
+		.tx_thread_stack_size = K_THREAD_STACK_SIZEOF(tx_thread_stack_##inst), \
+		.tx_thread = &tx_thread_##inst, \
+	}; \
+	static struct h4_data h4_data_##inst; \
+	DEVICE_DT_INST_DEFINE(inst, NULL, NULL, &h4_data_##inst, &h4_config_##inst, \
+			      POST_KERNEL, CONFIG_BT_HCI_INIT_PRIORITY, &h4_driver_api)
 
-static K_KERNEL_STACK_DEFINE(rx_thread_stack_0, CONFIG_BT_DRV_RX_STACK_SIZE);
-static struct k_thread rx_thread_0;
-
-static K_KERNEL_STACK_DEFINE(tx_thread_stack_0, CONFIG_BT_DRV_TX_STACK_SIZE);
-static struct k_thread tx_thread_0;
-
-static struct h4_config h4_config = {
-    .uart = DEVICE_DT_GET(DT_INST_PARENT(0)),
-    .rx_thread = &rx_thread_0,
-    .rx_thread_stack = rx_thread_stack_0,
-    .rx_thread_stack_size = K_THREAD_STACK_SIZEOF(rx_thread_stack_0),
-    .tx_thread = &tx_thread_0,
-    .tx_thread_stack = tx_thread_stack_0,
-    .tx_thread_stack_size = K_THREAD_STACK_SIZEOF(tx_thread_stack_0),
-};
-
-struct device bt_hci_h4_device = {
-	.obj = (void *)hci_uart_handle,
-	.api = (void *)&h4_driver_api,
-	.config = &h4_config,
-	.data = &h4_data,
-};
+BT_UART_DEVICE_INIT(0)

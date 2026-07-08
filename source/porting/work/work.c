@@ -442,11 +442,11 @@ void k_work_queue_start(struct k_work_q *queue,
 	*                                          &queue->thread.task_buffer);
 	*/
 
-	k_thread_create(&queue->thread, stack,
-					stack_size,
-					work_queue_main,
-					queue, NULL, NULL,
-					prio, 0, K_NO_WAIT);
+	queue->thread_id = k_thread_create(&queue->thread, stack,
+					   stack_size,
+					   work_queue_main,
+					   queue, NULL, NULL,
+					   prio, 0, K_NO_WAIT);
 
 	if ((NULL != cfg) && (NULL != cfg->name))
 	{

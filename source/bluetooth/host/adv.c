@@ -1174,7 +1174,7 @@ static int le_ext_adv_param_set(struct bt_le_ext_adv *adv,
 	adv->tx_power = rp->tx_power;
 #endif /* defined(CONFIG_BT_EXT_ADV) */
 
-	net_buf_unref(rsp);
+	net_buf_drop(&rsp);
 
 	atomic_set_bit(adv->flags, BT_ADV_PARAMS_SET);
 
@@ -1829,6 +1829,41 @@ int bt_le_per_adv_set_data(const struct bt_le_ext_adv *adv,
 	}
 
 	return hci_set_per_adv_data(adv, ad, ad_len);
+}
+
+int bt_le_per_adv_update_did(const struct bt_le_ext_adv *adv)
+{
+	struct bt_hci_cp_le_set_per_adv_data *cp;
+	struct net_buf *buf;
+
+	if (!BT_FEAT_LE_PER_ADV_ADI_SUPP(bt_dev.le.features)) {
+		return -ENOTSUP;
+	}
+
+	if (adv == NULL) {
+		return -EINVAL;
+	}
+
+	if (!atomic_test_bit(adv->flags, BT_PER_ADV_ENABLED)) {
+		return -EINVAL;
+	}
+
+	if (!atomic_test_bit(adv->flags, BT_PER_ADV_INCLUDE_ADI)) {
+		return -EINVAL;
+	}
+
+	buf = bt_hci_cmd_alloc(K_FOREVER);
+	if (buf == NULL) {
+		return -ENOBUFS;
+	}
+
+	cp = net_buf_add(buf, sizeof(*cp));
+	(void)memset(cp, 0, sizeof(*cp));
+
+	cp->handle = adv->handle;
+	cp->op = BT_HCI_LE_EXT_ADV_OP_UNCHANGED_DATA;
+
+	return bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_PER_ADV_DATA, buf, NULL);
 }
 
 int bt_le_per_adv_set_subevent_data(const struct bt_le_ext_adv *adv, uint8_t num_subevents,

@@ -21,7 +21,7 @@ if BT_CCP_CALL_CONTROL_CLIENT
 config BT_CCP_CALL_CONTROL_CLIENT_BEARER_COUNT
 	int "Telephone bearer count"
 	default 1
-	range 1 255 if BT_TBS_CLIENT_TBS
+	range 1 $(UINT8_MAX) if BT_TBS_CLIENT_TBS
 	range 1 1
 	help
 	  The number of supported telephone bearers on the CCP Call Control Client
@@ -32,7 +32,7 @@ config BT_CCP_CALL_CONTROL_CLIENT_CB_USER_DATA
 	  This option enables support for user_data in Call Control Profile Client callbacks.
 
 module = BT_CCP_CALL_CONTROL_CLIENT
-module-str = "Call Control Profile Client"
+module-str = Call Control Profile Client
 source "middleware/edgefast_open/source/porting/Kconfig.template.log_config"
 
 endif # BT_CCP_CALL_CONTROL_CLIENT
@@ -51,7 +51,7 @@ if BT_CCP_CALL_CONTROL_SERVER
 config BT_CCP_CALL_CONTROL_SERVER_BEARER_COUNT
 	int "Telephone bearer count"
 	default 1
-	range 1 255
+	range 1 $(UINT8_MAX)
 	help
 	  The number of supported telephone bearers on the CCP Call Control Server
 
@@ -63,7 +63,7 @@ config BT_CCP_CALL_CONTROL_SERVER_PROVIDER_NAME_MAX_LENGTH
 	  Sets the maximum length of the bearer provider name.
 
 module = BT_CCP_CALL_CONTROL_SERVER
-module-str = "Call Control Profile Call Control Server"
+module-str = Call Control Profile Call Control Server
 source "middleware/edgefast_open/source/porting/Kconfig.template.log_config"
 
 endif # BT_CCP_CALL_CONTROL_SERVER

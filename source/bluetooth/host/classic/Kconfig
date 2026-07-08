@@ -161,7 +161,7 @@ config BT_RFCOMM_L2CAP_MTU
 	int "L2CAP MTU for RFCOMM frames"
 	depends on BT_RFCOMM
 	default BT_BUF_ACL_RX_SIZE
-	range 23 32768
+	range 23 $(INT16_MAX)
 	help
 	  Maximum size of L2CAP PDU for RFCOMM frames.
 	  RX MTU will be truncated to account for the L2CAP PDU header.
@@ -169,7 +169,7 @@ config BT_RFCOMM_L2CAP_MTU
 config BT_RFCOMM_TX_MAX
 	int "Maximum number of pending TX buffers for RFCOMM"
 	default BT_BUF_ACL_TX_COUNT
-	range BT_BUF_ACL_TX_COUNT 255
+	range BT_BUF_ACL_TX_COUNT $(UINT8_MAX)
 	help
 	  Maximum number of pending TX buffers that have an associated
 	  sending buf. Normally this can be left to the default value, which
@@ -344,7 +344,7 @@ config BT_HFP_AG_ECC
 config BT_HFP_AG_TX_BUF_COUNT
 	int "Maximum number of TX buffers for HFP AG [EXPERIMENTAL]"
 	default BT_RFCOMM_TX_MAX
-	range BT_RFCOMM_TX_MAX 255
+	range BT_RFCOMM_TX_MAX $(UINT8_MAX)
 	help
 	  Maximum number of pending TX buffers that have an associated
 	  sending buf. Normally this can be left to the default value, which
@@ -380,7 +380,7 @@ config BT_HFP_AG_ALERTING_TIMEOUT
 config BT_HFP_AG_PHONE_NUMBER_MAX_LEN
 	int "Supported max length of phone number for HFP AG [EXPERIMENTAL]"
 	default 32
-	range 1 255
+	range 1 $(UINT8_MAX)
 	help
 	  Supported max length of phone number for HFP AG.
 
@@ -477,7 +477,7 @@ config BT_AVDTP_RTP_VERSION
 config BT_AVDTP_SIGNAL_SDU_MAX
 	int "Maximum size of AVDTP signaling SDU"
 	default 512
-	range 48 65535
+	range 48 $(UINT16_MAX)
 	help
 	  This option sets the maximum size of AVDTP signaling SDU.
 	  The default value is 512 bytes.
@@ -526,7 +526,7 @@ config BT_AVRCP_CONTROLLER
 config BT_AVRCP_VD_RX_SIZE
 	int "AVRCP Vendor Dependent RX data buffer Size"
 	default 1024
-	range 512 32768
+	range 512 $(INT16_MAX)
 	help
 	  Size of the AVRCP Vendor Dependent RX data buffer in bytes.
 	  This buffer is used for reassembling fragmented AVRCP Vendor Dependent
@@ -615,23 +615,23 @@ config BT_DID
 	  This option enables the DID profile
 
 if BT_DID
-config BT_DEVICE_VEDNOR_ID
+config BT_DEVICE_VENDOR_ID
 	hex "Bluetooth Device Vendor ID"
-	range 0x0000 65535
+	range 0x0000 $(UINT16_MAX)
 	default 0x0000
 	help
 	  This option sets the device vendor id
 
 config BT_DEVICE_PRODUCT_ID
 	hex "Bluetooth Device Product ID"
-	range 0x0000 65535
+	range 0x0000 $(UINT16_MAX)
 	default 0x0000
 	help
 	  This option sets the device product id
 
 config BT_DEVICE_VERSION
 	hex "Bluetooth Device Version"
-	range 0x0000 65535
+	range 0x0000 $(UINT16_MAX)
 	default 0x0000
 	help
 	  This option sets the device version
@@ -725,6 +725,7 @@ config BT_PBAP
 	bool
 	select BT_GOEP
 	select PSA_WANT_ALG_MD5
+	select MBEDTLS
 	help
 	  This option enables the PBAP profile
 

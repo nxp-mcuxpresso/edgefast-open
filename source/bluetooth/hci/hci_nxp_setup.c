@@ -16,10 +16,9 @@
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/sys/crc.h>
 
+#include <zephyr/drivers/bluetooth.h>
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/hci.h>
-
-#include <zephyr/drivers/bluetooth.h>
 
 #include "fsl_adapter_gpio.h"
 
@@ -36,9 +35,15 @@ LOG_MODULE_REGISTER(bt_nxp_ctlr);
 #define HCI_CMD_STORE_BT_CAL_DATA_PARAM_ANNEX100_LENGTH 16
 #define HCI_CMD_STORE_BT_CAL_DATA_OCF                   0x61
 #define HCI_CMD_STORE_BT_CAL_DATA_PARAM_LENGTH          32
-
+#define HCI_CMD_BT_CONFIG_IR_OCF                        0x0D
+#define HCI_CMD_BT_CONFIG_IR_LENGTH                     2
+#define HCI_CMD_BT_CONFIG_IR_MODE                       0x02
+#define HCI_CMD_BT_CONFIG_IR_PARAM                      0xFF
+#define HCI_CMD_BT_CONFIG_IR_OPCODE                     BT_OP(BT_OGF_VS, HCI_CMD_BT_CONFIG_IR_OCF)
 extern const unsigned char *bt_fw_bin;
 extern const unsigned int bt_fw_bin_len;
+
+extern UART_HANDLE_DEFINE(hci_uart_handle);
 
 static const struct device *uart_dev = DEVICE_DT_GET(DT_INST_GPARENT(0));
 
@@ -308,7 +313,7 @@ static int fw_upload_wait_for_hdr_sig(void)
 static int h4_uart_sending(const uint8_t *buffer, uint32_t len)
 {
     /* Write HCI Packet */
-    hal_uart_status_t err = HAL_UartSendBlocking((hal_uart_handle_t)uart_dev->obj, buffer, len);
+    hal_uart_status_t err = HAL_UartSendBlocking((hal_uart_handle_t)hci_uart_handle, buffer, len);
     if (kStatus_HAL_UartSuccess != err)
     {
         return -EIO;
@@ -730,7 +735,7 @@ static int fw_upload_write_hdr_and_payload(uint16_t len_to_send, uint8_t *buffer
 		if (fw_upload_len_valid(fw_upload.last_5bytes_buffer, &len_to_send) == 0) {
 			uint8_t ack = V1_REQUEST_ACK;
 
-			fw_upload_write_data(&ack, 1);
+			fw_upload_write_data(&ack, sizeof(ack));
 			LOG_DBG("BOOT_HEADER_ACK 0x5a sent");
 		}
 	}
@@ -739,7 +744,7 @@ static int fw_upload_write_hdr_and_payload(uint16_t len_to_send, uint8_t *buffer
 
 static int h4_starting_recv(uint8_t *buffer, uint16_t length)
 {
-    hal_uart_status_t err = HAL_UartReceiveNonBlocking((hal_uart_handle_t)uart_dev->obj, buffer, length);
+    hal_uart_status_t err = HAL_UartReceiveNonBlocking((hal_uart_handle_t)hci_uart_handle, buffer, length);
 
     if (err != kStatus_HAL_UartSuccess)
     {
@@ -784,7 +789,7 @@ static int fw_upload_uart_reconfig(uint32_t speed, bool flow_control)
 	}
 
 	/* Install the UART TX-RX Callback */
-	status = HAL_UartInstallCallback((hal_uart_handle_t)uart_dev->obj, hci_uart_transmit_cb, NULL);
+	status = HAL_UartInstallCallback((hal_uart_handle_t)hci_uart_handle, hci_uart_transmit_cb, NULL);
 	if (status != kStatus_HAL_UartSuccess)
 	{
 		return -EIO;
@@ -1214,7 +1219,7 @@ static int bt_nxp_ctlr_init(void)
 	err = fw_uploading(bt_fw_bin, bt_fw_bin_len);
 
 	if (err) {
-		HAL_UartAbortReceive((hal_uart_handle_t)uart_dev->obj);
+		HAL_UartAbortReceive((hal_uart_handle_t)hci_uart_handle);
 		LOG_ERR("Fail to upload firmware");
 		return err;
 	}
@@ -1409,6 +1414,63 @@ static int bt_nxp_set_calibration_data_annex100(void)
 }
 #endif /* defined(CONFIG_HCI_NXP_SET_CAL_DATA_ANNEX100) */
 
+#if defined(CONFIG_HCI_NXP_CONFIG_IR)
+static int bt_nxp_configure_ir(void)
+{
+	const uint8_t hci_configure_ir[HCI_CMD_BT_CONFIG_IR_LENGTH] = {
+		HCI_CMD_BT_CONFIG_IR_MODE,
+		HCI_CMD_BT_CONFIG_IR_PARAM
+	};
+	struct net_buf *buf;
+	int err;
+
+	LOG_DBG("Configuring IR");
+
+	buf = bt_hci_cmd_alloc(K_FOREVER);
+	if (buf == NULL) {
+		LOG_ERR("Unable to allocate command buffer");
+		return -ENOMEM;
+	}
+
+	net_buf_add_mem(buf, hci_configure_ir, HCI_CMD_BT_CONFIG_IR_LENGTH);
+
+	err = bt_hci_cmd_send_sync(HCI_CMD_BT_CONFIG_IR_OPCODE, buf, NULL);
+	if (err) {
+		LOG_DBG("Failed to send config IR cmd (err %d)", err);
+		return err;
+	}
+
+	return 0;
+}
+
+int bt_nxp_trigger_ir(const struct device *dev)
+{
+	int err;
+	uint8_t ir_trigger_buf[] = {0x01, 0xfc, 0xfc, 0x00}; /*IR trigger sequence*/
+
+	LOG_DBG("Triggering IR.");
+	ARRAY_FOR_EACH(ir_trigger_buf, i) {
+		uart_poll_out(dev, ir_trigger_buf[i]);
+	}
+
+	LOG_DBG("Downloading FW.");
+	err = bt_nxp_ctlr_init();
+	if (err == 0) {
+		LOG_DBG("IR Successful, Perform BT Init again to activate interface.");
+	} else {
+		LOG_ERR("IR Failed: %d", err);
+	}
+
+	return err;
+}
+#else
+int bt_nxp_trigger_ir(const struct device *dev)
+{
+	ARG_UNUSED(dev);
+	return -ENODEV;
+}
+#endif /* defined(CONFIG_HCI_NXP_CONFIG_IR) */
+
 int bt_hci_transport_setup(const struct device *dev)
 {
 	int ret = 0;
@@ -1423,8 +1485,19 @@ int bt_hci_transport_setup(const struct device *dev)
 	}
 
 	if (!fw_upload.is_setup_done) {
+		LOG_DBG("HCI Transport Initial Setup");
 		ret = bt_nxp_ctlr_init();
 	}
+#ifdef	CONFIG_HCI_NXP_TRIGGER_IR_ON_BT_INIT
+	else {
+		LOG_DBG("HCI transport setup after bt disable");
+
+		/* If setup is already done earlier, for subsequent bt disable
+		 * and bt enable, trigger IR to reload controller FW
+		 */
+		ret = bt_nxp_trigger_ir(dev);
+	}
+#endif /* defined(CONFIG_HCI_NXP_TRIGGER_IR_ON_BT_INIT) */
 	return ret;
 }
 
@@ -1523,6 +1596,13 @@ int bt_h4_vnd_setup(const struct device *dev, const struct bt_hci_setup_params *
 			return err;
 		}
 
+#if defined(CONFIG_HCI_NXP_CONFIG_IR)
+		err = bt_nxp_configure_ir();
+		if (err) {
+			LOG_ERR("Fail to configure IR");
+			return err;
+		}
+#endif
 		fw_upload.is_setup_done = true;
 	}
 

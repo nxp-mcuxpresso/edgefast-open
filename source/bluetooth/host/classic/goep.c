@@ -36,7 +36,7 @@ LOG_MODULE_REGISTER(bt_goep);
 /* RFCOMM Server list */
 static sys_slist_t goep_rfcomm_server = SYS_SLIST_STATIC_INIT(&goep_rfcomm_server);
 
-#define GOEP_GET_TRANSPORT_V1(_dlc) CONTAINER_OF(_dlc, struct bt_goep_transport_v1, dlc)
+#define GOEP_GET_TRANSPORT_V1(_dlc) CONTAINER_OF((_dlc), struct bt_goep_transport_v1, dlc)
 
 static void goep_rfcomm_recv(struct bt_rfcomm_dlc *dlc, struct net_buf *buf)
 {
@@ -327,7 +327,7 @@ int bt_goep_transport_rfcomm_disconnect(struct bt_goep *goep)
 /* L2CAP Server list */
 static sys_slist_t goep_l2cap_server = SYS_SLIST_STATIC_INIT(&goep_l2cap_server);
 
-#define GOEP_GET_TRANSPORT_V2(_chan) CONTAINER_OF(_chan, struct bt_goep_transport_v2, chan.chan)
+#define GOEP_GET_TRANSPORT_V2(_chan) CONTAINER_OF((_chan), struct bt_goep_transport_v2, chan.chan)
 
 NET_BUF_POOL_DEFINE(goep_rx_pool, BT_BUF_ACL_RX_COUNT, BT_BUF_ACL_SIZE(CONFIG_BT_BUF_ACL_RX_SIZE),
 		    CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
@@ -355,7 +355,7 @@ static void goep_l2cap_connected(struct bt_l2cap_chan *chan)
 
 	if ((goep_transport_v2->chan.tx.mtu < GOEP_MIN_MTU) ||
 	    (goep_transport_v2->chan.rx.mtu < GOEP_MIN_MTU)) {
-		LOG_WRN("Invalid MTU (local %d, peer %d", goep_transport_v2->chan.rx.mtu,
+		LOG_WRN("Invalid MTU (local %d, peer %d)", goep_transport_v2->chan.rx.mtu,
 			goep_transport_v2->chan.tx.mtu);
 		bt_l2cap_chan_disconnect(chan);
 		return;
@@ -647,7 +647,8 @@ struct net_buf *bt_goep_create_pdu(struct bt_goep *goep, struct net_buf_pool *po
 	struct net_buf *buf;
 	size_t len;
 
-	if (goep == NULL) {
+	if (goep == NULL || (goep->v1 == NULL && goep->v2 == NULL) ||
+	    (goep->v1 != NULL && goep->v2 != NULL)) {
 		LOG_WRN("Invalid parameter");
 		return NULL;
 	}

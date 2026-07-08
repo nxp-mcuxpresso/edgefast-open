@@ -33,5 +33,5 @@ config BT_TMAP
 
 parent-module = BT
 module = BT_TMAP
-module-str = "Telephony and Media Audio Profile"
+module-str = Telephony and Media Audio Profile
 source "middleware/edgefast_open/source/porting/Kconfig.template.log_config_inherit"

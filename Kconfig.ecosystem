@@ -25,6 +25,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_rpa
     # Original type: bool
     def_bool BT_RPA
 
+config MCUX_COMPONENT_middleware.edgefast_open.bt_long_wq
+    # Original type: bool
+    def_bool BT_LONG_WQ
+
 config MCUX_COMPONENT_middleware.edgefast_open.bt_private_shell
     # Original type: bool
     def_bool BT_PRIVATE_SHELL
@@ -48,10 +52,6 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_settings
 config MCUX_COMPONENT_middleware.edgefast_open.bt_host_ccm
     # Original type: bool
     def_bool BT_HOST_CCM
-
-config MCUX_COMPONENT_middleware.edgefast_open.bt_long_wq
-    # Original type: bool
-    def_bool BT_LONG_WQ
 
 config MCUX_COMPONENT_middleware.edgefast_open.bt_hci_host
     # Original type: bool

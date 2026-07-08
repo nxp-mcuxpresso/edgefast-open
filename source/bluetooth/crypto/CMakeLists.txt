@@ -9,8 +9,7 @@ zephyr_library_sources(bt_crypto_psa.c)
 else()
 zephyr_library_sources(bt_crypto_mbedtls.c)
 endif()
-
-zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS_BUILTIN mbedTLS)
+zephyr_library_link_libraries_ifdef(CONFIG_MBEDTLS_BUILTIN mbedtls_iface)
 zephyr_library_include_directories_ifdef(CONFIG_BUILD_WITH_TFM
     $<TARGET_PROPERTY:tfm,TFM_BINARY_DIR>/api_ns/interface/include
 )

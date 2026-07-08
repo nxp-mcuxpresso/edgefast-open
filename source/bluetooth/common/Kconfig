@@ -8,7 +8,7 @@ menu "Bluetooth buffer configuration"
 
 config BT_BUF_ACL_TX_SIZE
 	int "Maximum supported ACL size for outgoing data"
-	range 27 65535
+	range 27 $(UINT16_MAX)
 	default 37 if BT_MESH_GATT
 	default 27
 	help
@@ -36,7 +36,7 @@ config BT_BUF_ACL_TX_COUNT
 	default 7 if BT_HCI_RAW
 	default 4 if BT_MESH_GATT
 	default 3
-	range 1 255
+	range 1 $(UINT8_MAX)
 	help
 	  Number of outgoing ACL data buffers sent from the Host to the
 	  Controller. This determines the maximum amount of data packets the
@@ -66,10 +66,10 @@ config BT_BUF_ACL_RX_SIZE
 	default 69 if BT_SMP
 	default 37 if BT_MESH_GATT
 	default 27
-	range 264 65535 if BT_CLASSIC && BT_GOEP
-	range 70 65535 if BT_EATT
-	range 69 65535 if BT_SMP
-	range 27 65535
+	range 264 $(UINT16_MAX) if BT_CLASSIC && BT_GOEP
+	range 70 $(UINT16_MAX) if BT_EATT
+	range 69 $(UINT16_MAX) if BT_SMP
+	range 27 $(UINT16_MAX)
 	help
 	  Maximum support ACL size of data packets sent from the Controller to
 	  the Host. This value does not include the HCI ACL header.
@@ -110,11 +110,11 @@ config BT_BUF_ACL_RX_COUNT_EXTRA
 
 config BT_BUF_EVT_RX_SIZE
 	int "Maximum supported HCI Event buffer length"
-	default 255 if (BT_EXT_ADV && BT_OBSERVER) || BT_PER_ADV_SYNC || BT_DF_CONNECTION_CTE_RX || BT_CLASSIC || BT_CHANNEL_SOUNDING || BT_LE_EXTENDED_FEAT_SET
+	default $(UINT8_MAX) if (BT_EXT_ADV && BT_OBSERVER) || BT_PER_ADV_SYNC || BT_DF_CONNECTION_CTE_RX || BT_CLASSIC || BT_CHANNEL_SOUNDING || BT_LE_EXTENDED_FEAT_SET
 	# LE Read Supported Commands command complete event.
 	default 68
-	range 68 255
-	range 78 255 if BT_CHANNEL_SOUNDING
+	range 68 $(UINT8_MAX)
+	range 78 $(UINT8_MAX) if BT_CHANNEL_SOUNDING
 	help
 	  Maximum supported HCI event buffer size. This value does not include
 	  the HCI Event header.
@@ -128,20 +128,20 @@ config BT_BUF_EVT_RX_COUNT
 	int "Number of HCI Event buffers"
 	default 20 if (BT_MESH && !(BT_BUF_EVT_DISCARDABLE_COUNT > 0))
 	default 10
-	range 2 255
+	range 2 $(UINT8_MAX)
 	help
 	  Number of buffers available for incoming HCI events from the
 	  Controller.
 
 config BT_BUF_CMD_TX_SIZE
 	int "Maximum support HCI Command buffer length"
-	default 255 if (BT_EXT_ADV || BT_CLASSIC || BT_ISO_CENTRAL || BT_CHANNEL_SOUNDING)
+	default $(UINT8_MAX) if (BT_EXT_ADV || BT_CLASSIC || BT_ISO_CENTRAL || BT_CHANNEL_SOUNDING)
 	# LE Set Connection CTE Receive Parameters. Value required to store max allowed number
 	# of antenna ids for platforms other than Nordic.
 	default 83 if (!BT_EXT_ADV && !BT_CLASSIC && BT_CTLR_DF && BT_CTLR_DF_CONN_CTE_REQ && !SOC_COMPATIBLE_NRF)
 	# LE Generate DHKey v2 command
 	default 65
-	range 65 255
+	range 65 $(UINT8_MAX)
 	help
 	  Maximum data size for each HCI Command buffer. This value does not
 	  include the HCI Command header.
@@ -358,3 +358,35 @@ config BT_DEBUG_MONITOR_RTT_BUFFER_SIZE
 endif # BT_DEBUG_MONITOR_RTT
 
 endchoice # Bluetooth debug type
+
+config BT_LONG_WQ
+	bool "Dedicated workqueue for long-running tasks."
+	default y if BT_GATT_CACHING
+	default y if BT_ECC
+	help
+	  Adds an API for a workqueue dedicated to long-running tasks.
+
+if BT_LONG_WQ
+config BT_LONG_WQ_STACK_SIZE
+	int "Long workqueue stack size."
+	default 4096 if NO_OPTIMIZATIONS
+	default 1400 if BT_ECC
+	default 1300 if BT_GATT_CACHING
+	default 1024
+	help
+	  The stack size used for the long workqueue. In most cases it's best to use the default
+	  values, however since the actual requirement depends on the underlying crypto backend
+	  this option can be used to finetune the stack size.
+
+config BT_LONG_WQ_PRIO
+	int "Long workqueue priority. Should be preemptible."
+	default 10
+	range 0 NUM_PREEMPT_PRIORITIES
+
+config BT_LONG_WQ_INIT_PRIO
+	int "Long workqueue init priority"
+	default 50
+	help
+	  Init priority level to setup the long workqueue.
+
+endif # BT_LONG_WQ

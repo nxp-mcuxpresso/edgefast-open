@@ -770,6 +770,11 @@ struct k_work_q {
 	/* The thread that animates the work. */
 	struct k_thread thread;
 
+	/* The thread ID that animates the work. This may be an external thread
+	 * if k_work_queue_run() is used.
+	 */
+	k_tid_t thread_id;
+
 	/* All the following fields must be accessed only while the
 	 * work module spinlock is held.
 	 */

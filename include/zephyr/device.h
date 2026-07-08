@@ -38,9 +38,9 @@
 
 struct device {
 	void *obj;
-	void *api;
+	const void *api;
 	void *data;
-	void *config;
+	const void *config;
 };
 
 extern void bt_sys_init(void);
@@ -61,15 +61,18 @@ static inline bool device_is_ready(const struct device * dev)
 #define DEVICE_DT_INST_DEFINE(_inst, _init_fn, _pm, _data, _config, _level, _prio, _api, ...) \
 struct device DT_INST(_inst, DT_DRV_COMPAT) = { \
 	.obj = (void *)&DT_INST(_inst, DT_DRV_COMPAT), \
-	.api = (void *)_api, \
-	.config = _config, \
+	.api = (const void *)_api, \
+	.config = (const void *)_config, \
 	.data = _data, \
 };\
-static int _CONCAT(_init_fn, __LINE__)(void) { \
-	int err; \
-	err = _init_fn(&DT_INST(_inst, DT_DRV_COMPAT)); \
-	return err; \
+static int _CONCAT(z_dev_init_, __LINE__)(void) { \
+	typedef int (*_dev_init_fn_t)(const struct device *); \
+	_dev_init_fn_t _fn = (_dev_init_fn_t)(_init_fn); \
+	if (_fn != NULL) { \
+		return _fn(&DT_INST(_inst, DT_DRV_COMPAT)); \
+	} \
+	return 0; \
 } \
-SYS_INIT(_CONCAT(_init_fn, __LINE__), APPLICATION, 0);
+SYS_INIT(_CONCAT(z_dev_init_, __LINE__), APPLICATION, 0);
 
 #endif /* __ZEPHYR_DEVICE_H__ */

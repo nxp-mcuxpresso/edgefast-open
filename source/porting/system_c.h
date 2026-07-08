@@ -29,13 +29,13 @@
 
 #if DT_HAS_NXP_BT_HCI_UART_ENABLED
 
-extern struct device bt_hci_h4_device;
+extern struct device DT_INST(0, zephyr_bt_hci_uart);
 
-#define __device_dts_ord_DT_CHOSEN_zephyr_bt_hci_ORD (bt_hci_h4_device)
+#define __device_dts_ord_DT_CHOSEN_zephyr_bt_hci_ORD (DT_INST(0, zephyr_bt_hci_uart))
 #define DT_N_INST_0_nxp_bt_hci_uart_PARENT DT_N_INST_0_zephyr_bt_hci_uart
 #define DT_N_INST_0_nxp_bt_hci_uart_PARENT_PARENT DT_N_INST_0_hci_uart
 #define DT_N_INST_0_zephyr_bt_hci_uart_PARENT DT_N_INST_0_hci_uart
-#define __device_dts_ord_DT_N_INST_0_hci_uart_ORD (bt_hci_h4_device)
+#define __device_dts_ord_DT_N_INST_0_hci_uart_ORD (DT_INST(0, zephyr_bt_hci_uart))
 
 #if IS_ENABLED(DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_EXISTS)
 extern struct device bt_hci_h4_sdio_reset_gpio;

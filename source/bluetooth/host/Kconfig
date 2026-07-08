@@ -4,37 +4,6 @@
 # Copyright (c) 2015-2016 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-config BT_LONG_WQ
-	bool "Dedicated workqueue for long-running tasks."
-	default y if BT_GATT_CACHING
-	help
-	  Adds an API for a workqueue dedicated to long-running tasks.
-
-if BT_LONG_WQ
-config BT_LONG_WQ_STACK_SIZE
-	int "Long workqueue stack size."
-	default 4096 if NO_OPTIMIZATIONS
-	default 1400 if BT_ECC
-	default 1300 if BT_GATT_CACHING
-	default 1024
-	help
-	  The stack size used for the long workqueue. In most cases it's best to use the default
-	  values, however since the actual requirement depends on the underlying crypto backend
-	  this option can be used to finetune the stack size.
-
-config BT_LONG_WQ_PRIO
-	int "Long workqueue priority. Should be preemptible."
-	default 10
-	range 0 NUM_PREEMPT_PRIORITIES
-
-config BT_LONG_WQ_INIT_PRIO
-	int "Long workqueue init priority"
-	default 50
-	help
-	  Init priority level to setup the long workqueue.
-
-endif # BT_LONG_WQ
-
 config BT_HCI_HOST
 	# Hidden option to make the conditions more intuitive
 	bool
@@ -195,12 +164,13 @@ rsource "../audio/Kconfig"
 
 config BT_BUF_EVT_DISCARDABLE_SIZE
 	int "Maximum supported discardable HCI Event buffer length"
-	range 43 255 if !BT_EXT_ADV
-	range 58 255 if BT_EXT_ADV
+	range 43 $(UINT8_MAX) if !BT_EXT_ADV
+	range 58 $(UINT8_MAX) if BT_EXT_ADV
 	# LE Extended Advertising Report event
-	default 255 if BT_CLASSIC
+	default $(UINT8_MAX) if BT_CLASSIC
 	# Le Advertising Report event
 	default 43 if !BT_EXT_ADV
+	default 58 if BT_EXT_ADV && BT_MESH
 	default BT_BUF_EVT_RX_SIZE if BT_EXT_ADV
 	help
 	  Maximum support discardable HCI event size of buffers in the separate
@@ -211,7 +181,7 @@ config BT_BUF_EVT_DISCARDABLE_SIZE
 
 config BT_BUF_EVT_DISCARDABLE_COUNT
 	int "Number of discardable HCI Event buffers"
-	range 1 255
+	range 1 $(UINT8_MAX)
 	default 20 if BT_MESH
 	default 3
 	help
@@ -313,7 +283,7 @@ config BT_SETTINGS_CF_STORE_ON_WRITE
 
 config BT_SETTINGS_USE_PRINTK
 	bool "Use snprintk to encode Bluetooth settings key strings"
-	depends on PORT_SETTINGS && PRINTK
+	depends on SETTINGS && PRINTK
 	default y
 	help
 	  When selected, Bluetooth settings will use snprintk to encode
@@ -379,7 +349,7 @@ if BT_CONN
 config BT_CONN_TX_MAX
 	int "Maximum number of pending TX buffers with a callback [DEPRECATED]"
 	default BT_BUF_ACL_TX_COUNT
-	range BT_BUF_ACL_TX_COUNT 255
+	range BT_BUF_ACL_TX_COUNT $(UINT8_MAX)
 	help
 	  Maximum number of pending TX buffers that have an associated
 	  callback. Normally this can be left to the default value, which
@@ -479,6 +449,12 @@ config BT_USER_DATA_LEN_UPDATE
 	  Procedure. The application can also a register callback to be notified
 	  about Data Length changes on the connection. The current Data Length
 	  info is available in the connection info.
+
+config BT_USER_CONN_PARAM_REJECTED
+	bool "User notification of connection parameter update rejection"
+	help
+	  Enable application callback when an application-initiated connection
+	  parameter update request is rejected by the peer.
 
 config BT_AUTO_DATA_LEN_UPDATE
 	bool "Auto-initiate Data Length Update procedure"
@@ -603,7 +579,7 @@ config BT_RPA_TIMEOUT
 	int "Resolvable Private Address timeout"
 	depends on BT_PRIVACY
 	default 900
-	range 1 65535
+	range 1 $(UINT16_MAX)
 	help
 	  This option defines how often resolvable private address is rotated.
 	  Value is provided in seconds and defaults to 900 seconds (15 minutes).
@@ -866,9 +842,10 @@ rsource "../services/Kconfig"
 
 config BT_MAX_PAIRED
 	int "Maximum number of paired devices"
-	default 0 if !BT_SMP
-	default 1
+	range 1 250 if BT_SMP
+	default 1 if BT_SMP
 	range 0 250
+	default 0
 	help
 	  Maximum number of paired Bluetooth devices. The minimum (and
 	  default) number is 1.
@@ -881,7 +858,7 @@ config BT_CREATE_CONN_TIMEOUT
 config BT_CONN_PARAM_UPDATE_TIMEOUT
 	int "Peripheral connection parameter update timeout in milliseconds"
 	default 5000
-	range 0 65535
+	range 0 $(UINT16_MAX)
 	help
 	  The value is a timeout used by peripheral device to wait until it
 	  starts the first connection parameters update procedure after a
@@ -897,7 +874,7 @@ config BT_CONN_PARAM_UPDATE_TIMEOUT
 config BT_CONN_PARAM_RETRY_COUNT
 	int "Peripheral connection parameter update retry attempts"
 	default 3
-	range 0 255
+	range 0 $(UINT8_MAX)
 	help
 	  This value corresponds to number of times to retry connection
 	  parameter update to attain the preferred value set in GATT
@@ -906,7 +883,7 @@ config BT_CONN_PARAM_RETRY_COUNT
 config BT_CONN_PARAM_RETRY_TIMEOUT
 	int "Peripheral connection parameter update retry timeout in milliseconds"
 	default 5000
-	range 0 65535
+	range 0 $(UINT16_MAX)
 	help
 	  The value is a timeout used by peripheral device to wait until retry
 	  to attempt requesting again the preferred connection parameters.
@@ -994,7 +971,7 @@ config BT_DEVICE_APPEARANCE_DYNAMIC
 
 config BT_DEVICE_APPEARANCE
 	int "Bluetooth device appearance"
-	range 0 65535
+	range 0 $(UINT16_MAX)
 	default 0
 	help
 	  Bluetooth device appearance. For the list of possible values please
@@ -1110,7 +1087,6 @@ config BT_ECC
 	select PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_EXPORT
 	select PSA_WANT_ECC_SECP_R1_256
 	imply MBEDTLS_PSA_P256M_DRIVER_ENABLED if MBEDTLS_PSA_CRYPTO_C
-	imply BT_LONG_WQ
 	help
 	  If this option is set, internal APIs will be available to perform ECDH operations through
 	  the long work queue (or system work queue). The operations are used e.g. by LE Secure
@@ -1206,7 +1182,7 @@ config BT_HCI_VS_EVT_USER
 
 config BT_BUF_SYNC_EVT_POOL_COUNT
 	int "Num of Sync event buffer pool count"
-	range 1 255
+	range 1 $(UINT8_MAX)
 	default 1
 	help
 	  This option enables vendor to configure number of sync event buffer count

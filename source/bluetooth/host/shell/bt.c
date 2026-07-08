@@ -744,10 +744,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 
 done:
 	/* clear connection reference for sec mode 3 pairing */
-	if (pairing_conn) {
-		bt_conn_unref(pairing_conn);
-		pairing_conn = NULL;
-	}
+	bt_conn_drop(&pairing_conn);
 }
 
 static void disconnected_set_new_default_conn_cb(struct bt_conn *conn, void *user_data)
@@ -788,8 +785,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 		if (err != 0) {
 			bt_shell_error("Unable to get info: conn %p (err %d)", conn, err);
 		}
-		bt_conn_unref(default_conn);
-		default_conn = NULL;
+		bt_conn_drop(&default_conn);
 
 		if (err == 0) {
 			/* If we are connected to other devices, set one of them as default */
@@ -1247,6 +1243,7 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 #endif
 #if defined(CONFIG_BT_CLASSIC)
 	.br.role_changed = br_role_changed,
+	.br.packet_type_changed = br_packet_type_changed,
 #endif
 };
 #endif /* CONFIG_BT_CONN */
@@ -2937,6 +2934,28 @@ static int cmd_per_adv_data(const struct shell *sh, size_t argc,
 
 	return 0;
 }
+
+static int cmd_per_adv_update_did(const struct shell *sh, size_t argc, char *argv[])
+{
+	ARG_UNUSED(argc);
+	ARG_UNUSED(argv);
+
+	const struct bt_le_ext_adv *adv = adv_sets[selected_adv];
+	int err;
+
+	if (adv == NULL) {
+		shell_error(sh, "No extended advertisement set selected");
+		return -EINVAL;
+	}
+
+	err = bt_le_per_adv_update_did(adv);
+	if (err != 0) {
+		shell_error(sh, "Failed to update periodic advertising DID (%d)", err);
+		return -ENOEXEC;
+	}
+
+	return 0;
+}
 #endif /* CONFIG_BT_PER_ADV */
 #endif /* CONFIG_BT_EXT_ADV */
 #endif /* CONFIG_BT_BROADCASTER */
@@ -4408,10 +4427,7 @@ static void auth_cancel(struct bt_conn *conn)
 	bt_shell_print("Pairing cancelled: %s", bt_conn_dst_str(conn));
 
 	/* clear connection reference for sec mode 3 pairing */
-	if (pairing_conn) {
-		bt_conn_unref(pairing_conn);
-		pairing_conn = NULL;
-	}
+	bt_conn_drop(&pairing_conn);
 }
 
 static void auth_pairing_confirm(struct bt_conn *conn)
@@ -5419,6 +5435,8 @@ SHELL_STATIC_SUBCMD_SET_CREATE(bt_cmds,
 		      "[<interval-min> [<interval-max> [tx_power]]]",
 		      cmd_per_adv_param, 1, 3),
 	SHELL_CMD_ARG(per-adv-data, NULL, "[data]", cmd_per_adv_data, 1, 1),
+	SHELL_CMD_ARG(per-adv-update-did, NULL, "Update periodic advertising DID",
+		     cmd_per_adv_update_did, 1, 0),
 #endif /* CONFIG_BT_PER_ADV */
 #endif /* CONFIG_BT_EXT_ADV */
 #endif /* CONFIG_BT_BROADCASTER */

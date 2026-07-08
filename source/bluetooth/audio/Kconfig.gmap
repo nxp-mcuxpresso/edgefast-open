@@ -25,5 +25,5 @@ config BT_GMAP
 
 parent-module = BT
 module = BT_GMAP
-module-str = "Bluetooth Gaming Audio Profile"
+module-str = Bluetooth Gaming Audio Profile
 source "middleware/edgefast_open/source/porting/Kconfig.template.log_config_inherit"

@@ -4,7 +4,7 @@
  * Provide some Bluetooth shell commands that can be useful to applications.
  */
 /*
- * Copyright 2024-2025 NXP
+ * Copyright 2024-2026 NXP
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -1663,8 +1663,7 @@ static int cmd_release_buf(const struct shell *sh, size_t argc, char **argv)
 		return -EINVAL;
 	}
 
-	net_buf_unref(goep_app.tx_buf);
-	goep_app.tx_buf = NULL;
+	net_buf_drop(&goep_app.tx_buf);
 
 	return 0;
 }
