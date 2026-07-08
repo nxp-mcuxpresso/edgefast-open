@@ -5,8 +5,8 @@ Hardware requirements
 - Personal Computer
 - One of the following modules:
   - FRDM-IW416-AW-AM510 Board
-  - An adapter board(X-FRDM-WIFI-M.2) and Embedded Artists 2LL M.2 Module (EAR00500) - direct M2 connection.
-  - An adapter board(X-FRDM-WIFI-M.2) and Embedded Artists 1XK M.2 Module (EAR00385) - direct M2 connection.
+  - An adapter board(FRDM-M2 ADAPTER V1) and Embedded Artists 2LL M.2 Module (EAR00500) - direct M2 connection.
+  - An adapter board(FRDM-M2 ADAPTER V1) and Embedded Artists 1XK M.2 Module (EAR00385) - direct M2 connection.
 
 Board settings
 ==============
@@ -16,7 +16,6 @@ If you want to use Embedded Artists 1XK M.2 Module(EAR00385), please change the 
 
 Hardware rework guide:
 ======================
-The hardware should be reworked according to the Hardware Rework Guide for FRDM-MCXN947 and X-FRDM-WIFI-M.2 Adapter in document Hardware Rework Guide for EdgeFast BT PAL.
 The hardware should be reworked according to the Hardware Rework Guide for FRDM-MCXN947 with FRDM-IW416-AW-AM510 in document Hardware Rework Guide for EdgeFast BT PAL.
 
 FRDM-IW416-AW-AM510 Board settings
@@ -25,18 +24,11 @@ FRDM-IW416-AW-AM510 user guide: https://www.azurewave.com/img/nxp/FRDM-IW416-AW-
 FRDM-IW416-AW-AM510 datasheet: https://www.azurewave.com/img/nxp/FRDM-IW416-AW-AM510_DS_DF_A_STD.pdf
 AW-AM510 datasheet: https://www.azurewave.com/img/nxp/AW-AM510_DS_DF_F_STD.pdf
 IW416 datasheet: https://www.nxp.com.cn/docs/en/data-sheet/IW416.pdf
-
-The Adapter Board(X-FRDM-WIFI-M.2) settings
+The Adapter Board(FRDM-M2 ADAPTER V1) settings
 ==============================
-Connect the X-FRDM-WIFI-M.2 to FRDM-MCXN947 by J1, J2, J3, J4.
-J8(On X-FRDM-WIFI-M.2) - 1.8V
-J24(On X-FRDM-WIFI-M.2) - 3.3V
-J19(On X-FRDM-WIFI-M.2) - 1.8V
-J25(On X-FRDM-WIFI-M.2) - 3.3V
-J15(On X-FRDM-WIFI-M.2) - 1.8V
-J16(On X-FRDM-WIFI-M.2) - 3.3V
-J17(On X-FRDM-WIFI-M.2) - 1.8V
-J18(On X-FRDM-WIFI-M.2) - 3.3V
+Connect the FRDM-M2 ADAPTER V1 to FRDM-MCXN947 by J1, J2, J3, J4.
+UART CTS: J1 Pin10(On FRDM-M2 ADAPTER V1) - J9 Pin26(On FRDM-MCXN947)
+UART RTS: J1 Pin6(On FRDM-M2 ADAPTER V1) - J8 Pin6(On FRDM-MCXN947)
 
 Murata Solution Board settings
 ==============================

@@ -183,7 +183,8 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_port
 	int "WIFI disable GPIO port"
 	default 0 if MCUX_HW_DEVICE_MCXN547
 	default 0 if MCUX_HW_BOARD_mcxn9xxevk
-	default 1 if MCUX_HW_BOARD_frdmmcxn947
+	default 0 if MCUX_HW_BOARD_frdmmcxn947 && MCUX_COMPONENT_component.wifi_bt_module.frdm_m2_adapter_v1
+	default 1 if MCUX_HW_BOARD_frdmmcxn947 && !MCUX_COMPONENT_component.wifi_bt_module.frdm_m2_adapter_v1
 	default 3 if MCUX_HW_DEVICE_MIMXRT1042
 	default 1 if MCUX_HW_DEVICE_MIMXRT1052
 	default 1 if MCUX_HW_DEVICE_MIMXRT1062
@@ -201,7 +202,8 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_IDX_0_VAL_pin
 	int "WIFI disable GPIO pin"
 	default 8 if MCUX_HW_DEVICE_MCXN547
 	default 8 if MCUX_HW_BOARD_mcxn9xxevk
-	default 21 if MCUX_HW_BOARD_frdmmcxn947
+	default 28 if MCUX_HW_BOARD_frdmmcxn947 && MCUX_COMPONENT_component.wifi_bt_module.frdm_m2_adapter_v1
+	default 21 if MCUX_HW_BOARD_frdmmcxn947 && !MCUX_COMPONENT_component.wifi_bt_module.frdm_m2_adapter_v1
 	default 2 if MCUX_HW_DEVICE_MIMXRT1042
 	default 26 if MCUX_HW_DEVICE_MIMXRT1052
 	default 19 if MCUX_HW_DEVICE_MIMXRT1062

@@ -58,6 +58,21 @@ void BOARD_InitArduinoUARTPins(void);
 
 #define PCR_IBE_ibe1 0x01u /*!<@brief Input Buffer Enable: Enables */
 
+#if CONFIG_FRDM_M2_ADAPTER_V1
+/*! @name PORT0_28 (coord E8), WL_RST
+   @{ */
+
+ /* Symbols to be used with GPIO driver */
+ #define BOARD_INITPINSWIFI_WL_RST_GPIO GPIO0                /*!<@brief GPIO peripheral base pointer */
+ #define BOARD_INITPINSWIFI_WL_RST_GPIO_PIN 28U              /*!<@brief GPIO pin number */
+ #define BOARD_INITPINSWIFI_WL_RST_GPIO_PIN_MASK (1U << 28U) /*!<@brief GPIO pin mask */
+
+ /* Symbols to be used with PORT driver */
+ #define BOARD_INITPINSWIFI_WL_RST_PORT PORT0                /*!<@brief PORT peripheral base pointer */
+ #define BOARD_INITPINSWIFI_WL_RST_PIN 28U                   /*!<@brief PORT pin number */
+ #define BOARD_INITPINSWIFI_WL_RST_PIN_MASK (1U << 28U)      /*!<@brief PORT pin mask */
+                                                             /* @} */
+#else
 /*! @name PORT1_21 (coord L5), WL_RST
   @{ */
 
@@ -72,6 +87,7 @@ void BOARD_InitArduinoUARTPins(void);
 #define BOARD_INITPINSWIFI_WL_RST_PIN 21U                   /*!<@brief PORT pin number */
 #define BOARD_INITPINSWIFI_WL_RST_PIN_MASK (1U << 21U)      /*!<@brief PORT pin mask */
                                                             /* @} */
+#endif
 
 /*! @name PORT1_22 (coord L4), SDIO_RST
   @{ */
