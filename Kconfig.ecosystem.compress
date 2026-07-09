@@ -646,6 +646,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_controller_low_power_
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_crc__8190f05c
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.crc)
 
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_no_unaligned_access)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_edgefast_open_no_unaligned_access__bb80c93b
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_no_unaligned_access)
+
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_edgefast_open_suppressed_warnings__d4957269
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings)

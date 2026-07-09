@@ -5,3 +5,13 @@
 config SUPPRESSED_WARNINGS
 	bool "Suppress Compilation Warnings"
 	default y
+
+config EDGEFAST_OPEN_NO_UNALIGNED_ACCESS
+	bool "Disable unaligned memory access"
+	default n
+	help
+	  Prevent the compiler from generating unaligned memory accesses for the
+	  EdgeFast Open stack. Enable this on targets that do not support unaligned
+	  access or where such accesses cause faults or performance penalties.
+
+

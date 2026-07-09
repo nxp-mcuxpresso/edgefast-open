@@ -107,3 +107,22 @@ if(CONFIG_EDGEFAST_OPEN_SUPPRESSED_WARNINGS)
 		CX "-Wno-tautological-constant-out-of-range-compare"
 	)
 endif()
+
+if(CONFIG_EDGEFAST_OPEN_NO_UNALIGNED_ACCESS)
+	# Prevent the compiler from generating unaligned memory accesses.
+	mcux_add_armgcc_configuration(
+		CC "-mno-unaligned-access"
+		CX "-mno-unaligned-access"
+	)
+
+	mcux_add_mdk_configuration(
+		CC "-mno-unaligned-access"
+		CX "-mno-unaligned-access"
+	)
+
+	mcux_add_iar_configuration(
+		CC "--no_unaligned_access"
+	)
+endif()
+
+

@@ -1,19 +1,19 @@
 ================================================================================
 MCUX_ADD_* COMMANDS STATISTICS
 ================================================================================
-Total mcux_add_* commands: 495
-  - Conditional: 495
+Total mcux_add_* commands: 498
+  - Conditional: 498
   - Unconditional: 0
   - Duplicates removed: 0
-Unique conditions: 175
+Unique conditions: 176
 
 Command types distribution:
-  - mcux_add_source: 445 (89.9%)
+  - mcux_add_source: 445 (89.4%)
   - mcux_add_include: 20 (4.0%)
-  - mcux_add_iar_configuration: 16 (3.2%)
+  - mcux_add_iar_configuration: 17 (3.4%)
+  - mcux_add_mdk_configuration: 6 (1.2%)
   - mcux_add_configuration: 5 (1.0%)
-  - mcux_add_mdk_configuration: 5 (1.0%)
-  - mcux_add_armgcc_configuration: 4 (0.8%)
+  - mcux_add_armgcc_configuration: 5 (1.0%)
 
 Top 20 most used conditions:
    1. CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt
@@ -54,7 +54,7 @@ Top 20 most used conditions:
       Used by 3 command(s)
   19. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_audio) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_gmap)
       Used by 3 command(s)
-  20. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.port_shell)
+  20. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_no_unaligned_access)
       Used by 3 command(s)
 
 All unique conditions (sorted alphabetically):
@@ -217,6 +217,7 @@ All unique conditions (sorted alphabetically):
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_rpa) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller_low_power) (3 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.crc) (3 command(s))
+  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_no_unaligned_access) (3 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings) (12 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt) (4 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt_long) (2 command(s))
