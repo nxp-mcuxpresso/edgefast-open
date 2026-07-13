@@ -6,8 +6,6 @@ mcux_add_source(
     middleware/edgefast_open/examples/_boards/${board}/central_ht/${core_id}/pin_mux.c
     middleware/edgefast_open/examples/_boards/${board}/central_ht/${core_id}/pin_mux.h
     middleware/edgefast_open/examples/_boards/${board}/configs/freertos/FreeRTOSConfig.h
-    middleware/edgefast_bluetooth/source/impl/ethermind/controller/low_power/controller_low_power.c
-    middleware/edgefast_bluetooth/source/impl/ethermind/controller/low_power/controller_low_power.h
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_config_client.h
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
 )
@@ -17,7 +15,6 @@ mcux_add_include(
     ${board_root}/${board}
     middleware/edgefast_open/examples/_boards/${board}/central_ht/${core_id}
     middleware/edgefast_open/examples/_boards/${board}/configs/freertos
-    middleware/edgefast_bluetooth/source/impl/ethermind/controller/low_power
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls
 )
 mcux_add_mdk_configuration(
