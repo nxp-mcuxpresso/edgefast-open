@@ -1,14 +1,14 @@
 ================================================================================
 MCUX_ADD_* COMMANDS STATISTICS
 ================================================================================
-Total mcux_add_* commands: 498
-  - Conditional: 498
+Total mcux_add_* commands: 499
+  - Conditional: 499
   - Unconditional: 0
   - Duplicates removed: 0
-Unique conditions: 176
+Unique conditions: 177
 
 Command types distribution:
-  - mcux_add_source: 445 (89.4%)
+  - mcux_add_source: 446 (89.4%)
   - mcux_add_include: 20 (4.0%)
   - mcux_add_iar_configuration: 17 (3.4%)
   - mcux_add_mdk_configuration: 6 (1.2%)
@@ -221,7 +221,8 @@ All unique conditions (sorted alphabetically):
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings) (12 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt) (4 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt_long) (2 command(s))
-  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.host_low_power) (3 command(s))
+  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.host_low_power) (2 command(s))
+  - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.host_low_power) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.mcux_hw_device_mimxrt595s) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3) (17 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc) (33 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.net_buf) (3 command(s))
