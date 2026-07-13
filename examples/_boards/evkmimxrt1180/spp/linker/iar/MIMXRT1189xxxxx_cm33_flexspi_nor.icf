@@ -153,7 +153,7 @@ define exported symbol EDGEFAST_BT_LITTLEFS_STORAGE_MAX_SECTORS   = LITTLEFS_REG
 /* Block definition */
 define block RW            { readwrite };
 define block ZI            { zi };
-define block NCACHE_VAR    { section NonCacheable , section NonCacheable.init };
+define block NCACHE_VAR    { section NonCacheable , section NonCacheable.init, section NonCacheable_init };
 define block QACCESS_CODE  { section CodeQuickAccess };
 define block QACCESS_DATA  { section DataQuickAccess };
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
