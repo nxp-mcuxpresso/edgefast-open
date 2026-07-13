@@ -14,3 +14,6 @@ For dual-chip implementation, the Bluetooth demo runs on a \(reference board\) a
 :heading-offset: 1
 ```
 
+```{include} ../topics/board_module_support_matrix.md
+:heading-offset: 1
+```
