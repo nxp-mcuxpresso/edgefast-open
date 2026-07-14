@@ -8,7 +8,7 @@ The following table compares the features between EdgeFast Open Bluetooth Host s
 
 |**Feature**|**EdgeFast Open**|**EdgeFast Bluetooth PAL**|
 |-----------|-----------------|------------------------|
-|Bluetooth Core Specification|5.3|5.0|
+|Bluetooth Core Specification|6.2|5.4|
 |Bluetooth Host Stack|Zephyr-based|Proprietary with Zephyr API compatible|
 |Bluetooth Controller|Supported (NXP controller)|Supported (NXP controller)|
 |Mode|LE and Classic|LE and Classic|
