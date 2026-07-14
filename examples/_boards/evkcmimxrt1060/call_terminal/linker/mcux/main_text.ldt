@@ -1,1 +1,1 @@
-*(EXCLUDE_FILE(*fsl_adapter_flexspi_nor_flash.o *fsl_flexspi.o *mflash_drv.o *srCvtFrm.o *libethermind_lc3_common.a *libethermind_lc3_encoder.a *libethermind_lc3_decoder.a) .text*)
+*(EXCLUDE_FILE(*fsl_adapter_flexspi_nor_flash.o *fsl_flexspi.o *mflash_drv.o *srCvtFrm.o *attdet.o *bits.o *bwdet.o *energy.o *lc3.o *ltpf.o *mdct.o *plc.o *sns.o *spec.o *tables.o *tns.o) .text*)

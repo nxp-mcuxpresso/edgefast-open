@@ -16,7 +16,17 @@
         . = ALIGN(32);
         <#if memory.name=="SRAM_OC">
         *srCvtFrm.o(.text .text* .rodata .rodata*)
-        *libethermind_lc3_common.a(.text .text* .rodata .rodata*)
-        *libethermind_lc3_encoder.a(.text .text* .rodata .rodata*)
-        *libethermind_lc3_decoder.a(.text .text* .rodata .rodata*)
+
+        *attdet.o(.text .text* .rodata .rodata*)
+        *bits.o(.text .text* .rodata .rodata*)
+        *bwdet.o(.text .text* .rodata .rodata*)
+        *energy.o(.text .text* .rodata .rodata*)
+        *lc3.o(.text .text* .rodata .rodata*)
+        *ltpf.o(.text .text* .rodata .rodata*)
+        *mdct.o(.text .text* .rodata .rodata*)
+        *plc.o(.text .text* .rodata .rodata*)
+        *sns.o(.text .text* .rodata .rodata*)
+        *spec.o(.text .text* .rodata .rodata*)
+        *tables.o(.text .text* .rodata .rodata*)
+        *tns.o(.text .text* .rodata .rodata*)
         </#if>

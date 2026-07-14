@@ -110,9 +110,18 @@ SECTIONS
 
         */srCvtFrm.c.obj
 
-        *libethermind_lc3_decoder.a
-        *libethermind_lc3_encoder.a
-        *libethermind_lc3_common.a
+        */attdet.c.obj
+        */bits.c.obj
+        */bwdet.c.obj
+        */energy.c.obj
+        */lc3.c.obj
+        */ltpf.c.obj
+        */mdct.c.obj
+        */plc.c.obj
+        */sns.c.obj
+        */spec.c.obj
+        */tables.c.obj
+        */tns.c.obj
     ) .text)                 /* .text sections (code) */
     *(EXCLUDE_FILE(
         /* Exclude flash and frequently executed functions from XIP */
@@ -121,10 +130,19 @@ SECTIONS
         */fsl_flexspi.c.obj
 
         */srCvtFrm.c.obj
+        */attdet.c.obj
 
-        *libethermind_lc3_decoder.a
-        *libethermind_lc3_encoder.a
-        *libethermind_lc3_common.a
+        */bits.c.obj
+        */bwdet.c.obj
+        */energy.c.obj
+        */lc3.c.obj
+        */ltpf.c.obj
+        */mdct.c.obj
+        */plc.c.obj
+        */sns.c.obj
+        */spec.c.obj
+        */tables.c.obj
+        */tns.c.obj
     ) .text*)                /* .text* sections (code) */
     *(EXCLUDE_FILE(
         /* Exclude flash and frequently executed functions from XIP */
@@ -133,10 +151,19 @@ SECTIONS
         */fsl_flexspi.c.obj
 
         */srCvtFrm.c.obj
+        */attdet.c.obj
 
-        *libethermind_lc3_decoder.a
-        *libethermind_lc3_encoder.a
-        *libethermind_lc3_common.a
+        */bits.c.obj
+        */bwdet.c.obj
+        */energy.c.obj
+        */lc3.c.obj
+        */ltpf.c.obj
+        */mdct.c.obj
+        */plc.c.obj
+        */sns.c.obj
+        */spec.c.obj
+        */tables.c.obj
+        */tns.c.obj
     ) .rodata)                 /* .rodata sections (code) */
     *(EXCLUDE_FILE(
         /* Exclude flash and frequently executed functions from XIP */
@@ -145,10 +172,19 @@ SECTIONS
         */fsl_flexspi.c.obj
 
         */srCvtFrm.c.obj
+        */attdet.c.obj
 
-        *libethermind_lc3_decoder.a
-        *libethermind_lc3_encoder.a
-        *libethermind_lc3_common.a
+        */bits.c.obj
+        */bwdet.c.obj
+        */energy.c.obj
+        */lc3.c.obj
+        */ltpf.c.obj
+        */mdct.c.obj
+        */plc.c.obj
+        */sns.c.obj
+        */spec.c.obj
+        */tables.c.obj
+        */tns.c.obj
     ) .rodata*)                /* .rodata* sections (code) */
     *(.glue_7)               /* glue arm to thumb code */
     *(.glue_7t)              /* glue thumb to arm code */
@@ -350,9 +386,18 @@ SECTIONS
 
     */srCvtFrm.c.obj(.text .text* .rodata .rodata*)
 
-    *libethermind_lc3_decoder.a(.text .text* .rodata .rodata*)
-    *libethermind_lc3_encoder.a(.text .text* .rodata .rodata*)
-    *libethermind_lc3_common.a(.text .text* .rodata .rodata*)
+    */attdet.c.obj(.text .text* .rodata .rodata*)
+    */bits.c.obj(.text .text* .rodata .rodata*)
+    */bwdet.c.obj(.text .text* .rodata .rodata*)
+    */energy.c.obj(.text .text* .rodata .rodata*)
+    */lc3.c.obj(.text .text* .rodata .rodata*)
+    */ltpf.c.obj(.text .text* .rodata .rodata*)
+    */mdct.c.obj(.text .text* .rodata .rodata*)
+    */plc.c.obj(.text .text* .rodata .rodata*)
+    */sns.c.obj(.text .text* .rodata .rodata*)
+    */spec.c.obj(.text .text* .rodata .rodata*)
+    */tables.c.obj(.text .text* .rodata .rodata*)
+    */tns.c.obj(.text .text* .rodata .rodata*)
 
     *(.data)                 /* .data sections */
     *(.data*)                /* .data* sections */

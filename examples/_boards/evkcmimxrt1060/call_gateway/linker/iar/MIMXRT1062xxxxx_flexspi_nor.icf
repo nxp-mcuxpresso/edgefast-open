@@ -115,9 +115,19 @@ initialize by copy { readwrite, section .textrw, section CodeQuickAccess, sectio
 };
 initialize by copy { readwrite, section .textrw,
   object srCvtFrm.o,
-  object libethermind_lc3_common.a,
-  object libethermind_lc3_encoder.a,
-  object libethermind_lc3_decoder.a
+
+  object attdet.o,
+  object bits.o,
+  object bwdet.o,
+  object energy.o,
+  object lc3.o,
+  object ltpf.o,
+  object mdct.o,
+  object plc.o,
+  object sns.o,
+  object spec.o,
+  object tables.o,
+  object tns.o,
 };
 do not initialize  { section .noinit, section NonCacheable };
 
