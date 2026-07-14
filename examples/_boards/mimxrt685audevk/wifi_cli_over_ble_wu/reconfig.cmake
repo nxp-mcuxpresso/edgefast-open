@@ -13,7 +13,6 @@ mcux_add_source(
     middleware/edgefast_open/examples/_boards/${board}/wifi_cli_over_ble_wu/hardware_init.c
     middleware/edgefast_open/examples/_boards/${board}/wifi_cli_over_ble_wu/pin_mux.c
     middleware/edgefast_open/examples/_boards/${board}/wifi_cli_over_ble_wu/pin_mux.h
-    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_config_client.h
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
 )
 mcux_add_include(

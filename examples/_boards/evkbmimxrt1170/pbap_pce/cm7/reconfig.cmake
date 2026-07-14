@@ -11,7 +11,6 @@ mcux_add_source(
     middleware/edgefast_open/examples/_boards/${board}/pbap_pce/${core_id}/hardware_init.c
     middleware/edgefast_open/examples/_boards/${board}/pbap_pce/${core_id}/pin_mux.c
     middleware/edgefast_open/examples/_boards/${board}/pbap_pce/${core_id}/pin_mux.h
-    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_config_client.h
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
 )
 mcux_add_include(
@@ -39,7 +38,8 @@ mcux_add_macro(
       -DLFS_NO_ERROR=1\
       -DLFS_NO_INTRINSICS=1\
       -DSDIO_ENABLED=1\
-      -DgMemManagerLight=0"
+      -DgMemManagerLight=0\
+      -DMBEDTLS_USER_CONFIG_FILE=\\\"mbedtls_user_config.h\\\""
 )
 
 mcux_add_macro(

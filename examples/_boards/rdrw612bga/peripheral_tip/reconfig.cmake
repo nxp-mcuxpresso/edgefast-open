@@ -7,7 +7,6 @@ mcux_add_source(
     middleware/edgefast_open/examples/_boards/${board}/peripheral_tip/hardware_init.c
     middleware/edgefast_open/examples/_boards/${board}/peripheral_tip/pin_mux.c
     middleware/edgefast_open/examples/_boards/${board}/peripheral_tip/pin_mux.h
-    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_config_client.h
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
 )
 mcux_add_include(
