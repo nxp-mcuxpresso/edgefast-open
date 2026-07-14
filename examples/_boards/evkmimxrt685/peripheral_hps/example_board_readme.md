@@ -14,7 +14,7 @@ Hardware requirements
 
 Board settings
 ==============
-Before building the example application select Wi-Fi module macro in the app_bluetooth_config.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
+Before building the example application select Wi-Fi module macro in the edgefast_open_app.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
 If you want use the AzureWave AW-AM510-uSD, please change the macro to WIFI_IW416_BOARD_AW_AM510_USD.
 If you want use the AzureWave AW-AM457-uSD, please change the macro to WIFI_IW416_BOARD_AW_AM457_USD.
 If you want use the AzureWave AW-CM358-uSD, please change the macro to WIFI_88W8987_BOARD_AW_CM358_USD.

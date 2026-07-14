@@ -14,7 +14,7 @@ Board settings
 Before building the example application select Wi-Fi module macro in the edgefast_bluetooth_app.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
 If you want to use Embedded Artists 1XK M.2 Module(EAR00385), please change the macro to WIFI_IW416_BOARD_MURATA_1XK_M2.
 If you want to use Embedded Artists 1ZM M.2 Module(EAR00364), please change the macro to WIFI_88W8987_BOARD_MURATA_1ZM_M2.
-If you want to use Embedded Artists 1ZM M.2 Module(Rev-A1), please change the macro to WIFI_IW612_BOARD_MURATA_2EL_M2.
+If you want to use Embedded Artists 2EL M.2 Module(Rev-A1), please change the macro to WIFI_IW612_BOARD_MURATA_2EL_M2.
 If you want to use Embedded Artists 2LL M.2 Module(EAR00500), please change the macro to WIFI_IW610_BOARD_MURATA_2LL_M2.
 
 Jumper settings for RT1060-EVKC (enables external 5V supply):

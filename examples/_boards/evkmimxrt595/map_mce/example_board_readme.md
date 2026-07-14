@@ -11,7 +11,7 @@ Hardware requirements
 
 Board settings
 ==============
-Before building the example application select Wi-Fi module macro in the app_bluetooth_config.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
+Before building the example application select Wi-Fi module macro in the edgefast_open_app.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
 If you want to use Embedded Artists Type 1XK module (EAR00385), please change the macro to WIFI_IW416_BOARD_MURATA_1XK_M2.
 If you want to use Embedded Artists Type 1ZM module (EAR00364), please change the macro to WIFI_88W8987_BOARD_MURATA_1ZM_M2.
 If you want to use Embedded Artists Type 2EL module (Rev-A1), please change the macro to WIFI_IW612_BOARD_MURATA_2EL_M2.

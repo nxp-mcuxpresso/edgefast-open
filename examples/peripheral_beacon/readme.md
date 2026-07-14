@@ -27,7 +27,7 @@ iBeacon: This simple application demonstrates the BLE Broadcaster role functiona
 5.  Either press the reset button on your board or launch the debugger in your IDE to begin running the example.
 
 ## Running the demo
-Form the app_bluetooth_config.h file we can select witch application is starting. Default Beacon (#define BEACON_APP 1) application is starting.
+Form the edgefast_open_app.h file we can select witch application is starting. Default Beacon (#define BEACON_APP 1) application is starting.
 
 To start the Eddystone set #define EDDYSTONE 1 and others to 0. To start the iBeacon set #define IBEACON_APP 1 and others to 0.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

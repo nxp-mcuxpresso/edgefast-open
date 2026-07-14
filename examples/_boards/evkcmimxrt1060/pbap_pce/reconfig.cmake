@@ -4,7 +4,7 @@ mcux_add_source(
     BASE_PATH ${SdkRootDirPath}
     SOURCES middleware/edgefast_open/examples/_boards/${board}/configs/freertos/FreeRTOSConfig.h
             ${board_root}/${board}/FreeRTOSConfigBoard.h
-#           middleware/edgefast_open/examples/_boards/${board}/pbap_pce/app_bluetooth_config.h
+#           middleware/edgefast_open/examples/_boards/${board}/pbap_pce/edgefast_open_app.h
             middleware/edgefast_open/examples/_boards/${board}/pbap_pce/hardware_init.c
             middleware/edgefast_open/examples/_boards/${board}/pbap_pce/pin_mux.c
             middleware/edgefast_open/examples/_boards/${board}/pbap_pce/pin_mux.h
