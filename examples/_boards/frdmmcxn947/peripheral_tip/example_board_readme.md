@@ -4,26 +4,14 @@ Hardware requirements
 - FRDM-MCXN947 board
 - Personal Computer
 - One of the following modules:
-  - FRDM-IW416-AW-AM510 Board
   - An adapter board(FRDM-M2 ADAPTER V1) and Embedded Artists 2LL M.2 Module (EAR00500) - direct M2 connection.
   - An adapter board(FRDM-M2 ADAPTER V1) and Embedded Artists 1XK M.2 Module (EAR00385) - direct M2 connection.
 
 Board settings
 ==============
-Set the hardware jumpers to default settings.
+Before building the example application select Wi-Fi module macro in the edgefast_open_app.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
 If you want to use Embedded Artists 2LL M.2 Module(EAR00500), please change the macro to WIFI_IW610_BOARD_MURATA_2LL_M2.
 If you want to use Embedded Artists 1XK M.2 Module(EAR00385), please change the macro to WIFI_IW416_BOARD_MURATA_1XK_M2.
-
-Hardware rework guide:
-======================
-The hardware should be reworked according to the Hardware Rework Guide for FRDM-MCXN947 with FRDM-IW416-AW-AM510 in document Hardware Rework Guide for EdgeFast BT PAL.
-
-FRDM-IW416-AW-AM510 Board settings
-==============================
-FRDM-IW416-AW-AM510 user guide: https://www.azurewave.com/img/nxp/FRDM-IW416-AW-AM510_user%20guide_20240919.pdf
-FRDM-IW416-AW-AM510 datasheet: https://www.azurewave.com/img/nxp/FRDM-IW416-AW-AM510_DS_DF_A_STD.pdf
-AW-AM510 datasheet: https://www.azurewave.com/img/nxp/AW-AM510_DS_DF_F_STD.pdf
-IW416 datasheet: https://www.nxp.com.cn/docs/en/data-sheet/IW416.pdf
 The Adapter Board(FRDM-M2 ADAPTER V1) settings
 ==============================
 Connect the FRDM-M2 ADAPTER V1 to FRDM-MCXN947 by J1, J2, J3, J4.

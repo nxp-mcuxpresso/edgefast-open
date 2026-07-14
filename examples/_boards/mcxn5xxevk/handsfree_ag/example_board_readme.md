@@ -5,13 +5,11 @@ Hardware requirements
 - Personal Computer
 - One of the following modules:
   - Embedded Artists 1XK M.2 Module (EAR00385) - direct M2 connection.
-  - Embedded Artists 1ZM M.2 Module (EAR00364) - direct M2 connection.
 
 Board settings
 ==============
 Before building the example application select Wi-Fi module macro in the edgefast_open_app.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
-If you want to use Embedded Artists Type 1XK module(EAR00385 M2 only), please change the macro to WIFI_IW416_BOARD_MURATA_1XK_M2.
-If you want to use Embedded Artists Type 1ZM module(EAR00364 M2 only), please change the macro to WIFI_88W8987_BOARD_MURATA_1ZM_M2.
+If you want to use Embedded Artists 1XK M.2 Module(EAR00385), please change the macro to WIFI_IW416_BOARD_MURATA_1XK_M2.
 
 Hardware rework guide
 =====================
@@ -22,7 +20,6 @@ Murata Solution Board settings
 ==============================
 Embedded Artists M.2 module resource page: https://www.embeddedartists.com/m2
 Embedded Artists 1XK module datasheet: https://www.embeddedartists.com/doc/ds/1XK_M2_Datasheet.pdf
-Embedded Artists 1ZM module datasheet: https://www.embeddedartists.com/doc/ds/1ZM_M2_Datasheet.pdf
 
 
 Note
