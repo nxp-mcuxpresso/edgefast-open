@@ -153,7 +153,8 @@ define exported symbol EDGEFAST_BT_LITTLEFS_STORAGE_MAX_SECTORS   = LITTLEFS_REG
 /* Block definition */
 define block RW            { readwrite };
 define block ZI            { zi };
-define block NCACHE_VAR    { section NonCacheable , section NonCacheable.init, section NonCacheable_init };
+define block NCACHE_VAR      { section NonCacheable };
+define block NCACHE_VAR_INIT { section NonCacheable.init, section NonCacheable_init };
 define block QACCESS_CODE  { section CodeQuickAccess };
 define block QACCESS_DATA  { section DataQuickAccess };
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
@@ -267,10 +268,11 @@ initialize by copy { readwrite, section .textrw, section DataQuickAccess, sectio
   section .text   object mflash_drv.o,
   section .rodata object mflash_drv.o,
   section .text   object fsl_flexspi.o,
-  section .rodata object fsl_flexspi.o
+  section .rodata object fsl_flexspi.o,
+  section NonCacheable.init, section NonCacheable_init,
 };
 
-do not initialize  { section .noinit };
+do not initialize  { section .noinit, section NonCacheable };
 if (isdefinedsymbol(__use_shmem__)) {
   do not initialize  { section rpmsg_sh_mem_section };
 }
@@ -289,6 +291,7 @@ place in DATA_OCRAM_region                  { block ZI };
 place in DATA_OCRAM_region                  { block ._k_mem_slab };
 place in DATA_OCRAM_region                  { block ._net_buf_pool };
 place in DATA_OCRAM_region                  { block .__shell_command };
+place in NCACHE_region                      { block NCACHE_VAR_INIT };
 place in NCACHE_region                      { block NCACHE_VAR };
 place in CSTACK_region                      { block CSTACK };
 if (isdefinedsymbol(__heap_noncacheable__)) {

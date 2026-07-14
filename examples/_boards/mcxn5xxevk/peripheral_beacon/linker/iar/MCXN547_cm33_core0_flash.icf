@@ -96,7 +96,8 @@ define block CSTACK        with alignment = 8, size = __size_cstack__   { };
 define block HEAP          with alignment = 8, size = __size_heap__     { };
 define block RW            { readwrite };
 define block ZI            { zi };
-define block NCACHE_VAR    { section NonCacheable , section NonCacheable.init, section NonCacheable_init };
+define block NCACHE_VAR      { section NonCacheable };
+define block NCACHE_VAR_INIT { section NonCacheable.init, section NonCacheable_init };
 define block QACCESS_CODE  { section CodeQuickAccess };
 define block QACCESS_DATA  { section DataQuickAccess };
 
@@ -109,7 +110,8 @@ define region USB_SRAM_region = mem:[from m_usb_sram_start + usb_bdt_size to m_u
 place in USB_BDT_region                     { section m_usb_bdt };
 place in USB_SRAM_region                    { section m_usb_global };
 
-initialize by copy { readwrite, section .textrw, section CodeQuickAccess, section DataQuickAccess, object mflash_drv.o};
+initialize by copy { readwrite, section .textrw, section CodeQuickAccess, section DataQuickAccess, object mflash_drv.o  section NonCacheable.init, section NonCacheable_init,
+};
 
 if (isdefinedsymbol(__USE_DLIB_PERTHREAD))
 {
@@ -117,7 +119,7 @@ if (isdefinedsymbol(__USE_DLIB_PERTHREAD))
   initialize by copy with packing = none { section __DLIB_PERTHREAD };
 }
 
-do not initialize  { section .noinit, section m_usb_bdt, section m_usb_global };
+do not initialize  { section .noinit, section m_usb_bdt, section m_usb_global, section NonCacheable };
 if (isdefinedsymbol(__use_shmem__)) {
   do not initialize  { section rpmsg_sh_mem_section };
 }
@@ -203,6 +205,7 @@ place in DATA_region                        { block RW, block ._net_buf_pool, bl
 place in DATA_region                        { block ZI };
 place in DATA_region                        { last block HEAP };
 place in CSTACK_region                      { block CSTACK };
+place in DATA_region                        { block NCACHE_VAR_INIT };
 place in DATA_region                        { block NCACHE_VAR };
 place in DATA_region                        { block QACCESS_CODE };
 place in DATA_region                        { block QACCESS_DATA };

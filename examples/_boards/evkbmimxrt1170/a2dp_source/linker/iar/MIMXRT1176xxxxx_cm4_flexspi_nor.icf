@@ -98,7 +98,8 @@ define region CSTACK_region = mem:[from m_data_end-__size_cstack__+1 to m_data_e
 define region NCACHE_region = mem:[from m_ncache_start to m_ncache_end];
 define block RW        { readwrite };
 define block ZI        { zi };
-define block NCACHE_VAR    { section NonCacheable , section NonCacheable.init, section NonCacheable_init };
+define block NCACHE_VAR      { section NonCacheable };
+define block NCACHE_VAR_INIT { section NonCacheable.init, section NonCacheable_init };
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };
 define block QACCESS_CODE  { section CodeQuickAccess };
@@ -107,8 +108,9 @@ initialize by copy { readwrite, section .textrw, section CodeQuickAccess,
   object fsl_adapter_flexspi_nor_flash.o,
   object mflash_drv.o,
   object fsl_flexspi.o,
+  section NonCacheable.init, section NonCacheable_init,
 };
-do not initialize  { section .noinit };
+do not initialize  { section .noinit, section NonCacheable };
 
 place at address mem: m_interrupts_start    { readonly section .intvec };
 
@@ -211,6 +213,7 @@ if (isdefinedsymbol(__heap_noncacheable__)) {
 } else {
   place in DATA_region                      { last block HEAP };
 }
+place in NCACHE_region                      { block NCACHE_VAR_INIT };
 place in NCACHE_region                      { block NCACHE_VAR };
 place in CSTACK_region                      { block CSTACK };
 place in QACODE_region                      { section .textrw};

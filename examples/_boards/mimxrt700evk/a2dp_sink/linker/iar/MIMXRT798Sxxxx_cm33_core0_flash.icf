@@ -107,15 +107,17 @@ define block RW        { readwrite };
 define block ZI        { zi };
 define block USB_RW    with alignment = 32, end alignment = 32  { section CacheLineData.init };
 define block USB_ZI    with alignment = 32, end alignment = 32  { section CacheLineData };
-define block NCACHE_VAR    { section NonCacheable , section NonCacheable.init, section NonCacheable_init };
+define block NCACHE_VAR      { section NonCacheable };
+define block NCACHE_VAR_INIT { section NonCacheable.init, section NonCacheable_init };
 define block CORE1_IMAGE_BLOCK  with alignment = 16, maximum size = m_core1_image_maximum_size  { section  __core1_image };
 
 initialize by copy { readwrite, section .textrw , section CodeQuickAccess, section DataQuickAccess,
   object mflash_drv.o,
   object fsl_xspi.o,
+  section NonCacheable.init, section NonCacheable_init,
 };
 
-do not initialize  { section .noinit };
+do not initialize  { section .noinit, section NonCacheable };
 if (isdefinedsymbol(__use_shmem__)) {
   do not initialize  { section rpmsg_sh_mem_section };
 }
@@ -211,6 +213,7 @@ if (isdefinedsymbol(__heap_noncacheable__)) {
 else {
   place in DATA_region                      { last block HEAP };
 }
+place in NCACHE_region                      { block NCACHE_VAR_INIT };
 place in NCACHE_region                      { block NCACHE_VAR };
 place in CSTACK_region                      { block CSTACK };
 if (isdefinedsymbol(__use_shmem__)) {

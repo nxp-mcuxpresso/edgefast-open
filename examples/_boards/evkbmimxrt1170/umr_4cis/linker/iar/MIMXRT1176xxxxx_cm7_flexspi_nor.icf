@@ -120,7 +120,8 @@ define block RW        { readwrite };
 define block ZI        { zi };
 define block USB_RW    with alignment = 32, end alignment = 32  { section CacheLineData.init };
 define block USB_ZI    with alignment = 32, end alignment = 32  { section CacheLineData };
-define block NCACHE_VAR    { section NonCacheable , section NonCacheable.init, section NonCacheable_init };
+define block NCACHE_VAR      { section NonCacheable };
+define block NCACHE_VAR_INIT { section NonCacheable.init, section NonCacheable_init };
 define block QACCESS_CODE  { section CodeQuickAccess };
 define block QACCESS_DATA  { section DataQuickAccess };
 
@@ -131,7 +132,8 @@ initialize by copy { readwrite, section .textrw, section CodeQuickAccess, sectio
   object fsl_adapter_flexspi_nor_flash.o,
   object mflash_drv.o,
   object fsl_flexspi.o,
- };
+  section NonCacheable.init, section NonCacheable_init,
+};
 initialize by copy { readwrite, section .textrw,
   object srCvtFrm.o,
   object attdet.o,
@@ -147,7 +149,7 @@ initialize by copy { readwrite, section .textrw,
   object tables.o,
   object tns.o,
 };
-do not initialize  { section .noinit };
+do not initialize  { section .noinit, section NonCacheable };
 if (isdefinedsymbol(__use_shmem__)) {
   do not initialize  { section rpmsg_sh_mem_section };
 }
@@ -251,6 +253,7 @@ place in TEXT_region                        { readonly,block ._bt_gatt_service_s
 place in DATA2_region                       { block RW, block ._net_buf_pool, block .__shell_command, block ._k_mem_slab, block USB_RW};
 place in DATA2_region                       { block ZI, block USB_ZI };
 place in DATA_region                        { last block HEAP };
+place in DATA_region                        { block NCACHE_VAR_INIT };
 place in DATA_region                        { block NCACHE_VAR };
 if (isdefinedsymbol(__use_shmem__)) {
   place in rpmsg_sh_mem_region                { section rpmsg_sh_mem_section };
