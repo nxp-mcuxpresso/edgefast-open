@@ -13,6 +13,7 @@ zephyr_sources_ifdef(CONFIG_BT_ETS ets.c)
 zephyr_sources_ifdef(CONFIG_BT_HRS hrs.c)
 
 zephyr_sources_ifdef(CONFIG_BT_TPS tps.c)
+
 zephyr_sources_ifdef(CONFIG_BT_WUS wus.c)
 
 zephyr_sources_ifdef(CONFIG_BT_FMP fmp.c)

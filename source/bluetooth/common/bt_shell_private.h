@@ -91,3 +91,4 @@ void bt_shell_hexdump(const uint8_t *data, size_t len);
 
 #endif
 #endif /* __BT_SHELL_PRIVATE_H */
+

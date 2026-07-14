@@ -283,7 +283,7 @@ config BT_SETTINGS_CF_STORE_ON_WRITE
 
 config BT_SETTINGS_USE_PRINTK
 	bool "Use snprintk to encode Bluetooth settings key strings"
-	depends on SETTINGS && PRINTK
+	depends on PORT_SETTINGS && PRINTK
 	default y
 	help
 	  When selected, Bluetooth settings will use snprintk to encode
