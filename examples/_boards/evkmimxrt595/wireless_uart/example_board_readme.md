@@ -5,8 +5,6 @@ Hardware requirements
 - Personal Computer
 - USB to serial converter
 - One of the following modules:
-  - AzureWave AW-CM358MA.M2
-  - AzureWave AW-CM510MA.M2
   - Embedded Artists 1XK M.2 Module (EAR00385)
   - Embedded Artists 1ZM M.2 Module (EAR00364)
   - Embedded Artists 2EL M.2 Module (Rev-A1) - direct M2 connection.
@@ -15,8 +13,6 @@ Hardware requirements
 Board settings
 ==============
 Before building the example application select Wi-Fi module macro in the app_bluetooth_config.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
-If you want to use AzureWave WIFI_IW416_BOARD_AW_AM510MA, please change the macro to WIFI_IW416_BOARD_AW_AM510MA.
-If you want to use AzureWave WIFI_88W8987_BOARD_AW_CM358MA, please change the macro to WIFI_88W8987_BOARD_AW_CM358MA.
 If you want to use Embedded Artists Type 1XK module (EAR00385), please change the macro to WIFI_IW416_BOARD_MURATA_1XK_M2.
 If you want to use Embedded Artists Type 1ZM module (EAR00364), please change the macro to WIFI_88W8987_BOARD_MURATA_1ZM_M2.
 If you want to use Embedded Artists Type 2EL module (Rev-A1), please change the macro to WIFI_IW612_BOARD_MURATA_2EL_M2.
@@ -28,7 +24,6 @@ connect J39 with external power
 JP4 1-2
 J27 1 - TX of USB to serial converter
 J27 2 - RX of USB to serial converter
-
 
 Debug console UART is configured to use pins of J27, connect the board with PC by USB/UART converter:
 - board UART RX (pin 1 on J27) - connect to TX pin on converter
@@ -43,11 +38,7 @@ Embedded Artists 1ZM module datasheet: https://www.embeddedartists.com/doc/ds/1Z
 Embedded Artists 2EL module datasheet: https://www.embeddedartists.com/doc/ds/2EL_M2_Datasheet.pdf
 Embedded Artists 2LL module datasheet: https://www.embeddedartists.com/wp-content/uploads/2024/12/2LL_M2_Datasheet.pdf
 
-AzureWave Solution Board settings
-=================================
 The hardware should be reworked according to the Hardware Rework Guide for MIMXRT595-EVK and Murata M.2 Module in document Hardware Rework Guide for EdgeFast BT PAL.
-The hardware should be reworked according to the Hardware Rework Guide for MIMXRT595-EVK and AW-AM510MA in document Hardware Rework Guide for EdgeFast BT PAL.
-The hardware should be reworked according to the Hardware Rework Guide for MIMXRT595-EVK and AW-CM358MA in document Hardware Rework Guide for EdgeFast BT PAL.
 
 Note:
 To ensure that the LITTLEFS flash region has been cleaned,
