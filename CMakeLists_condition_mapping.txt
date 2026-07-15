@@ -8,22 +8,22 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 6
 
-  [mcux_add_iar_configuration] (Line 3465)
+  [mcux_add_iar_configuration] (Line 3449)
     CC "--diag_suppress=Pa211"
 
-  [mcux_add_include] (Line 3469)
+  [mcux_add_include] (Line 3453)
     INCLUDES ./lib/asrc_sw/
 
-  [mcux_add_source] (Line 3473)
+  [mcux_add_source] (Line 3457)
     SOURCES ./lib/asrc_sw/downSmplAllRates.dat
 
-  [mcux_add_source] (Line 3476)
+  [mcux_add_source] (Line 3460)
     SOURCES ./lib/asrc_sw/upSmpl_32_32_rev.dat
 
-  [mcux_add_source] (Line 3479)
+  [mcux_add_source] (Line 3463)
     SOURCES ./lib/asrc_sw/srCvtFrm.c
 
-  [mcux_add_source] (Line 3482)
+  [mcux_add_source] (Line 3466)
     SOURCES ./lib/asrc_sw/*.h
 
 
@@ -2281,55 +2281,55 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 17
 
-  [mcux_add_iar_configuration] (Line 3501)
+  [mcux_add_iar_configuration] (Line 3485)
     CC "--diag_suppress=Pa211"
 
-  [mcux_add_include] (Line 3505)
+  [mcux_add_include] (Line 3489)
     INCLUDES ./lib/liblc3/include
 
-  [mcux_add_include] (Line 3508)
+  [mcux_add_include] (Line 3492)
     INCLUDES ./lib/liblc3/src
 
-  [mcux_add_source] (Line 3512)
+  [mcux_add_source] (Line 3496)
     SOURCES ./lib/liblc3/src/attdet.c
 
-  [mcux_add_source] (Line 3515)
+  [mcux_add_source] (Line 3499)
     SOURCES ./lib/liblc3/src/*.h
 
-  [mcux_add_source] (Line 3518)
+  [mcux_add_source] (Line 3502)
     SOURCES ./lib/liblc3/src/bits.c
 
-  [mcux_add_source] (Line 3521)
+  [mcux_add_source] (Line 3505)
     SOURCES ./lib/liblc3/src/bwdet.c
 
-  [mcux_add_source] (Line 3524)
+  [mcux_add_source] (Line 3508)
     SOURCES ./lib/liblc3/src/energy.c
 
-  [mcux_add_source] (Line 3527)
+  [mcux_add_source] (Line 3511)
     SOURCES ./lib/liblc3/src/lc3.c
 
-  [mcux_add_source] (Line 3530)
+  [mcux_add_source] (Line 3514)
     SOURCES ./lib/liblc3/src/ltpf.c
 
-  [mcux_add_source] (Line 3533)
+  [mcux_add_source] (Line 3517)
     SOURCES ./lib/liblc3/src/mdct.c
 
-  [mcux_add_source] (Line 3536)
+  [mcux_add_source] (Line 3520)
     SOURCES ./lib/liblc3/src/plc.c
 
-  [mcux_add_source] (Line 3539)
+  [mcux_add_source] (Line 3523)
     SOURCES ./lib/liblc3/src/sns.c
 
-  [mcux_add_source] (Line 3542)
+  [mcux_add_source] (Line 3526)
     SOURCES ./lib/liblc3/src/spec.c
 
-  [mcux_add_source] (Line 3545)
+  [mcux_add_source] (Line 3529)
     SOURCES ./lib/liblc3/src/tables.c
 
-  [mcux_add_source] (Line 3548)
+  [mcux_add_source] (Line 3532)
     SOURCES ./lib/liblc3/src/tns.c
 
-  [mcux_add_source] (Line 3551)
+  [mcux_add_source] (Line 3535)
     SOURCES ./lib/liblc3/include/*.h
 
 
@@ -2345,97 +2345,97 @@ Total commands: 33
   [mcux_add_source] (Line 1889)
     SOURCES ./source/bluetooth/lib/*.h
 
-  [mcux_add_iar_configuration] (Line 3351)
+  [mcux_add_iar_configuration] (Line 3335)
     CC "--diag_suppress=Pa211"
 
-  [mcux_add_include] (Line 3355)
+  [mcux_add_include] (Line 3339)
     INCLUDES ./lib/libsbc/encoder/include
 
-  [mcux_add_include] (Line 3359)
+  [mcux_add_include] (Line 3343)
     INCLUDES ./lib/libsbc/decoder/include
 
-  [mcux_add_include] (Line 3362)
+  [mcux_add_include] (Line 3346)
     INCLUDES ./lib/libsbc/decoder/srce
 
-  [mcux_add_source] (Line 3366)
+  [mcux_add_source] (Line 3350)
     SOURCES ./lib/libsbc/encoder/include/*.h
 
-  [mcux_add_source] (Line 3370)
+  [mcux_add_source] (Line 3354)
     SOURCES ./lib/libsbc/decoder/include/*.h
 
-  [mcux_add_source] (Line 3374)
+  [mcux_add_source] (Line 3358)
     SOURCES ./lib/libsbc/encoder/srce/sbc_analysis.c
 
-  [mcux_add_source] (Line 3377)
+  [mcux_add_source] (Line 3361)
     SOURCES ./lib/libsbc/encoder/srce/*.h
 
-  [mcux_add_source] (Line 3380)
+  [mcux_add_source] (Line 3364)
     SOURCES ./lib/libsbc/encoder/srce/sbc_dct.c
 
-  [mcux_add_source] (Line 3383)
+  [mcux_add_source] (Line 3367)
     SOURCES ./lib/libsbc/encoder/srce/sbc_dct_coeffs.c
 
-  [mcux_add_source] (Line 3386)
+  [mcux_add_source] (Line 3370)
     SOURCES ./lib/libsbc/encoder/srce/sbc_enc_bit_alloc_mono.c
 
-  [mcux_add_source] (Line 3389)
+  [mcux_add_source] (Line 3373)
     SOURCES ./lib/libsbc/encoder/srce/sbc_enc_bit_alloc_ste.c
 
-  [mcux_add_source] (Line 3392)
+  [mcux_add_source] (Line 3376)
     SOURCES ./lib/libsbc/encoder/srce/sbc_enc_coeffs.c
 
-  [mcux_add_source] (Line 3395)
+  [mcux_add_source] (Line 3379)
     SOURCES ./lib/libsbc/encoder/srce/sbc_encoder.c
 
-  [mcux_add_source] (Line 3398)
+  [mcux_add_source] (Line 3382)
     SOURCES ./lib/libsbc/encoder/srce/sbc_packing.c
 
-  [mcux_add_source] (Line 3402)
+  [mcux_add_source] (Line 3386)
     SOURCES ./lib/libsbc/decoder/srce/alloc.c
 
-  [mcux_add_source] (Line 3405)
+  [mcux_add_source] (Line 3389)
     SOURCES ./lib/libsbc/decoder/srce/*.h
 
-  [mcux_add_source] (Line 3408)
+  [mcux_add_source] (Line 3392)
     SOURCES ./lib/libsbc/decoder/srce/bitalloc.c
 
-  [mcux_add_source] (Line 3411)
+  [mcux_add_source] (Line 3395)
     SOURCES ./lib/libsbc/decoder/srce/bitalloc-sbc.c
 
-  [mcux_add_source] (Line 3414)
+  [mcux_add_source] (Line 3398)
     SOURCES ./lib/libsbc/decoder/srce/bitstream-decode.c
 
-  [mcux_add_source] (Line 3417)
+  [mcux_add_source] (Line 3401)
     SOURCES ./lib/libsbc/decoder/srce/decoder-oina.c
 
-  [mcux_add_source] (Line 3420)
+  [mcux_add_source] (Line 3404)
     SOURCES ./lib/libsbc/decoder/srce/decoder-private.c
 
-  [mcux_add_source] (Line 3423)
+  [mcux_add_source] (Line 3407)
     SOURCES ./lib/libsbc/decoder/srce/decoder-sbc.c
 
-  [mcux_add_source] (Line 3426)
+  [mcux_add_source] (Line 3410)
     SOURCES ./lib/libsbc/decoder/srce/dequant.c
 
-  [mcux_add_source] (Line 3429)
+  [mcux_add_source] (Line 3413)
     SOURCES ./lib/libsbc/decoder/srce/framing.c
 
-  [mcux_add_source] (Line 3432)
+  [mcux_add_source] (Line 3416)
     SOURCES ./lib/libsbc/decoder/srce/framing-sbc.c
 
-  [mcux_add_source] (Line 3435)
+  [mcux_add_source] (Line 3419)
     SOURCES ./lib/libsbc/decoder/srce/oi_codec_version.c
 
-  [mcux_add_source] (Line 3438)
+  [mcux_add_source] (Line 3422)
     SOURCES ./lib/libsbc/decoder/srce/readsamplesjoint.inc
 
-  [mcux_add_source] (Line 3441)
+  [mcux_add_source] (Line 3425)
     SOURCES ./lib/libsbc/decoder/srce/synthesis-8-generated.c
 
-  [mcux_add_source] (Line 3444)
+  [mcux_add_source] (Line 3428)
     SOURCES ./lib/libsbc/decoder/srce/synthesis-dct8.c
 
-  [mcux_add_source] (Line 3447)
+  [mcux_add_source] (Line 3431)
     SOURCES ./lib/libsbc/decoder/srce/synthesis-sbc.c
 
 
@@ -2539,10 +2539,10 @@ Condition: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_
 
 Total commands: 2
 
-  [mcux_add_source] (Line 3571)
+  [mcux_add_source] (Line 3555)
     SOURCES ./lib/uuid/uuid.c
 
-  [mcux_add_source] (Line 3574)
+  [mcux_add_source] (Line 3558)
     SOURCES ./lib/uuid/*.h
 
 
@@ -2560,7 +2560,7 @@ Total commands: 1
 Condition: CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt
 ================================================================================
 
-Total commands: 65
+Total commands: 64
 
   [mcux_add_source] (Line 218)
     SOURCES ././source/bluetooth/host/classic/*.h
@@ -2774,15 +2774,11 @@ Total commands: 65
     SOURCES ./lib/libc/mcux/include/*.*
     TOOLCHAINS mcux
 
-  [mcux_add_include] (Line 3304)
+  [mcux_add_include] (Line 3303)
     INCLUDES ./lib/libc/mcux/include
     TOOLCHAINS mcux
 
-  [mcux_add_source] (Line 3319)
-    SOURCES ./lib/libc/mcux/include/sys/*.*
-    TOOLCHAINS mcux
-
-  [mcux_add_source] (Line 3334)
+  [mcux_add_source] (Line 3318)
     SOURCES ./lib/libc/mcux/src/*.*
     TOOLCHAINS mcux
 
