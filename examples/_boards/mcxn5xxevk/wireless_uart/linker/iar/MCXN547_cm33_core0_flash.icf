@@ -110,7 +110,7 @@ define region USB_SRAM_region = mem:[from m_usb_sram_start + usb_bdt_size to m_u
 place in USB_BDT_region                     { section m_usb_bdt };
 place in USB_SRAM_region                    { section m_usb_global };
 
-initialize by copy { readwrite, section .textrw, section CodeQuickAccess, section DataQuickAccess, object mflash_drv.o  section NonCacheable.init, section NonCacheable_init,
+initialize by copy { readwrite, section .textrw, section CodeQuickAccess, section DataQuickAccess, object mflash_drv.o,  section NonCacheable.init, section NonCacheable_init,
 };
 
 if (isdefinedsymbol(__USE_DLIB_PERTHREAD))

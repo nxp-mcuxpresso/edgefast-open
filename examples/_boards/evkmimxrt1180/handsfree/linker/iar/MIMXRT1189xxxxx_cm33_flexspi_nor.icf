@@ -237,7 +237,7 @@ keep {
 
 keep { section .flash_area_list, section ._net_buf_pool*, section ._k_mem_slab*, section ._bt*, section ._settings*, section .__shell_command*};
 
-define block RO  with fixed order { readonly section .intvec, 
+define block RO  with fixed order { readonly section .intvec,
                                     ro code,
                                     block ._bt_gatt_service_static,
                                     block ._bt_settings_static,
