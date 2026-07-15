@@ -4,22 +4,14 @@ Hardware requirements
 - evkmimxrt1040 board
 - Personal Computer
 - One of the following modules:
-  - AzureWave AW-CM358MA.M2
-  - AzureWave AW-CM510MA.M2
-  - Embedded Artists 1XK M.2 Module (EAR00385)
-  - Embedded Artists 1ZM M.2 Module (EAR00364)
-  - Embedded Artists 2LL M.2 Module (EAR00500)
-
+  - Embedded Artists 1XK M.2 Module (EAR00385) - direct M2 connection.
+  - Embedded Artists 1ZM M.2 Module (EAR00364) - direct M2 connection.
 
 Board settings
 ==============
 Before building the example application select Wi-Fi module macro in the edgefast_open_app.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
-If you want use the AzureWave WIFI_IW416_BOARD_AW_AM510MA, please change the macro to WIFI_IW416_BOARD_AW_AM510MA.
-If you want use the AzureWave WIFI_88W8987_BOARD_AW_CM358MA, please change the macro to WIFI_88W8987_BOARD_AW_CM358MA.
 If you want to use Embedded Artists Type 1XK module (EAR00385), please change the macro to WIFI_IW416_BOARD_MURATA_1XK_M2.
 If you want to use Embedded Artists Type 1ZM module (EAR00364), please change the macro to WIFI_88W8987_BOARD_MURATA_1ZM_M2.
-If you want to use Embedded Artists 2LL M.2 Module(EAR00500), please change the macro to WIFI_IW610_BOARD_MURATA_2LL_M2.
-
 
 Jumper settings for RT1040 (enables external 5V supply):
 =======================================================
@@ -27,19 +19,16 @@ connect J45 with external power
 SW6 2-3
 J40 1-2
 
-
 Murata Solution Board settings
-==============================
-Embedded Artists M.2 module resource page: https://www.embeddedartists.com/m2
+=================================
+
+The Murata Solution Board is a Wi-Fi solution based on NXP IW416 or 88W8987 Wi-Fi chipset.
+To check the different Wi-Fi solution from Murata, please refer to below link:
+https://www.embeddedartists.com/m2
 Embedded Artists 1XK module datasheet: https://www.embeddedartists.com/doc/ds/1XK_M2_Datasheet.pdf
 Embedded Artists 1ZM module datasheet: https://www.embeddedartists.com/doc/ds/1ZM_M2_Datasheet.pdf
-Embedded Artists 2LL module datasheet: https://www.embeddedartists.com/wp-content/uploads/2024/12/2LL_M2_Datasheet.pdf
 
-
-AzureWave Solution Board settings
-=================================
-The hardware should be reworked according to the hardware rework guide for evkmimxrt1040 with Direct Murata M.2 Module in document Hardware Rework Guide for EdgeFast BT PAL.
-
+The hardware should be reworked according to the Hardware Rework Guide for MIMXRT1040-EVK and Murata M.2 Module in document Hardware Rework Guide for EdgeFast Open Bluetooth Host stack.
 
 Note:
 To ensure that the LITTLEFS flash region has been cleaned,
