@@ -14,9 +14,6 @@
 #include "fsl_lpuart_edma.h"
 #include "fsl_dmamux.h"
 #include "fsl_cache.h"
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-#include "ksdk_mbedtls.h"
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 #include <zephyr/drivers/bluetooth.h>
 /*${header:end}*/
 

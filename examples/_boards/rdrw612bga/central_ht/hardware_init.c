@@ -10,12 +10,6 @@
 #include "pin_mux.h"
 #include "fsl_debug_console.h"
 #include "fsl_power.h"
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-#include "ksdk_mbedtls.h"
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
-#if (((defined(CONFIG_BT_SMP)) && (CONFIG_BT_SMP)))
-#include "mcux_mbedtls_psa_crypto_config.h"
-#endif /* CONFIG_BT_SMP */
 /*${header:end}*/
 
 /* On RD-RW612-BGA boards, the Xtal32k is present and connected by default
@@ -33,9 +27,6 @@ void BOARD_InitHardware(void)
     BOARD_InitBootClocks();
     BOARD_InitDebugConsole();
     BOARD_InitSleepPinConfig();
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-    CRYPTO_InitHardware();
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 }
 
 /*${function:end}*/

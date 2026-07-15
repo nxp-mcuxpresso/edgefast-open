@@ -17,9 +17,6 @@
 #include "fsl_component_button.h"
 #endif
 #include "fsl_component_timer_manager.h"
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-#include "ksdk_mbedtls.h"
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 /*${header:end}*/
 
 /*${macro:start}*/
@@ -64,9 +61,6 @@ void BOARD_InitHardware(void)
     status                  = (osa_status_t)TM_Init(&timerConfig);
     assert(status == (osa_status_t)kStatus_TimerSuccess);
     (void)status;
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-    CRYPTO_InitHardware();
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 }
 #if defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || \
     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(WIFI_IW610_BOARD_MURATA_2LL_M2) ||   \

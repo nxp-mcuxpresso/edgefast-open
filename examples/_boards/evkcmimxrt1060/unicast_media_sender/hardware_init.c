@@ -20,9 +20,6 @@
 #include "psa/crypto.h"
 #endif /* CONFIG_BT_SMP */
 #include "fsl_adapter_gpio.h"
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-#include "ksdk_mbedtls.h"
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 /*${header:end}*/
 
 /*${macro:start}*/
@@ -114,9 +111,6 @@ void BOARD_InitHardware(void)
     EDMA_GetDefaultConfig(&config);
     EDMA_Init(dmaBases[0], &config);
 #endif
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-    CRYPTO_InitHardware();
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 }
 
 #if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)

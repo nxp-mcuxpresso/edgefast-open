@@ -14,12 +14,6 @@
 #include "fsl_component_button.h"
 #endif
 #include "fsl_component_timer_manager.h"
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-#include "ksdk_mbedtls.h"
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
-#if (((defined(CONFIG_BT_SMP)) && (CONFIG_BT_SMP)))
-#include "mcux_mbedtls_psa_crypto_config.h"
-#endif /* CONFIG_BT_SMP */
 /*${header:end}*/
 
 /*${function:start}*/
@@ -39,9 +33,6 @@ void BOARD_InitHardware(void)
     status                     = (osa_status_t)TM_Init(&timerConfig);
     assert(status == (osa_status_t)kStatus_TimerSuccess);
     (void)status;
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-    CRYPTO_InitHardware();
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 }
 
 #if (defined(BUTTON_COUNT) && (BUTTON_COUNT > 0U))
