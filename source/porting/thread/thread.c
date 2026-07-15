@@ -7,6 +7,10 @@
 
 #include <porting.h>
 
+#if (configMAX_PRIORITIES - 2) < CONFIG_NUM_PREEMPT_PRIORITIES
+#error "CONFIG_NUM_PREEMPT_PRIORITIES must be no more than (configMAX_PRIORITIES - 2)"
+#endif
+
 static sys_slist_t threads = SYS_SLIST_STATIC_INIT(&threads);
 
 static struct k_spinlock lock;
