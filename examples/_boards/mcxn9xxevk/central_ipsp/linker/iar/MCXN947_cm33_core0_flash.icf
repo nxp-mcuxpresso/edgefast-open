@@ -98,8 +98,8 @@ define block CSTACK        with alignment = 8, size = __size_cstack__   { };
 define block HEAP          with alignment = 8, size = __size_heap__     { };
 define block RW            { readwrite };
 define block ZI            { zi };
-define block NCACHE_VAR      { section NonCacheable };
-define block NCACHE_VAR_INIT { section NonCacheable.init, section NonCacheable_init };
+define block NCACHE_VAR      { readwrite section NonCacheable };
+define block NCACHE_VAR_INIT { readwrite section NonCacheable.init, readwrite section NonCacheable_init };
 define block QACCESS_CODE  { section CodeQuickAccess };
 define block QACCESS_DATA  { section DataQuickAccess };
 
