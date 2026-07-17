@@ -6,6 +6,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#if defined(CONFIG_HANDSFREE_BT_PCM_TO_CODEC_DIRECT)
+#else
+
 #include "clock_config.h"
 #include "board.h"
 #include <porting.h>
@@ -744,3 +747,5 @@ void sco_audio_play_ringtone_exit_pl_ext(void)
         }
     }
 }
+
+#endif /* defined(CONFIG_HANDSFREE_BT_PCM_TO_CODEC_DIRECT) */

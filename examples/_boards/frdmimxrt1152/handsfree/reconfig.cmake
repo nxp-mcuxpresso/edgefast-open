@@ -12,6 +12,7 @@ mcux_add_source(
     middleware/edgefast_open/examples/_boards/${board}/handsfree/pin_mux.c
     middleware/edgefast_open/examples/_boards/${board}/handsfree/pin_mux.h
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
+    middleware/edgefast_open/examples/_boards/${board}/handsfree/sco_audio_bt_pcm_to_codec_direct.c
 )
 mcux_add_include(
   BASE_PATH ${SdkRootDirPath}

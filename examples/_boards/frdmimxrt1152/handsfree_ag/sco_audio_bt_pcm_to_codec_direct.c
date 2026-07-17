@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#if defined(CONFIG_HANDSFREE_BT_PCM_TO_CODEC_DIRECT)
+
 /*
  * Board-level SCO audio platform extension implementation for frdmimxrt1152.
  *
@@ -141,3 +143,5 @@ int platform_audio_play_ringtone(void)
 {
     return 0;
 }
+
+#endif /* defined(CONFIG_HANDSFREE_BT_PCM_TO_CODEC_DIRECT) */
