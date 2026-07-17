@@ -108,7 +108,7 @@ static int _k_thread_format_prio(int prio)
 		updated_prio = 1;
 	}
 
-	return prio < 0 ? updated_prio : CONFIG_NUM_PREEMPT_PRIORITIES - updated_prio;
+	return updated_prio;
 }
 
 /**
