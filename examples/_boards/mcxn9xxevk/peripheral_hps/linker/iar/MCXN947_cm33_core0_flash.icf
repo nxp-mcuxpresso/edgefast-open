@@ -121,7 +121,7 @@ if (isdefinedsymbol(__USE_DLIB_PERTHREAD))
   initialize by copy with packing = none { section __DLIB_PERTHREAD };
 }
 
-do not initialize  { section .noinit, section m_usb_bdt, section m_usb_global, section NonCacheable };
+do not initialize  { section .noinit, section m_usb_bdt, section m_usb_global };
 if (isdefinedsymbol(__use_shmem__)) {
   do not initialize  { section rpmsg_sh_mem_section };
 }

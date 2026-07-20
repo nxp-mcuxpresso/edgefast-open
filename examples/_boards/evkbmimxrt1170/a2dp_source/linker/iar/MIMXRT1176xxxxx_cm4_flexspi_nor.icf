@@ -110,7 +110,7 @@ initialize by copy { readwrite, section .textrw, section CodeQuickAccess,
   object fsl_flexspi.o,
   section NonCacheable.init, section NonCacheable_init,
 };
-do not initialize  { section .noinit, section NonCacheable };
+do not initialize  { section .noinit };
 
 place at address mem: m_interrupts_start    { readonly section .intvec };
 

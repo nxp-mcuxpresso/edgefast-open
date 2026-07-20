@@ -133,7 +133,7 @@ initialize by copy { readwrite, section .textrw,
   object hardware_init.o,
   object main.o,
 };
-do not initialize  { section .noinit, section NonCacheable, section CacheLineData };
+do not initialize  { section .noinit, section CacheLineData };
 
 place at address mem: m_interrupts_start    { readonly section .intvec };
 place at address mem: m_boot_hdr_conf_start { section .boot_hdr.conf };

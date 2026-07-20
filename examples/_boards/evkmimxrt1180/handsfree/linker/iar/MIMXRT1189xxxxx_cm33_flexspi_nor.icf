@@ -272,7 +272,7 @@ initialize by copy { readwrite, section .textrw, section DataQuickAccess, sectio
   section NonCacheable.init, section NonCacheable_init,
 };
 
-do not initialize  { section .noinit, section NonCacheable };
+do not initialize  { section .noinit };
 if (isdefinedsymbol(__use_shmem__)) {
   do not initialize  { section rpmsg_sh_mem_section };
 }
