@@ -149,7 +149,7 @@ initialize by copy { readwrite, section .textrw,
   object tables.o,
   object tns.o,
 };
-do not initialize  { section .noinit, section CacheLineData };
+do not initialize  { section .noinit };
 if (isdefinedsymbol(__use_shmem__)) {
   do not initialize  { section rpmsg_sh_mem_section };
 }
