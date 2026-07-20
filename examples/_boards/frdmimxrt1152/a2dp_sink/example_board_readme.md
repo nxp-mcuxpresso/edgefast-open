@@ -27,6 +27,12 @@ Codec:
 - HW Rework:
   - Remove R131, R151, R177, R183, R124
 
+External Antenna:
+-----------------
+To use an external antenna, the following hardware modifications are required:
+- Mount R3 to switch the RF signal path to the external antenna
+- Mount J2 antenna connector and attach the external antenna
+
 Note:
 =====
 To ensure that the LITTLEFS flash region has been cleaned,

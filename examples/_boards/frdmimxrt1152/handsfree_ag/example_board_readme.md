@@ -32,6 +32,12 @@ PCM:
 - HW Rework: 
   - Short: SJ8, SJ11, SJ14, SJ15
 
+External Antenna:
+-----------------
+To use an external antenna, the following hardware modifications are required:
+- Mount R3 to switch the RF signal path to the external antenna
+- Mount J2 antenna connector and attach the external antenna
+
 Note:
 =====
 To ensure that the LITTLEFS flash region has been cleaned,

@@ -27,6 +27,12 @@ WIFI SDIO:
 - J22: Move jumper from position 1-2 → 2-3
 - J19: Place jumper to enable 1.8V power supply for the module
 
+External Antenna:
+-----------------
+To use an external antenna, the following hardware modifications are required:
+- Mount R3 to switch the RF signal path to the external antenna
+- Mount J2 antenna connector and attach the external antenna
+
 Note:
 =====
 To ensure that the LITTLEFS flash region has been cleaned,

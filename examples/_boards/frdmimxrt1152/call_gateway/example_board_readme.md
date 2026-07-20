@@ -33,6 +33,12 @@ GPT Configuration:
   - Connect: TP4 to J10_14, J20 to J10_12
   - Remove: SJ39, SJ44
 
+External Antenna:
+-----------------
+To use an external antenna, the following hardware modifications are required:
+- Mount R3 to switch the RF signal path to the external antenna
+- Mount J2 antenna connector and attach the external antenna
+
 Note:
 =====
 To ensure that the LITTLEFS flash region has been cleaned,
