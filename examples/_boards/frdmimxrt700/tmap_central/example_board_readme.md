@@ -1,30 +1,24 @@
 Hardware requirements
 =====================
 - Micro USB cable
-- frdmimxrt700
+- frdmimxrt700 board
 - Personal Computer
-- One of the following modules:
-  - Embedded Artists 2EL M.2 Module (Rev-A1) - direct M2 connection.
 
 Board settings
 ==============
-Before building the example application select Wi-Fi module macro in the edgefast_open_app.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
-If you want to use Embedded Artists 2EL M.2 Module(Rev-A1), please change the macro to WIFI_IW612_BOARD_MURATA_2EL_M2.
+The frdmimxrt700 board has an onboard Bluetooth module.
 
-Jumper settings for FRDM-MIMXRT700 (enables external 5V supply):
-========================================================
-remove  J2 5-6
-connect J2 1-2
-connect J45 with external power(controlled by SW4)
+Hardware Rework Guide for frdmimxrt700
+=========================================
 
-Murata Solution Board settings
-==============================
-Embedded Artists 2EL module datasheet: https://www.embeddedartists.com/doc/ds/2EL_M2_Datasheet.pdf
-
-The hardware should be reworked according to the hardware rework guide for frdmimxrt700 and Murata 2EL M.2 Adapter in document Hardware Rework Guide for EdgeFast BT PAL.
+External Antenna:
+-----------------
+To use an external antenna:
+- attach the external antenna to J65 antenna connector
 
 Note:
+=====
 To ensure that the LITTLEFS flash region has been cleaned,
 all flash sectors need to be erased before downloading example code.
 After downloaded binary into qspiflash and boot from qspiflash directly,
-please reset the board by pressing SW7 or power off and on the board to run the application.
+please reset the board by pressing SW2 or power off and on the board to run the application.
