@@ -44,39 +44,34 @@ static void internal_audio_tx_callback(hal_audio_handle_t handle, hal_audio_stat
     block_t *block;
     hal_audio_transfer_t xfer;
 
-    if(kStatus_HAL_AudioIdle == completionStatus)
+    if(audio_i2s.tx_block_count > 0)
     {
-        if(audio_i2s.tx_block_count > 0)
+        block = &audio_i2s.tx_blocks[audio_i2s.tx_block_output];
+
+        xfer.dataSize = block->len;
+        xfer.data     = block->buff;
+
+        if (kStatus_HAL_AudioSuccess != HAL_AudioTransferSendNonBlocking((hal_audio_handle_t)&audio_tx_handle[0], &xfer))
         {
-            block = &audio_i2s.tx_blocks[audio_i2s.tx_block_output];
-
-            xfer.dataSize = block->len;
-            xfer.data     = block->buff;
-
-            if (kStatus_HAL_AudioSuccess != HAL_AudioTransferSendNonBlocking((hal_audio_handle_t)&audio_tx_handle[0], &xfer))
-            {
-                return;
-            }
-
-            audio_i2s.tx_block_count--;
-            audio_i2s.tx_block_output = (audio_i2s.tx_block_output + 1) % ARRAY_SIZE(audio_i2s.tx_blocks);
+            err = -1;
         }
         else
         {
-            block = &audio_i2s.tx_dumy_block;
-
-            xfer.dataSize = block->len;
-            xfer.data     = block->buff;
-
-            if (kStatus_HAL_AudioSuccess != HAL_AudioTransferSendNonBlocking((hal_audio_handle_t)&audio_tx_handle[0], &xfer))
-            {
-                return;
-            }
+            audio_i2s.tx_block_count--;
+            audio_i2s.tx_block_output = (audio_i2s.tx_block_output + 1) % ARRAY_SIZE(audio_i2s.tx_blocks);
         }
     }
     else
     {
-        err = -1;
+        block = &audio_i2s.tx_dumy_block;
+
+        xfer.dataSize = block->len;
+        xfer.data     = block->buff;
+
+        if (kStatus_HAL_AudioSuccess != HAL_AudioTransferSendNonBlocking((hal_audio_handle_t)&audio_tx_handle[0], &xfer))
+        {
+            err = -1;
+        }
     }
 
     if(audio_i2s.tx_callback)
