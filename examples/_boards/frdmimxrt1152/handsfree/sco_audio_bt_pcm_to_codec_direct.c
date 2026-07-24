@@ -80,23 +80,6 @@ int sco_audio_start_pl_ext(void)
         return -1;
     }
 
-    /* walkaround for codec api not support modify LRSWAP and BCLKINV */
-    wm8962_handle_t *handle = (wm8962_handle_t *)((uintptr_t)s_codec_handle.codecDevHandle);
-    /* LRSWAP */
-    status = WM8962_ModifyReg(handle, WM8962_IFACE0, WM8962_IFACE1_ALRSWAP_MASK, WM8962_IFACE1_ALRSWAP(WM8962_IFACE1_ADCCH_SWAP));
-    if (status != kStatus_Success)
-    {
-        PRINTF("SCO direct: codec set LRSWAP failed (status %d)\r\n", (int)status);
-        return -1;
-    }
-    /* BCLKINV sample at failing edge */
-    status = WM8962_ModifyReg(handle, WM8962_IFACE0, WM8962_IFACE1_BCLKINV_MASK, WM8962_IFACE1_BCLKINV(WM8962_IFACE1_BCLK_INVERT));
-    if (status != kStatus_Success)
-    {
-        PRINTF("SCO direct: codec set BCLKINV failed (status %d)\r\n", (int)status);
-        return -1;
-    }
-
     CODEC_SetMute(&s_codec_handle,
                   kCODEC_PlayChannelHeadphoneRight | kCODEC_PlayChannelHeadphoneLeft,
                   true);

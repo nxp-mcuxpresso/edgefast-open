@@ -42,6 +42,18 @@
 #define EXAMPLE_DMAMUX_INSTANCE      (0U)
 #define EXAMPLE_DMA_INSTANCE         (0U)
 
+const wm8962_interface_config_t wm8962InterfaceConfig = {
+    .sampleEdge         = kWM8962_SampleOnFallingEdge,  /*!< BCLK sample edge */
+    .frameSyncPolarity  = kWM8962_FrameSyncNormal,      /*!< LRCLK polarity / DSP mode A/B */
+    .adcSwapChannel     = true,                         /*!< swap ADC L/R */
+    .dacSwapChannel     = false,                        /*!< swap DAC L/R */
+    .adcMonoMix         = false,                        /*!< ADC mono mix (L+R, -6 dB) */
+    .adcLeftDataInvert  = false,                        /*!< invert left ADC data */
+    .adcRightDataInvert = false,                        /*!< invert right ADC data */
+    .dacLeftDataInvert  = false,                        /*!< invert left DAC data */
+    .dacRightDataInvert = false,                        /*!< invert right DAC data */
+};
+
 wm8962_config_t wm8962ScoConfig = {
     .i2cConfig = {.codecI2CInstance = BOARD_CODEC_I2C_INSTANCE, .codecI2CSourceClock = BOARD_CODEC_I2C_CLOCK_FREQ},
     .route =
@@ -58,7 +70,7 @@ wm8962_config_t wm8962ScoConfig = {
         },
     .slaveAddress = WM8962_I2C_ADDR,
     .bus          = kWM8962_BusPCMA,
-    .format       = {.mclk_HZ = 24576000U, .sampleRate = 8000, .bitWidth = kWM8962_AudioBitWidth16bit},
+    .format       = {.mclk_HZ = 24576000U, .sampleRate = 8000, .bitWidth = kWM8962_AudioBitWidth16bit, .interfaceConfig = &wm8962InterfaceConfig},
     .masterSlave  = false,
 };
 
