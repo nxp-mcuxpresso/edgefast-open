@@ -11,7 +11,7 @@ mcux_add_source(
     middleware/edgefast_open/examples/_boards/${board}/handsfree/hardware_init.c
     middleware/edgefast_open/examples/_boards/${board}/handsfree/pin_mux.c
     middleware/edgefast_open/examples/_boards/${board}/handsfree/pin_mux.h
-    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
+    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/tf_psa_crypto_user_config.h
     middleware/edgefast_open/examples/_boards/${board}/handsfree/sco_audio_bt_pcm_to_codec_direct.c
 )
 mcux_add_include(
@@ -63,9 +63,8 @@ mcux_add_macro(
 )
 
 mcux_add_macro(
-  CC "-DMBEDTLS_USER_CONFIG_FILE=\\\"mbedtls_user_config.h\\\""
+  CC "-DTF_PSA_CRYPTO_USER_CONFIG_FILE=\\\"tf_psa_crypto_user_config.h\\\""
 )
-
 
 mcux_add_macro(
   CC "-DLFS_NO_ASSERT"

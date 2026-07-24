@@ -15,7 +15,8 @@ menuconfig MCUX_COMPONENT_middleware.edgefast_open
 	select MCUX_PRJSEG_utility.debug_console_transfer_non_blocking
 	select BT
 	select UTF8
-	select MCUX_COMPONENT_middleware.mbedtls3x
+	select MCUX_COMPONENT_middleware.mbedtls3x if !MCUX_HW_DEVICE_MIMXRT1152
+	select MCUX_COMPONENT_middleware.mbedtls if MCUX_HW_DEVICE_MIMXRT1152
 	select BT_CRYPTO_PSA if \
 				MCUX_HW_DEVICE_MIMXRT1042 || \
 				MCUX_HW_DEVICE_MIMXRT1052 || \
