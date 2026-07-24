@@ -13,3 +13,4 @@
 - [MIMXRT700-EVK](../_boards/mimxrt700evk/shell/example_board_readme.md)
 - [RD-RW612-BGA](../_boards/rdrw612bga/shell/example_board_readme.md)
 - [FRDM-MCXN947](../_boards/frdmmcxn947/shell/example_board_readme.md)
+- [FRDM-MCXN947T](../_boards/frdmmcxn947t/shell/example_board_readme.md)

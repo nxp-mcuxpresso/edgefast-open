@@ -31,3 +31,4 @@ The Locator will trigger an Immediate Alert on the application and disconnect. T
 - [FRDM-RW612](../_boards/frdmrw612/peripheral_fmp/example_board_readme.md)
 - [RD-RW612-BGA](../_boards/rdrw612bga/peripheral_fmp/example_board_readme.md)
 - [FRDM-MCXN947](../_boards/frdmmcxn947/peripheral_fmp/example_board_readme.md)
+- [FRDM-MCXN947T](../_boards/frdmmcxn947t/peripheral_fmp/example_board_readme.md)

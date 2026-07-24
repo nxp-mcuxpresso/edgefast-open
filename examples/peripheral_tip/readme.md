@@ -35,3 +35,4 @@ the server will periodically notify its local time value to the client.
 - [FRDM-RW612](../_boards/frdmrw612/peripheral_tip/example_board_readme.md)
 - [RD-RW612-BGA](../_boards/rdrw612bga/peripheral_tip/example_board_readme.md)
 - [FRDM-MCXN947](../_boards/frdmmcxn947/peripheral_tip/example_board_readme.md)
+- [FRDM-MCXN947T](../_boards/frdmmcxn947t/peripheral_tip/example_board_readme.md)

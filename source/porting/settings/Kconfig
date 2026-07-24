@@ -36,7 +36,8 @@ choice SETTINGS_LITTLEFS_FLASH
                  MCUX_HW_BOARD_evkmimxrt595 || MCUX_HW_BOARD_evkmimxrt685 || \
                  MCUX_HW_BOARD_frdmimxrt700 || MCUX_HW_BOARD_frdmimxrt1152
     default SETTINGS_LITTLEFS_FLASH_MFLASH_ON_CHIP_FMU if MCUX_HW_BOARD_mcxn5xxevk || \
-                 MCUX_HW_BOARD_mcxn9xxevk || MCUX_HW_BOARD_frdmmcxn947
+                 MCUX_HW_BOARD_mcxn9xxevk || MCUX_HW_BOARD_frdmmcxn947 || \
+                 MCUX_HW_BOARD_frdmmcxn947t
     help
       The Flash driver will be automatically selected based on board.
       It is also possible to select the flash driver manually.
@@ -53,7 +54,8 @@ config SETTINGS_LITTLEFS_FLASH_ADAPTER_RT685EVK
 config SETTINGS_LITTLEFS_FLASH_MFLASH_ON_CHIP_FMU
     bool "on chip mflash via FMU controller"
     select MCUX_COMPONENT_component.mflash_onchip_fmu
-    depends on MCUX_HW_BOARD_mcxn5xxevk || MCUX_HW_BOARD_mcxn9xxevk || MCUX_HW_BOARD_frdmmcxn947
+    depends on MCUX_HW_BOARD_mcxn5xxevk || MCUX_HW_BOARD_mcxn9xxevk || \
+               MCUX_HW_BOARD_frdmmcxn947 || MCUX_HW_BOARD_frdmmcxn947t
 
 endchoice # SETTINGS_LITTLEFS_FLASH
 

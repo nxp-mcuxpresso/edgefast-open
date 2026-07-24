@@ -12,6 +12,7 @@
 | evkmimxrt1040 | MURATA_1ZM | x | - | - | BLE | BLE | - | - | - | - |
 | evkmimxrt1180 | MURATA_2EL | x | - | - | BLE/Classic | BLE/Classic | BLE/Classic | BLE | - | - |
 | frdmmcxn947 | MURATA_2LL + adapter | - | x | - | BLE/Classic | - | - | BLE | - | - |
+| frdmmcxn947t | MURATA_2LL + adapter | - | x | - | BLE/Classic | - | - | BLE | - | - |
 | mcxn5xxevk | MURATA_1XK | x | - | - | BLE/Classic | - | - | BLE | - | - |
 | mcxn9xxevk | MURATA_1XK | x | - | - | BLE/Classic | - | - | BLE | - | - |
 | mimxrt685audevk | MURATA_2EL | x | - | - | BLE/Classic | BLE/Classic | BLE/Classic | BLE | - | - |

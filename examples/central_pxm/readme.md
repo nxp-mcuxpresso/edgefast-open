@@ -49,3 +49,4 @@ After the mandatory Link Loss service is discovered, the application will write 
 - [MIMXRT700-EVK](../_boards/mimxrt700evk/central_pxm/example_board_readme.md)
 - [RD-RW612-BGA](../_boards/rdrw612bga/central_pxm/example_board_readme.md)
 - [FRDM-MCXN947](../_boards/frdmmcxn947/central_pxm/example_board_readme.md)
+- [FRDM-MCXN947T](../_boards/frdmmcxn947t/central_pxm/example_board_readme.md)

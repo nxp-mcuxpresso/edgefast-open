@@ -67,6 +67,7 @@ wifi_cli_over_ble_wu:
     - -mdk@debug
     - -mdk@release
     frdmmcxn947@cm33_core0: []
+    frdmmcxn947t@cm33_core0: []
     mimxrt700evk@cm33_core0:
     - -armgcc@debug
     - -armgcc@release

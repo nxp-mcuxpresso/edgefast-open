@@ -35,3 +35,4 @@ After the disconnect from the target the locator will restart scanning.
 - [FRDM-RW612](../_boards/frdmrw612/central_fmp/example_board_readme.md)
 - [RD-RW612-BGA](../_boards/rdrw612bga/central_fmp/example_board_readme.md)
 - [FRDM-MCXN947](../_boards/frdmmcxn947/central_fmp/example_board_readme.md)
+- [FRDM-MCXN947T](../_boards/frdmmcxn947t/central_fmp/example_board_readme.md)

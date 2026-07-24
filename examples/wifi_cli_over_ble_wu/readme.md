@@ -66,3 +66,4 @@ To avoid this issue, following steps shall be taken:
 - [MIMXRT700-EVK](../_boards/mimxrt700evk/wifi_cli_over_ble_wu/example_board_readme.md)
 - [RD-RW612-BGA](../_boards/rdrw612bga/wifi_cli_over_ble_wu/example_board_readme.md)
 - [FRDM-MCXN947](../_boards/frdmmcxn947/wifi_cli_over_ble_wu/example_board_readme.md)
+- [FRDM-MCXN947T](../_boards/frdmmcxn947t/wifi_cli_over_ble_wu/example_board_readme.md)

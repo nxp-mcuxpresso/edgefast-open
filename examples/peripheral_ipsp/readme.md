@@ -43,3 +43,4 @@ Received message: hello
 - [MIMXRT700-EVK](../_boards/mimxrt700evk/peripheral_ipsp/example_board_readme.md)
 - [RD-RW612-BGA](../_boards/rdrw612bga/peripheral_ipsp/example_board_readme.md)
 - [FRDM-MCXN947](../_boards/frdmmcxn947/peripheral_ipsp/example_board_readme.md)
+- [FRDM-MCXN947T](../_boards/frdmmcxn947t/peripheral_ipsp/example_board_readme.md)

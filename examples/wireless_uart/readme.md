@@ -87,3 +87,4 @@ long press the user button, the example will work as peripheral again.
 - [MIMXRT700-EVK](../_boards/mimxrt700evk/wireless_uart/example_board_readme.md)
 - [RD-RW612-BGA](../_boards/rdrw612bga/wireless_uart/example_board_readme.md)
 - [FRDM-MCXN947](../_boards/frdmmcxn947/wireless_uart/example_board_readme.md)
+- [FRDM-MCXN947T](../_boards/frdmmcxn947t/wireless_uart/example_board_readme.md)

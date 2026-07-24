@@ -60,3 +60,4 @@ ALERT: HIGH
 - [MIMXRT700-EVK](../_boards/mimxrt700evk/peripheral_pxr/example_board_readme.md)
 - [RD-RW612-BGA](../_boards/rdrw612bga/peripheral_pxr/example_board_readme.md)
 - [FRDM-MCXN947](../_boards/frdmmcxn947/peripheral_pxr/example_board_readme.md)
+- [FRDM-MCXN947T](../_boards/frdmmcxn947t/peripheral_pxr/example_board_readme.md)

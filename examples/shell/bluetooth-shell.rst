@@ -88,3 +88,4 @@ Supported Boards
    ../_boards/mimxrt700evk/shell/example_board_readme.md
    ../_boards/rdrw612bga/shell/example_board_readme.md
    ../_boards/frdmmcxn947/shell/example_board_readme.md
+   ../_boards/frdmmcxn947t/shell/example_board_readme.md

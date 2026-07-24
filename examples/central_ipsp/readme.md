@@ -43,3 +43,4 @@ Sending message...
 - [MIMXRT700-EVK](../_boards/mimxrt700evk/central_ipsp/example_board_readme.md)
 - [RD-RW612-BGA](../_boards/rdrw612bga/central_ipsp/example_board_readme.md)
 - [FRDM-MCXN947](../_boards/frdmmcxn947/central_ipsp/example_board_readme.md)
+- [FRDM-MCXN947T](../_boards/frdmmcxn947t/central_ipsp/example_board_readme.md)
