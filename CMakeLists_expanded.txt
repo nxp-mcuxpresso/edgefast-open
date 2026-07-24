@@ -2547,7 +2547,7 @@ endif()
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings))
     	mcux_add_armgcc_configuration(
     		CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
-    		CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
+    		CX "-Wno-format-zero-length -Wno-unused-but-set-variable -Wno-format"
     	)
 endif()
 
@@ -2571,7 +2571,7 @@ endif()
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.edgefast_open_suppressed_warnings))
     	mcux_add_mdk_configuration(
     		CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
-    		CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
+    		CX "-Wno-format-zero-length -Wno-unused-but-set-variable -Wno-format"
     	)
 endif()
 

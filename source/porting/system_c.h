@@ -109,7 +109,7 @@ struct _timeout
  * @addtogroup porting
  * @{
  */
-#define K_TIMEOUT_TICKS_INIT(t) {.ticks = (t)}
+#define K_TIMEOUT_TICKS_INIT(t) {.ticks = (uint32_t)(t)}
 #define K_TIMEOUT_TICKS(t) ((k_timeout_t)K_TIMEOUT_TICKS_INIT(t))
 
 /**

@@ -61,7 +61,7 @@ if(CONFIG_EDGEFAST_OPEN_SUPPRESSED_WARNINGS)
 
 	mcux_add_armgcc_configuration(
 		CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
-		CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
+		CX "-Wno-format-zero-length -Wno-unused-but-set-variable -Wno-format"
 	)
 
 	#struct bt_hfp_hf *hf = CONTAINER_OF(hf_at, struct bt_hfp_hf, at);
@@ -80,7 +80,7 @@ if(CONFIG_EDGEFAST_OPEN_SUPPRESSED_WARNINGS)
 
 	mcux_add_mdk_configuration(
 		CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
-		CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
+		CX "-Wno-format-zero-length -Wno-unused-but-set-variable -Wno-format"
 	)
 
 	mcux_add_mdk_configuration(

@@ -93,6 +93,7 @@ extern "C" {
 /* The built-in function used below for type checking in C is not
  * supported by GNU C++.
  */
+#undef ARRAY_SIZE
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
 
 #else /* __cplusplus */

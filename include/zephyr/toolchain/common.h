@@ -179,6 +179,7 @@
  * not used).
  */
 #ifndef ZTEST_UNITTEST
+#undef __syscall
 #define __syscall static inline
 #define __syscall_always_inline static inline __attribute__((always_inline))
 #else

@@ -2186,7 +2186,7 @@ Total commands: 12
 
   [mcux_add_armgcc_configuration] (Line 1975)
     CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
-    CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
+    CX "-Wno-format-zero-length -Wno-unused-but-set-variable -Wno-format"
 
   [mcux_add_armgcc_configuration] (Line 1983)
     CC "-Wno-unused-variable -Wno-unused-function"
@@ -2198,7 +2198,7 @@ Total commands: 12
 
   [mcux_add_mdk_configuration] (Line 1994)
     CC "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
-    CX "-Wno-format-zero-length -Wno-pointer-sign -Wno-unused-but-set-variable -Wno-format"
+    CX "-Wno-format-zero-length -Wno-unused-but-set-variable -Wno-format"
 
   [mcux_add_mdk_configuration] (Line 1999)
     CC "-Wno-unused-variable -Wno-unused-function"
