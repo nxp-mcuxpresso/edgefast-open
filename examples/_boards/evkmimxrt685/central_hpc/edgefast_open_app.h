@@ -10,7 +10,7 @@
 #if defined(WIFI_IW416_BOARD_AW_AM510_USD) || defined(WIFI_IW416_BOARD_AW_AM457_USD) ||       \
     defined(WIFI_88W8987_BOARD_AW_CM358_USD) || defined(K32W061_TRANSCEIVER) ||               \
     defined(WIFI_IW416_BOARD_MURATA_1XK_USD) || defined(WIFI_88W8987_BOARD_MURATA_1ZM_USD) || \
-    defined(WIFI_IW612_BOARD_MURATA_2EL_USD)
+    defined(WIFI_IW612_BOARD_MURATA_2EL_USD) || defined(WIFI_IW610_BOARD_MURATA_2LL_USD)
 #include "wifi_bt_module_config.h"
 #include "wifi_config.h"
 #else
@@ -30,7 +30,8 @@
 
 #if !(defined(WIFI_IW416_BOARD_AW_AM510_USD) || defined(WIFI_IW416_BOARD_AW_AM457_USD) || \
       defined(WIFI_88W8987_BOARD_AW_CM358_USD) || defined(WIFI_IW416_BOARD_MURATA_1XK_USD) || \
-      defined(WIFI_88W8987_BOARD_MURATA_1ZM_USD) || defined(WIFI_IW612_BOARD_MURATA_2EL_USD))
+      defined(WIFI_88W8987_BOARD_MURATA_1ZM_USD) || defined(WIFI_IW612_BOARD_MURATA_2EL_USD) || \
+      defined(WIFI_IW610_BOARD_MURATA_2LL_USD))
 #undef CONFIG_BT_H4_NXP_CTLR
 #endif
 
@@ -51,11 +52,15 @@
 #define SD_TIMING_MAX kSD_TimingDDR50Mode
 #endif /* WIFI_IW612_BOARD_MURATA_2EL_USD */
 
+#if defined(WIFI_IW610_BOARD_MURATA_2LL_USD)
+#define CONFIG_BT_NXP_IW610
+#endif /* WIFI_IW610_BOARD_MURATA_2LL_USD */
+
 #if !(defined(CONFIG_BT_NXP_NW612) || defined(CONFIG_BT_NXP_IW416))
 #undef CONFIG_HCI_NXP_SET_CAL_DATA
 #undef CONFIG_HCI_NXP_SET_CAL_DATA_ANNEX100
 #endif /* !(CONFIG_BT_NXP_NW612 || CONFIG_BT_NXP_IW416) */
 
 #if defined(CONFIG_BT_NXP_IW610) && defined(CONFIG_BT_CLASSIC)
-#error "Bluetooth Classic is unsupported by Murata 2LL"
+#error "Bluetooth Classic is unsupported by IW610"
 #endif /* CONFIG_BT_NXP_IW610 && CONFIG_BT_CLASSIC */

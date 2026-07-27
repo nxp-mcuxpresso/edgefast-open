@@ -10,6 +10,7 @@ Hardware requirements
   - Murata uSD-M.2 Adapter (LBEE0ZZ1WE-uSD-M2) and Embedded Artists 1XK M.2 Module (EAR00385)
   - Murata uSD-M.2 Adapter (LBEE0ZZ1WE-uSD-M2) and Embedded Artists 1ZM M.2 Module (EAR00364)
   - Murata uSD-M.2 Adapter (LBEE0ZZ1WE-uSD-M2) and Embedded Artists 2EL M.2 Module (EAR00409)
+  - Murata uSD-M.2 Adapter (LBEE0ZZ1WE-uSD-M2) and Embedded Artists 2LL M.2 Module (EAR00500)
   - K32W061
 
 Board settings
@@ -21,6 +22,7 @@ If you want use the AzureWave AW-CM358-uSD, please change the macro to WIFI_88W8
 If you want to use Embedded Artists Type 1XK module with uSD-M2 adapter, please change the macro to WIFI_IW416_BOARD_MURATA_1XK_USD .
 If you want to use Embedded Artists Type 1ZM module with uSD-M2 adapter, please change the macro to WIFI_88W8987_BOARD_MURATA_1ZM_USD.
 If you want to use Embedded Artists Type 2EL module with uSD-M2 adapter, please change the macro to WIFI_IW612_BOARD_MURATA_2EL_USD.
+If you want to use Embedded Artists Type 2LL module with uSD-M2 adapter, please change the macro to WIFI_IW610_BOARD_MURATA_2LL_USD.
 If you want use the K32W061_TRANSCEIVER, please change the macro to K32W061_TRANSCEIVER.
 
 Jumper settings for RT685:
@@ -37,6 +39,7 @@ Embedded Artists M.2 module resource page: https://www.embeddedartists.com/m2
 Embedded Artists 1XK module datasheet: https://www.embeddedartists.com/doc/ds/1XK_M2_Datasheet.pdf
 Embedded Artists 1ZM module datasheet: https://www.embeddedartists.com/doc/ds/1ZM_M2_Datasheet.pdf
 Embedded Artists 2EL module datasheet: https://www.embeddedartists.com/doc/ds/2EL_M2_Datasheet.pdf
+Embedded Artists 2LL module datasheet: https://www.embeddedartists.com/wp-content/uploads/2024/12/2LL_M2_Datasheet.pdf
 
 Jumper settings for Murata uSD-M.2 adapter:
   - Both J12 & J13 = 1-2: WLAN-SDIO = 1.8V; and BT-UART & WLAN/BT-CTRL = 3.3V
