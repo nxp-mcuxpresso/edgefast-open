@@ -45,6 +45,15 @@ config SHELL_BUFFER_SIZE
 	  Configure the buffer size for shell cmd.
 	  No prefix in generated macro
 
+config SHELL_MAX_ARGS
+	int "Shell Command Max Arguments Configuration"
+	range 2 32
+	default 8
+	help
+	  Configure the maximum number of arguments (including the command
+	  name) that a shell command line can be split into.
+	  No prefix in generated macro
+
 config SHELL_ECHO_WHEN_EOF_RECEIVED
 	bool "Shell Command only be echoed when an EOF is received"
 	default n
