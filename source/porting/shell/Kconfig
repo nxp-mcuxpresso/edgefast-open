@@ -47,7 +47,7 @@ config SHELL_BUFFER_SIZE
 
 config SHELL_MAX_ARGS
 	int "Shell Command Max Arguments Configuration"
-	range 2 32
+	range 2 255
 	default 8
 	help
 	  Configure the maximum number of arguments (including the command
