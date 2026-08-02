@@ -73,6 +73,18 @@
 
 #endif /* __clang__ */
 
+/*
+ * LC3 Codec Optimization Level Configuration
+ * Set high optimization level for codec performance.
+ */
+#if defined(__ICCARM__)
+#pragma optimize=balanced
+#elif defined(__ARMCC_VERSION) && !defined(__clang__)
+#pragma Otime
+#pragma O3
+#elif defined(__GNUC__) || defined(__clang__)
+#pragma GCC optimize("O3")
+#endif
 
 /**
  * Macros
