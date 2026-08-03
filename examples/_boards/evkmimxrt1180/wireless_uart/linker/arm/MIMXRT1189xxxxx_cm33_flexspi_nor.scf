@@ -232,6 +232,10 @@ LR_m_text   m_text_start   m_text_size
     .ANY (._bt_l2cap_br_fixed_chan*)
   }
 
+  ER_bt_hci_driver_api +0 { ;
+    .ANY (._bt_hci_driver_api*)
+  }
+
   ER_settings_handler_static        +0
   {
     .ANY (._settings_handler_static*)
