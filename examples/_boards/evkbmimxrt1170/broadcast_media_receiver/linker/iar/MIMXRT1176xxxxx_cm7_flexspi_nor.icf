@@ -203,6 +203,11 @@ define block ._bt_l2cap_br_fixed_chan with fixed order { readonly section ._bt_l
 define image symbol _bt_l2cap_br_fixed_chan_list_start = ADDR(._bt_l2cap_br_fixed_chan);
 define image symbol _bt_l2cap_br_fixed_chan_list_end = END(._bt_l2cap_br_fixed_chan);
 
+define block ._bt_hci_driver_api with fixed order { readonly section ._bt_hci_driver_api*};
+define image symbol _bt_hci_driver_api_list_start = ADDR(._bt_hci_driver_api);
+define image symbol _bt_hci_driver_api_list_end = END(._bt_hci_driver_api);
+define image symbol _bt_hci_driver_api_ext_end = END(._bt_hci_driver_api);
+
 define block ._settings_handler_static with fixed order { readonly section ._settings_handler_static*};
 define image symbol _settings_handler_static_list_start = ADDR(._settings_handler_static);
 define image symbol _settings_handler_static_list_end = END(._settings_handler_static);
@@ -257,7 +262,7 @@ keep {
   block .z_init_APPLICATION_3 , section .z_init_APPLICATION_P_???_*,
 };
 
-place in TEXT_region                        { readonly,block ._bt_gatt_service_static, block ._bt_settings_static, block ._bt_conn_cb, block ._bt_sco_conn_cb, block ._bt_sco_hci_cb, block ._bt_ias_cb, block ._bt_l2cap_fixed_chan, block ._bt_l2cap_br_fixed_chan, block ._settings_handler_static , block .z_init};
+place in TEXT_region                        { readonly,block ._bt_gatt_service_static, block ._bt_settings_static, block ._bt_conn_cb, block ._bt_sco_conn_cb, block ._bt_sco_hci_cb, block ._bt_ias_cb, block ._bt_l2cap_fixed_chan, block ._bt_l2cap_br_fixed_chan, block ._bt_hci_driver_api, block ._settings_handler_static , block .z_init};
 place in DATA2_region                       { block RW, block ._net_buf_pool, block .__shell_command, block ._k_mem_slab, block USB_RW};
 place in DATA2_region                       { block ZI, block USB_ZI };
 place in DATA_region                        { last block HEAP };
