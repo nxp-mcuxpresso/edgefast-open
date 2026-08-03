@@ -116,6 +116,10 @@ struct arch_esf;
 #define _bt_l2cap_br_fixed_chan_list_start  Load$$ER_bt_l2cap_br_fixed_chan$$Base
 #define _bt_l2cap_br_fixed_chan_list_end  Load$$ER_bt_l2cap_br_fixed_chan$$Limit
 
+#define _bt_hci_driver_api_list_start Load$$ER_bt_hci_driver_api$$Base
+#define _bt_hci_driver_api_list_end Load$$ER_bt_hci_driver_api$$Limit
+#define _bt_hci_driver_api_ext_end Load$$ER_bt_hci_driver_api$$Limit
+
 #define _net_buf_pool_list_start  Image$$RW_net_buf_pool$$Base
 #define _net_buf_pool_list_end  Image$$RW_net_buf_pool$$Limit
 
