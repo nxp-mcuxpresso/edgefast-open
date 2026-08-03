@@ -284,7 +284,17 @@ SECTIONS
     _bt_l2cap_br_fixed_chan_list_start = .;
     KEEP(*(SORT(._bt_l2cap_br_fixed_chan.static.*)))
     _bt_l2cap_br_fixed_chan_list_end = .;
-    . = ALIGN(4) ;
+    . = ALIGN(4);
+  } > m_text
+
+  ._bt_hci_driver_api :
+  {
+    . = ALIGN(4);
+    _bt_hci_driver_api_list_start = .;
+    KEEP(*(SORT(._bt_hci_driver_api.static.*)))
+    _bt_hci_driver_api_list_end = .;
+    _bt_hci_driver_api_ext_end = .;
+    . = ALIGN(4);
   } > m_text
 
   ASSERT((core1_image_end - core1_image_start) <= m_core1_image_maximum_size, "Core1 image size exceeds the limit")

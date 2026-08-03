@@ -208,6 +208,16 @@ SECTIONS
     . = ALIGN(4);
   } > m_text
 
+  ._bt_hci_driver_api :
+  {
+    . = ALIGN(4);
+    _bt_hci_driver_api_list_start = .;
+    KEEP(*(SORT(._bt_hci_driver_api.static.*)))
+    _bt_hci_driver_api_list_end = .;
+    _bt_hci_driver_api_ext_end = .;
+    . = ALIGN(4);
+  } > m_text
+
   .ARM.extab :
   {
     *(.ARM.extab* .gnu.linkonce.armextab.*)
