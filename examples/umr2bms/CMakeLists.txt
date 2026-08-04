@@ -62,6 +62,16 @@ mcux_add_mdk_configuration(
     LD "--library_type=microlib"
 )
 
+mcux_remove_armgcc_configuration(
+    TARGETS flexspi_nor_debug
+    CC "-O0"
+)
+
+mcux_add_armgcc_configuration(
+    TARGETS flexspi_nor_debug
+    CC "-O1"
+)
+
 include(${SdkRootDirPath}/middleware/edgefast_open/examples/_boards/${board}/umr2bms/${multicore_foldername}/reconfig.cmake OPTIONAL)
 
 mcux_convert_binary(BINARY ${APPLICATION_BINARY_DIR}/${MCUX_SDK_PROJECT_NAME}.bin)
