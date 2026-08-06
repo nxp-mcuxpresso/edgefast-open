@@ -17,6 +17,7 @@
 #include "fsl_codec_adapter.h"
 #include "fsl_edma_soc.h"
 #include "fsl_adapter_audio.h"
+#include "fsl_adapter_gpio.h"
 
 #include <zephyr/drivers/bluetooth.h>
 #include "psa/crypto.h"
@@ -443,6 +444,42 @@ int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len, size_t 
     return (int)status;
 }
 
+void BOARD_BT_Reset(void)
+{
+    GPIO_HANDLE_DEFINE(pdn_gpioHandle);
+
+    hal_gpio_pin_config_t pinConfig = {
+        .direction = kHAL_GpioDirectionOut,
+        .level = 0U,
+        .port = BOARD_INITXSPI2PINS_PDN_1V8_PORT,
+        .pin  = BOARD_INITXSPI2PINS_PDN_1V8_PIN,
+    };
+
+    hal_gpio_status_t status = HAL_GpioInit((hal_gpio_handle_t)pdn_gpioHandle, &pinConfig);
+    if (status != kStatus_HAL_GpioSuccess)
+    {
+        (void)PRINTF("HAL_GpioInit failed\r\n");
+        return;
+    }
+
+    /* Set PDN pin to 0 (set LOW = power down module) */
+    status = HAL_GpioSetOutput((hal_gpio_handle_t)pdn_gpioHandle, 0U);
+    if (status != kStatus_HAL_GpioSuccess)
+    {
+        (void)PRINTF("HAL_GpioSetOutput failed\r\n");
+        return;
+    }
+
+    SDK_DelayAtLeastUs(100000, SDK_DEVICE_MAXIMUM_CPU_CLOCK_FREQUENCY);
+
+    status = HAL_GpioDeinit((hal_gpio_handle_t)pdn_gpioHandle);
+    if (status != kStatus_HAL_GpioSuccess)
+    {
+        (void)PRINTF("HAL_GpioDeinit failed\r\n");
+        return;
+    }
+}
+
 void BOARD_InitHardware(void)
 {
     BOARD_Init_M2();
@@ -461,6 +498,8 @@ void BOARD_InitHardware(void)
     SYSCON0->SEC_CLK_CTRL |= SYSCON0_SEC_CLK_CTRL_TRNG_REFCLK_EN_MASK; /* Enable TRNG REF CLOCK */
 
     trng_initialize();
+
+    BOARD_BT_Reset();
 }
 
 #if (defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) || defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || \
