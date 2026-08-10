@@ -25,6 +25,8 @@ mcux_add_source(
     middleware/edgefast_open/examples/shell/main.c
     middleware/edgefast_open/examples/shell/shell.c
     middleware/edgefast_open/examples/shell/shell.h
+    middleware/edgefast_open/examples/shell/shell_dtm_nxp.c
+    middleware/edgefast_open/examples/shell/shell_dtm_nxp.h
 )
 
 mcux_add_include(

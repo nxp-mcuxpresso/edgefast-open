@@ -1,2 +1,12 @@
 source "middleware/edgefast_open/Kconfig"
 source "Kconfig.mcuxpresso"
+
+config BT_NXP_DTM
+	bool "NXP Bluetooth Direct Test Mode shell commands"
+	depends on BT_NXP
+	depends on BT_SHELL
+	help
+	  Enable NXP-specific BLE and BR/EDR Direct Test Mode (DTM) shell commands for
+	  use with NXP external HCI controllers. Provides two command groups:
+	    le_test  - LE Enhanced TX/RX test and NXP VS TX power config
+	    bt_test  - BR/EDR NXP VS TX/RX test and DUT mode (CONFIG_BT_CLASSIC)
