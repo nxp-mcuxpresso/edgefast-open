@@ -611,7 +611,7 @@ int k_work_schedule_for_queue(struct k_work_q *queue,
 	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_work, schedule_for_queue, queue, dwork, delay);
 
 	struct k_work *work = &dwork->work;
-	int ret = -EBUSY;
+	int ret = 0;
 	k_spinlock_key_t key = k_spin_lock(&lock);
 
 	/* Schedule the work item if it's idle or running. */
@@ -626,7 +626,7 @@ int k_work_schedule_for_queue(struct k_work_q *queue,
 			dwork->queue = queue;
 
 			k_work_delay_queue_append(dwork, delay);
-			ret = 0;
+			ret = 1;
 		}
 	}
 
