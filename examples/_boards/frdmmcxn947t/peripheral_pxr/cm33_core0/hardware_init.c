@@ -14,10 +14,6 @@
 #include <zephyr/drivers/bluetooth.h>
 
 #include "fsl_lpflexcomm.h"
-
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-#include "ksdk_mbedtls.h"
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 /*${header:end}*/
 
 /*${macro:start}*/
@@ -66,9 +62,6 @@ void BOARD_InitHardware(void)
 #endif /* LPFLEXCOMM_INIT_NOT_USED_IN_DRIVER */
 
     // XCACHE_DisableCache(XCACHE_PS);
-#if defined(CONFIG_BT_HOST_CRYPTO) && !defined(CONFIG_BT_CRYPTO_PSA)
-    CRYPTO_InitHardware();
-#endif /* CONFIG_BT_HOST_CRYPTO && !CONFIG_BT_CRYPTO_PSA*/
 }
 
 #if (defined(WIFI_IW416_BOARD_AW_AM510_ARDUINO) || defined(WIFI_IW610_BOARD_MURATA_2LL_M2) || \
