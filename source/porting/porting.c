@@ -14,18 +14,6 @@
 
 #include <zephyr/init.h>
 
-#if ((defined(CONFIG_BT_SMP)) && (CONFIG_BT_SMP))
-#if defined(CONFIG_BT_USE_SW_SECLIB) && (CONFIG_BT_USE_SW_SECLIB > 0)
-#include "SecLib.h"
-#include "CryptoLibSW.h"
-#else
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
-static mbedtls_entropy_context entropy;
-static mbedtls_ctr_drbg_context rng_ctx;
-#endif
-#endif /* CONFIG_BT_SMP */
-
 #ifdef CONFIG_BT_SHELL
 #include "fsl_shell.h"
 #endif /* CONFIG_BT_SHELL */
@@ -113,69 +101,6 @@ size_t strnlen(const char *s, size_t maxlen)
     return MIN(strlen(s), maxlen);
 }
 #endif
-
-__WEAK_FUNC int16_t RNG_GetPseudoRandomNo (uint8_t* pOut,
-                               uint8_t  outBytes,
-                               uint8_t* pSeed)
-{
-#if ((defined(CONFIG_BT_SMP)) && (CONFIG_BT_SMP))
-    uint32_t rng;
-
-    if (NULL == pOut)
-    {
-        return (int16_t)-1;
-    }
-
-    if (NULL != pSeed)
-    {
-#if defined(CONFIG_BT_USE_SW_SECLIB) && (CONFIG_BT_USE_SW_SECLIB > 0)
-        (void)SecLib_set_rng_seed(*((uint32_t *)pSeed));
-#else
-        mbedtls_entropy_init(&entropy);
-
-        mbedtls_ctr_drbg_init(&rng_ctx);
-
-        if(0 != mbedtls_ctr_drbg_seed(&rng_ctx, mbedtls_entropy_func, &entropy, NULL, 0))
-        {
-            return -1;
-        }
-#endif
-    }
-
-    for (size_t index = 0; index < outBytes; index+=sizeof(rng))
-    {
-#if defined(CONFIG_BT_USE_SW_SECLIB) && (CONFIG_BT_USE_SW_SECLIB > 0)
-        rng = SecLib_get_random();
-#else
-        if(0 != mbedtls_ctr_drbg_random(&rng_ctx, (unsigned char *)&rng, 4))
-        {
-            return -1;
-        }
-#endif
-        for (size_t i = 0; i < MIN(outBytes, (outBytes - index));i++)
-        {
-            ((uint8_t *)pOut)[index + i] = ((uint8_t *)&rng)[i];
-        }
-    }
-
-#if defined(CONFIG_BT_USE_SW_SECLIB) && (CONFIG_BT_USE_SW_SECLIB > 0)
-#else
-    mbedtls_ctr_drbg_free(&rng_ctx);
-
-    mbedtls_entropy_free(&entropy);
-#endif
-
-    return 0;
-#else
-    return -1;
-#endif /* CONFIG_BT_SMP */
-
-}
-
-__WEAK_FUNC int RNG_GetPseudoRandomData(uint8_t *pOut, uint8_t outBytes, uint8_t *pSeed)
-{
-	return (int)RNG_GetPseudoRandomNo(pOut, outBytes, pSeed);
-}
 
 #if (defined(CONFIG_BT_LOGGING) && (CONFIG_BT_LOGGING > 0))
 #if LOG_ENABLE_TIMESTAMP
