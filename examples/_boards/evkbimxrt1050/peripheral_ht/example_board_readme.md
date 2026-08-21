@@ -32,6 +32,17 @@ BT_UART_RTS_HOST | J8(pin 3)       | J23(pin 3) | LPUART3_CTS        | GPIO_AD_B
 BT_UART_CTS_HOST | J8(pin 4)       | J23(pin 4) | LPUART3_RTS        | GPIO_AD_B1_05
 ------------------------------------------------------------------------------------------
 
+
+For K32W061, The pin connect for UART HCI as the following table,
+------------------------------------------------------------------------------------------
+PIN NAME         | K32              | I.MXRT1050 | PIN NAME OF RT1050 | GPIO NAME OF RT1050
+------------------------------------------------------------------------------------------
+BT_UART_TXD_HOST | PIO(pin 8)       | J22(pin 1) | LPUART3_RXD        | GPIO_AD_B1_07
+BT_UART_RXD_HOST | PIO(pin 9)       | J22(pin 2) | LPUART3_TXD        | GPIO_AD_B1_06
+BT_UART_RTS_HOST | PIO(pin 6)       | J23(pin 3) | LPUART3_CTS        | GPIO_AD_B1_04
+BT_UART_CTS_HOST | PIO(pin 7)       | J23(pin 4) | LPUART3_RTS        | GPIO_AD_B1_05
+------------------------------------------------------------------------------------------
+
 Note:
 To ensure that the LITTLEFS flash region has been cleaned,
 all flash sectors need to be erased before downloading example code.
