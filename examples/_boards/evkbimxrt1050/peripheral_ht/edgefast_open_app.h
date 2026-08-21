@@ -60,3 +60,7 @@
 #if defined(CONFIG_BT_NXP_IW610) && defined(CONFIG_BT_CLASSIC)
 #error "Bluetooth Classic is unsupported by Murata 2LL"
 #endif /* CONFIG_BT_NXP_IW610 && CONFIG_BT_CLASSIC */
+
+#if defined(K32W061_TRANSCEIVER)
+#undef CONFIG_BT_HCI_ACL_FLOW_CONTROL
+#endif /* K32W061_TRANSCEIVER */
