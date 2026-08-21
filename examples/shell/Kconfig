@@ -1,4 +1,3 @@
-source "middleware/edgefast_open/Kconfig"
 source "Kconfig.mcuxpresso"
 
 config BT_NXP_DTM

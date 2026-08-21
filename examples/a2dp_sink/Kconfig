@@ -17,5 +17,4 @@ config A2DP_BOARD_CODEC_PLAY_COUNT
 config A2DP_BOARD_CODEC_PLAY_THRESHOLD
 	int "The threshold of pcm buffer when playing data to codec (n%)"
 	default 20
-source "middleware/edgefast_open/Kconfig"
 source "Kconfig.mcuxpresso"

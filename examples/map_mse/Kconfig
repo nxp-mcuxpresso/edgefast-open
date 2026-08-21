@@ -61,5 +61,4 @@ config BT_MAP_MSE_NAME_MAX_LEN
 	help
 	  The minimal value is 17 to accommodate the longest message handle.
 
-source "middleware/edgefast_open/Kconfig"
 source "Kconfig.mcuxpresso"
