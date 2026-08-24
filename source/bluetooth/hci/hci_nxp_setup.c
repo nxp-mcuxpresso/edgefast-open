@@ -40,6 +40,9 @@ LOG_MODULE_REGISTER(bt_nxp_ctlr);
 #define HCI_CMD_BT_CONFIG_IR_MODE                       0x02
 #define HCI_CMD_BT_CONFIG_IR_PARAM                      0xFF
 #define HCI_CMD_BT_CONFIG_IR_OPCODE                     BT_OP(BT_OGF_VS, HCI_CMD_BT_CONFIG_IR_OCF)
+#define IR_TRIGGER_EVENT_SIZE                           7U
+#define IR_TRIGGER_BYTE5_EXPECTED                       0xfcU
+#define IR_TRIGGER_BYTE6_EXPECTED                       0x00U
 extern const unsigned char *bt_fw_bin;
 extern const unsigned int bt_fw_bin_len;
 
@@ -240,6 +243,8 @@ struct nxp_ctlr_fw_upload_state {
 	bool is_cmd7_req;
 	bool is_entry_point_req;
 	bool is_setup_done;
+	bool is_ir_request;
+	bool hci_opened;
 
 	uint8_t last_5bytes_buffer[6];
 };
@@ -1139,34 +1144,20 @@ static int fw_uploading(const uint8_t *fw, uint32_t fw_length)
 	return -EINVAL;
 }
 
-static int bt_nxp_ctlr_init(void)
+#if DT_NODE_HAS_PROP(DT_DRV_INST(0), sdio_reset_gpios) ||                                          \
+	DT_NODE_HAS_PROP(DT_DRV_INST(0), w_disable_gpios)
+/**
+ * @brief Initialize power control GPIOs for Bluetooth controller
+ *
+ * Configures and toggles sdio_reset and w_disable GPIOs to power up
+ * the Bluetooth controller. This performs a power-on-reset sequence.
+ *
+ * @return 0 on success, negative errno on failure
+ */
+static int bt_nxp_init_power_gpios(void)
 {
-	int err;
-	uint32_t speed;
-	bool flowcontrol_of_hci;
 	hal_gpio_pin_config_t sdio_pin;
 	hal_gpio_pin_config_t wifi_pin;
-
-	if (!device_is_ready(uart_dev)) {
-		return -ENODEV;
-	}
-
-	speed = DT_PROP(DT_INST_GPARENT(0), current_speed);
-
-	uart_dev_data.primary_speed = DT_PROP_OR(DT_DRV_INST(0), fw_download_primary_speed, speed);
-	uart_dev_data.secondary_speed =
-		DT_PROP_OR(DT_DRV_INST(0), fw_download_secondary_speed, speed);
-
-	flowcontrol_of_hci = (bool)DT_PROP_OR(DT_DRV_INST(0), hw_flow_control, false);
-	uart_dev_data.primary_flowcontrol =
-		(bool)DT_PROP_OR(DT_DRV_INST(0), fw_download_primary_flowcontrol, false);
-	uart_dev_data.secondary_flowcontrol =
-		(bool)DT_PROP_OR(DT_DRV_INST(0), fw_download_secondary_flowcontrol, false);
-
-	if (IS_ENABLED(CONFIG_BT_BYPASS_DOWNLOAD)) {
-		(void)fw_upload_uart_reconfig(speed, flowcontrol_of_hci);
-		return 0;
-	}
 
 #if DT_NODE_HAS_PROP(DT_DRV_INST(0), sdio_reset_gpios) ||                                          \
 	DT_NODE_HAS_PROP(DT_DRV_INST(0), w_disable_gpios)
@@ -1201,6 +1192,51 @@ static int bt_nxp_ctlr_init(void)
 	HAL_GpioSetOutput((hal_gpio_handle_t)w_disable_gpios, wifi_pin.level);
 #endif /* DT_NODE_HAS_PROP(DT_DRV_INST(0), w_disable_gpios) */
 #endif
+	return 0;
+}
+#endif /* DT_NODE_HAS_PROP sdio_reset_gpios || w_disable_gpios */
+
+static int bt_nxp_ctlr_init(bool is_ir_req)
+{
+	int err;
+	uint32_t speed;
+	bool flowcontrol_of_hci;
+
+	if (!device_is_ready(uart_dev)) {
+		return -ENODEV;
+	}
+
+	speed = DT_PROP(DT_INST_GPARENT(0), current_speed);
+
+	uart_dev_data.primary_speed = DT_PROP_OR(DT_DRV_INST(0), fw_download_primary_speed, speed);
+	uart_dev_data.secondary_speed =
+		DT_PROP_OR(DT_DRV_INST(0), fw_download_secondary_speed, speed);
+
+	flowcontrol_of_hci = (bool)DT_PROP_OR(DT_DRV_INST(0), hw_flow_control, false);
+	uart_dev_data.primary_flowcontrol =
+		(bool)DT_PROP_OR(DT_DRV_INST(0), fw_download_primary_flowcontrol, false);
+	uart_dev_data.secondary_flowcontrol =
+		(bool)DT_PROP_OR(DT_DRV_INST(0), fw_download_secondary_flowcontrol, false);
+
+	if (IS_ENABLED(CONFIG_BT_BYPASS_DOWNLOAD)) {
+		(void)fw_upload_uart_reconfig(speed, flowcontrol_of_hci);
+		return 0;
+	}
+#if DT_NODE_HAS_PROP(DT_DRV_INST(0), sdio_reset_gpios) ||                                          \
+	DT_NODE_HAS_PROP(DT_DRV_INST(0), w_disable_gpios)
+	bool power_reset = !is_ir_req;
+
+	if (IS_ENABLED(CONFIG_BT_HCI_NXP_IR_ENABLE_PDN_TOGGLE)) {
+		power_reset = true;
+	}
+
+	if (power_reset) {
+		err = bt_nxp_init_power_gpios();
+		if (err != 0) {
+			return err;
+		}
+	}
+#endif /* DT_NODE_HAS_PROP sdio_reset_gpios || w_disable_gpios */
 
 	fw_upload.rx.head = 0;
 	fw_upload.rx.tail = 0;
@@ -1443,25 +1479,85 @@ static int bt_nxp_configure_ir(void)
 	return 0;
 }
 
+static int fw_check_ir_trigger_event(void)
+{
+	int err = 0;
+	uint8_t ir_event_ack[IR_TRIGGER_EVENT_SIZE];
+
+	/* Read the entire IR trigger event data at once */
+	err = fw_upload_read_data(ir_event_ack, IR_TRIGGER_EVENT_SIZE);
+	if (err < 0) {
+		LOG_ERR("Failed to read IR trigger event data");
+		return err;
+	}
+
+	LOG_HEXDUMP_DBG(ir_event_ack, sizeof(ir_event_ack), "IR Evt data");
+	/* Verify the last 2 bytes are 0xfc and 0x00 which confirms IR is successful */
+	if (ir_event_ack[5] != IR_TRIGGER_BYTE5_EXPECTED ||
+	    ir_event_ack[6] != IR_TRIGGER_BYTE6_EXPECTED) {
+		LOG_ERR("IR trigger failed, status bytes: %02x %02x", ir_event_ack[5],
+			ir_event_ack[6]);
+		return -EINVAL;
+	}
+
+	LOG_DBG("IR trigger event received successfully");
+
+	return err;
+}
+
 int bt_nxp_trigger_ir(const struct device *dev)
 {
 	int err;
-	uint8_t ir_trigger_buf[] = {0x01, 0xfc, 0xfc, 0x00}; /*IR trigger sequence*/
+	uint8_t ir_trigger_buf[] = {0x01, 0xfc, 0xfc, 0x00}; /* IR trigger sequence */
+	uint32_t speed;
+	bool flowcontrol_of_hci;
+	hal_gpio_pin_config_t sdio_pin;
+	hal_gpio_pin_config_t wifi_pin;
+
+	if (!device_is_ready(uart_dev)) {
+		return -ENODEV;
+	}
+
+	speed = DT_PROP(DT_INST_GPARENT(0), current_speed);
+	speed = DT_PROP_OR(DT_DRV_INST(0), hci_operation_speed, speed);
+
+	flowcontrol_of_hci = (bool)DT_PROP_OR(DT_DRV_INST(0), hw_flow_control, false);
+
+	(void)fw_upload_uart_reconfig(speed, flowcontrol_of_hci);
+
+	/*
+	 * The caller must disable the BT host stack before calling this API.
+	 * Return an error if the host stack is still active before initiating IR.
+	 */
+	if (fw_upload.hci_opened) {
+		LOG_ERR("BT host stack is still active. Disable it before triggering IR.");
+		return -EAGAIN;
+	}
+
+	/*
+	 * Flush RX buffer to discard stale data from previous FW download
+	 * session as we are going to use buffer to check for IR trigger ack
+	 */
+	fw_upload_read_to_clear();
 
 	LOG_DBG("Triggering IR.");
-	ARRAY_FOR_EACH(ir_trigger_buf, i) {
-		uart_poll_out(dev, ir_trigger_buf[i]);
+	(void)dev;
+	(void)h4_uart_sending(ir_trigger_buf, sizeof(ir_trigger_buf));
+
+	LOG_DBG("Check IR trigger event.");
+	err = fw_check_ir_trigger_event();
+	if (err != 0) {
+		/* EFO port: no uart_irq_rx_disable equivalent. */
+		LOG_ERR("IR trigger event wait failed (err %d)", err);
+		return err;
 	}
 
-	LOG_DBG("Downloading FW.");
-	err = bt_nxp_ctlr_init();
-	if (err == 0) {
-		LOG_DBG("IR Successful, Perform BT Init again to activate interface.");
-	} else {
-		LOG_ERR("IR Failed: %d", err);
-	}
+	fw_upload.is_ir_request = true;
+	fw_upload.is_setup_done = false;
 
-	return err;
+	LOG_DBG("IR trigger successful. Do bt init from app to initialize stack");
+
+	return 0;
 }
 #else
 int bt_nxp_trigger_ir(const struct device *dev)
@@ -1484,21 +1580,45 @@ int bt_hci_transport_setup(const struct device *dev)
 		return -EINVAL;
 	}
 
-	if (!fw_upload.is_setup_done) {
-		LOG_DBG("HCI Transport Initial Setup");
-		ret = bt_nxp_ctlr_init();
-	}
-#ifdef	CONFIG_HCI_NXP_TRIGGER_IR_ON_BT_INIT
-	else {
-		LOG_DBG("HCI transport setup after bt disable");
-
-		/* If setup is already done earlier, for subsequent bt disable
-		 * and bt enable, trigger IR to reload controller FW
-		 */
+	/* If setup was already done earlier, for a subsequent bt disable and bt
+	 * enable trigger IR to reload the controller FW. On success,
+	 * bt_nxp_trigger_ir() clears is_setup_done, so the block below re-runs the
+	 * FW download.
+	 */
+	if (IS_ENABLED(CONFIG_HCI_NXP_TRIGGER_IR_ON_BT_INIT) && fw_upload.is_setup_done) {
+		LOG_DBG("Trigger IR on BT Init");
 		ret = bt_nxp_trigger_ir(dev);
+		if (ret != 0) {
+			LOG_ERR("IR trigger failed: %d", ret);
+			return ret;
+		}
 	}
-#endif /* defined(CONFIG_HCI_NXP_TRIGGER_IR_ON_BT_INIT) */
+
+	if (!fw_upload.is_setup_done) {
+		LOG_DBG("HCI Transport Setup (IR request: %d)", fw_upload.is_ir_request);
+		ret = bt_nxp_ctlr_init(fw_upload.is_ir_request);
+		if (ret != 0) {
+			LOG_ERR("BT download failed: %d", ret);
+			return ret;
+		}
+	}
+
+	/* Clear the is_ir_request flag irrespective of ret status so the
+	 * application can re-initiate the request if needed.
+	 */
+	fw_upload.is_ir_request = false;
+	fw_upload.hci_opened = true;
+
 	return ret;
+}
+
+int bt_hci_transport_teardown(const struct device *dev)
+{
+	ARG_UNUSED(dev);
+	LOG_DBG("HCI interface shutdown");
+	fw_upload.hci_opened = false;
+
+	return 0;
 }
 
 #define BT_HCI_VSC_BAUDRATE_UPDATE_LENGTH 4
