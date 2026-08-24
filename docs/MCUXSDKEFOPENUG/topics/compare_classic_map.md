@@ -38,7 +38,7 @@
 | Aspect | edgefast_bluetooth | edgefast_open |
 | --- | --- | --- |
 | Object lifecycle | Stack allocates instance on connect; app receives pointer via callback | App pre-allocates `struct bt_map_mce_mas` / `struct bt_map_mse_mas` / `struct bt_map_mce_mns` / `struct bt_map_mse_mns` |
-| Callback registration | Single global call: `bt_map_mce_mas_register(cb)` / `bt_map_mse_mas_register(cb)` / `bt_map_mce_mns_register(cb)` / `bt_map_mse_mns_register(cb)` | Per-instance: `bt_map_mce_mas_cb_register(mce_mas, cb)` / `bt_map_mse_mas_cb_register(mse_mas, cb)` / `bt_map_mce_mns_cb_register(mce_mns, cb)` / `bt_map_mse_mns_cb_register(mse_mns, cb)` |
+| Callback registration | Single global call: `bt_map_mce_mas_register(cb)` / `bt_map_mse_mas_register(cb)` / `bt_map_mce_mns_register(cb)` / `bt_map_mse_mns_register(cb)` | MCE MAS/MSE MNS (client roles): `cb` passed directly to transport connect call — `bt_map_mce_mas_rfcomm_connect(conn, mce_mas, cb, channel)` / `bt_map_mce_mas_l2cap_connect(conn, mce_mas, cb, psm)` / `bt_map_mse_mns_rfcomm_connect(conn, mse_mns, cb, channel)` / `bt_map_mse_mns_l2cap_connect(conn, mse_mns, cb, psm)`. MCE MNS/MSE MAS (server roles): per-instance register call — `bt_map_mce_mns_register(mce_mns, cb)` / `bt_map_mse_mas_register(mse_mas, cb)` |
 | Transport connection (MCE) | Single step: `bt_map_mce_psm_connect()` / `bt_map_mce_scn_connect()` — stack creates object | Two steps: `bt_map_mce_mas_l2cap_connect()` / `bt_map_mce_mas_rfcomm_connect()` (transport) then `bt_map_mce_mas_connect()` (OBEX) |
 | Transport events (MCE) | Single `connected(mce_mas)` / `disconnected(mce_mas, result)` | Split: `rfcomm_connected`, `rfcomm_disconnected`, `l2cap_connected`, `l2cap_disconnected` + OBEX `connect(rsp_code, version, mopl, buf)`, OBEX `disconnect(rsp_code, buf)` |
 | Server registration | Single global call: `bt_map_mse_mas_register(cb)` / `bt_map_mce_mns_register(cb)` to register all servers | Per-server call: `bt_map_mse_mas_rfcomm_register(server)` / `bt_map_mse_mas_l2cap_register(server)` / `bt_map_mce_mns_rfcomm_register(server)` / `bt_map_mce_mns_l2cap_register(server)` to register individual server |
@@ -108,18 +108,16 @@ int bt_map_mce_get_max_pkt_len(struct bt_map_mce_mas *mce_mas, uint16_t *max_pkt
 **edgefast_open**
 
 ```c
-/* Per-instance callback registration */
-int bt_map_mce_mas_cb_register(struct bt_map_mce_mas *mce_mas,
-                                const struct bt_map_mce_mas_cb *cb);
-
-/* Step 1a: initiate RFCOMM transport connection (app owns mce_mas) */
+/* Step 1a: initiate RFCOMM transport connection (app owns mce_mas, cb registered inline) */
 int bt_map_mce_mas_rfcomm_connect(struct bt_conn *conn,
                                    struct bt_map_mce_mas *mce_mas,
+                                   const struct bt_map_mce_mas_cb *cb,
                                    uint8_t channel);
 
 /* Step 1b: initiate L2CAP transport connection */
 int bt_map_mce_mas_l2cap_connect(struct bt_conn *conn,
                                   struct bt_map_mce_mas *mce_mas,
+                                  const struct bt_map_mce_mas_cb *cb,
                                   uint16_t psm);
 
 /* Step 2: send OBEX CONNECT (call from rfcomm_connected / l2cap_connected cb) */
@@ -255,13 +253,13 @@ int bt_map_mce_send_event_response(struct bt_map_mce_mns *mce_mns,
 **edgefast_open**
 
 ```c
-/* Per-server registration */
+/* Per-instance callback registration — called before rfcomm/l2cap_register */
+int bt_map_mce_mns_register(struct bt_map_mce_mns *mce_mns,
+                             const struct bt_map_mce_mns_cb *cb);
+
+/* Per-server registration (call after bt_map_mce_mns_register) */
 int bt_map_mce_mns_rfcomm_register(struct bt_map_mce_mns_rfcomm_server *server);
 int bt_map_mce_mns_l2cap_register(struct bt_map_mce_mns_l2cap_server *server);
-
-/* Per-instance callback registration */
-int bt_map_mce_mns_cb_register(struct bt_map_mce_mns *mce_mns,
-                                const struct bt_map_mce_mns_cb *cb);
 
 /* Respond to OBEX CONNECT request */
 int bt_map_mce_mns_connect(struct bt_map_mce_mns *mce_mns,
@@ -344,13 +342,13 @@ int bt_map_mse_set_ntf_filter_response(struct bt_map_mse_mas *mse_mas, uint8_t r
 **edgefast_open**
 
 ```c
-/* Per-server registration */
+/* Per-instance callback registration — called before rfcomm/l2cap_register */
+int bt_map_mse_mas_register(struct bt_map_mse_mas *mse_mas,
+                             const struct bt_map_mse_mas_cb *cb);
+
+/* Per-server registration (call after bt_map_mse_mas_register) */
 int bt_map_mse_mas_rfcomm_register(struct bt_map_mse_mas_rfcomm_server *server);
 int bt_map_mse_mas_l2cap_register(struct bt_map_mse_mas_l2cap_server *server);
-
-/* Per-instance callback registration */
-int bt_map_mse_mas_cb_register(struct bt_map_mse_mas *mse_mas,
-                                const struct bt_map_mse_mas_cb *cb);
 
 /* Explicit OBEX handshake responses */
 int bt_map_mse_mas_connect(struct bt_map_mse_mas *mse_mas,
@@ -445,18 +443,16 @@ int bt_map_mse_mns_get_max_pkt_len(struct bt_map_mse_mns *mse_mns,
 **edgefast_open**
 
 ```c
-/* Per-instance callback registration */
-int bt_map_mse_mns_cb_register(struct bt_map_mse_mns *mse_mns,
-                                const struct bt_map_mse_mns_cb *cb);
-
-/* Step 1a: initiate RFCOMM transport connection (app owns mse_mns) */
+/* Step 1a: initiate RFCOMM transport connection (app owns mse_mns, cb registered inline) */
 int bt_map_mse_mns_rfcomm_connect(struct bt_conn *conn,
                                    struct bt_map_mse_mns *mse_mns,
+                                   const struct bt_map_mse_mns_cb *cb,
                                    uint8_t channel);
 
 /* Step 1b: initiate L2CAP transport connection */
 int bt_map_mse_mns_l2cap_connect(struct bt_conn *conn,
                                   struct bt_map_mse_mns *mse_mns,
+                                  const struct bt_map_mse_mns_cb *cb,
                                   uint16_t psm);
 
 /* Step 2: send OBEX CONNECT */
@@ -564,10 +560,10 @@ struct net_buf *bt_map_mse_mns_create_pdu(struct bt_map_mse_mns *mse_mns,
 
 | edgefast_bluetooth | edgefast_open | Notes |
 | --- | --- | --- |
-| `bt_map_mce_mas_register(cb)` | `bt_map_mce_mas_cb_register(mce_mas, cb)` | 🟡 Global register replaced by per-instance `cb_register` |
+| `bt_map_mce_mas_register(cb)` | — (`cb` passed as parameter to transport connect) | 🟡 Global register replaced by `cb` inline in transport connect call |
 | `bt_map_mce_mas_unregister()` | — | 🟢 |
-| `bt_map_mce_psm_connect(conn, psm, features, **mce_mas)` | `bt_map_mce_mas_l2cap_connect(conn, mce_mas, psm)` | 🟡 Stack allocates vs app allocates; no `features` param on transport connect |
-| `bt_map_mce_scn_connect(conn, scn, features, **mce_mas)` | `bt_map_mce_mas_rfcomm_connect(conn, mce_mas, channel)` | 🟡 |
+| `bt_map_mce_psm_connect(conn, psm, features, **mce_mas)` | `bt_map_mce_mas_l2cap_connect(conn, mce_mas, cb, psm)` | 🟡 Stack allocates vs app allocates; `cb` passed inline; no `features` param on transport connect |
+| `bt_map_mce_scn_connect(conn, scn, features, **mce_mas)` | `bt_map_mce_mas_rfcomm_connect(conn, mce_mas, cb, channel)` | 🟡 |
 | — | `bt_map_mce_mas_connect(mce_mas, buf)` | 🔴 Explicit OBEX CONNECT request |
 | `bt_map_mce_disconnect(mce_mas)` | `bt_map_mce_mas_disconnect(mce_mas, buf)` | 🟡 edgefast_open takes `buf`; also separate transport disconnects |
 | — | `bt_map_mce_mas_rfcomm_disconnect(mce_mas)` | 🔴 |
@@ -599,7 +595,7 @@ struct net_buf *bt_map_mse_mns_create_pdu(struct bt_map_mse_mns *mse_mns,
 
 | edgefast_bluetooth | edgefast_open | Notes |
 | --- | --- | --- |
-| `bt_map_mce_mns_register(cb)` | `bt_map_mce_mns_cb_register(mce_mns, cb)` + `bt_map_mce_mns_rfcomm_register(server)` + `bt_map_mce_mns_l2cap_register(server)` | 🟡 edgefast_open registers individual servers and per-instance callbacks; edgefast_bluetooth resgiter global callbacks and all servers |
+| `bt_map_mce_mns_register(cb)` | `bt_map_mce_mns_register(mce_mns, cb)` + `bt_map_mce_mns_rfcomm_register(server)` + `bt_map_mce_mns_l2cap_register(server)` | 🟡 edgefast_open registers individual servers and per-instance callbacks; edgefast_bluetooth registers global callbacks for all servers |
 | `bt_map_mce_mns_unregister()` | — | 🟢 |
 | `bt_map_mce_mns_disconnect(mce_mns)` | `bt_map_mce_mns_rfcomm_disconnect(mce_mns)` + `bt_map_mce_mns_l2cap_disconnect(mce_mns)` | 🟡 Split by transport |
 | — | `bt_map_mce_mns_connect(mce_mns, rsp_code, buf)` | 🔴 Explicit OBEX CONNECT response |
@@ -614,7 +610,7 @@ struct net_buf *bt_map_mse_mns_create_pdu(struct bt_map_mse_mns *mse_mns,
 
 | edgefast_bluetooth | edgefast_open | Notes |
 | --- | --- | --- |
-| `bt_map_mse_mas_register(cb)` | `bt_map_mse_mas_cb_register(mse_mas, cb)` + `bt_map_mse_mas_rfcomm_register(server)` + `bt_map_mse_mas_l2cap_register(server)` | 🟡 edgefast_open registers individual servers and per-instance callbacks; edgefast_bluetooth resgiters global callbacks and all servers |
+| `bt_map_mse_mas_register(cb)` | `bt_map_mse_mas_register(mse_mas, cb)` + `bt_map_mse_mas_rfcomm_register(server)` + `bt_map_mse_mas_l2cap_register(server)` | 🟡 edgefast_open registers individual servers and per-instance callbacks; edgefast_bluetooth registers global callbacks for all servers |
 | `bt_map_mse_mas_unregister()` | — | 🟢 |
 | `bt_map_mse_disconnect(mse_mas)` | `bt_map_mse_mas_rfcomm_disconnect(mse_mas)` + `bt_map_mse_mas_l2cap_disconnect(mse_mas)` | 🟡 Split by transport |
 | — | `bt_map_mse_mas_connect(mse_mas, rsp_code, buf)` | 🔴 Explicit OBEX CONNECT response |
@@ -646,10 +642,10 @@ struct net_buf *bt_map_mse_mns_create_pdu(struct bt_map_mse_mns *mse_mns,
 
 | edgefast_bluetooth | edgefast_open | Notes |
 | --- | --- | --- |
-| `bt_map_mse_mns_register(cb)` | `bt_map_mse_mns_cb_register(mse_mns, cb)` | 🟡 Global register replaced by per-instance `cb_register` |
+| `bt_map_mse_mns_register(cb)` | — (`cb` passed as parameter to transport connect) | 🟡 Global register replaced by `cb` inline in transport connect call |
 | `bt_map_mse_mns_unregister()` | — | 🟢 |
-| `bt_map_mse_mns_psm_connect(conn, psm, features, **mse_mns)` | `bt_map_mse_mns_l2cap_connect(conn, mse_mns, psm)` | 🟡 Stack allocates vs app allocates; `features` removed from transport step |
-| `bt_map_mse_mns_scn_connect(conn, scn, features, **mse_mns)` | `bt_map_mse_mns_rfcomm_connect(conn, mse_mns, channel)` | 🟡 |
+| `bt_map_mse_mns_psm_connect(conn, psm, features, **mse_mns)` | `bt_map_mse_mns_l2cap_connect(conn, mse_mns, cb, psm)` | 🟡 Stack allocates vs app allocates; `cb` passed inline; `features` removed from transport step |
+| `bt_map_mse_mns_scn_connect(conn, scn, features, **mse_mns)` | `bt_map_mse_mns_rfcomm_connect(conn, mse_mns, cb, channel)` | 🟡 |
 | — | `bt_map_mse_mns_connect(mse_mns, buf)` | 🔴 Explicit OBEX CONNECT request |
 | `bt_map_mse_mns_disconnect(mse_mns)` | `bt_map_mse_mns_disconnect(mse_mns, buf)` | 🟡 edgefast_open OBEX disconnect takes `buf`; also separate transport disconnects |
 | — | `bt_map_mse_mns_rfcomm_disconnect(mse_mns)` | 🔴 |
@@ -686,8 +682,8 @@ struct net_buf *bt_map_mse_mns_create_pdu(struct bt_map_mse_mns *mse_mns,
 
 ### Migration Checklist (edgefast_bluetooth → edgefast_open)
 
-1. ☐ Replace single `bt_map_mce_mas_register(cb)` with per-instance `bt_map_mce_mas_cb_register(mce_mas, cb)` called before transport connect
-2. ☐ Split `bt_map_mce_psm_connect()` into `bt_map_mce_mas_l2cap_connect()` (transport) + `bt_map_mce_mas_connect(buf)` (OBEX)
+1. ☐ Replace single `bt_map_mce_mas_register(cb)` — pass `cb` directly to `bt_map_mce_mas_l2cap_connect(conn, mce_mas, cb, psm)` / `bt_map_mce_mas_rfcomm_connect(conn, mce_mas, cb, channel)`
+2. ☐ Split `bt_map_mce_psm_connect()` into `bt_map_mce_mas_l2cap_connect(conn, mce_mas, cb, psm)` (transport) + `bt_map_mce_mas_connect(buf)` (OBEX)
 3. ☐ Add Target UUID and supported-features app param TLV to OBEX CONNECT `buf`
 4. ☐ Add Connection ID, SRM(if required), SRMP(if required) and Type headers to OBEX PUT/GET/SETPATH `buf` using `bt_obex_add_header_*`
 5. ☐ Store `mopl` from `connect(rsp_code, version, mopl, buf)` callback; replace `get_max_pkt_len()` with this value
@@ -739,9 +735,8 @@ static struct bt_map_mce_mas_cb mce_mas_cb = {
     /* ... MAP operation callbacks ... */
 };
 
-/* Register per-instance callbacks and start RFCOMM transport */
-bt_map_mce_mas_cb_register(&g_inst.mce_mas, &mce_mas_cb);
-bt_map_mce_mas_rfcomm_connect(default_conn, &g_inst.mce_mas, channel);
+/* Start RFCOMM transport — cb is registered inline */
+bt_map_mce_mas_rfcomm_connect(default_conn, &g_inst.mce_mas, &mce_mas_cb, channel);
 
 /* Step 2: in rfcomm_connected callback — send OBEX CONNECT */
 static void mce_mas_rfcomm_connected(struct bt_conn *conn,
@@ -1188,20 +1183,23 @@ MCE registers a typed server struct with an `accept` callback. In `accept`, the 
 static struct bt_map_mce_mns_l2cap_server mce_l2cap_server;
 static struct mce_mns_instance g_mns_inst;
 
-/* accept callback: allocate instance and register per-instance callbacks */
+/* accept callback: provide the pre-allocated instance (callbacks already registered) */
 static int mce_mns_l2cap_accept(struct bt_conn *conn,
                                   struct bt_map_mce_mns_l2cap_server *server,
                                   struct bt_map_mce_mns **mce_mns)
 {
     g_mns_inst.conn = bt_conn_ref(conn);
-    bt_map_mce_mns_cb_register(&g_mns_inst.mce_mns, &mce_mns_cb);
     *mce_mns = &g_mns_inst.mce_mns;
     return 0;
 }
 
-/* Register L2CAP server (call once at startup) */
+/* Register callbacks and servers (call once at startup). */
 static void register_mce_mns(void)
 {
+    /* Step 1: register per-instance callbacks first */
+    bt_map_mce_mns_register(&g_mns_inst.mce_mns, &mce_mns_cb);
+
+    /* Step 2: register transport server */
     mce_l2cap_server.accept = mce_mns_l2cap_accept;
     bt_map_mce_mns_l2cap_register(&mce_l2cap_server);
     bt_sdp_register_service(&mce_mns_sdp_rec);
@@ -1254,20 +1252,23 @@ static struct bt_map_mse_mas_rfcomm_server mse_rfcomm_server;
 static struct bt_map_mse_mas_l2cap_server  mse_l2cap_server;
 static struct mse_mas_instance g_mse_inst;
 
-/* accept callback for RFCOMM */
+/* accept callback for RFCOMM — instance callbacks already registered */
 static int mse_mas_rfcomm_accept(struct bt_conn *conn,
                                    struct bt_map_mse_mas_rfcomm_server *server,
                                    struct bt_map_mse_mas **mse_mas)
 {
     g_mse_inst.conn = bt_conn_ref(conn);
-    bt_map_mse_mas_cb_register(&g_mse_inst.mse_mas, &mse_mas_cb);
     *mse_mas = &g_mse_inst.mse_mas;
     return 0;
 }
 
-/* Register servers at startup */
+/* Register callbacks and servers at startup. */
 static void register_mse_mas(void)
 {
+    /* Step 1: register per-instance callbacks first */
+    bt_map_mse_mas_register(&g_mse_inst.mse_mas, &mse_mas_cb);
+
+    /* Step 2: register transport servers */
     mse_rfcomm_server.accept = mse_mas_rfcomm_accept;
     mse_l2cap_server.accept  = mse_mas_l2cap_accept;
     bt_map_mse_mas_rfcomm_register(&mse_rfcomm_server);
@@ -1341,10 +1342,8 @@ static struct mse_mns_instance g_mse_mns_inst;
 static void initiate_mns_connection(struct bt_conn *conn,
                                       uint16_t psm_from_sdp)
 {
-    bt_map_mse_mns_cb_register(&g_mse_mns_inst.mse_mns, &mse_mns_cb);
-
-    /* Step 1: L2CAP transport connect */
-    bt_map_mse_mns_l2cap_connect(conn, &g_mse_mns_inst.mse_mns, psm_from_sdp);
+    /* Step 1: L2CAP transport connect — cb registered inline */
+    bt_map_mse_mns_l2cap_connect(conn, &g_mse_mns_inst.mse_mns, &mse_mns_cb, psm_from_sdp);
 }
 
 /* Step 2: in l2cap_connected callback — send OBEX CONNECT */

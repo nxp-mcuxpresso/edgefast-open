@@ -937,16 +937,11 @@ static int app_mse_mns_transport_connect(struct mse_mns_instance *inst)
 {
 	int err;
 
-	err = bt_map_mse_mns_cb_register(&inst->mse_mns, &mse_mns_cb);
-	if (err != 0) {
-		PRINTF("Failed to register MSE MNS cb (err %d)\n", err);
-		return err;
-	}
-
 	if (mns_inst.psm != 0U) {
-		err = bt_map_mse_mns_l2cap_connect(mas_inst.conn, &mns_inst.mse_mns, mns_inst.psm);
+		err = bt_map_mse_mns_l2cap_connect(mas_inst.conn, &mns_inst.mse_mns, &mse_mns_cb,
+						   mns_inst.psm);
 	} else {
-		err = bt_map_mse_mns_rfcomm_connect(mas_inst.conn, &mns_inst.mse_mns,
+		err = bt_map_mse_mns_rfcomm_connect(mas_inst.conn, &mns_inst.mse_mns, &mse_mns_cb,
 						    mns_inst.channel);
 	}
 
@@ -2849,21 +2844,10 @@ static void mas_task(void *arg)
 static int mse_mas_rfcomm_accept(struct bt_conn *conn, struct bt_map_mse_mas_rfcomm_server *server,
 				 struct bt_map_mse_mas **mse_mas)
 {
-	int err;
-
 	if (mas_inst.conn != NULL) {
 		return -EBUSY;
 	}
 	mas_inst.conn = bt_conn_ref(conn);
-
-	err = bt_map_mse_mas_cb_register(&mas_inst.mse_mas, &mse_mas_cb);
-	if (err != 0) {
-		bt_conn_unref(mas_inst.conn);
-		mas_inst.conn = NULL;
-		PRINTF("Failed to register MSE MAS cb (err %d)", err);
-		return err;
-	}
-
 	*mse_mas = &mas_inst.mse_mas;
 	return 0;
 }
@@ -2871,21 +2855,10 @@ static int mse_mas_rfcomm_accept(struct bt_conn *conn, struct bt_map_mse_mas_rfc
 static int mse_mas_l2cap_accept(struct bt_conn *conn, struct bt_map_mse_mas_l2cap_server *server,
 				struct bt_map_mse_mas **mse_mas)
 {
-	int err;
-
 	if (mas_inst.conn != NULL) {
 		return -EBUSY;
 	}
 	mas_inst.conn = bt_conn_ref(conn);
-
-	err = bt_map_mse_mas_cb_register(&mas_inst.mse_mas, &mse_mas_cb);
-	if (err != 0) {
-		bt_conn_unref(mas_inst.conn);
-		mas_inst.conn = NULL;
-		PRINTF("Failed to register MSE MAS cb (err %d)", err);
-		return err;
-	}
-
 	*mse_mas = &mas_inst.mse_mas;
 	return 0;
 }
@@ -3027,6 +3000,12 @@ static void bt_ready(int err)
 	}
 
 	app_connect_init();
+
+	err = bt_map_mse_mas_register(&mas_inst.mse_mas, &mse_mas_cb);
+	if (err != 0) {
+		PRINTF("Failed to register MSE MAS server (err %d)", err);
+		return;
+	}
 
 	err = bt_sdp_register_service(&mse_mas_rec);
 	if (err < 0) {

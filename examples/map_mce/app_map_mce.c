@@ -794,19 +794,14 @@ static int app_transport_connect(void)
 {
 	int err;
 
-	err = bt_map_mce_mas_cb_register(&mas_inst.mce_mas, &mce_mas_cb);
-	if (err != 0) {
-		PRINTF("Failed to register MCE MAS cb (err %d)\n", err);
-		return err;
-	}
-
 	/* Connect via L2CAP if available, else RFCOMM */
 	if (mas_inst.psm != 0U) {
 		PRINTF("Connecting via L2CAP PSM=0x%04x\n", mas_inst.psm);
-		err = bt_map_mce_mas_l2cap_connect(mas_inst.conn, &mas_inst.mce_mas, mas_inst.psm);
+		err = bt_map_mce_mas_l2cap_connect(mas_inst.conn, &mas_inst.mce_mas, &mce_mas_cb,
+						   mas_inst.psm);
 	} else {
 		PRINTF("Connecting via RFCOMM channel=%u\n", mas_inst.channel);
-		err = bt_map_mce_mas_rfcomm_connect(mas_inst.conn, &mas_inst.mce_mas,
+		err = bt_map_mce_mas_rfcomm_connect(mas_inst.conn, &mas_inst.mce_mas, &mce_mas_cb,
 						    mas_inst.channel);
 	}
 
@@ -1870,20 +1865,10 @@ static const struct bt_map_mce_mns_cb mce_mns_cb = {
 static int mce_mns_rfcomm_accept(struct bt_conn *conn, struct bt_map_mce_mns_rfcomm_server *server,
 				 struct bt_map_mce_mns **mce_mns)
 {
-	int err;
-
 	if (mns_inst.conn != NULL || mas_inst.state != APP_STATE_SET_NTF_REG_ON) {
 		return -EBUSY;
 	}
 	mns_inst.conn = bt_conn_ref(conn);
-
-	err = bt_map_mce_mns_cb_register(&mns_inst.mce_mns, &mce_mns_cb);
-	if (err != 0) {
-		bt_conn_unref(mns_inst.conn);
-		mns_inst.conn = NULL;
-		PRINTF("Failed to register MCE MNS cb (err %d)", err);
-		return err;
-	}
 	*mce_mns = &mns_inst.mce_mns;
 	return 0;
 }
@@ -1891,20 +1876,10 @@ static int mce_mns_rfcomm_accept(struct bt_conn *conn, struct bt_map_mce_mns_rfc
 static int mce_mns_l2cap_accept(struct bt_conn *conn, struct bt_map_mce_mns_l2cap_server *server,
 				struct bt_map_mce_mns **mce_mns)
 {
-	int err;
-
 	if (mns_inst.conn != NULL || mas_inst.state != APP_STATE_SET_NTF_REG_ON) {
 		return -EBUSY;
 	}
 	mns_inst.conn = bt_conn_ref(conn);
-
-	err = bt_map_mce_mns_cb_register(&mns_inst.mce_mns, &mce_mns_cb);
-	if (err != 0) {
-		bt_conn_unref(mns_inst.conn);
-		mns_inst.conn = NULL;
-		PRINTF("Failed to register MCE MNS cb (err %d)", err);
-		return err;
-	}
 	*mce_mns = &mns_inst.mce_mns;
 	return 0;
 }
@@ -2031,6 +2006,12 @@ static void bt_ready(int err)
 
 	app_connect_init();
 	app_discover_init();
+
+	err = bt_map_mce_mns_register(&mns_inst.mce_mns, &mce_mns_cb);
+	if (err != 0) {
+		PRINTF("Failed to register MCE MNS server (err %d)", err);
+		return;
+	}
 
 	err = bt_sdp_register_service(&mce_mns_rec);
 	if (err < 0) {
