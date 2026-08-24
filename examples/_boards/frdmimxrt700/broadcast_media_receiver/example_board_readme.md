@@ -23,8 +23,10 @@ Bluetooth UART:
 
 GPT Configuration:
 ------------------
-- HW Rework:
+- HW Rework (Rev A):
   - Connect TP60 with SJ383-1
+- HW Rework (Rev A1/A2):
+  - Short SJ463
 
 Note:
 =====
