@@ -7,7 +7,7 @@
 
 #include "edgefast_open_config.h"
 
-#if defined(WIFI_IW416_BOARD_AW_AM510MA) || defined(WIFI_88W8987_BOARD_AW_CM358MA) || defined(K32W061_TRANSCEIVER) || \
+#if defined(WIFI_IW416_BOARD_AW_AM510MA) || defined(WIFI_88W8987_BOARD_AW_CM358MA) || \
     defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2) ||                           \
     defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(WIFI_IW610_BOARD_MURATA_2LL_M2)
 #include "wifi_bt_module_config.h"
@@ -62,7 +62,3 @@
 #if defined(WIFI_IW610_BOARD_MURATA_2LL_M2) && defined(CONFIG_BT_CLASSIC)
 #error "Bluetooth Classic is unsupported by Murata 2LL"
 #endif /* WIFI_IW610_BOARD_MURATA_2LL_M2 && CONFIG_BT_CLASSIC */
-
-#if defined(K32W061_TRANSCEIVER)
-#undef CONFIG_BT_HCI_ACL_FLOW_CONTROL
-#endif /* K32W061_TRANSCEIVER */

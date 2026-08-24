@@ -76,18 +76,10 @@ void BOARD_InitHardware(void)
     // PSRAM_EnterDeepPowerDowen();
 #endif /* APP_MEM_POWER_OPT */
 
-#if defined(K32W061_TRANSCEIVER)
-    BOARD_InitDebugConsole();
-    BOARD_InitArduinoUARTPins();
-    /* attach FRG0 clock to FLEXCOMM12 */
-    CLOCK_SetFRGClock(APP_DEBUG_UART_FRG_CLK);
-    CLOCK_AttachClk(APP_DEBUG_UART_CLK_ATTACH);
-#else
     APP_InitAppDebugConsole();
     /* attach FRG0 clock to FLEXCOMM0 */
     CLOCK_SetFRGClock(BOARD_BT_UART_FRG_CLK);
     CLOCK_AttachClk(BOARD_BT_UART_CLK_ATTACH);
-#endif
 
 #if defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2)
     CLOCK_EnableOsc32K(true);               /* Enable 32KHz Oscillator clock */
@@ -127,21 +119,6 @@ int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
     config->defaultBaudrate = BOARD_BT_UART_BAUDRATE;
     config->runningBaudrate = BOARD_BT_UART_BAUDRATE;
     config->instance        = BOARD_BT_UART_INSTANCE;
-    config->enableRxRTS     = 1u;
-    config->enableTxCTS     = 1u;
-    return 0;
-}
-#elif defined(K32W061_TRANSCEIVER)
-int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
-{
-    if (NULL == config)
-    {
-        return -1;
-    }
-    config->clockSrc        = APP_DEBUG_UART_CLK_FREQ;
-    config->defaultBaudrate = 115200u;
-    config->runningBaudrate = 115200u;
-    config->instance        = APP_DEBUG_UART_INSTANCE;
     config->enableRxRTS     = 1u;
     config->enableTxCTS     = 1u;
     return 0;

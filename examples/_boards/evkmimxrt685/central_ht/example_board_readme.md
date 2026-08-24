@@ -11,7 +11,6 @@ Hardware requirements
   - Murata uSD-M.2 Adapter (LBEE0ZZ1WE-uSD-M2) and Embedded Artists 1ZM M.2 Module (EAR00364)
   - Murata uSD-M.2 Adapter (LBEE0ZZ1WE-uSD-M2) and Embedded Artists 2EL M.2 Module (EAR00409)
   - Murata uSD-M.2 Adapter (LBEE0ZZ1WE-uSD-M2) and Embedded Artists 2LL M.2 Module (EAR00500)
-  - K32W061
 
 Board settings
 ==============
@@ -23,7 +22,6 @@ If you want to use Embedded Artists Type 1XK module with uSD-M2 adapter, please 
 If you want to use Embedded Artists Type 1ZM module with uSD-M2 adapter, please change the macro to WIFI_88W8987_BOARD_MURATA_1ZM_USD.
 If you want to use Embedded Artists Type 2EL module with uSD-M2 adapter, please change the macro to WIFI_IW612_BOARD_MURATA_2EL_USD.
 If you want to use Embedded Artists Type 2LL module with uSD-M2 adapter, please change the macro to WIFI_IW610_BOARD_MURATA_2LL_USD.
-If you want use the K32W061_TRANSCEIVER, please change the macro to K32W061_TRANSCEIVER.
 
 Jumper settings for RT685:
 connect J6 with external power
@@ -107,17 +105,6 @@ UART_RXD |  J10(pin 2)  |   J27(pin 2)   |    USART4_TXD     | FC4_TXD_SCL_MISO_
 UART_RTS |  J10(pin 6)  |   J47(pin 9)   |    USART4_CTS     | FC4_CTS_SDA_SSEL0
 UART_CTS |  J10(pin 8)  |   J27(pin 5)   |    USART4_RTS     | FC4_RTS_SCL_SSEL1
 GND      |  J6(pin 7)   |   J29(pin 6)   |    GND            | GND
-------------------------------------------------------------------------------------
-
-For K32W061, the readme located in <sdk>/middleware/wireless/ethermind/port/pal/mcux/bluetooth/controller/k32w061 explains how to flash the transceiver image and the hardware rework required.
-The pin connect for UART HCI as the following table,
-------------------------------------------------------------------------------------
-PIN NAME | DK6 (K32W061) |   I.MXRT685   | PIN NAME OF RT685 | GPIO NAME OF RT685
-------------------------------------------------------------------------------------
-UART_TXD |  PIO(pin 8)   |   J27(pin 1)   |    USART4_RXD     | FC4_RXD_SDA_MOSI_DATA
-UART_RXD |  PIO(pin 9)   |   J27(pin 2)   |    USART4_TXD     | FC4_TXD_SCL_MISO_WS
-UART_RTS |  PIO(pin 6)   |   J47(pin 9)   |    USART4_CTS     | FC4_CTS_SDA_SSEL0
-UART_CTS |  PIO(pin 7)   |   J27(pin 5)   |    USART4_RTS     | FC4_RTS_SCL_SSEL1
 ------------------------------------------------------------------------------------
 Note:
 To ensure that the LITTLEFS flash region has been cleaned,

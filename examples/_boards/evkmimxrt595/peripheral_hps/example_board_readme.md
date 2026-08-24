@@ -45,4 +45,3 @@ To ensure that the LITTLEFS flash region has been cleaned,
 all flash sectors need to be erased before downloading example code.
 After downloaded binary into qspiflash and boot from qspiflash directly,
 please reset the board by pressing SW3 or power off and on the board to run the application.
-For K32W061 controller, it's not supported. Code supporting K32W061 is kept, but isn't verified.

@@ -93,21 +93,6 @@ int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
     config->enableTxCTS     = 1u;
     return 0;
 }
-#elif defined(K32W061_TRANSCEIVER)
-int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
-{
-    if (NULL == config)
-    {
-        return -1;
-    }
-    config->clockSrc        = BOARD_BT_UART_CLK_FREQ;
-    config->defaultBaudrate = 115200u;
-    config->runningBaudrate = 115200u;
-    config->instance        = BOARD_BT_UART_INSTANCE;
-    config->enableRxRTS     = 1u;
-    config->enableTxCTS     = 1u;
-    return 0;
-}
 #else
 #endif
 

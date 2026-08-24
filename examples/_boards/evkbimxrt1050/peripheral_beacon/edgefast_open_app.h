@@ -8,7 +8,7 @@
 #include "edgefast_open_config.h"
 
 #if (defined(WIFI_IW416_BOARD_AW_AM510_USD) || defined(WIFI_IW416_BOARD_AW_AM457_USD) ||       \
-     defined(WIFI_88W8987_BOARD_AW_CM358_USD) || defined(K32W061_TRANSCEIVER) ||               \
+     defined(WIFI_88W8987_BOARD_AW_CM358_USD) ||               \
      defined(WIFI_IW416_BOARD_MURATA_1XK_USD) || defined(WIFI_88W8987_BOARD_MURATA_1ZM_USD) || \
      defined(WIFI_IW612_BOARD_MURATA_2EL_USD))
 #include "wifi_bt_module_config.h"
