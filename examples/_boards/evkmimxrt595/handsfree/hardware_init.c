@@ -235,9 +235,30 @@ void APP_InitAppDebugConsole(void)
 
     DbgConsole_Init(APP_DEBUG_UART_INSTANCE, APP_DEBUG_UART_BAUDRATE, APP_DEBUG_UART_TYPE, uartClkSrcFreq);
 }
+void BOARD_SwitchAudioFrameLen(uint32_t sampleRate)
+{
+    if (8000 == sampleRate)
+    {
+#if defined(WIFI_88W8987_BOARD_AW_CM358MA) || defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2)
+        /* Narrowband (CVSD): the bt module generates 22 bit clocks after one WS. */
+        rxSpeakerConfig.frameLength = 22;
+        txMicConfig.frameLength     = 22;
+#endif
+    }
+    else if (16000 == sampleRate)
+    {
+#if defined(WIFI_88W8987_BOARD_AW_CM358MA) || defined(WIFI_88W8987_BOARD_MURATA_1ZM_M2)
+        /* Wideband (mSBC): the bt module generates 128 bit clocks after one WS. */
+        rxSpeakerConfig.frameLength = 128;
+        txMicConfig.frameLength     = 128;
+#endif
+    }
+}
+
 uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
 {
     CLOCK_DeinitAudioPll();
+
     if (0U == sampleRate)
     {
         /* Disable MCLK output */
@@ -317,9 +338,11 @@ uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
         wm8904ScoConfig1.i2cConfig.codecI2CSourceClock = wm8904ScoConfig.i2cConfig.codecI2CSourceClock;
         wm8904ScoConfig1.mclk_HZ                       = wm8904ScoConfig.mclk_HZ;
     }
+    BOARD_SwitchAudioFrameLen(sampleRate);
 
     return CLOCK_GetMclkClkFreq();
 }
+
 
 static void i2c_release_bus_delay(void)
 {
