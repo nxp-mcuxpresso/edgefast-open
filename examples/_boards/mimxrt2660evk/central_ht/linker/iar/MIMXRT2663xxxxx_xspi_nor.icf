@@ -31,20 +31,6 @@
 
 /* ========================== Hardware addresses ========================== */
 /* ======================================================================== */
-/* Values taken from the iMXRT2660 Reference Manual, Chapter 3 (System memory
- * map, Table 3.2). All on-chip memory bases/sizes and the XSPI apertures are
- * listed as documented by the RM:
- *   CM85 I-TCM : 0x00000000, 256 KB
- *   CM85 D-TCM : 0x20000000, 256 KB
- *   SRAM0      : 0x22000000, 256 KB
- *   SRAM1      : 0x22040000, 256 KB
- *   SRAM2      : 0x22080000, 256 KB
- *   LLC scratch: 0x220C0000, 224 KB (LLC used as SRAM; not used by this image)
- *   XSPI0 NOR  : 0x60000000, 256 MB aperture (physical NOR device is smaller;
- *                m_flash_size below reflects the on-board device, not the
- *                full aperture, so sections cannot spill past the real flash)
- *   XSPI1 PSRAM: 0x80000000, 256 MB aperture
- */
 define symbol m_flash_start       = 0x60000000;
 define symbol m_flash_size        = 0x04000000;
 define symbol m_itcm_start        = 0x00000000;
@@ -57,10 +43,8 @@ define symbol m_sram1_start       = 0x22040000;
 define symbol m_sram1_size        = 0x00040000;
 define symbol m_sram2_start       = 0x22080000;
 define symbol m_sram2_size        = 0x00040000;
-define symbol m_llc_sram_start    = 0x220C0000;
-define symbol m_llc_sram_size     = 0x00038000;
-define symbol m_psram_start       = 0x80000000;
-define symbol m_psram_size        = 0x10000000;
+define symbol m_psram_start       = 0x88000000;
+define symbol m_psram_size        = 0x02000000;
 
 /* ========================== Offsets and sizes =========================== */
 /* ======================================================================== */
