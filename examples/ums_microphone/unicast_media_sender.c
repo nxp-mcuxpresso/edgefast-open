@@ -19,6 +19,7 @@
 #include <zephyr/bluetooth/audio/bap.h>
 #include <zephyr/bluetooth/audio/bap_lc3_preset.h>
 #include <zephyr/bluetooth/audio/csip.h>
+#include <zephyr/settings/settings.h>
 #include <zephyr/sys/byteorder.h>
 
 #include "le_audio_common.h"
@@ -907,6 +908,10 @@ static int init(void)
 	if (err != 0) {
 		PRINTF("Bluetooth enable failed (err %d)\r\n", err);
 		return err;
+	}
+
+	if (IS_ENABLED(CONFIG_BT_SETTINGS)) {
+		settings_load();
 	}
 
 	bt_conn_cb_register(&conn_callbacks);

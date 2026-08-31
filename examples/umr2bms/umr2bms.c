@@ -18,6 +18,7 @@
 #include <zephyr/bluetooth/byteorder.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/audio/audio.h>
+#include <zephyr/settings/settings.h>
 
 #include "umr2bms.h"
 
@@ -83,6 +84,10 @@ void umr_to_bms_task(void *param)
 	if (err != 0) {
 		PRINTF("Bluetooth init failed (err %d)\r\n", err);
 		while(1);
+	}
+
+	if (IS_ENABLED(CONFIG_BT_SETTINGS)) {
+		settings_load();
 	}
 
 	PRINTF("Bluetooth initialized\r\n");

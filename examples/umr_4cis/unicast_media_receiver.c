@@ -17,6 +17,7 @@
 #include <zephyr/bluetooth/byteorder.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/audio/audio.h>
+#include <zephyr/settings/settings.h>
 #include <zephyr/bluetooth/audio/bap.h>
 #include <zephyr/bluetooth/audio/pacs.h>
 #include <zephyr/bluetooth/audio/cap.h>
@@ -902,6 +903,10 @@ void unicast_media_receiver_task(void *param)
 	if (err != 0) {
 		PRINTF("Bluetooth init failed (err %d)\n", err);
 		while(1);
+	}
+
+	if (IS_ENABLED(CONFIG_BT_SETTINGS)) {
+		settings_load();
 	}
 
 	bt_conn_cb_register(&conn_callbacks);

@@ -22,6 +22,7 @@
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/kernel.h>
 #include <zephyr/net_buf.h>
+#include <zephyr/settings/settings.h>
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/types.h>
 
@@ -78,6 +79,10 @@ static int init(void)
 	if (err != 0) {
 		PRINTF("Bluetooth enable failed (err %d)\n", err);
 		return err;
+	}
+
+	if (IS_ENABLED(CONFIG_BT_SETTINGS)) {
+		settings_load();
 	}
 
 	PRINTF("Bluetooth initialized\n");
