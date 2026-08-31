@@ -76,7 +76,7 @@ mcux_add_macro(
 
 mcux_add_macro(
   CC "-DLFS_NO_ASSERT"
-  TARGETS psram_txt_release
+  TARGETS xspi_nor_release
   TOOLCHAINS iar
 )
 
@@ -87,6 +87,6 @@ mcux_add_macro(
 
 mcux_add_macro(
   CC "-DLFS_NO_ASSERT"
-  TARGETS psram_txt_release
+  TARGETS xspi_nor_release
   TOOLCHAINS armgcc
 )
