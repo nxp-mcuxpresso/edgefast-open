@@ -2799,63 +2799,70 @@ if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONEN
       )
 endif()
 
-# Line 2374: mcux_add_source
+# Line 2376: mcux_add_source
+if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.host_low_power) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.mcux_hw_device_mimxrt685s))
+      mcux_add_source(
+          SOURCES ./source/porting/low_power/host/host_low_power.c
+      )
+endif()
+
+# Line 2381: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.host_low_power))
      mcux_add_source(
          SOURCES ./source/porting/low_power/host/*.h
      )
 endif()
 
-# Line 2395: mcux_add_include
+# Line 2402: mcux_add_include
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci))
     mcux_add_include(
         INCLUDES ./source/bluetooth/hci
     )
 endif()
 
-# Line 2439: mcux_add_source
+# Line 2446: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4))
         mcux_add_source(
             SOURCES ./source/bluetooth/hci/h4.c
         )
 endif()
 
-# Line 2442: mcux_add_source
+# Line 2449: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4))
         mcux_add_source(
             SOURCES ./source/bluetooth/hci/*.h
         )
 endif()
 
-# Line 2447: mcux_add_source
+# Line 2454: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr))
         mcux_add_source(
             SOURCES ./source/bluetooth/hci/hci_nxp_setup.c
         )
 endif()
 
-# Line 2450: mcux_add_source
+# Line 2457: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr))
         mcux_add_source(
             SOURCES ./source/bluetooth/hci/*.h
         )
 endif()
 
-# Line 2455: mcux_add_source
+# Line 2462: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_nxp))
         mcux_add_source(
             SOURCES ./source/bluetooth/hci/hci_nxp.c
         )
 endif()
 
-# Line 2458: mcux_add_source
+# Line 2465: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_nxp))
         mcux_add_source(
             SOURCES ./source/bluetooth/hci/*.h
         )
 endif()
 
-# Line 2465: mcux_add_configuration
+# Line 2472: mcux_add_configuration
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4))
       mcux_add_configuration(
         CC "-DDEBUG_CONSOLE_TRANSFER_NON_BLOCKING -DSERIAL_PORT_TYPE_UART=1"
@@ -2863,203 +2870,203 @@ if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONEN
       )
 endif()
 
-# Line 2472: mcux_add_source
+# Line 2479: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr AND CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic))
       mcux_add_source(
           SOURCES ./source/bluetooth/hci/hci_nxp_sco.c
       )
 endif()
 
-# Line 2475: mcux_add_source
+# Line 2482: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_h4_nxp_ctlr AND CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_classic))
       mcux_add_source(
           SOURCES ./source/bluetooth/hci/*.h
       )
 endif()
 
-# Line 2509: mcux_add_include
+# Line 2516: mcux_add_include
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.lwip.config))
      mcux_add_include(
          INCLUDES ./source/bluetooth/hci/configs/lwip
      )
 endif()
 
-# Line 2513: mcux_add_source
+# Line 2520: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.lwip.config))
      mcux_add_source(
          SOURCES ./source/bluetooth/hci/configs/lwip/*.c
      )
 endif()
 
-# Line 2516: mcux_add_source
+# Line 2523: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.lwip.config))
      mcux_add_source(
          SOURCES ./source/bluetooth/hci/configs/lwip/*.h
      )
 endif()
 
-# Line 2536: mcux_add_include
+# Line 2543: mcux_add_include
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.wifi.config))
      mcux_add_include(
          INCLUDES ./source/bluetooth/hci/configs/wifi
      )
 endif()
 
-# Line 2540: mcux_add_source
+# Line 2547: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.wifi.config))
      mcux_add_source(
          SOURCES ./source/bluetooth/hci/configs/wifi/*.c
      )
 endif()
 
-# Line 2543: mcux_add_source
+# Line 2550: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_hci) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.controller.wifi.config))
      mcux_add_source(
          SOURCES ./source/bluetooth/hci/configs/wifi/*.h
      )
 endif()
 
-# Line 2569: mcux_add_include
+# Line 2576: mcux_add_include
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_include(
         INCLUDES ./include
     )
 endif()
 
-# Line 2572: mcux_add_source
+# Line 2579: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/*.*
     )
 endif()
 
-# Line 2602: mcux_add_source
+# Line 2609: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/*.*
     )
 endif()
 
-# Line 2620: mcux_add_source
+# Line 2627: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/arch/*.*
     )
 endif()
 
-# Line 2638: mcux_add_source
+# Line 2645: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/arch/common/*.*
     )
 endif()
 
-# Line 2663: mcux_add_source
+# Line 2670: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/bluetooth/*.*
     )
 endif()
 
-# Line 2679: mcux_add_source
+# Line 2686: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/bluetooth/services/*.*
     )
 endif()
 
-# Line 2695: mcux_add_source
+# Line 2702: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/bluetooth/classic/*.*
     )
 endif()
 
-# Line 2711: mcux_add_source
+# Line 2718: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/bluetooth/audio/*.*
     )
 endif()
 
-# Line 2727: mcux_add_source
+# Line 2734: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/debug/*.*
     )
 endif()
 
-# Line 2743: mcux_add_source
+# Line 2750: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/drivers/*.*
     )
 endif()
 
-# Line 2759: mcux_add_include
+# Line 2766: mcux_add_include
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_include(
         INCLUDES ./include/zephyr/dt-bindings
     )
 endif()
 
-# Line 2775: mcux_add_source
+# Line 2782: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/kernel/*.*
     )
 endif()
 
-# Line 2791: mcux_add_source
+# Line 2798: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/linker/*.*
     )
 endif()
 
-# Line 2807: mcux_add_source
+# Line 2814: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/logging/*.*
     )
 endif()
 
-# Line 2823: mcux_add_source
+# Line 2830: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/settings/*.*
     )
 endif()
 
-# Line 2839: mcux_add_source
+# Line 2846: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/shell/*.*
     )
 endif()
 
-# Line 2855: mcux_add_source
+# Line 2862: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/sys/*.*
     )
 endif()
 
-# Line 2871: mcux_add_source
+# Line 2878: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/syscalls/*.*
     )
 endif()
 
-# Line 2889: mcux_add_source
+# Line 2896: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/toolchain/*.*
     )
 endif()
 
-# Line 2900: mcux_add_configuration
+# Line 2907: mcux_add_configuration
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_configuration(
         CC "-DCONFIG_ARM=1"
@@ -3067,7 +3074,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 2918: mcux_add_source
+# Line 2925: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./include/zephyr/toolchain/iar/*.*
@@ -3075,7 +3082,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 2923: mcux_add_iar_configuration
+# Line 2930: mcux_add_iar_configuration
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_iar_configuration(
         CC "-e --language gnu --do_explicit_init_in_named_sections --macro_positions_in_diagnostics --no_wrap_diagnostics"
@@ -3083,7 +3090,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 2928: mcux_add_iar_configuration
+# Line 2935: mcux_add_iar_configuration
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_iar_configuration(
         CC "--diag_suppress=Ta184"  # Using zero sized arrays except for as last
@@ -3097,7 +3104,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 2939: mcux_add_iar_configuration
+# Line 2946: mcux_add_iar_configuration
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_iar_configuration(
         CC "--vla"
@@ -3105,7 +3112,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 2944: mcux_add_iar_configuration
+# Line 2951: mcux_add_iar_configuration
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_iar_configuration(
         CC "--diag_suppress=Pe1717"  # array of elements containing a flexible
@@ -3115,7 +3122,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 2958: mcux_add_iar_configuration
+# Line 2965: mcux_add_iar_configuration
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings))
         mcux_add_iar_configuration(
             CC "--diag_suppress=Pe068,Pe1143,Pe111,Pe1675,Pe054,Pe223"
@@ -3123,7 +3130,7 @@ if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONEN
         )
 endif()
 
-# Line 2967: mcux_add_iar_configuration
+# Line 2974: mcux_add_iar_configuration
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings))
         mcux_add_iar_configuration(
             CC "--diag_suppress=Pa217"
@@ -3131,7 +3138,7 @@ if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONEN
         )
 endif()
 
-# Line 2974: mcux_add_iar_configuration
+# Line 2981: mcux_add_iar_configuration
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) AND (NOT W MATCHES "3"))
             mcux_add_iar_configuration(
                 CC "--diag_suppress=Pe381"
@@ -3139,7 +3146,7 @@ if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONEN
             )
 endif()
 
-# Line 2990: mcux_add_iar_configuration
+# Line 2997: mcux_add_iar_configuration
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) AND (NOT W MATCHES "2" AND NOT W MATCHES "3"))
             mcux_add_iar_configuration(
                 CC "--diag_suppress=Pe513,Pe177,Pe144,Pe167,Pe185,Pa084,Pa082,Pe1097"
@@ -3147,7 +3154,7 @@ if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONEN
             )
 endif()
 
-# Line 3007: mcux_add_iar_configuration
+# Line 3014: mcux_add_iar_configuration
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.suppressed_warnings) AND (NOT W MATCHES "1" AND NOT W MATCHES "2" AND NOT W MATCHES "3"))
             mcux_add_iar_configuration(
                 CC "--diag_suppress=Pe054,Pe186,Pe546,Pe550,Pe128,Pe188,Pe144,Pe167"
@@ -3155,7 +3162,7 @@ if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONEN
             )
 endif()
 
-# Line 3014: mcux_add_source
+# Line 3021: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         TOOLCHAINS iar
@@ -3166,126 +3173,126 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3058: mcux_add_source
+# Line 3065: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.net_buf))
         mcux_add_source(
             SOURCES ./lib/net_buf/buf.c
         )
 endif()
 
-# Line 3061: mcux_add_source
+# Line 3068: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.net_buf))
         mcux_add_source(
             SOURCES ./lib/net_buf/*.h
         )
 endif()
 
-# Line 3064: mcux_add_source
+# Line 3071: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.net_buf))
         mcux_add_source(
             SOURCES ./lib/net_buf/buf_simple.c
         )
 endif()
 
-# Line 3083: mcux_add_source
+# Line 3090: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.crc))
         mcux_add_source(
             SOURCES ./lib/crc/crc16_sw.c
         )
 endif()
 
-# Line 3086: mcux_add_source
+# Line 3093: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.crc))
         mcux_add_source(
             SOURCES ./lib/crc/*.h
         )
 endif()
 
-# Line 3089: mcux_add_source
+# Line 3096: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.crc))
         mcux_add_source(
             SOURCES ./lib/crc/crc8_sw.c
         )
 endif()
 
-# Line 3105: mcux_add_source
+# Line 3112: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./lib/utils/dec.c
     )
 endif()
 
-# Line 3108: mcux_add_source
+# Line 3115: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./lib/utils/*.h
     )
 endif()
 
-# Line 3111: mcux_add_source
+# Line 3118: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./lib/utils/hex.c
     )
 endif()
 
-# Line 3116: mcux_add_source
+# Line 3123: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt))
         mcux_add_source(
             SOURCES ./lib/utils/getopt/getopt.c
         )
 endif()
 
-# Line 3119: mcux_add_source
+# Line 3126: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt))
         mcux_add_source(
             SOURCES ./lib/utils/getopt/*.h
         )
 endif()
 
-# Line 3122: mcux_add_source
+# Line 3129: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt))
         mcux_add_source(
             SOURCES ./lib/utils/getopt/getopt_common.c
         )
 endif()
 
-# Line 3125: mcux_add_source
+# Line 3132: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt))
         mcux_add_source(
             SOURCES ./lib/utils/getopt/getopt_common.h
         )
 endif()
 
-# Line 3130: mcux_add_source
+# Line 3137: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt_long))
         mcux_add_source(
             SOURCES ./lib/utils/getopt/getopt_long.c
         )
 endif()
 
-# Line 3133: mcux_add_source
+# Line 3140: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.getopt_long))
         mcux_add_source(
             SOURCES ./lib/utils/getopt/*.h
         )
 endif()
 
-# Line 3139: mcux_add_source
+# Line 3146: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.utf8))
         mcux_add_source(
             SOURCES ./lib/utils/utf8.c
         )
 endif()
 
-# Line 3142: mcux_add_source
+# Line 3149: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.utf8))
         mcux_add_source(
             SOURCES ./lib/utils/*.h
         )
 endif()
 
-# Line 3162: mcux_add_armgcc_configuration
+# Line 3169: mcux_add_armgcc_configuration
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_armgcc_configuration(
     	CC "-D__LINUX_ERRNO_EXTENSIONS__"
@@ -3293,7 +3300,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3195: mcux_add_source
+# Line 3202: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./lib/libc/iar/include/*.*
@@ -3301,7 +3308,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3202: mcux_add_include
+# Line 3209: mcux_add_include
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_include(
         INCLUDES ./lib/libc/iar/include
@@ -3309,7 +3316,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3217: mcux_add_source
+# Line 3224: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./lib/libc/iar/include/sys/*.*
@@ -3317,7 +3324,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3232: mcux_add_source
+# Line 3239: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./lib/libc/iar/src/*.*
@@ -3325,7 +3332,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3259: mcux_add_source
+# Line 3266: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./lib/libc/arm/include/*.*
@@ -3333,7 +3340,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3266: mcux_add_include
+# Line 3273: mcux_add_include
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_include(
         INCLUDES ./lib/libc/arm/include
@@ -3341,7 +3348,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3281: mcux_add_source
+# Line 3288: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./lib/libc/arm/include/sys/*.*
@@ -3349,7 +3356,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3309: mcux_add_source
+# Line 3316: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./lib/libc/mcux/include/*.*
@@ -3357,7 +3364,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3315: mcux_add_include
+# Line 3322: mcux_add_include
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_include(
         INCLUDES ./lib/libc/mcux/include
@@ -3365,7 +3372,7 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3330: mcux_add_source
+# Line 3337: mcux_add_source
 if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     mcux_add_source(
         SOURCES ./lib/libc/mcux/src/*.*
@@ -3373,392 +3380,392 @@ if(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt)
     )
 endif()
 
-# Line 3347: mcux_add_iar_configuration
+# Line 3354: mcux_add_iar_configuration
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_iar_configuration(
         CC "--diag_suppress=Pa211"
-    )
-endif()
-
-# Line 3351: mcux_add_include
-if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
-    mcux_add_include(
-        INCLUDES ./lib/libsbc/encoder/include
-    )
-endif()
-
-# Line 3355: mcux_add_include
-if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
-    mcux_add_include(
-        INCLUDES ./lib/libsbc/decoder/include
     )
 endif()
 
 # Line 3358: mcux_add_include
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_include(
+        INCLUDES ./lib/libsbc/encoder/include
+    )
+endif()
+
+# Line 3362: mcux_add_include
+if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
+    mcux_add_include(
+        INCLUDES ./lib/libsbc/decoder/include
+    )
+endif()
+
+# Line 3365: mcux_add_include
+if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
+    mcux_add_include(
         INCLUDES ./lib/libsbc/decoder/srce
     )
 endif()
 
-# Line 3362: mcux_add_source
+# Line 3369: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/encoder/include/*.h
     )
 endif()
 
-# Line 3366: mcux_add_source
+# Line 3373: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/include/*.h
     )
 endif()
 
-# Line 3370: mcux_add_source
+# Line 3377: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/encoder/srce/sbc_analysis.c
     )
 endif()
 
-# Line 3373: mcux_add_source
+# Line 3380: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/encoder/srce/*.h
     )
 endif()
 
-# Line 3376: mcux_add_source
+# Line 3383: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/encoder/srce/sbc_dct.c
     )
 endif()
 
-# Line 3379: mcux_add_source
+# Line 3386: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/encoder/srce/sbc_dct_coeffs.c
     )
 endif()
 
-# Line 3382: mcux_add_source
+# Line 3389: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/encoder/srce/sbc_enc_bit_alloc_mono.c
     )
 endif()
 
-# Line 3385: mcux_add_source
+# Line 3392: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/encoder/srce/sbc_enc_bit_alloc_ste.c
     )
 endif()
 
-# Line 3388: mcux_add_source
+# Line 3395: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/encoder/srce/sbc_enc_coeffs.c
     )
 endif()
 
-# Line 3391: mcux_add_source
+# Line 3398: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/encoder/srce/sbc_encoder.c
     )
 endif()
 
-# Line 3394: mcux_add_source
+# Line 3401: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/encoder/srce/sbc_packing.c
     )
 endif()
 
-# Line 3398: mcux_add_source
+# Line 3405: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/alloc.c
     )
 endif()
 
-# Line 3401: mcux_add_source
+# Line 3408: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/*.h
     )
 endif()
 
-# Line 3404: mcux_add_source
+# Line 3411: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/bitalloc.c
     )
 endif()
 
-# Line 3407: mcux_add_source
+# Line 3414: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/bitalloc-sbc.c
     )
 endif()
 
-# Line 3410: mcux_add_source
+# Line 3417: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/bitstream-decode.c
     )
 endif()
 
-# Line 3413: mcux_add_source
+# Line 3420: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/decoder-oina.c
     )
 endif()
 
-# Line 3416: mcux_add_source
+# Line 3423: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/decoder-private.c
     )
 endif()
 
-# Line 3419: mcux_add_source
+# Line 3426: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/decoder-sbc.c
     )
 endif()
 
-# Line 3422: mcux_add_source
+# Line 3429: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/dequant.c
     )
 endif()
 
-# Line 3425: mcux_add_source
+# Line 3432: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/framing.c
     )
 endif()
 
-# Line 3428: mcux_add_source
+# Line 3435: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/framing-sbc.c
     )
 endif()
 
-# Line 3431: mcux_add_source
+# Line 3438: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/oi_codec_version.c
     )
 endif()
 
-# Line 3434: mcux_add_source
+# Line 3441: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/readsamplesjoint.inc
     )
 endif()
 
-# Line 3437: mcux_add_source
+# Line 3444: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/synthesis-8-generated.c
     )
 endif()
 
-# Line 3440: mcux_add_source
+# Line 3447: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/synthesis-dct8.c
     )
 endif()
 
-# Line 3443: mcux_add_source
+# Line 3450: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc))
     mcux_add_source(
         SOURCES ./lib/libsbc/decoder/srce/synthesis-sbc.c
     )
 endif()
 
-# Line 3461: mcux_add_iar_configuration
+# Line 3468: mcux_add_iar_configuration
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw))
     mcux_add_iar_configuration(
         CC "--diag_suppress=Pa211"
     )
 endif()
 
-# Line 3465: mcux_add_include
+# Line 3472: mcux_add_include
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw))
     mcux_add_include(
         INCLUDES ./lib/asrc_sw/
     )
 endif()
 
-# Line 3469: mcux_add_source
+# Line 3476: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw))
     mcux_add_source(
         SOURCES ./lib/asrc_sw/downSmplAllRates.dat
     )
 endif()
 
-# Line 3472: mcux_add_source
+# Line 3479: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw))
     mcux_add_source(
         SOURCES ./lib/asrc_sw/upSmpl_32_32_rev.dat
     )
 endif()
 
-# Line 3475: mcux_add_source
+# Line 3482: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw))
     mcux_add_source(
         SOURCES ./lib/asrc_sw/srCvtFrm.c
     )
 endif()
 
-# Line 3478: mcux_add_source
+# Line 3485: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.asrc_sw))
     mcux_add_source(
         SOURCES ./lib/asrc_sw/*.h
     )
 endif()
 
-# Line 3497: mcux_add_iar_configuration
+# Line 3504: mcux_add_iar_configuration
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_iar_configuration(
         CC "--diag_suppress=Pa211"
     )
 endif()
 
-# Line 3501: mcux_add_include
+# Line 3508: mcux_add_include
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_include(
         INCLUDES ./lib/liblc3/include
     )
 endif()
 
-# Line 3504: mcux_add_include
+# Line 3511: mcux_add_include
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_include(
         INCLUDES ./lib/liblc3/src
     )
 endif()
 
-# Line 3508: mcux_add_source
+# Line 3515: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/attdet.c
     )
 endif()
 
-# Line 3511: mcux_add_source
+# Line 3518: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/*.h
     )
 endif()
 
-# Line 3514: mcux_add_source
+# Line 3521: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/bits.c
     )
 endif()
 
-# Line 3517: mcux_add_source
+# Line 3524: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/bwdet.c
     )
 endif()
 
-# Line 3520: mcux_add_source
+# Line 3527: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/energy.c
     )
 endif()
 
-# Line 3523: mcux_add_source
+# Line 3530: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/lc3.c
     )
 endif()
 
-# Line 3526: mcux_add_source
+# Line 3533: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/ltpf.c
     )
 endif()
 
-# Line 3529: mcux_add_source
+# Line 3536: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/mdct.c
     )
 endif()
 
-# Line 3532: mcux_add_source
+# Line 3539: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/plc.c
     )
 endif()
 
-# Line 3535: mcux_add_source
+# Line 3542: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/sns.c
     )
 endif()
 
-# Line 3538: mcux_add_source
+# Line 3545: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/spec.c
     )
 endif()
 
-# Line 3541: mcux_add_source
+# Line 3548: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/tables.c
     )
 endif()
 
-# Line 3544: mcux_add_source
+# Line 3551: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/src/tns.c
     )
 endif()
 
-# Line 3547: mcux_add_source
+# Line 3554: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3))
     mcux_add_source(
         SOURCES ./lib/liblc3/include/*.h
     )
 endif()
 
-# Line 3567: mcux_add_source
+# Line 3574: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.uuid))
         mcux_add_source(
             SOURCES ./lib/uuid/uuid.c
         )
 endif()
 
-# Line 3570: mcux_add_source
+# Line 3577: mcux_add_source
 if((CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.uuid))
         mcux_add_source(
             SOURCES ./lib/uuid/*.h

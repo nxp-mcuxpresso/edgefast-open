@@ -495,6 +495,9 @@ config MCUX_COMPONENT_middleware.edgefast_open.bt_rx_prio
 config MCUX_COMPONENT_middleware.edgefast_open.mcux_hw_device_mimxrt595s
     def_bool MCUX_HW_DEVICE_MIMXRT595S
 
+config MCUX_COMPONENT_middleware.edgefast_open.mcux_hw_device_mimxrt685s
+    def_bool MCUX_HW_DEVICE_MIMXRT685S
+
 config MCUX_COMPONENT_middleware.edgefast_open.build_only_no_blobs
     def_bool BUILD_ONLY_NO_BLOBS
 

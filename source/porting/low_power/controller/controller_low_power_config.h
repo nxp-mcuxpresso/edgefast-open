@@ -26,13 +26,13 @@ extern "C" {
 
 /* Controller configuration list */
 
-/* Murata 1XK with M2 interface*/
+/* Murata 1XK with M2 interface */
 #if defined(WIFI_IW416_BOARD_MURATA_1XK_M2)
 #define BT_C2H_GPIO           (4U)
 #define BT_H2C_GPIO           (12U)
 
-/* 2EL Firecrest module with M2 interface */
-#elif defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+/* 2EL Firecrest module with M2 interface or USD interface */
+#elif defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || defined(WIFI_IW612_BOARD_MURATA_2EL_USD)
 #define BT_C2H_GPIO           (19U)
 #define BT_H2C_GPIO           (18U)
 #endif

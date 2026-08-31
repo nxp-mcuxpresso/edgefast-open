@@ -670,6 +670,10 @@ config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_host_low_power__a7c7a
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_host_low_power_mcux_hw_device_mimxrt595s__66d3dedd
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.host_low_power) && (MCUX_COMPONENT_middleware.edgefast_open.mcux_hw_device_mimxrt595s)
 
+# Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.host_low_power) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.mcux_hw_device_mimxrt685s)
+config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_host_low_power_mcux_hw_device_mimxrt685s__6dea02d5
+    def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.host_low_power) && (MCUX_COMPONENT_middleware.edgefast_open.mcux_hw_device_mimxrt685s)
+
 # Original: (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3)
 config MCUX_COMPONENT_middleware.edgefast_open.compress.bt_liblc3__5011ecc2
     def_bool (MCUX_COMPONENT_middleware.edgefast_open.bt) && (MCUX_COMPONENT_middleware.edgefast_open.liblc3)

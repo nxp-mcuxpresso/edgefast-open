@@ -22,6 +22,27 @@
 #define SD_TIMING_MAX kSD_TimingDDR50Mode
 #endif
 
+/*******************************************************************************
+ * Low power feature config
+ ******************************************************************************/
+
+/* Controller_selection
+ * List of controllers supporting Low power feature,
+ * WIFI_IW612_BOARD_MURATA_2EL_USD
+ */
+#if defined(WIFI_IW612_BOARD_MURATA_2EL_USD)
+/* Enable/Disable low power entry on tickless idle. */
+#define APP_LOWPOWER_ENABLED 1
+#if defined(APP_LOWPOWER_ENABLED) && (APP_LOWPOWER_ENABLED > 0)
+/* Defines the low power mode of BLE host when scanning and connecting. */
+#define APP_LOW_POWER_MODE PWR_DeepSleep
+/* If low power is enabled, force tickless idle enable in FreeRTOS. */
+#define configUSE_TICKLESS_IDLE 1
+/* Enable/Disable controller low power. */
+#define CONFIG_BT_CONTROLLER_SLEEP 1
+#endif /* APP_LOWPOWER_ENABLED */
+#endif /* Controller_selection */
+
 #undef CONFIG_BT_NXP_IW610
 #undef CONFIG_BT_NXP_IW416
 #undef CONFIG_BT_NXP_88W8987

@@ -1906,6 +1906,70 @@ void BOARD_InitFlexSPI0BPins(void)
     /* PORT2 PIN23 (coords: P5) is configured as FLEXSPI0B_DATA7 */
     IOPCTL_PinMuxSet(IOPCTL, 2U, 23U, port2_pin23_config);
 }
+/* clang-format off */
+/*
+ * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+BOARD_InitLowPowerPins:
+- options: {callFromInitBoot: 'false', coreID: cm33, enableClock: 'true'}
+- pin_list:
+  - {pin_num: -, peripheral: GPIO, signal: 'PIO1, 8', pin_signal: PIO1_8, ibena: enabled}
+  - {pin_num: -, peripheral: GPIO, signal: 'PIO1, 9', pin_signal: PIO1_9, ibena: enabled}
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
+ */
+/* clang-format on */
+
+/* FUNCTION ************************************************************************************************************
+ *
+ * Function Name : BOARD_InitLowPowerPins
+ * Description   : Configures pin routing and optionally pin electrical features.
+ *
+ * END ****************************************************************************************************************/
+/* Function assigned for the Cortex-M33 */
+void BOARD_InitLowPowerPins(void)
+{
+    const uint32_t port1_pin8_config = (/* Pin is configured as PIO1_8 */
+                                         IOPCTL_PIO_FUNC0 |
+                                         /* Disable pull-up / pull-down function */
+                                         IOPCTL_PIO_PUPD_DI |
+                                         /* Enable pull-down function */
+                                         IOPCTL_PIO_PULLDOWN_EN |
+                                         /* Enables input buffer function */
+                                         IOPCTL_PIO_INBUF_EN |
+                                         /* Normal mode */
+                                         IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                         /* Normal drive */
+                                         IOPCTL_PIO_FULLDRIVE_DI |
+                                         /* Analog mux is disabled */
+                                         IOPCTL_PIO_ANAMUX_DI |
+                                         /* Pseudo Output Drain is disabled */
+                                         IOPCTL_PIO_PSEDRAIN_DI |
+                                         /* Input function is not inverted */
+                                         IOPCTL_PIO_INV_DI);
+    /* PORT1 PIN8 is configured as PIO1_8 (C2H wakeup input) */
+    IOPCTL_PinMuxSet(IOPCTL, 1U, 8U, port1_pin8_config);
+
+    const uint32_t port1_pin9_config = (/* Pin is configured as PIO1_9 */
+                                         IOPCTL_PIO_FUNC0 |
+                                         /* Disable pull-up / pull-down function */
+                                         IOPCTL_PIO_PUPD_DI |
+                                         /* Enable pull-down function */
+                                         IOPCTL_PIO_PULLDOWN_EN |
+                                         /* Enables input buffer function */
+                                         IOPCTL_PIO_INBUF_EN |
+                                         /* Normal mode */
+                                         IOPCTL_PIO_SLEW_RATE_NORMAL |
+                                         /* Normal drive */
+                                         IOPCTL_PIO_FULLDRIVE_DI |
+                                         /* Analog mux is disabled */
+                                         IOPCTL_PIO_ANAMUX_DI |
+                                         /* Pseudo Output Drain is disabled */
+                                         IOPCTL_PIO_PSEDRAIN_DI |
+                                         /* Input function is not inverted */
+                                         IOPCTL_PIO_INV_DI);
+    /* PORT1 PIN9 is configured as PIO1_9 (H2C wakeup output) */
+    IOPCTL_PinMuxSet(IOPCTL, 1U, 9U, port1_pin9_config);
+}
+
 /***********************************************************************************************************************
  * EOF
  **********************************************************************************************************************/

@@ -100,7 +100,19 @@ initialize by copy { readwrite, section .textrw, section CodeQuickAccess, sectio
   object fsl_adapter_flexspi_nor_flash.o,
   object mflash_drv.o,
   object  fsl_cache.o,
-  object fsl_flexspi.o,};
+  object fsl_flexspi.o,
+  /* Place in RAM low power critical functions */
+  object controller_low_power.o,
+  object fwk_board_lp.o,
+  object fwk_platform.o,
+  object fwk_platform_lowpower.o,
+  object fsl_pm_core.o,
+  object fsl_pm_device.o,
+  object fsl_power.o,
+  object fsl_gpio.o,
+  object fsl_adapter_rt_gpio.o,
+  object fsl_component_generic_list.o,
+  object fsl_common_arm.o,};
 
 do not initialize  { section .noinit, section m_usb_bdt, section m_usb_global  };
 

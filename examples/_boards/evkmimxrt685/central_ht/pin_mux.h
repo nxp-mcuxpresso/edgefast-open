@@ -803,6 +803,12 @@ void BOARD_InitArduinoUARTPins(void); /* Function assigned for the Cortex-M33 */
  */
 void BOARD_InitFlexSPI0BPins(void); /* Function assigned for the Cortex-M33 */
 
+/*!
+ * @brief Configures low-power wakeup GPIO pin routing (H2C and C2H signals).
+ *
+ */
+void BOARD_InitLowPowerPins(void); /* Function assigned for the Cortex-M33 */
+
 #if defined(__cplusplus)
 }
 #endif

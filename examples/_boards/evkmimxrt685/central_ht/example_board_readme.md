@@ -106,6 +106,21 @@ UART_RTS |  J10(pin 6)  |   J47(pin 9)   |    USART4_CTS     | FC4_CTS_SDA_SSEL0
 UART_CTS |  J10(pin 8)  |   J27(pin 5)   |    USART4_RTS     | FC4_RTS_SCL_SSEL1
 GND      |  J6(pin 7)   |   J29(pin 6)   |    GND            | GND
 ------------------------------------------------------------------------------------
+
+Low power feature specific settings
+=================================
+Low power feature is supported on the following modules:
+  - Embedded Artists 2EL M.2 Module (Rev-A1)
+For hardware rework, please refer to 'Hardware Rework Guide for EdgeFast BT PAL'.
+To enable low power feature, please set APP_LOWPOWER_ENABLED as 1 in the edgefast_open_app.h.
+The pin connect for low power as the following table,
+----------------------------------------------------------------------------
+PIN NAME           | uSD-M.2 Adapter |   I.MXRT685    |  GPIO NAME OF RT685
+----------------------------------------------------------------------------
+BT_HOST_WAKE_OD_M2 |   J9(pin 6)  	 |   J27(pin 8)   |       PIO1_8
+BT_DEV_WAKE_HOST   |   J9(pin 8)  	 |   J28(pin 1)   |       PIO1_9
+----------------------------------------------------------------------------
+
 Note:
 To ensure that the LITTLEFS flash region has been cleaned,
 all flash sectors need to be erased before downloading example code.

@@ -2371,6 +2371,13 @@ if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.host_low_power)
       SOURCES ./source/porting/low_power/host/*.h
   )
 	endif ()
+
+	if (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.mcux_hw_device_mimxrt685s)
+  mcux_add_source(
+      SOURCES ./source/porting/low_power/host/host_low_power.c
+  )
+	endif ()
+
  mcux_add_source(
      SOURCES ./source/porting/low_power/host/*.h
  )

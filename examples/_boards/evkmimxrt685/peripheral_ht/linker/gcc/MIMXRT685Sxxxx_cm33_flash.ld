@@ -87,15 +87,81 @@ SECTIONS
         */fsl_adapter_flexspi_nor_flash.c.obj
         */mflash_drv.c.obj
         */fsl_flexspi.c.obj
+        /* Exclude low power critical functions from XIP */
+        */fsl_reset.c.obj
+        */controller_low_power.c.obj
+        */fwk_board_lp.c.obj
+        */fwk_platform.c.obj
+        */fwk_platform_lowpower.c.obj
+        */fsl_pm_core.c.obj
+        */fsl_pm_device.c.obj
+        */fsl_power.c.obj
+        */fsl_gpio.c.obj
+        */fsl_adapter_rt_gpio.c.obj
+        */fsl_component_generic_list.c.obj
+        */fsl_common_arm.c.obj
+        *lib_a-memset.o
     ) .text)                 /* .text sections (code) */
     *(EXCLUDE_FILE(
         /* Exclude flash and frequently executed functions from XIP */
         */fsl_adapter_flexspi_nor_flash.c.obj
         */mflash_drv.c.obj
         */fsl_flexspi.c.obj
+        /* Exclude low power critical functions from XIP */
+        */fsl_reset.c.obj
+        */controller_low_power.c.obj
+        */fwk_board_lp.c.obj
+        */fwk_platform.c.obj
+        */fwk_platform_lowpower.c.obj
+        */fsl_pm_core.c.obj
+        */fsl_pm_device.c.obj
+        */fsl_power.c.obj
+        */fsl_gpio.c.obj
+        */fsl_adapter_rt_gpio.c.obj
+        */fsl_component_generic_list.c.obj
+        */fsl_common_arm.c.obj
+        *lib_a-memset.o
     ) .text*)                /* .text* sections (code) */
-    *(.rodata)               /* .rodata sections (constants, strings, etc.) */
-    *(.rodata*)              /* .rodata* sections (constants, strings, etc.) */
+    *(EXCLUDE_FILE(
+        /* Exclude flash and frequently executed functions from XIP */
+        */fsl_adapter_flexspi_nor_flash.c.obj
+        */mflash_drv.c.obj
+        */fsl_flexspi.c.obj
+        /* Exclude low power critical functions from XIP */
+        */fsl_reset.c.obj
+        */controller_low_power.c.obj
+        */fwk_board_lp.c.obj
+        */fwk_platform.c.obj
+        */fwk_platform_lowpower.c.obj
+        */fsl_pm_core.c.obj
+        */fsl_pm_device.c.obj
+        */fsl_power.c.obj
+        */fsl_gpio.c.obj
+        */fsl_adapter_rt_gpio.c.obj
+        */fsl_component_generic_list.c.obj
+        */fsl_common_arm.c.obj
+        *lib_a-memset.o
+    ) .rodata)               /* .rodata sections (constants, strings, etc.) */
+    *(EXCLUDE_FILE(
+        /* Exclude flash and frequently executed functions from XIP */
+        */fsl_adapter_flexspi_nor_flash.c.obj
+        */mflash_drv.c.obj
+        */fsl_flexspi.c.obj
+        /* Exclude low power critical functions from XIP */
+        */fsl_reset.c.obj
+        */controller_low_power.c.obj
+        */fwk_board_lp.c.obj
+        */fwk_platform.c.obj
+        */fwk_platform_lowpower.c.obj
+        */fsl_pm_core.c.obj
+        */fsl_pm_device.c.obj
+        */fsl_power.c.obj
+        */fsl_gpio.c.obj
+        */fsl_adapter_rt_gpio.c.obj
+        */fsl_component_generic_list.c.obj
+        */fsl_common_arm.c.obj
+        *lib_a-memset.o
+    ) .rodata*)              /* .rodata* sections (constants, strings, etc.) */
     *(.glue_7)               /* glue arm to thumb code */
     *(.glue_7t)              /* glue thumb to arm code */
     *(.eh_frame)
@@ -304,6 +370,20 @@ SECTIONS
     */fsl_adapter_flexspi_nor_flash.c.obj
     */mflash_drv.c.obj
     */fsl_flexspi.c.obj
+    /* Explicit placement of low power critical functions in RAM */
+    */fsl_reset.c.obj
+    */controller_low_power.c.obj
+    */fwk_board_lp.c.obj
+    */fwk_platform.c.obj
+    */fwk_platform_lowpower.c.obj
+    */fsl_pm_core.c.obj
+    */fsl_pm_device.c.obj
+    */fsl_power.c.obj
+    */fsl_gpio.c.obj
+    */fsl_adapter_rt_gpio.c.obj
+    */fsl_component_generic_list.c.obj
+    */fsl_common_arm.c.obj
+    *lib_a-memset.o(.text*)
     *(.data)                 /* .data sections */
     *(.data*)                /* .data* sections */
     KEEP(*(.jcr*))

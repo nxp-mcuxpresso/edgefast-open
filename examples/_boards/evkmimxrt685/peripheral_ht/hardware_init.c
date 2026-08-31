@@ -33,6 +33,9 @@ void BOARD_InitHardware(void)
     };
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
+#if defined(APP_LOWPOWER_ENABLED) && (APP_LOWPOWER_ENABLED > 0)
+    BOARD_InitLowPowerPins();
+#endif /* APP_LOWPOWER_ENABLED */
     BOARD_InitDebugConsole();
 
     /* Init output reset pin. */

@@ -3,6 +3,8 @@ mcux_add_source(
   SOURCES
     components/wifi_bt_module/incl/wifi_bt_module_config.h
     ${board_root}/${board}/FreeRTOSConfigBoard.h
+    ${board_root}/${board}/fwk_board_lp.c
+    ${board_root}/${board}/fwk_board_lp.h
     middleware/edgefast_open/examples/_boards/${board}/configs/freertos/FreeRTOSConfig.h
     middleware/edgefast_open/examples/_boards/${board}/peripheral_ht/hardware_init.c
     middleware/edgefast_open/examples/_boards/${board}/peripheral_ht/pin_mux.c

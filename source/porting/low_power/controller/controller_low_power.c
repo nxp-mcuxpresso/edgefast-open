@@ -25,7 +25,8 @@
  * Definitions
  ******************************************************************************/
 /* Controller low power command configuration. */
-#if defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
+#if defined(WIFI_IW416_BOARD_MURATA_1XK_M2) || defined(WIFI_IW612_BOARD_MURATA_2EL_M2) || \
+    defined(WIFI_IW612_BOARD_MURATA_2EL_USD)
 /*
  * Vendor specific HCI command.
  */
