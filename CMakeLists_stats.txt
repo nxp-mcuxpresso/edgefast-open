@@ -1,23 +1,23 @@
 ================================================================================
 MCUX_ADD_* COMMANDS STATISTICS
 ================================================================================
-Total mcux_add_* commands: 498
-  - Conditional: 498
+Total mcux_add_* commands: 499
+  - Conditional: 499
   - Unconditional: 0
   - Duplicates removed: 0
 Unique conditions: 177
 
 Command types distribution:
-  - mcux_add_source: 445 (89.4%)
+  - mcux_add_source: 445 (89.2%)
   - mcux_add_include: 20 (4.0%)
   - mcux_add_iar_configuration: 17 (3.4%)
+  - mcux_add_configuration: 6 (1.2%)
   - mcux_add_mdk_configuration: 6 (1.2%)
-  - mcux_add_configuration: 5 (1.0%)
   - mcux_add_armgcc_configuration: 5 (1.0%)
 
 Top 20 most used conditions:
    1. CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt
-      Used by 64 command(s)
+      Used by 65 command(s)
    2. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.libsbc)
       Used by 33 command(s)
    3. (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.liblc3)
@@ -234,6 +234,6 @@ All unique conditions (sorted alphabetically):
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.utf8) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.uuid) (2 command(s))
   - (CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt) AND (NOT(CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt_reboot_wdog)) (1 command(s))
-  - CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt (64 command(s))
+  - CONFIG_MCUX_COMPONENT_middleware.edgefast_open.bt (65 command(s))
 
 ================================================================================
