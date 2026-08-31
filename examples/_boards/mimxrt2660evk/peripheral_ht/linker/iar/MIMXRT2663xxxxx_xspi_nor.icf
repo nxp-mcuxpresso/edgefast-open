@@ -168,12 +168,8 @@ define block APP_QACCESS_CODE {
   /* section ro object hello_world.o */
 };
 
-/* ---- Flash-resident XSPI / mflash driver code executes from RAM (DTCM) ---- */
-/* Use `object` (not `ro object`): these objects' .text/.rodata are declared in
- * the `initialize by copy` directive below, so ILINK treats them as rw code and
- * the ro-only pattern would fail to match (Lc036). Matches the 1060 example and
- * the gcc layout where the whole object is copied to and executed from RAM. */
 define block RAM_DRIVER {
+
   section .textrw,
   object fsl_xspi.o,
   object mflash_drv.o
@@ -317,9 +313,11 @@ place in QACODE_region    { block RW_CODE };
 place in QACODE_region    { block QACCESS_CODE };
 place in QACODE_region    { block APP_QACCESS_CODE };
 
+place in QACODE_region    { block RAM_DRIVER };
+
 place in DATA_region      { block QACCESS_DATA };
-place in DATA_region      { block RAM_DRIVER };
 place in DATA_region      { block RW_DATA };
+
 place in DATA_region      { block ._net_buf_pool };
 place in DATA_region      { block ._k_mem_slab };
 place in DATA_region      { block .__shell_command };

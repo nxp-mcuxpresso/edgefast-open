@@ -329,6 +329,8 @@ SECTIONS
   .app_qacode : ALIGN(4)
   {
     __app_qacode_start__ = .;
+    *fsl_xspi.c.obj(.text .text* .rodata .rodata*)
+    *mflash_drv.c.obj(.text .text* .rodata .rodata*)
     . = ALIGN(4);
     __app_qacode_end__ = .;
   } > m_qacode AT > m_text
@@ -348,8 +350,6 @@ SECTIONS
   .data : ALIGN(4)
   {
     __data_start__ = .;
-    */fsl_xspi.c.obj(.text .text* .rodata .rodata*)
-    */mflash_drv.c.obj(.text .text* .rodata .rodata*)
     *(.data)
     *(.data*)
     KEEP(*(.jcr*))

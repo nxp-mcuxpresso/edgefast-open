@@ -317,8 +317,9 @@ place in QACODE_region    { block RW_CODE };
 place in QACODE_region    { block QACCESS_CODE };
 place in QACODE_region    { block APP_QACCESS_CODE };
 
+place in QACODE_region    { block RAM_DRIVER };
+
 place in DATA_region      { block QACCESS_DATA };
-place in DATA_region      { block RAM_DRIVER };
 place in DATA_region      { block RW_DATA };
 place in DATA_region      { block ._net_buf_pool };
 place in DATA_region      { block ._k_mem_slab };
