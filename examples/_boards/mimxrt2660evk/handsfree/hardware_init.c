@@ -31,10 +31,16 @@
  *   SAI0  -> on-board WM8962 codec (speaker/mic path), DEMO_CODEC_INSTANCE
  *   SAI1  -> M.2 connector BT PCM (SCO voice path),    DEMO_SCO_INSTANCE
  *
- * The WM8962 MCLK on this board is the external 24 MHz oscillator that is
- * routed to the SAI MCLK pins (see clock_config.c SAI mclk roots which select
- * the external SAI_MCLK source). So the codec mclk is a fixed 24 MHz and the
- * SAI itself is clocked from the same 24 MHz SAI mclk root.
+ * The WM8962 MCLK on this board is generated on-chip: clock_config.c programs
+ * the sai0_mclk0 (and sai1_mclk0) clock root mux to PERI6, and PERI6 itself is
+ * BASE / 8 = 24 MHz (an internal clock, NOT an external oscillator input). The
+ * MCU then drives this 24 MHz out on the SAI0 MCLK pad (PIO2_4) to clock the
+ * WM8962. The device does have an alternative external SAI0_MCLK pin-input root
+ * (kCLOCK_SAIMCLK0_ClockRoot_SAI0_MCLK), but the board clock config does not
+ * use it. So the codec mclk is a fixed internal 24 MHz and the SAI is clocked
+ * from that same 24 MHz root. There is no AudioPLL retune in this example (a2dp
+ * does retune the AudioPLL); at a fixed 24 MHz the fs ratios are non-standard
+ * (e.g. 24 MHz / 8 kHz = 3000), which the WM8962 fractional PLL still handles.
  *
  * Unlike RT1170, RT2660 has no separate DMAMUX peripheral. The eDMA request
  * source is selected on the eDMA channel itself (EDMA channel mux). Therefore
@@ -307,10 +313,11 @@ static void BOARD_ConfigXspiSfp(void)
  * Handsfree common code (sco_audio_pl_ext.c) calls BOARD_SwitchAudioFreq to
  * (re)program the codec sample rate whenever a SCO/ring-tone stream starts or
  * stops. On RT1170 this reconfigures the AudioPLL and toggles the IOMUXC_GPR
- * SAI1 MCLK direction bit. RT2660 is different: the SAI MCLK is the fixed
- * external 24 MHz oscillator routed to the SAI MCLK pins (see clock_config.c),
- * there is no AudioPLL to retune and there is no IOMUXC_GPR MCLK direction
- * control. So the only work here is to record the requested sample rate in the
+ * SAI1 MCLK direction bit. RT2660 is different: the SAI MCLK is a fixed on-chip
+ * 24 MHz (sai0/sai1 mclk0 root muxed to PERI6 = BASE/8 = 24 MHz in
+ * clock_config.c), driven out on the SAI MCLK pad. This example does not retune
+ * an AudioPLL (a2dp does) and there is no IOMUXC_GPR MCLK direction control on
+ * RT2660. So the only work here is to record the requested sample rate in the
  * WM8962 config and return the SAI source clock frequency.
  *
  * sampleRate == 0 is the de-init request; there is nothing to gate on RT2660,
@@ -320,8 +327,15 @@ uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
 {
     if (0U != sampleRate)
     {
-        wm8962ScoConfig.format.sampleRate = sampleRate;
-        wm8962ScoConfig.format.mclk_HZ    = DEMO_SAI_MCLK_FREQ;
+        /* Update BOTH codec configs. The SCO voice path uses wm8962ScoConfig
+         * (kWM8962_BusPCMB) and the ring-tone path uses wm8962ScoConfig1
+         * (kWM8962_BusI2S). If only the first is updated here the ring-tone
+         * codec stays pinned at its initial 8 kHz while SAI/CODEC_SetFormat
+         * run at the real rate, producing wrong-pitch/distorted ring tone. */
+        wm8962ScoConfig.format.sampleRate  = sampleRate;
+        wm8962ScoConfig.format.mclk_HZ     = DEMO_SAI_MCLK_FREQ;
+        wm8962ScoConfig1.format.sampleRate = sampleRate;
+        wm8962ScoConfig1.format.mclk_HZ    = DEMO_SAI_MCLK_FREQ;
     }
 
     return DEMO_SAI_MCLK_FREQ;
@@ -410,15 +424,6 @@ void BOARD_InitHardware(void)
     BOARD_InitUSDHC0Pins();
     BOARD_InitM2UARTPins();
     BOARD_Init6524Pins();
-
-    /*
-     * Handsfree profile SCO voice path.
-     * BOARD_InitI2CPins()   - LPI2C1 to the on-board WM8962 codec control bus.
-     * BOARD_InitSAIPins()   - SAI0 audio data path to the WM8962 codec.
-     * BOARD_InitM2ScoPins() - SAI1 routed to the M.2 connector BT PCM signals
-     *                         (BT_PCM_TXD/RXD/BCLK/SYNC) for SCO audio.
-     */
-    BOARD_InitI2CPins();
     BOARD_InitSAIPins();
     BOARD_InitM2ScoPins();
 

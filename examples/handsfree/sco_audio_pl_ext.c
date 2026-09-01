@@ -345,6 +345,13 @@ static void Deinit_Board_Audio(void)
     HAL_AudioRxDeinit((hal_audio_handle_t)&rx_mic_handle[0]);
     HAL_AudioTxDeinit((hal_audio_handle_t)&tx_mic_handle[0]);
     HAL_AudioRxDeinit((hal_audio_handle_t)&rx_speaker_handle[0]);
+    /* Balance the CODEC_Init done in Init_Board_Sco_Audio / Init_Board_RingTone_Audio.
+     * Without this, every SCO/ring-tone start re-runs CODEC_Init on the same
+     * codec_handle while teardown never de-inits it. Over repeated connect and
+     * disconnect cycles that leaks the codec/I2C handle state and can leave the
+     * WM8962 in an inconsistent register state. Releasing it here keeps init and
+     * deinit balanced. */
+    CODEC_Deinit(&codec_handle);
     (void)BOARD_SwitchAudioFreq(0U);
     codec_inited = 0;
 }
