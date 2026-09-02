@@ -455,8 +455,13 @@ int controller_hci_uart_get_configuration(controller_hci_uart_config_t *config)
     config->instance        = BOARD_BT_UART_INSTANCE;
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
     config->dma_instance     = 0U;
-    config->rx_channel       = 0U;
-    config->tx_channel       = 1U;
+    /* Audio SAI paths occupy eDMA channels 0..3 (EXAMPLE_*_CHANNEL above).
+     * RT2660 has no DMAMUX, so each channel is bound to a single fixed request
+     * source and cannot be shared. Put the BT HCI UART on channels 4/5 to avoid
+     * colliding with the audio channels (mirrors official RT1170 handsfree_ag,
+     * which likewise uses channels 4/5 for the UART). */
+    config->rx_channel       = 4U;
+    config->tx_channel       = 5U;
     /* No standalone DMAMUX on RT2660; request source is set on the eDMA channel. */
     config->rx_request       = kDmaRequestMux1HspLPUART2Rx;
     config->tx_request       = kDmaRequestMux1HspLPUART2Tx;
