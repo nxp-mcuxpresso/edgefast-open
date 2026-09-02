@@ -158,7 +158,7 @@ int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len, size_t 
 void BOARD_InitHardware(void)
 {
     BOARD_CommonSetting();
-    BOARD_InitUSDHC0Pins();
+    BOARD_InitUSDHC1Pins();
     BOARD_InitM2UARTPins();
     BOARD_Init6524Pins();
     BOARD_InitBUTTONsPins();

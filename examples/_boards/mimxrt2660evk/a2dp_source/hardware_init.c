@@ -177,7 +177,7 @@ static void BOARD_ConfigXspiSfp(void)
 void BOARD_InitHardware(void)
 {
     BOARD_CommonSetting();
-    BOARD_InitUSDHC0Pins();
+    BOARD_InitUSDHC1Pins();
     BOARD_InitM2UARTPins();
     BOARD_Init6524Pins();
 
