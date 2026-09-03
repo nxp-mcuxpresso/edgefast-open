@@ -127,3 +127,8 @@ pbap_pse:
     - -iar@release
     - -mdk@debug
     - -mdk@release
+    mimxrt2660evk:
+    - -armgcc@xspi_nor_debug
+    - -armgcc@xspi_nor_release
+    - -iar@xspi_nor_debug
+    - -iar@xspi_nor_release
