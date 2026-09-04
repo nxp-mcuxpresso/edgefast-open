@@ -16,6 +16,22 @@ AT_NONCACHEABLE_SECTION_ALIGN(HAL_AUDIO_HANDLE_DEFINE(audio_tx_handle), 4);
 extern uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate);
 extern hal_audio_config_t audioTxConfig;
 
+#if defined(__GNUC__)
+#define __WEAK_FUNC __attribute__((weak))
+#elif defined(__ICCARM__)
+#define __WEAK_FUNC __weak
+#elif defined(__CC_ARM) || defined(__ARMCC_VERSION)
+#define __WEAK_FUNC __attribute__((weak))
+#endif
+
+/* HAL_AudioTxInit() runs SAI_Init(), which soft-resets the SAI peripheral and
+ * clears its master clock register. Boards whose codec needs the SAI-level
+ * master clock reprogrammed after that reset (e.g. mimxrt2660evk) override
+ * this weak hook in their hardware_init.c; other boards keep the no-op. */
+__WEAK_FUNC void BOARD_MASTER_CLOCK_CONFIG(void)
+{
+}
+
 typedef struct _block {
     uint32_t len;
     uint8_t buff[AUDIO_I2S_BUFF_SIZE];
@@ -95,6 +111,7 @@ int audio_i2s_init(int sample_rate, int channels, int bits, int mode)
 
         HAL_AudioTxInit((hal_audio_handle_t)&audio_tx_handle[0], &audioTxConfig);
         HAL_AudioTxInstallCallback((hal_audio_handle_t)&audio_tx_handle[0], internal_audio_tx_callback, NULL);
+        BOARD_MASTER_CLOCK_CONFIG();
 
         audio_i2s.tx_enable  = true;
         audio_i2s.tx_working = false;
