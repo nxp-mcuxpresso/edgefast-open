@@ -8,9 +8,9 @@ mcux_add_source(
 #    ${board_root}/${board}/wifi_bt_config.c
 #    ${board_root}/${board}/wifi_bt_config.h
     middleware/edgefast_open/examples/_boards/${board}/configs/freertos/FreeRTOSConfig.h
-    middleware/edgefast_open/examples/_boards/${board}/handsfree_ag/${core_id}/hardware_init.c
-    middleware/edgefast_open/examples/_boards/${board}/handsfree_ag/${core_id}/pin_mux.c
-    middleware/edgefast_open/examples/_boards/${board}/handsfree_ag/${core_id}/pin_mux.h
+    middleware/edgefast_open/examples/_boards/${board}/sco_bridge/${core_id}/hardware_init.c
+    middleware/edgefast_open/examples/_boards/${board}/sco_bridge/${core_id}/pin_mux.c
+    middleware/edgefast_open/examples/_boards/${board}/sco_bridge/${core_id}/pin_mux.h
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
 )
 mcux_add_include(
@@ -19,7 +19,7 @@ mcux_add_include(
     components/wifi_bt_module/incl
     ${board_root}/${board}
     middleware/edgefast_open/examples/_boards/${board}/configs/freertos
-    middleware/edgefast_open/examples/_boards/${board}/handsfree_ag/${core_id}
+    middleware/edgefast_open/examples/_boards/${board}/sco_bridge/${core_id}
     middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls
 )
 mcux_add_macro(
@@ -102,21 +102,21 @@ mcux_remove_armgcc_linker_script(
 )
 mcux_add_iar_linker_script(
   BASE_PATH ${SdkRootDirPath}
-  LINKER middleware/edgefast_open/examples/_boards/${board}/handsfree_ag/linker/iar/MIMXRT1176xxxxx_cm7_flexspi_nor.icf
+  LINKER middleware/edgefast_open/examples/_boards/${board}/sco_bridge/linker/iar/MIMXRT1176xxxxx_cm7_flexspi_nor.icf
   TARGETS
     flexspi_nor_debug
     flexspi_nor_release
 )
 mcux_add_mdk_linker_script(
   BASE_PATH ${SdkRootDirPath}
-  LINKER middleware/edgefast_open/examples/_boards/${board}/handsfree_ag/linker/arm/MIMXRT1176xxxxx_cm7_flexspi_nor.scf
+  LINKER middleware/edgefast_open/examples/_boards/${board}/sco_bridge/linker/arm/MIMXRT1176xxxxx_cm7_flexspi_nor.scf
   TARGETS
     flexspi_nor_debug
     flexspi_nor_release
 )
 mcux_add_armgcc_linker_script(
   BASE_PATH ${SdkRootDirPath}
-  LINKER middleware/edgefast_open/examples/_boards/${board}/handsfree_ag/linker/gcc/MIMXRT1176xxxxx_cm7_flexspi_nor.ld
+  LINKER middleware/edgefast_open/examples/_boards/${board}/sco_bridge/linker/gcc/MIMXRT1176xxxxx_cm7_flexspi_nor.ld
   TARGETS
     flexspi_nor_debug
     flexspi_nor_release
