@@ -16,11 +16,6 @@ External Antenna:
 To use an external antenna:
 - attach the external antenna to J65 antenna connector
 
-Bluetooth UART:
----------------
-- HW Rework: 
-  - Short: SJ69, SJ70, SJ71, SJ72
-
 GPT Configuration:
 ------------------
 - HW Rework (Rev A):
