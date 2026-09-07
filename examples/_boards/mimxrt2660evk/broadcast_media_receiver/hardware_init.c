@@ -27,9 +27,9 @@
 #include "fsl_common.h"
 #include "fsl_iomuxc.h"
 #include <zephyr/drivers/bluetooth.h>
-#if defined(BOARD_USE_PCAL6524) && BOARD_USE_PCAL6524
+#include <psa/crypto.h>
+#include <mbedtls/platform.h>
 #include "fsl_pcal6524.h"
-#endif
 /*${header:end}*/
 
 /*${macro:start}*/
@@ -427,53 +427,47 @@ void WAKE_QTPM1_IRQHandler(void)
     SDK_ISR_EXIT_BARRIER;
 }
 
-#if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
-void bt_psa_crypto_init(void)
-{
-    /* Nothing needs to be done */
-}
-#endif /* CONFIG_BT_SMP */
-
 /* -------------------------------------------------------------------------
- * mbedTLS hardware entropy source.
+ * mbedTLS/PSA hardware entropy source.
  *
- * mbedtls_entropy_init() references mbedtls_hardware_poll as the platform
- * entropy provider. RT2663 is not yet supported by any psa_crypto_driver
- * component, so no component provides this symbol and the link fails with
- * "undefined reference to mbedtls_hardware_poll". A running DWT cycle counter
- * is mixed to seed the entropy accumulator. This is a pragmatic bring-up
- * entropy source; replace with a certified TRNG driver for production.
+ * The tf_psa_crypto entropy accumulator calls mbedtls_platform_get_entropy
+ * as its platform entropy provider. RT2663 is not yet supported by any
+ * psa_crypto_driver component, so no component provides this symbol and the
+ * link fails with "undefined reference to mbedtls_platform_get_entropy". A
+ * running DWT cycle counter is mixed to seed the entropy accumulator. This
+ * is a pragmatic bring-up entropy source; replace with a certified TRNG
+ * driver for production security requirements.
  * ------------------------------------------------------------------------- */
-int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len, size_t *olen)
+int mbedtls_platform_get_entropy(psa_driver_get_entropy_flags_t flags, size_t *estimate_bits, unsigned char *output,
+                                  size_t output_size)
 {
-    (void)data;
-
-    if ((NULL == output) || (NULL == olen))
-    {
-        return -1;
+    if (output == NULL || estimate_bits == NULL) {
+        return PSA_ERROR_INVALID_ARGUMENT;
     }
 
-    /* Enable the DWT cycle counter (best-effort; harmless if already on). */
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-
-    for (size_t i = 0U; i < len; i++)
-    {
-        uint32_t sample = DWT->CYCCNT;
-        sample ^= (sample >> 8) ^ (sample >> 16) ^ (sample >> 24);
-        output[i] = (unsigned char)(sample & 0xFFU);
-        /* Perturb the counter between samples. */
-        for (volatile uint32_t d = 0U; d < 7U; d++)
-        {
-            __NOP();
-        }
+    for (size_t i = 0; i < output_size; i++) {
+        output[i] = (unsigned char)rand();
     }
 
-    *olen = len;
+    *estimate_bits = 8u * output_size;
+
     return 0;
 }
 
-#if defined(BOARD_USE_PCAL6524) && BOARD_USE_PCAL6524
+#if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
+void bt_psa_crypto_init(void)
+{
+    psa_status_t status;
+
+    status = psa_crypto_init();
+    if (status != PSA_SUCCESS)
+    {
+        PRINTF("Failed to initialize PSA crypto");
+    }
+    assert(status == PSA_SUCCESS);
+}
+#endif /* CONFIG_BT_SMP */
+
 /*
  * WiFi/BT reset lines are wired to the on-board PCAL6524 I2C I/O expander.
  * PCAL6524 pin numbering: P0_x = 0..7, P1_x = 8 + x, P2_x = 16 + x.
@@ -505,7 +499,6 @@ void BOARD_ResetM2(void)
     /* Release reset on both lines (drive high). */
     (void)PCAL6524_SetPins(exp, BOARD_WIFI_RST_ALL_MASK);
 }
-#endif /* BOARD_USE_PCAL6524 */
 
 static void BOARD_ConfigXspiSfp(void)
 {
@@ -535,9 +528,7 @@ void BOARD_InitHardware(void)
     EDMA_Init(dmaBases[0], &config);
 #endif
 
-#if defined(BOARD_USE_PCAL6524) && BOARD_USE_PCAL6524
     BOARD_ResetM2();
-#endif
 }
 
 #if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)

@@ -4,7 +4,7 @@ mcux_add_source(
     ${board_root}/${board}/FreeRTOSConfigBoard.h
     middleware/edgefast_open/examples/_boards/${board}/configs/freertos/FreeRTOSConfig.h
     middleware/edgefast_open/examples/_boards/${board}/pbap_pce/hardware_init.c
-    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
+    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/tf_psa_crypto_user_config.h
 )
 mcux_add_include(
   BASE_PATH ${SdkRootDirPath}
@@ -65,7 +65,7 @@ mcux_add_macro(
       -DSDK_I2C_BASED_COMPONENT_USED=1\
       -DBOARD_USE_PCAL6524=1\
       -DSDIO_ENABLED=1\
-      -DMBEDTLS_USER_CONFIG_FILE=\\\"mbedtls_user_config.h\\\""
+      -DTF_PSA_CRYPTO_USER_CONFIG_FILE=\\\"tf_psa_crypto_user_config.h\\\""
 )
 
 mcux_add_macro(

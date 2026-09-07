@@ -4,7 +4,7 @@ mcux_add_source(
     ${board_root}/${board}/FreeRTOSConfigBoard.h
     middleware/edgefast_open/examples/_boards/${board}/configs/freertos/FreeRTOSConfig.h
     middleware/edgefast_open/examples/_boards/${board}/broadcast_media_sender/hardware_init.c
-    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/mbedtls_user_config.h
+    middleware/edgefast_open/examples/_boards/${board}/configs/mbedtls/tf_psa_crypto_user_config.h
 )
 mcux_add_include(
   BASE_PATH ${SdkRootDirPath}
@@ -67,7 +67,7 @@ mcux_add_macro(
       -DSDIO_ENABLED=1\
       -DUSB_HOST_CONFIG_BUFFER_PROPERTY_CACHEABLE=1\
       -DHAL_AUDIO_DMA_INIT_ENABLE=0\
-      -DMBEDTLS_USER_CONFIG_FILE=\\\"mbedtls_user_config.h\\\""
+      -DTF_PSA_CRYPTO_USER_CONFIG_FILE=\\\"tf_psa_crypto_user_config.h\\\""
 )
 
 mcux_add_macro(
