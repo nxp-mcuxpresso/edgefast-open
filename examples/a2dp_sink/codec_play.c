@@ -38,7 +38,7 @@ static bool codec_initialized;
 static SemaphoreHandle_t codec_sem;
 
 extern uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate);
-__attribute__((weak)) void BOARD_A2DP_ReapplyMasterClock(void)
+__attribute__((weak)) void BOARD_MASTER_CLOCK_CONFIG(void)
 {
 }
 
@@ -65,8 +65,7 @@ void codec_play_configure(uint32_t sample_rate, uint8_t sample_width, uint8_t ch
 
 	HAL_AudioTxInit((hal_audio_handle_t)&audio_tx_handle[0], &audioTxConfig);
 	HAL_AudioTxInstallCallback((hal_audio_handle_t)&audio_tx_handle[0], codec_tx_callback, NULL);
-
-        BOARD_A2DP_ReapplyMasterClock();
+        BOARD_MASTER_CLOCK_CONFIG();
 	if (CODEC_Init(&codec_handle, &boardCodecConfig) != kStatus_Success) {
 	    PRINTF("codec init failed!\r\n");
 	}

@@ -206,21 +206,6 @@ void BOARD_EnableSaiMclkOutput(bool enable)
     MODCON_SetCFG(kModCon_AUDIO_SAI0, 0U, cfg);
 }
 
-/*
- * Re-apply the SAI0 master clock configuration AFTER the audio IP has been
- * initialized. The shared a2dp_sink codec_play.c calls this weak-overridable
- * hook right after HAL_AudioTxInit (which runs SAI_Init). SAI_Init performs a
- * SAI soft-reset that clears the master clock register (MCR), wiping the
- * mclk output/divider that BOARD_SwitchAudioFreq had programmed earlier. If it
- * is not re-applied here the WM8962 receives an unstable/absent MCLK and the
- * playback is noisy. The MODCON MCLK override gate is also re-asserted for
- * robustness (it survives the SAI reset, but keeping it here is harmless). */
-void BOARD_A2DP_ReapplyMasterClock(void)
-{
-    BOARD_EnableSaiMclkOutput(true);
-    BOARD_MASTER_CLOCK_CONFIG();
-}
-
 uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
 {
 	CLOCK_DeinitAudioPll();
@@ -253,17 +238,18 @@ uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate)
          */
         SDK_DelayAtLeastUs(2000U, SystemCoreClock);
 
-	clock_root_config_t saiRootCfg = {
-		.mux = kCLOCK_SAI0_MCLK0_ClockRoot_AUDIOPLL,
-		.div = 2,
-	};
-	CLOCK_SetRootClock(kCLOCK_Root_AUDIO_sai0_mclk0, &saiRootCfg);
-	/* LPI2C1 clock root feeds the WM8962 control interface. */
-	clock_root_config_t lpi2c1RootCfg = {
-		.mux = kCLOCK_LPI2C1_ClockRoot_PERI3,
-		.div = 40,
-	};
-	CLOCK_SetRootClock(kCLOCK_Root_MAIN_lpi2c1_fclk, &lpi2c1RootCfg);
+		clock_root_config_t saiRootCfg = {
+			.mux = kCLOCK_SAI0_MCLK0_ClockRoot_AUDIOPLL,
+			.div = 2,
+		};
+		CLOCK_SetRootClock(kCLOCK_Root_AUDIO_sai0_mclk0, &saiRootCfg);
+		/* LPI2C1 clock root feeds the WM8962 control interface. */
+		clock_root_config_t lpi2c1RootCfg = {
+			.mux = kCLOCK_LPI2C1_ClockRoot_PERI3,
+			.div = 40,
+		};
+		CLOCK_SetRootClock(kCLOCK_Root_MAIN_lpi2c1_fclk, &lpi2c1RootCfg);
+		BOARD_EnableSaiMclkOutput(true);
 
     }
     wm8962Config.format.sampleRate = sampleRate;
