@@ -244,3 +244,4 @@ Other cmds could be used:
 
 ## Supported Boards
 - [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/unicast_media_sender/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/edgefast_bluetooth_examples/unicast_media_sender/example_board_readme.md)
