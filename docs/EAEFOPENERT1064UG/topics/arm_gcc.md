@@ -7,39 +7,32 @@
     |`<rt1064_install_dir>/boards/evkmimxrt1064/edgefast_open_examples/`|`middleware_edgefast_open_mcux_linker_template_evkcmimxrt1060.cmake`|`middleware_edgefast_open_mcux_linker_template_evkmimxrt1064.cmake`|
     |`middleware_edgefast_open_sdio_template_evkcmimxrt1060.cmake`|`middleware_edgefast_open_sdio_template_evkmimxrt1064.cmake`|
 
-3.  Add the following content to`<rt1064_install_dir>/devices/MIMXRT1064/all_lib_device.cmake` at appropriate location.
-
+3.  search "edgefast_open" in `<rt1060evkc_install_dir>/devices/MIMXRT1062/all_lib_device.cmake`, and add them in `<rt1064_install_dir>/devices/MIMXRT1064/all_lib_device.cmake`,such as:
     ```
-    …
-      ${CMAKE_CURRENT_LIST_DIR}/../../boards
-      ${CMAKE_CURRENT_LIST_DIR}/../../boards/evkmimxrt1064/edgefast_open_examples/template
-      ${CMAKE_CURRENT_LIST_DIR}/../../middleware/edgefast_open
-    …
-    include_if_use(middleware_edgefast_open_config_template)
-    include_if_use(middleware_edgefast_open_k32w061_controller)
-    include_if_use(middleware_edgefast_open_mcux_linker_template_ evkmimxrt1064)
-    include_if_use(middleware_edgefast_open_pal)
-    include_if_use(middleware_edgefast_open_porting)
-    include_if_use(middleware_edgefast_open_porting_atomic)
-    include_if_use(middleware_edgefast_open_porting_list)
-    include_if_use(middleware_edgefast_open_porting_net)
-    include_if_use(middleware_edgefast_open_porting_toolchain)
-    include_if_use(middleware_edgefast_open_porting_work_queue)
-    include_if_use(middleware_edgefast_open_profile_bas)
-    include_if_use(middleware_edgefast_open_profile_dis)
-    include_if_use(middleware_edgefast_open_profile_fmp)
-    include_if_use(middleware_edgefast_open_profile_hps)
-    include_if_use(middleware_edgefast_open_profile_hrs)
-    include_if_use(middleware_edgefast_open_profile_hts)
-    include_if_use(middleware_edgefast_open_profile_ipsp)
-    include_if_use(middleware_edgefast_open_profile_pxr)
-    include_if_use(middleware_edgefast_open_profile_tip)
-    include_if_use(middleware_edgefast_open_profile_wu)
-    include_if_use(middleware_edgefast_open_sdio_template_evkmimxrt1064)
-    include_if_use(middleware_edgefast_open_shell)
-    include_if_use(middleware_edgefast_open_shell_ble)
-    include_if_use(middleware_edgefast_open_template)
-    include_if_use(middleware_edgefast_open_wifi_nxp_controller_base)...
+	#set.middleware.edgefast_open
+	#  # description: EdgeFast Open component
+	#  set(CONFIG_USE_middleware_edgefast_open true)
+
+	#  # description: EdgeFast Open BT component
+	#  set(CONFIG_USE_middleware_edgefast_open_bt true)
+	...
+	#  # description: EdgeFast Open Controller Lwip Config component
+	#  set(CONFIG_USE_middleware_edgefast_open_controller_lwip_config true)
+
+	#  # description: EdgeFast Open Controller Wifi Config component
+	#  set(CONFIG_USE_middleware_edgefast_open_controller_wifi_config true)
+
+	${CMAKE_CURRENT_LIST_DIR}/../../middleware/edgefast_open
+
+	include_if_use(middleware_edgefast_open)
+	include_if_use(middleware_edgefast_open_asrc_sw)
+	include_if_use(middleware_edgefast_open_bt)
+	include_if_use(middleware_edgefast_open_bt_a2dp)
+	...
+	include_if_use(middleware_edgefast_open_port_shell)
+	include_if_use(middleware_edgefast_open_suppressed_warnings)
+	include_if_use(middleware_edgefast_open_utf8)
+	include_if_use(middleware_edgefast_open_uuid)
     ```
 
 4.  Make the following changes in the listed order.
