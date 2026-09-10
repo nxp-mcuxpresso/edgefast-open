@@ -89,3 +89,4 @@ Procedures to run
 
 ## Supported Boards
 - [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/tmap_peripheral/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/edgefast_bluetooth_examples/tmap_peripheral/example_board_readme.md)
