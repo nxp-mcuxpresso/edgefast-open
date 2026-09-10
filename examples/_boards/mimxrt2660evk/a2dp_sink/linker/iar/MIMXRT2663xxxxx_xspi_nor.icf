@@ -56,7 +56,10 @@ define symbol m_container_offset  = 0x1000;
 define symbol m_container_size    = 0x9000;
 define symbol m_vector_table_size = 0x600;
 define symbol m_app_image_offset  = 0xC000;
-define symbol m_ncache_size       = 0x20000;
+/* a2dp_sink NonCacheable working set (~198 KB of audio/DMA buffers) exceeds
+ * the 128 KB that fits in the top of SRAM2, so the non-cacheable region is
+ * enlarged to a full 256 KB SRAM bank (see region layout below). */
+define symbol m_ncache_size       = 0x40000;
 
 /* LittleFS region reserved at the end of NOR flash for BT settings storage */
 define symbol LITTLEFS_REGION_SIZE = 0x00200000;
@@ -71,11 +74,17 @@ define symbol m_container_start   = m_flash_start + m_container_offset;
 define symbol m_container_end     = m_container_start + m_container_size - 1;
 define symbol m_text_start        = m_flash_start + m_app_image_offset;
 define symbol m_text_end          = m_flash_start + m_flash_size - LITTLEFS_REGION_SIZE - 1;
-define symbol m_ncache_start      = m_sram2_start + m_sram2_size - m_ncache_size;
-define symbol m_ncache_end        = m_ncache_start + m_ncache_size - 1;
+/* SRAM bank assignment for a2dp_sink:
+ *   SRAM0 (256 KB) -> NonCacheable region (audio/DMA buffers, ~198 KB used)
+ *   SRAM1 (256 KB) -> DATAEXT overflow region
+ *   SRAM2 (256 KB) -> heap
+ * SRAM0 base is 256 KB aligned, satisfying the MPU non-cacheable region
+ * placement requirement. */
+define symbol m_ncache_start      = m_sram0_start;
+define symbol m_ncache_end        = m_sram0_start + m_sram0_size - 1;
 define symbol m_heap_start        = m_sram2_start;
-define symbol m_heap_end          = m_ncache_start - 1;
-define symbol m_dataext_start     = m_sram0_start;
+define symbol m_heap_end          = m_sram2_start + m_sram2_size - 1;
+define symbol m_dataext_start     = m_sram1_start;
 define symbol m_dataext_end       = m_sram1_start + m_sram1_size - 1;
 
 if (isdefinedsymbol(__ram_vector_table__)) {

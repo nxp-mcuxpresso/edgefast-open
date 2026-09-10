@@ -209,3 +209,4 @@ The connection interval should >= N * iso_interval (N equal to iso channel numbe
 
 ## Supported Boards
 - [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/a2dp_bridge/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/edgefast_bluetooth_examples/a2dp_bridge/example_board_readme.md)
