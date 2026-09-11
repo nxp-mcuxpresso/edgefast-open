@@ -192,51 +192,6 @@ hal_audio_config_t codecRxConfig = {
     .instance          = DEMO_CODEC_INSTANCE,
 };
 
-static xspi_sfp_mdad_config_t s_flashMdadConfig = {
-    .tgMdad[0] =
-        {
-            .assignIsValid        = true,
-            .enableDescriptorLock = false,
-            .maskType             = 0U, /* ANDed mask: any master ID matches when mask = 0. */
-            .mask                 = 0U,
-            .masterIdReference    = 0U,
-            .secureAttribute      = kXSPI_AttributeMasterNonsecureSecureBoth,
-        },
-    .tgMdad[1] =
-        {
-            .assignIsValid        = true,
-            .enableDescriptorLock = false,
-            .maskType             = 0U,
-            .mask                 = 0U,
-            .masterIdReference    = 0U,
-            .secureAttribute      = kXSPI_AttributeMasterNonsecureSecureBoth,
-        },
-};
-
-static xspi_sfp_frad_config_t s_flashFradConfig = {
-    .fradConfig[0] =
-        {
-            .startAddress        = 0x70000000UL, /* secure alias -- the one mflash uses */
-            .endAddress          = 0x7FFF0000UL,
-            .tg0MasterAccess     = 0x7U, /* MDnACP: secure/privileged/user writes allowed. */
-            .tg1MasterAccess     = 0x7U,
-            .assignIsValid       = true,
-            .descriptorLock      = kXSPI_DescriptorLockDisabled,
-            .exclusiveAccessLock = kXSPI_ExclusiveAccessLockDisabled,
-        },
-    .fradConfig[1] =
-        {
-            .startAddress        = 0x60000000UL, /* non-secure alias -- for robustness */
-            .endAddress          = 0x6FFF0000UL,
-            .tg0MasterAccess     = 0x7U,
-            .tg1MasterAccess     = 0x7U,
-            .assignIsValid       = true,
-            .descriptorLock      = kXSPI_DescriptorLockDisabled,
-            .exclusiveAccessLock = kXSPI_ExclusiveAccessLockDisabled,
-        },
-    /* Remaining FRAD entries stay invalid (zero-initialized). */
-};
-
 /* QTPM SyncTimer state - mirrors the CTIMER-based SyncTimer on mimxrt700evk. */
 static volatile uint32_t SyncTimer_Trigger_Counter;                          /* Sync trigger sequence number. */
 static void (*SyncTimer_Trigger_Callback)(uint32_t sync_index, uint64_t bclk_count) = NULL;
@@ -250,11 +205,6 @@ static uint64_t SyncTimer_Bclk_Value         = 0; /* Latest BCLK count reported 
 
 
 /*${function:start}*/
-
-static void BOARD_ConfigXspiSfp(void)
-{
-    XSPI_UpdateSFPConfig(MAIN__XSPI_0, &s_flashMdadConfig, &s_flashFradConfig);
-}
 
 /* AudioPLL configs, identical to unicast_media_receiver / unicast_media_sender:
  * one CCO band per sample-rate family so the SAI0 MCLK is an exact multiple of
@@ -445,7 +395,6 @@ void BOARD_InitHardware(void)
     BOARD_Init6524Pins();
     BOARD_InitSAIPins();
 
-    BOARD_ConfigXspiSfp();
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
     edma_config_t config;
     EDMA_Type *dmaBases[] = EDMA_BASE_PTRS;

@@ -27,60 +27,10 @@
 #define BOARD_WIFI_RST_ALL_MASK (BOARD_WL_RST_MASK | BOARD_WIFI_RST_MASK)
 /*${variable:start}*/
 
-static xspi_sfp_mdad_config_t s_flashMdadConfig = {
-    .tgMdad[0] =
-        {
-            .assignIsValid        = true,
-            .enableDescriptorLock = false,
-            .maskType             = 0U, /* ANDed mask: any master ID matches when mask = 0. */
-            .mask                 = 0U,
-            .masterIdReference    = 0U,
-            .secureAttribute      = kXSPI_AttributeMasterNonsecureSecureBoth,
-        },
-    .tgMdad[1] =
-        {
-            .assignIsValid        = true,
-            .enableDescriptorLock = false,
-            .maskType             = 0U,
-            .mask                 = 0U,
-            .masterIdReference    = 0U,
-            .secureAttribute      = kXSPI_AttributeMasterNonsecureSecureBoth,
-        },
-};
-
-static xspi_sfp_frad_config_t s_flashFradConfig = {
-    .fradConfig[0] =
-        {
-            .startAddress        = 0x70000000UL, /* secure alias -- the one mflash uses */
-            .endAddress          = 0x7FFF0000UL,
-            .tg0MasterAccess     = 0x7U, /* MDnACP: secure/privileged/user writes allowed. */
-            .tg1MasterAccess     = 0x7U,
-            .assignIsValid       = true,
-            .descriptorLock      = kXSPI_DescriptorLockDisabled,
-            .exclusiveAccessLock = kXSPI_ExclusiveAccessLockDisabled,
-        },
-    .fradConfig[1] =
-        {
-            .startAddress        = 0x60000000UL, /* non-secure alias -- for robustness */
-            .endAddress          = 0x6FFF0000UL,
-            .tg0MasterAccess     = 0x7U,
-            .tg1MasterAccess     = 0x7U,
-            .assignIsValid       = true,
-            .descriptorLock      = kXSPI_DescriptorLockDisabled,
-            .exclusiveAccessLock = kXSPI_ExclusiveAccessLockDisabled,
-        },
-    /* Remaining FRAD entries stay invalid (zero-initialized). */
-};
-
 
 /*${variable:end}*/
 
 /*${function:start}*/
-
-static void BOARD_ConfigXspiSfp(void)
-{
-    XSPI_UpdateSFPConfig(MAIN__XSPI_0, &s_flashMdadConfig, &s_flashFradConfig);
-}
 
 
 void BOARD_ResetM2(void)
@@ -149,7 +99,6 @@ void BOARD_InitHardware(void)
     BOARD_InitM2UARTPins();
     BOARD_Init6524Pins();
 
-    BOARD_ConfigXspiSfp();
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
     edma_config_t config;
     EDMA_Type *dmaBases[] = EDMA_BASE_PTRS;
