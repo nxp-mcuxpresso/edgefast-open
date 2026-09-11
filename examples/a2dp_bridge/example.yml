@@ -25,8 +25,4 @@ a2dp_bridge:
     - -mdk@release
     - -mdk@sdram_debug
     - -mdk@sdram_release
-    mimxrt2660evk:
-    - -armgcc@xspi_nor_debug
-    - -armgcc@xspi_nor_release
-    - -iar@xspi_nor_debug
-    - -iar@xspi_nor_release
+    mimxrt2660evk: []

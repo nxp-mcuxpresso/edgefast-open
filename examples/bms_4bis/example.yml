@@ -28,8 +28,4 @@ bms_4bis:
     - -armgcc@flexspi_nor_debug
     - -iar@flexspi_nor_debug
     - -mdk@flexspi_nor_debug
-    mimxrt2660evk:
-    - -armgcc@xspi_nor_debug
-    - -armgcc@xspi_nor_release
-    - -iar@xspi_nor_debug
-    - -iar@xspi_nor_release
+    mimxrt2660evk: []
