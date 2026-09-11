@@ -1,0 +1,398 @@
+/*
+** ###################################################################
+**     Processors:          MIMXRT2663AHP8A
+**                          MIMXRT2663CHPAA
+**                          MIMXRT2663CVVAA
+**                          MIMXRT2663DHPAA
+**                          MIMXRT2663DVVAA
+**                          MIMXRT2663XHP8A
+**                          MIMXRT2663XVV8A
+**
+**     Compiler:            IAR ANSI C/C++ Compiler for ARM
+**     Reference manual:    iMXRT2660RM Rev.2 DraftA, 05/2024
+**     Version:             rev. 1.0, 2024-11-05
+**     Build:               b260603
+**
+**     Abstract:
+**         Linker file for the IAR ANSI C/C++ Compiler for ARM.
+**         Customized for the edgefast_open umr_4cis example: adds the
+**         Zephyr/BT iterable linker sections and LittleFS storage symbols on
+**         top of the XSPI NOR flash device layout.
+**
+**     Copyright 1997-2016 Freescale Semiconductor, Inc.
+**     Copyright 2016-2026 NXP
+**     SPDX-License-Identifier: BSD-3-Clause
+**
+**     http:                 www.nxp.com
+**     mail:                 support@nxp.com
+**
+** ###################################################################
+*/
+
+/* ========================== Hardware addresses ========================== */
+/* ======================================================================== */
+define symbol m_flash_start       = 0x60000000;
+define symbol m_flash_size        = 0x04000000;
+define symbol m_itcm_start        = 0x00000000;
+define symbol m_itcm_size         = 0x00040000;
+define symbol m_dtcm_start        = 0x20000000;
+define symbol m_dtcm_size         = 0x00040000;
+define symbol m_sram0_start       = 0x22000000;
+define symbol m_sram0_size        = 0x00040000;
+define symbol m_sram1_start       = 0x22040000;
+define symbol m_sram1_size        = 0x00040000;
+define symbol m_sram2_start       = 0x22080000;
+define symbol m_sram2_size        = 0x00040000;
+define symbol m_psram_start       = 0x88000000;
+define symbol m_psram_size        = 0x02000000;
+
+/* ========================== Offsets and sizes =========================== */
+/* ======================================================================== */
+define symbol m_fcb_offset        = 0x400;
+define symbol m_fcb_size          = 0x300;
+define symbol m_xmcd_offset       = 0xA00;
+define symbol m_xmcd_size         = 0x300;
+define symbol m_container_offset  = 0x1000;
+define symbol m_container_size    = 0x9000;
+define symbol m_vector_table_size = 0x600;
+define symbol m_app_image_offset  = 0xC000;
+/* umr_4cis needs a larger non-cacheable pool than the broadcast
+ * variant (extra CIS/ASCS ISO buffers), so NCACHE is grown to 0x30000 (192 KB)
+ * out of the 256 KB SRAM2 bank; the remaining 64 KB is left for the heap. */
+define symbol m_ncache_size       = 0x30000;
+
+
+/* LittleFS region reserved at the end of NOR flash for BT settings storage */
+define symbol LITTLEFS_REGION_SIZE = 0x00200000;
+
+/* ====================== Region start/end addresses ====================== */
+/* ======================================================================== */
+define symbol m_fcb_start         = m_flash_start + m_fcb_offset;
+define symbol m_fcb_end           = m_fcb_start + m_fcb_size - 1;
+define symbol m_xmcd_start        = m_flash_start + m_xmcd_offset;
+define symbol m_xmcd_end          = m_xmcd_start + m_xmcd_size - 1;
+define symbol m_container_start   = m_flash_start + m_container_offset;
+define symbol m_container_end     = m_container_start + m_container_size - 1;
+define symbol m_text_start        = m_flash_start + m_app_image_offset;
+define symbol m_text_end          = m_flash_start + m_flash_size - LITTLEFS_REGION_SIZE - 1;
+define symbol m_ncache_start      = m_sram2_start + m_sram2_size - m_ncache_size;
+define symbol m_ncache_end        = m_ncache_start + m_ncache_size - 1;
+define symbol m_heap_start        = m_sram2_start;
+define symbol m_heap_end          = m_ncache_start - 1;
+define symbol m_dataext_start     = m_sram0_start;
+define symbol m_dataext_end       = m_sram1_start + m_sram1_size - 1;
+
+if (isdefinedsymbol(__ram_vector_table__)) {
+  define symbol m_ramvector_start = m_itcm_start;
+  define symbol m_ramvector_end   = m_itcm_start + m_vector_table_size - 1;
+}
+
+if (isdefinedsymbol(__stack_size__)) {
+  define symbol __size_cstack__ = __stack_size__;
+} else {
+  define symbol __size_cstack__ = 0x1000;
+}
+
+if (isdefinedsymbol(__heap_size__)) {
+  define symbol __size_heap__ = __heap_size__;
+} else {
+  define symbol __size_heap__ = 0x1000;
+}
+
+define symbol m_rvt_offset        = isdefinedsymbol(__ram_vector_table__) ? m_vector_table_size : 0;
+
+define symbol m_qacode_start      = m_itcm_start + m_rvt_offset;
+define symbol m_qacode_end        = m_itcm_start + m_itcm_size - 1;
+define symbol m_qadata_start      = m_dtcm_start;
+define symbol m_qadata_end        = m_dtcm_start + m_dtcm_size - __size_cstack__ - 1;
+define symbol m_cstack_start      = m_dtcm_start + m_dtcm_size - __size_cstack__;
+define symbol m_cstack_end        = m_dtcm_start + m_dtcm_size - 1;
+
+/* ================ Target specific CODE / DATA addresses ================= */
+/* ======================================================================== */
+define symbol m_code_start        = m_text_start;
+define symbol m_code_end          = m_text_end;
+define symbol m_data_start        = m_dtcm_start;
+define symbol m_data_end          = m_dtcm_start + m_dtcm_size - __size_cstack__ - 1;
+
+/* ============================ Memory regions ============================ */
+/* ======================================================================== */
+define memory mem with size = 4G;
+define region FCB_region       = mem:[from m_fcb_start       to m_fcb_end];
+define region XMCD_region      = mem:[from m_xmcd_start      to m_xmcd_end];
+define region CONTAINER_region = mem:[from m_container_start to m_container_end];
+define region FLASH_region     = mem:[from m_text_start      to m_text_end];
+define region CODE_region      = mem:[from m_code_start      to m_code_end];
+define region DATA_region      = mem:[from m_data_start      to m_data_end];
+define region CSTACK_region    = mem:[from m_cstack_start    to m_cstack_end];
+define region QACODE_region    = mem:[from m_qacode_start    to m_qacode_end];
+/* QADATA_region == DATA_region here (both DTCM). ILINK accepts overlapping
+ * regions; do NOT add `place in QADATA_region {}` -- data placed via
+ * `place in DATA_region {}` already occupies the range. */
+define region QADATA_region    = mem:[from m_qadata_start    to m_qadata_end];
+define region NCACHE_region    = mem:[from m_ncache_start    to m_ncache_end];
+define region HEAP_region      = mem:[from m_heap_start      to m_heap_end];
+define region DATAEXT_region   = mem:[from m_dataext_start   to m_dataext_end];
+
+if (isdefinedsymbol(__ram_vector_table__)) {
+  define region RAMVECTOR_region = mem:[from m_ramvector_start to m_ramvector_end];
+}
+
+/* ========================= LittleFS configuration ======================= */
+/* ======================================================================== */
+/* NOTE: The last LITTLEFS_REGION_SIZE of Flash is reserved for littleFS data. */
+define exported symbol EDGEFAST_BT_LITTLEFS_STORAGE_START_ADDRESS = m_text_end + 1;
+define exported symbol EDGEFAST_BT_LITTLEFS_STORAGE_SECTOR_SIZE   = 0x1000;  /* 4k flash sector size */
+define exported symbol EDGEFAST_BT_LITTLEFS_STORAGE_MAX_SECTORS   = LITTLEFS_REGION_SIZE / EDGEFAST_BT_LITTLEFS_STORAGE_SECTOR_SIZE;
+
+/* ========================== Block definitions =========================== */
+/* ======================================================================== */
+define block RO                  with fixed order { readonly section .intvec, readonly };
+define block RW_CODE             { section .textrw };
+define block RW_DATA             { rw data };
+define block ZI                  { zi };
+define block QACCESS_CODE        { section CodeQuickAccess };
+define block QACCESS_DATA        { section DataQuickAccess };
+/* Split like the 1060 example: zi-only (NCACHE_VAR, no content -> RAM) is
+ * kept separate from the copy-initialized part (NCACHE_VAR_INIT, has content
+ * -> ROM). Mixing them in one placement triggers Lp005. */
+define block NCACHE_VAR          { section NonCacheable };
+define block NCACHE_VAR_INIT     { section NonCacheable.init, section NonCacheable_init };
+define block CACHE_LINE_DATA_RW  with alignment = 32, end alignment = 32 { section CacheLineData.init };
+define block CACHE_LINE_DATA_ZI  with alignment = 32, end alignment = 32 { section CacheLineData };
+define block CSTACK              with alignment = 8, size = __size_cstack__ { };
+define block HEAP                with alignment = 8, size = __size_heap__   { };
+
+if (isdefinedsymbol(__ram_vector_table__)) {
+  define block RAM_VECTOR with size = m_vector_table_size { };
+  keep { block RAM_VECTOR };
+}
+
+define block APP_QACCESS_CODE {
+  /* section ro object hello_world.o */
+};
+
+/* ---- Flash-resident XSPI / mflash driver code executes from RAM (DTCM) ---- */
+/* Use `object` (not `ro object`): these objects' .text/.rodata are declared in
+ * the `initialize by copy` directive below, so ILINK treats them as rw code and
+ * the ro-only pattern would fail to match (Lc036). Matches the 1060 example and
+ * the gcc layout where the whole object is copied to and executed from RAM.
+ * liblc3 (LC3 codec) and the LE Audio sync path are included too, matching
+ * evkbmimxrt1170's layout for this example. */
+define block RAM_DRIVER {
+  section .textrw,
+  object fsl_xspi.o,
+  object mflash_drv.o,
+  object srCvtFrm.o,
+  object attdet.o,
+  object bits.o,
+  object bwdet.o,
+  object energy.o,
+  object lc3.o,
+  object ltpf.o,
+  object mdct.o,
+  object plc.o,
+  object sns.o,
+  object spec.o,
+  object tables.o,
+  object tns.o,
+  object fsl_edma.o,
+  object fsl_sai.o,
+  object fsl_sai_edma.o,
+  object hardware_init.o,
+  object main.o
+};
+
+
+/* ---------------- BT / settings iterable list sections ----------------- */
+define block ._bt_gatt_service_static with fixed order { readonly section ._bt_gatt_service_static* };
+define image symbol _bt_gatt_service_static_list_start = ADDR(._bt_gatt_service_static);
+define image symbol _bt_gatt_service_static_list_end   = END(._bt_gatt_service_static);
+define block ._bt_settings_static with fixed order { readonly section ._bt_settings* };
+define image symbol _bt_settings_start = ADDR(._bt_settings_static);
+define image symbol _bt_settings_end   = END(._bt_settings_static);
+define block ._bt_conn_cb with fixed order { readonly section ._bt_conn_cb* };
+define image symbol _bt_conn_cb_list_start = ADDR(._bt_conn_cb);
+define image symbol _bt_conn_cb_list_end   = END(._bt_conn_cb);
+define block ._bt_sco_conn_cb with fixed order { readonly section ._bt_sco_conn_cb* };
+define image symbol _bt_sco_conn_cb_list_start = ADDR(._bt_sco_conn_cb);
+define image symbol _bt_sco_conn_cb_list_end   = END(._bt_sco_conn_cb);
+define block ._bt_sco_hci_cb with fixed order { readonly section ._bt_sco_hci_cb* };
+define image symbol _bt_sco_hci_cb_list_start = ADDR(._bt_sco_hci_cb);
+define image symbol _bt_sco_hci_cb_list_end   = END(._bt_sco_hci_cb);
+define block ._bt_ias_cb with fixed order { readonly section ._bt_ias_cb* };
+define image symbol _bt_ias_cb_list_start = ADDR(._bt_ias_cb);
+define image symbol _bt_ias_cb_list_end   = END(._bt_ias_cb);
+define block ._bt_l2cap_fixed_chan with fixed order { readonly section ._bt_l2cap_fixed_chan* };
+define image symbol _bt_l2cap_fixed_chan_list_start = ADDR(._bt_l2cap_fixed_chan);
+define image symbol _bt_l2cap_fixed_chan_list_end   = END(._bt_l2cap_fixed_chan);
+define block ._bt_l2cap_br_fixed_chan with fixed order { readonly section ._bt_l2cap_br_fixed_chan* };
+define image symbol _bt_l2cap_br_fixed_chan_list_start = ADDR(._bt_l2cap_br_fixed_chan);
+define image symbol _bt_l2cap_br_fixed_chan_list_end   = END(._bt_l2cap_br_fixed_chan);
+define block ._settings_handler_static with fixed order { readonly section ._settings_handler_static* };
+define image symbol _settings_handler_static_list_start = ADDR(._settings_handler_static);
+define image symbol _settings_handler_static_list_end   = END(._settings_handler_static);
+
+/* -------- Kernel / net_buf / shell iterable list sections (RW) --------- */
+define block ._k_mem_slab with fixed order { readwrite section ._k_mem_slab* };
+define image symbol _k_mem_slab_list_start = ADDR(._k_mem_slab);
+define image symbol _k_mem_slab_list_end   = END(._k_mem_slab);
+define block ._net_buf_pool with fixed order { readwrite section ._net_buf_pool* };
+define image symbol _net_buf_pool_list_start = ADDR(._net_buf_pool);
+define image symbol _net_buf_pool_list_end   = END(._net_buf_pool);
+define block .__shell_command with fixed order { readwrite section .__shell_command* };
+define image symbol __shell_command_list_start = ADDR(.__shell_command);
+define image symbol __shell_command_list_end   = END(.__shell_command);
+
+/* ---------------------- Zephyr init level sections --------------------- */
+define block .z_init with fixed order, alignment=4
+{
+  block .z_init_EARLY_1        with alphabetical order, alignment=4 { section .z_init_EARLY_P_?_* },
+  block .z_init_EARLY_2        with alphabetical order, alignment=4 { section .z_init_EARLY_P_??_* },
+  block .z_init_EARLY_3        with alphabetical order, alignment=4 { section .z_init_EARLY_P_???_* },
+  block .z_init_PRE_KERNEL_1_1 with alphabetical order, alignment=4 { section .z_init_PRE_KERNEL_1_P_?_* },
+  block .z_init_PRE_KERNEL_1_2 with alphabetical order, alignment=4 { section .z_init_PRE_KERNEL_1_P_??_* },
+  block .z_init_PRE_KERNEL_1_3 with alphabetical order, alignment=4 { section .z_init_PRE_KERNEL_1_P_???_* },
+  block .z_init_PRE_KERNEL_2_1 with alphabetical order, alignment=4 { section .z_init_PRE_KERNEL_2_P_?_* },
+  block .z_init_PRE_KERNEL_2_2 with alphabetical order, alignment=4 { section .z_init_PRE_KERNEL_2_P_??_* },
+  block .z_init_PRE_KERNEL_2_3 with alphabetical order, alignment=4 { section .z_init_PRE_KERNEL_2_P_???_* },
+  block .z_init_POST_KERNEL_1  with alphabetical order, alignment=4 { section .z_init_POST_KERNEL_P_?_* },
+  block .z_init_POST_KERNEL_2  with alphabetical order, alignment=4 { section .z_init_POST_KERNEL_P_??_* },
+  block .z_init_POST_KERNEL_3  with alphabetical order, alignment=4 { section .z_init_POST_KERNEL_P_???_* },
+  block .z_init_APPLICATION_1  with alphabetical order, alignment=4 { section .z_init_APPLICATION_P_?_* },
+  block .z_init_APPLICATION_2  with alphabetical order, alignment=4 { section .z_init_APPLICATION_P_??_* },
+  block .z_init_APPLICATION_3  with alphabetical order, alignment=4 { section .z_init_APPLICATION_P_???_* },
+};
+define image symbol __init_EARLY_start        = ADDR(.z_init_EARLY_1);
+define image symbol __init_PRE_KERNEL_1_start = ADDR(.z_init_PRE_KERNEL_1_1);
+define image symbol __init_PRE_KERNEL_2_start = ADDR(.z_init_PRE_KERNEL_2_1);
+define image symbol __init_POST_KERNEL_start  = ADDR(.z_init_POST_KERNEL_1);
+define image symbol __init_APPLICATION_start  = ADDR(.z_init_APPLICATION_1);
+define image symbol __init_start = ADDR(.z_init);
+define image symbol __init_end   = END(.z_init);
+
+keep {
+  block .z_init_EARLY_1        , section .z_init_EARLY_P_?_*,
+  block .z_init_EARLY_2        , section .z_init_EARLY_P_??_*,
+  block .z_init_EARLY_3        , section .z_init_EARLY_P_???_*,
+  block .z_init_PRE_KERNEL_1_1 , section .z_init_PRE_KERNEL_1_P_?_*,
+  block .z_init_PRE_KERNEL_1_2 , section .z_init_PRE_KERNEL_1_P_??_*,
+  block .z_init_PRE_KERNEL_1_3 , section .z_init_PRE_KERNEL_1_P_???_*,
+  block .z_init_PRE_KERNEL_2_1 , section .z_init_PRE_KERNEL_2_P_?_*,
+  block .z_init_PRE_KERNEL_2_2 , section .z_init_PRE_KERNEL_2_P_??_*,
+  block .z_init_PRE_KERNEL_2_3 , section .z_init_PRE_KERNEL_2_P_???_*,
+  block .z_init_POST_KERNEL_1  , section .z_init_POST_KERNEL_P_?_*,
+  block .z_init_POST_KERNEL_2  , section .z_init_POST_KERNEL_P_??_*,
+  block .z_init_POST_KERNEL_3  , section .z_init_POST_KERNEL_P_???_*,
+  block .z_init_APPLICATION_1  , section .z_init_APPLICATION_P_?_*,
+  block .z_init_APPLICATION_2  , section .z_init_APPLICATION_P_??_*,
+  block .z_init_APPLICATION_3  , section .z_init_APPLICATION_P_???_*,
+};
+
+/* ====================== Initialization directives ======================= */
+/* ======================================================================== */
+/* packing = none: disable initializer compression. Compression would require
+ * the addresses of the Zephyr .z_init iterable symbols (referenced from the
+ * .data table) before their placement is finalized, producing Lp017. */
+initialize by copy with packing = none {
+  readwrite,
+  section .textrw,
+  section CacheLineData.init,
+  section NonCacheable.init,
+  section NonCacheable_init,
+  section DataQuickAccess,
+  section CodeQuickAccess,
+  /* XSPI / mflash driver code copied to and executed from RAM */
+  object fsl_xspi.o,
+  object mflash_drv.o,
+  /* liblc3 codec + LE Audio sync path, also copied to and executed from RAM
+   * (see RAM_DRIVER) */
+  object srCvtFrm.o,
+  object attdet.o,
+  object bits.o,
+  object bwdet.o,
+  object energy.o,
+  object lc3.o,
+  object ltpf.o,
+  object mdct.o,
+  object plc.o,
+  object sns.o,
+  object spec.o,
+  object tables.o,
+  object tns.o,
+  object fsl_edma.o,
+  object fsl_sai.o,
+  object fsl_sai_edma.o,
+  object hardware_init.o,
+  object main.o
+
+  /* , section ro object hello_world.o */
+};
+
+/* Readonly (code + .rodata) executes from Flash at its load address;
+ * no readonly-init copy directive is needed. */
+
+do not initialize { section .noinit };
+keep { section .boot_hdr.fcb, section .boot_hdr.xmcd_data, section .boot_hdr.container };
+keep { section .flash_area_list, section ._net_buf_pool*, section ._k_mem_slab*, section ._bt*, section ._settings*, section .__shell_command* };
+
+/* ========================= Placement directives ========================= */
+/* ======================================================================== */
+place in FCB_region       { section .boot_hdr.fcb };
+place in XMCD_region      { section .boot_hdr.xmcd_data };
+place in CONTAINER_region { section .boot_hdr.container };
+place in FLASH_region     { first block RO,
+                            block ._bt_gatt_service_static,
+                            block ._bt_settings_static,
+                            block ._bt_conn_cb,
+                            block ._bt_sco_conn_cb,
+                            block ._bt_sco_hci_cb,
+                            block ._bt_ias_cb,
+                            block ._bt_l2cap_fixed_chan,
+                            block ._bt_l2cap_br_fixed_chan,
+                            block ._settings_handler_static,
+                            block .z_init };
+
+if (isdefinedsymbol(__ram_vector_table__)) {
+  place in RAMVECTOR_region    { first block RAM_VECTOR };
+}
+
+place in QACODE_region    { block RW_CODE };
+place in QACODE_region    { block QACCESS_CODE };
+place in QACODE_region    { block APP_QACCESS_CODE };
+
+place in QACODE_region    { block RAM_DRIVER };
+
+place in DATA_region      { block QACCESS_DATA };
+place in DATA_region      { block RW_DATA };
+place in DATA_region      { block ._net_buf_pool };
+place in DATA_region      { block ._k_mem_slab };
+place in DATA_region      { block .__shell_command };
+place in DATA_region      { block ZI };
+place in DATA_region      { block CACHE_LINE_DATA_RW, block CACHE_LINE_DATA_ZI };
+
+place in CSTACK_region    { block CSTACK };
+place in NCACHE_region    { block NCACHE_VAR_INIT };
+place in NCACHE_region    { block NCACHE_VAR };
+place in DATAEXT_region   { };
+
+if (isdefinedsymbol(__heap_noncacheable__)) {
+  place at end of NCACHE_region { block HEAP };
+} else {
+  place at end of HEAP_region   { block HEAP };
+}
+
+/* =========================== Exported symbols =========================== */
+/* ======================================================================== */
+define exported symbol __VECTOR_TABLE             = m_text_start;
+if (isdefinedsymbol(__ram_vector_table__)) {
+  define exported symbol __VECTOR_RAM             = m_ramvector_start;
+} else {
+  define exported symbol __VECTOR_RAM             = m_text_start;
+}
+define exported symbol __RAM_VECTOR_TABLE_SIZE    = m_rvt_offset;
+define exported symbol __NCACHE_REGION_START      = m_ncache_start;
+define exported symbol __NCACHE_REGION_SIZE       = m_ncache_end - m_ncache_start + 1;
+define exported symbol __CONTAINER_IMG_OFFSET     = m_app_image_offset - m_container_offset;
+define exported symbol __CONTAINER_IMG_LOAD_ADDR  = m_text_start;
+define exported symbol __CONTAINER_IMG_ENTRY_ADDR = m_text_start;

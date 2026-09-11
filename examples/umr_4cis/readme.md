@@ -124,3 +124,4 @@ Note:
 
 ## Supported Boards
 - [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/umr_4cis/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/umr_4cis/example_board_readme.md)

@@ -28,3 +28,4 @@ umr_4cis:
     - -armgcc@flexspi_nor_debug
     - -iar@flexspi_nor_debug
     - -mdk@flexspi_nor_debug
+    mimxrt2660evk: []
