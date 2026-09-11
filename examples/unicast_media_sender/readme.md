@@ -243,5 +243,5 @@ Other cmds could be used:
 6. "config_packing" used to config iso packing mode, and this cmd should be used before "lc3_preset".
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/unicast_media_sender/example_board_readme.md)
-- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/edgefast_bluetooth_examples/unicast_media_sender/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/unicast_media_sender/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/unicast_media_sender/example_board_readme.md)

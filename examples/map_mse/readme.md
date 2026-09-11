@@ -63,4 +63,5 @@ The bellow commands have been supported:
 3. This example is based on FatFs RAM disk. There is a limited memory to store the incoming message from MCE. 
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/map_mse/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/map_mse/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/map_mse/example_board_readme.md)

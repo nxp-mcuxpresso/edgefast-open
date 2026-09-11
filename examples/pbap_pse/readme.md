@@ -80,4 +80,5 @@ Note:
 - When using GOEP v2 (L2CAP transport), SRM is enabled for improved data transfer efficiency. Large responses are sent in chunks via a dedicated work queue.
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/pbap_pse/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/pbap_pse/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/pbap_pse/example_board_readme.md)

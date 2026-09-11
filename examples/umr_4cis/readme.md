@@ -123,4 +123,4 @@ Note:
 2. There is a delay in synchronizing volume/mute status between receivers. Setting a smaller connection interval can reduce the delay, but may introduce other timing issues.
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/umr_4cis/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/umr_4cis/example_board_readme.md)

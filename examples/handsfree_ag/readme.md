@@ -80,12 +80,13 @@ Note:
 2. The codec power on pop noise cannot eliminate.
 
 ## Supported Boards
-- [EVKB-IMXRT1050](../../_boards/evkbimxrt1050/edgefast_bluetooth_examples/handsfree_ag/example_board_readme.md)
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/handsfree_ag/example_board_readme.md)
-- [MIMXRT1060-EVKC](../../_boards/evkcmimxrt1060/edgefast_bluetooth_examples/handsfree_ag/example_board_readme.md)
-- [MIMXRT1040-EVK](../../_boards/evkmimxrt1040/edgefast_bluetooth_examples/handsfree_ag/example_board_readme.md)
-- [MIMXRT1180-EVK](../../_boards/evkmimxrt1180/edgefast_bluetooth_examples/handsfree_ag/example_board_readme.md)
-- [EVK-MIMXRT595](../../_boards/evkmimxrt595/edgefast_bluetooth_examples/handsfree_ag/example_board_readme.md)
-- [EVK-MIMXRT685](../../_boards/evkmimxrt685/edgefast_bluetooth_examples/handsfree_ag/example_board_readme.md)
-- [MCX-N5XX-EVK](../../_boards/mcxn5xxevk/edgefast_bluetooth_examples/handsfree_ag/example_board_readme.md)
-- [MIMXRT700-EVK](../../_boards/mimxrt700evk/edgefast_bluetooth_examples/handsfree_ag/example_board_readme.md)
+- [EVKB-IMXRT1050](../../_boards/evkbimxrt1050/handsfree_ag/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/handsfree_ag/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/handsfree_ag/example_board_readme.md)
+- [MIMXRT1060-EVKC](../../_boards/evkcmimxrt1060/handsfree_ag/example_board_readme.md)
+- [MIMXRT1040-EVK](../../_boards/evkmimxrt1040/handsfree_ag/example_board_readme.md)
+- [MIMXRT1180-EVK](../../_boards/evkmimxrt1180/handsfree_ag/example_board_readme.md)
+- [EVK-MIMXRT595](../../_boards/evkmimxrt595/handsfree_ag/example_board_readme.md)
+- [EVK-MIMXRT685](../../_boards/evkmimxrt685/handsfree_ag/example_board_readme.md)
+- [MCX-N5XX-EVK](../../_boards/mcxn5xxevk/handsfree_ag/example_board_readme.md)
+- [MIMXRT700-EVK](../../_boards/mimxrt700evk/handsfree_ag/example_board_readme.md)

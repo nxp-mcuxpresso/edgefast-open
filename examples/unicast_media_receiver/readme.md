@@ -99,5 +99,5 @@ Note:
 2. There is a delay in synchronizing volume/mute status between receivers. Setting a smaller connection interval can reduce the delay, but may introduce other timing issues.
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/unicast_media_receiver/example_board_readme.md)
-- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/edgefast_bluetooth_examples/unicast_media_receiver/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/unicast_media_receiver/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/unicast_media_receiver/example_board_readme.md)

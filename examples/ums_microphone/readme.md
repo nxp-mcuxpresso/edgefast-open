@@ -134,4 +134,4 @@ Procedures to run
 4. the audio will start playing after all config done.
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/unicast_media_sender/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/unicast_media_sender/example_board_readme.md)

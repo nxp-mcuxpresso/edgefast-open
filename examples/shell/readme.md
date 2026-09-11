@@ -1,6 +1,7 @@
 
 - [EVKB-IMXRT1050](../_boards/evkbimxrt1050/shell/example_board_readme.md)
 - [MIMXRT1170-EVKB](../_boards/evkbmimxrt1170/shell/example_board_readme.md)
+- [MIMXRT2660-EVK](../_boards/mimxrt2660evk/shell/example_board_readme.md)
 - [MIMXRT1060-EVKC](../_boards/evkcmimxrt1060/shell/example_board_readme.md)
 - [MIMXRT1040-EVK](../_boards/evkmimxrt1040/shell/example_board_readme.md)
 - [MIMXRT1180-EVK](../_boards/evkmimxrt1180/shell/example_board_readme.md)

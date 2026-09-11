@@ -523,4 +523,5 @@ Please place the MSE as close as possible to the PCE. You can lift this restrict
 3. Only one MAP MAS and MNS connection is supported.
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/map_mce/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/map_mce/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/map_mce/example_board_readme.md)

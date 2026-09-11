@@ -31,6 +31,7 @@ Sending message...
 ## Supported Boards
 - [EVKB-IMXRT1050](../_boards/evkbimxrt1050/central_ipsp/example_board_readme.md)
 - [MIMXRT1170-EVKB](../_boards/evkbmimxrt1170/central_ipsp/example_board_readme.md)
+- [MIMXRT2660-EVK](../_boards/mimxrt2660evk/central_ipsp/example_board_readme.md)
 - [MIMXRT1060-EVKC](../_boards/evkcmimxrt1060/central_ipsp/example_board_readme.md)
 - [MIMXRT1040-EVK](../_boards/evkmimxrt1040/central_ipsp/example_board_readme.md)
 - [MIMXRT1180-EVK](../_boards/evkmimxrt1180/central_ipsp/example_board_readme.md)

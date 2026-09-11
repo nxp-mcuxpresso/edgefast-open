@@ -92,5 +92,5 @@ Note:
 1. "exit" command is a shell internal command, only used to exit shell module and could not used to exit demo.
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/bmr_4bis/example_board_readme.md)
-- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/edgefast_bluetooth_examples/bmr_4bis/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/bmr_4bis/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/bmr_4bis/example_board_readme.md)

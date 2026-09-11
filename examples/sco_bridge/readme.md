@@ -119,7 +119,8 @@ HF: Call accepted
 5. Only one SCO audio connection is active at a time on each side (HF and AG)
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/sco_bridge/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/sco_bridge/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/sco_bridge/example_board_readme.md)
 
 ---
 Copyright © 2024 NXP

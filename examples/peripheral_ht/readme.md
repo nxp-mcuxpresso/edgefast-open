@@ -26,6 +26,7 @@ The demo does not require user interaction. The application will automatically s
 ## Supported Boards
 - [EVKB-IMXRT1050](../_boards/evkbimxrt1050/peripheral_ht/example_board_readme.md)
 - [MIMXRT1170-EVKB](../_boards/evkbmimxrt1170/peripheral_ht/example_board_readme.md)
+- [MIMXRT2660-EVK](../_boards/mimxrt2660evk/peripheral_ht/example_board_readme.md)
 - [MIMXRT1060-EVKC](../_boards/evkcmimxrt1060/peripheral_ht/example_board_readme.md)
 - [MIMXRT1040-EVK](../_boards/evkmimxrt1040/peripheral_ht/example_board_readme.md)
 - [MIMXRT1180-EVK](../_boards/evkmimxrt1180/peripheral_ht/example_board_readme.md)

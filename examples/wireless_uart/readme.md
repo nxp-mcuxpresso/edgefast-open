@@ -75,6 +75,7 @@ long press the user button, the example will work as peripheral again.
 ## Supported Boards
 - [EVKB-IMXRT1050](../_boards/evkbimxrt1050/wireless_uart/example_board_readme.md)
 - [MIMXRT1170-EVKB](../_boards/evkbmimxrt1170/wireless_uart/example_board_readme.md)
+- [MIMXRT2660-EVK](../_boards/mimxrt2660evk/wireless_uart/example_board_readme.md)
 - [MIMXRT1060-EVKC](../_boards/evkcmimxrt1060/wireless_uart/example_board_readme.md)
 - [MIMXRT1040-EVK](../_boards/evkmimxrt1040/wireless_uart/example_board_readme.md)
 - [MIMXRT1180-EVK](../_boards/evkmimxrt1180/wireless_uart/example_board_readme.md)

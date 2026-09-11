@@ -122,5 +122,5 @@ Note:
 2. the "music_16_2.wav" should be 16/24/32bits 2 channel with sample rate 8000/16000/24000/32000/48000.
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/bms_4bis/example_board_readme.md)
-- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/edgefast_bluetooth_examples/bms_4bis/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/bms_4bis/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/bms_4bis/example_board_readme.md)

@@ -195,5 +195,5 @@ Procedures to run
 - this demo don't need any user input and will run automatically.
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/tmap_central/example_board_readme.md)
-- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/edgefast_bluetooth_examples/tmap_central/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/tmap_central/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/tmap_central/example_board_readme.md)

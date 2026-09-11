@@ -104,4 +104,5 @@ Note:
 - The device discovery connects to the phone with the highest RSSI among discovered devices that have a Phone major class of device (CoD).
 
 ## Supported Boards
-- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/edgefast_bluetooth_examples/pbap_pce/example_board_readme.md)
+- [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/pbap_pce/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/pbap_pce/example_board_readme.md)
