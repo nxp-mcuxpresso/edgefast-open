@@ -181,7 +181,7 @@ void BOARD_InitHardware(void)
 {
     /* Board common setting: MPU, Power and Clock Tree, TRDC, and Debug Console init. */
     BOARD_CommonSetting();
-    BOARD_InitUSDHC0Pins();
+    BOARD_InitUSDHC1Pins();
     BOARD_InitM2UARTPins();
     BOARD_Init6524Pins();
 
