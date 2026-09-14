@@ -171,7 +171,7 @@ SECTIONS
     *(EXCLUDE_FILE(
         */mflash_drv.c.obj
         */fsl_xspi.c.obj
-    ) .rodata)
+    ) .rodata*)
     *(.glue_7) *(.glue_7t) *(.eh_frame)
     KEEP(*(.init))
     KEEP(*(.fini))

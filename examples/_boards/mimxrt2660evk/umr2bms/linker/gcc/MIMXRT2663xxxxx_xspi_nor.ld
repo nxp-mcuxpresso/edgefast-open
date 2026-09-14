@@ -171,14 +171,7 @@ SECTIONS
     *(EXCLUDE_FILE(
         */mflash_drv.c.obj
         */fsl_xspi.c.obj
-    ) .rodata)
-    /* Keep the large WiFi/BT firmware blob (.rodata.fw_cpu2, ~195 KB from
-     * rw61x_cpu2.c) resident in Flash. Without an explicit selector it is an
-     * orphan section, and GNU ld places it into the last RWX region
-     * (m_qacode / ITCM), overflowing the 256 KB ITCM bank. Target only the
-     * blob so the liblc3 / main / hardware_init .rodata still lands in the
-     * RAM-executed .app_qacode section below. */
-    *(.rodata.fw_cpu2*)
+    ) .rodata*)
     *(.glue_7) *(.glue_7t) *(.eh_frame)
     KEEP(*(.init))
     KEEP(*(.fini))
