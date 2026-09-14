@@ -2669,10 +2669,14 @@ void BOARD_InitSDHC1Pins(void)
 BOARD_InitPinsSco:
 - options: {callFromInitBoot: 'true', coreID: cm33_core0, enableClock: 'true'}
 - pin_list:
-  - {pin_num: L4, peripheral: SAI2, signal: TX_BCLK, pin_signal: PIO0_11, InputBufferEnable: enable}
-  - {pin_num: L5, peripheral: SAI2, signal: TXD0, pin_signal: PIO0_12, InputBufferEnable: enable}
-  - {pin_num: L3, peripheral: SAI2, signal: TX_SYNC, pin_signal: PIO0_13, InputBufferEnable: enable}
-  - {pin_num: L1, peripheral: SAI2, signal: RXD0, pin_signal: PIO0_14, InputBufferEnable: enable}
+  - {pin_num: W24, peripheral: SAI2, signal: TX_BCLK, pin_signal: PIO0_11/LP_FLEXCOMM5_P1/SCT0_GPIN5/SCT0_OUT5/CTIMER1_MAT1/SAI2_TX_BCLK,
+    InputBufferEnable: enable}
+  - {pin_num: U23, peripheral: SAI2, signal: TXD0, pin_signal: PIO0_12/LP_FLEXCOMM5_P2/SCT0_GPIN6/SCT0_OUT6/CTIMER1_MAT2/SAI2_TX_DATA,
+    InputBufferEnable: enable}
+  - {pin_num: Y25, peripheral: SAI2, signal: TX_SYNC, pin_signal: PIO0_13/LP_FLEXCOMM5_P3/SCT0_GPIN7/SCT0_OUT7/CTIMER1_MAT3/SAI2_TX_SYNC,
+    InputBufferEnable: enable}
+  - {pin_num: V24, peripheral: SAI2, signal: RXD0, pin_signal: PIO0_14/LP_FLEXCOMM5_P4/SCT0_GPIN0/SCT0_OUT8/CTIMER_C_INP2/SAI2_RX_DATA/CLKOUT_VDD2,
+    InputBufferEnable: enable}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -2703,7 +2707,7 @@ void BOARD_InitPinsSco(void)
                                          IOPCTL_PIO_INV_DI |
                                          /* Selects transmitter current drive 100ohm */
                                          IOPCTL_PIO_DRIVE_100OHM);
-    /* PORT0 PIN11 (coords: L4) is configured as SAI2_TX_BCLK */
+    /* PORT0 PIN11 (coords: W24) is configured as SAI2_TX_BCLK */
     IOPCTL_PinMuxSet(0U, 11U, port0_pin11_config);
 
     const uint32_t port0_pin12_config = (/* Pin is configured as SAI2_TX_DATA */
@@ -2720,7 +2724,7 @@ void BOARD_InitPinsSco(void)
                                          IOPCTL_PIO_INV_DI |
                                          /* Selects transmitter current drive 100ohm */
                                          IOPCTL_PIO_DRIVE_100OHM);
-    /* PORT0 PIN12 (coords: L5) is configured as SAI2_TX_DATA */
+    /* PORT0 PIN12 (coords: U23) is configured as SAI2_TX_DATA */
     IOPCTL_PinMuxSet(0U, 12U, port0_pin12_config);
 
     const uint32_t port0_pin13_config = (/* Pin is configured as SAI2_TX_SYNC */
@@ -2737,7 +2741,7 @@ void BOARD_InitPinsSco(void)
                                          IOPCTL_PIO_INV_DI |
                                          /* Selects transmitter current drive 100ohm */
                                          IOPCTL_PIO_DRIVE_100OHM);
-    /* PORT0 PIN13 (coords: L3) is configured as SAI2_TX_SYNC */
+    /* PORT0 PIN13 (coords: Y25) is configured as SAI2_TX_SYNC */
     IOPCTL_PinMuxSet(0U, 13U, port0_pin13_config);
 
     const uint32_t port0_pin14_config = (/* Pin is configured as SAI2_RX_DATA */
@@ -2754,7 +2758,7 @@ void BOARD_InitPinsSco(void)
                                          IOPCTL_PIO_INV_DI |
                                          /* Selects transmitter current drive 100ohm */
                                          IOPCTL_PIO_DRIVE_100OHM);
-    /* PORT0 PIN14 (coords: L1) is configured as SAI2_RX_DATA */
+    /* PORT0 PIN14 (coords: V24) is configured as SAI2_RX_DATA */
     IOPCTL_PinMuxSet(0U, 14U, port0_pin14_config);
 }
 /***********************************************************************************************************************
