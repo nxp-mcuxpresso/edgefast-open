@@ -135,3 +135,4 @@ Procedures to run
 
 ## Supported Boards
 - [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/unicast_media_sender/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/unicast_media_sender/example_board_readme.md)
