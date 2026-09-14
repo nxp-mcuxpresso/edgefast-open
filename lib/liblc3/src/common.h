@@ -83,7 +83,16 @@
 #pragma Otime
 #pragma O3
 #elif defined(__GNUC__) || defined(__clang__)
+#if defined(MIMXRT2663_SERIES)
+/* For RT2660, which utilizes the Cortex-M85, using the O3 optimization level causes excessive
+ * inlining within the `lc3_sns_synthesize` function, resulting in the `vldr.64` instruction's addressing
+ * range being exceeded. This triggers a compilation error: "co-processor offset out of range". This issue
+ * has been tested across the following ARMGCC versions: 14.2.rel1, 14.3.rel1, 15.2.rel1, and 15.3.rel1.
+ * Workaround: Use the O2 optimization level instead of O3 for RT2660. */
+#pragma GCC optimize("O2")
+#else
 #pragma GCC optimize("O3")
+#endif
 #endif
 
 /**
