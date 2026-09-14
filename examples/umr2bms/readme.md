@@ -48,3 +48,4 @@ UMR: Advertising successfully started
 
 ## Supported Boards
 - [MIMXRT1170-EVKB](../../_boards/evkbmimxrt1170/broadcast_media_sender/example_board_readme.md)
+- [MIMXRT2660-EVK](../../_boards/mimxrt2660evk/umr2bms/example_board_readme.md)

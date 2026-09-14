@@ -25,3 +25,4 @@ umr2bms:
     - -mdk@release
     - -mdk@sdram_debug
     - -mdk@sdram_release
+    mimxrt2660evk: []
