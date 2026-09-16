@@ -12,7 +12,8 @@ Hardware requirements
 
 Audio Hardware Rework：
     Remove R346
-    Remove J100,J101
+    Disconnect J100,J101
+    Connect J26,J27
 
 Board settings
 ==============
