@@ -59,6 +59,9 @@ extern hal_audio_config_t rxSpeakerConfig;
 /* --------------------------------------------- Static Global Variables */
 
 extern uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate);
+__attribute__((weak)) void BOARD_MASTER_CLOCK_CONFIG(void)
+{
+}
 
 AT_NONCACHEABLE_SECTION_ALIGN(static HAL_AUDIO_HANDLE_DEFINE(tx_speaker_handle), 4);
 AT_NONCACHEABLE_SECTION_ALIGN(static HAL_AUDIO_HANDLE_DEFINE(rx_mic_handle), 4);
@@ -402,6 +405,8 @@ static void Init_Board_Sco_Audio(uint32_t samplingRate, uint8_t bitWidth)
         rxSpeakerConfig.sampleRate_Hz = samplingRate;
         HAL_AudioRxInit((hal_audio_handle_t)&rx_speaker_handle[0], &rxSpeakerConfig);
         HAL_AudioRxInstallCallback((hal_audio_handle_t)&rx_speaker_handle[0], rxSpeakerCallback, NULL);
+
+        BOARD_MASTER_CLOCK_CONFIG();
 
         /* Codec */
         if (CODEC_Init(&codec_handle, &boardCodecScoConfig) != kStatus_Success)

@@ -10,6 +10,10 @@ Hardware requirements
   - Embedded Artists 2LL M.2 Module (EAR00500) - direct M2 connection.
   - Embedded Artists AW300 Module (BT_NW61X_BOARD_NXP_RD_USD).
 
+Audio Hardware Rework：
+    Remove R346
+    Remove J100,J101
+
 Board settings
 ==============
 Before building the example application select Wi-Fi module macro in the edgefast_open_app.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
