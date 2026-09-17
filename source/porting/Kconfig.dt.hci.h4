@@ -185,7 +185,7 @@ config DT_N_INST_0_nxp_bt_hci_uart_P_sdio_reset_gpios_IDX_0_VAL_flags
 # w_disable_gpios
 config DT_N_INST_0_nxp_bt_hci_uart_P_w_disable_gpios_EXISTS
 	bool "WIFI disable GPIO"
-        default n if MCUX_HW_DEVICE_MIMXRT2663
+    default n if MCUX_HW_DEVICE_MIMXRT2663
 	default y
 	help
 	  No prefix in generated macro
