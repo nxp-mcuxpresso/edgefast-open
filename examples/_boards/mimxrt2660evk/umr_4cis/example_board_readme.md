@@ -26,10 +26,14 @@ Codec:
 
 QTPM Configuration (LE Audio sync signal):
 -------------------------------------------
-- HW Rework:
+- HW Rework (Rev A):
   - Remove: U66
   - Connect: J87 to TP77(or J93_9)
   - Connect: 2EL's GPIO_27 to TP78(or J93_10)
+- HW Rework (Rev B1):
+  - Short: R2696 1-3
+  - Short: R2697 1-3
+  - Connect: 2EL's GPIO_27 to TP96
 
 Note:
 =====
