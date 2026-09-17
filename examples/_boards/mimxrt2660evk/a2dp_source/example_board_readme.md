@@ -34,6 +34,14 @@ The hardware should be reworked according to the Hardware Rework Guide for MIMXR
 The hardware rework for MIMXRT2660-EVK and Murata 2EL M.2 Adapter is same as MIMXRT2660-EVK and Murata 1XK M.2 Adapter.
 The hardware rework for MIMXRT2660-EVK and Murata 2LL M.2 Adapter is same as MIMXRT2660-EVK and Murata 1XK M.2 Adapter.
 
+Hardware Rework Guide for RT2660-EVK
+=====================================
+
+Bluetooth UART:
+---------------
+- HW Rework:
+  - Remove: R553, R554
+
 Note:
 To ensure that the LITTLEFS flash region has been cleaned,
 all flash sectors need to be erased before downloading example code.

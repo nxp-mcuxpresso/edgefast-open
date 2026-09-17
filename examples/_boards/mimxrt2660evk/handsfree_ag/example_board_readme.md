@@ -10,11 +10,6 @@ Hardware requirements
   - Embedded Artists 2LL M.2 Module (EAR00500) - direct M2 connection.
   - Embedded Artists AW300 Module (BT_NW61X_BOARD_NXP_RD_USD).
 
-Audio Hardware Rework：
-    Remove R346
-    Disconnect J100,J101
-    Connect J26,J27
-
 Board settings
 ==============
 Before building the example application select Wi-Fi module macro in the edgefast_open_app.h. (see #define WIFI_<SoC Name>_BOARD_<Module Name>).
@@ -32,6 +27,21 @@ The hardware should be reworked according to the Hardware Rework Guide for MIMXR
 The hardware should be reworked according to the Hardware Rework Guide for MIMXRT2660-EVK and Murata 1ZM M.2 Adapter in document Hardware Rework Guide for EdgeFast Open Bluetooth Host stack.
 The hardware rework for MIMXRT2660-EVK and Murata 2EL M.2 Adapter is same as MIMXRT2660-EVK and Murata 1XK M.2 Adapter.
 The hardware rework for MIMXRT2660-EVK and Murata 2LL M.2 Adapter is same as MIMXRT2660-EVK and Murata 1XK M.2 Adapter.
+
+Hardware Rework Guide for RT2660-EVK
+=====================================
+
+Bluetooth UART:
+---------------
+- HW Rework:
+  - Remove: R553, R554
+
+Codec:
+------
+- HW Rework:
+  - Remove R346
+  - Disconnect J100, J101
+  - Connect J26, J27
 
 Note:
 To ensure that the LITTLEFS flash region has been cleaned,
