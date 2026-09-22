@@ -168,18 +168,27 @@ define block APP_QACCESS_CODE {
   /* section ro object hello_world.o */
 };
 
-/* ---- Flash-resident XSPI / mflash driver code executes from RAM (DTCM) ---- */
-/* Use `object` (not `ro object`): these objects' .text/.rodata are declared in
- * the `initialize by copy` directive below, so ILINK treats them as rw code and
- * the ro-only pattern would fail to match (Lc036). Matches the 1060 example and
- * the gcc layout where the whole object is copied to and executed from RAM.
+/* XSPI / mflash driver code + constants executed from ITCM, so that erase and
+ * program operations never fetch from the XSPI NOR they are modifying.
+ *
+ * Select by `section <name> object <file>`, never by a bare `object <file>`:
+ * a bare object selector also matches the initializer-bytes section ILINK
+ * generates for this block (it is attributed to the same object), which pins
+ * the ROM copy in ITCM instead of Flash. The image then only works via
+ * debugger download and boots from garbage after a power reset.
+ *
+ * .data / .bss of fsl_xspi / mflash_drv are deliberately NOT listed: they
+ * fall through to RW_DATA / ZI in DTCM, matching the GCC layout (.app_qacode
+ * takes only .text* and .rodata*).
+ *
  * liblc3 (LC3 codec) is included too, matching evkbmimxrt1170's layout.
  * Audio driver objects (fsl_edma, fsl_sai, fsl_sai_edma, srCvtFrm) are NOT
  * included here -- the sender does not use the audio output path. */
 define block RAM_DRIVER {
-  section .textrw,
-  object fsl_xspi.o,
-  object mflash_drv.o,
+  section .text   object fsl_xspi.o,
+  section .text   object mflash_drv.o,
+  section .rodata object fsl_xspi.o,
+  section .rodata object mflash_drv.o,
   object attdet.o,
   object bits.o,
   object bwdet.o,
@@ -295,9 +304,12 @@ initialize by copy with packing = none {
   section NonCacheable_init,
   section DataQuickAccess,
   section CodeQuickAccess,
-  /* XSPI / mflash driver code copied to and executed from RAM */
-  object fsl_xspi.o,
-  object mflash_drv.o,
+  /* XSPI / mflash driver code copied to and executed from RAM.
+   * Section-qualified on purpose -- see the RAM_DRIVER block comment. */
+  section .text   object fsl_xspi.o,
+  section .text   object mflash_drv.o,
+  section .rodata object fsl_xspi.o,
+  section .rodata object mflash_drv.o,
   /* liblc3 codec, also copied to and executed from RAM (see RAM_DRIVER).
    * Audio driver objects are NOT included -- the sender has no audio output. */
   object attdet.o,
