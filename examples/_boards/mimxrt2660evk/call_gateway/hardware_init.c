@@ -243,6 +243,17 @@ static const clock_cguana_avpll_config_t s_audioPll44kConfig = {
     .sscg         = NULL,
 };
 
+void BOARD_MASTER_CLOCK_CONFIG(void)
+{
+    sai_master_clock_t mclkConfig = {0};
+
+    mclkConfig.mclkOutputEnable = true;
+    mclkConfig.mclkHz           = DEMO_SAI_CLK_FREQ;
+    mclkConfig.mclkSourceClkHz  = DEMO_SAI_CLK_FREQ;
+
+    SAI_SetMasterClockConfig(DEMO_SAI, &mclkConfig);
+}
+
 void BOARD_EnableSaiMclkOutput(bool enable)
 {
     /* On RT2660 the SAI0 MCLK output to the pad is dynamically clock-gated by

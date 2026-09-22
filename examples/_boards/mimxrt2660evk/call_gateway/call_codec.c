@@ -53,8 +53,20 @@ extern hal_audio_config_t codecRxConfig;
 
 static uint32_t src_clk_hz;
 
-AT_NONCACHEABLE_SECTION_ALIGN(static HAL_AUDIO_HANDLE_DEFINE(codecRxHandle), 4);
-AT_NONCACHEABLE_SECTION_ALIGN(static HAL_AUDIO_HANDLE_DEFINE(codecTxHandle), 4);
+/* The HAL audio handle embeds the SAI eDMA handle, which in turn embeds the
+ * eDMA TCD pool inline (fsl_sai_edma.h: uint8_t tcd[...]). The unified eDMA
+ * requires every TCD to be 32-byte aligned; fsl_edma.c asserts
+ * ((uint32_t)tcd & 0x1FU) == 0U. sizeof(the handle) is 0x1BC (444) bytes,
+ * which is not a multiple of 32, so with only 4-byte alignment the second
+ * handle lands at a non-32-byte-aligned address and its TCD pool is
+ * misaligned. The eDMA then fetches descriptors from a bad address and the
+ * resulting bus error is reported asynchronously as an imprecise BusFault
+ * (CFSR.IMPRECISERR) with no valid BFAR. Examples with a single handle never
+ * hit this because the section start is already aligned. Force 32-byte
+ * alignment on both handles. */
+AT_NONCACHEABLE_SECTION_ALIGN(static HAL_AUDIO_HANDLE_DEFINE(codecRxHandle), 32);
+AT_NONCACHEABLE_SECTION_ALIGN(static HAL_AUDIO_HANDLE_DEFINE(codecTxHandle), 32);
+
 
 static codec_handle_t codec_handle;
 
@@ -87,6 +99,12 @@ static void APP_CodecRxCallback(hal_audio_handle_t handle, hal_audio_status_t co
 
 static int BOARD_AudioDeinit(void);
 extern uint32_t BOARD_SwitchAudioFreq(uint32_t sampleRate);
+/* HAL_AudioTxInit() runs SAI_Init(), which soft-resets the SAI peripheral and
+ * clears its master clock register. The WM8962 on this board needs the
+ * SAI-level master clock reprogrammed after that reset, so hardware_init.c
+ * provides BOARD_MASTER_CLOCK_CONFIG() and it is called right after the Tx
+ * init, the same way the unicast/broadcast media receiver examples do it. */
+extern void BOARD_MASTER_CLOCK_CONFIG(void);
 
 volatile uint32_t s_txCount = 0;
 volatile uint32_t s_rxCount = 0;
@@ -201,6 +219,7 @@ int BOARD_AudioInit(uint32_t samplingRate, uint32_t bitWidth)
 	codecTxConfig.dataFormat        = kHAL_AudioDataFormatI2sClassic;
 	HAL_AudioTxInit((hal_audio_handle_t)&codecTxHandle[0], &codecTxConfig);
 	HAL_AudioTxInstallCallback((hal_audio_handle_t)&codecTxHandle[0], APP_CodecTxCallback, NULL);
+	BOARD_MASTER_CLOCK_CONFIG();
 
 #if (defined FSL_FEATURE_SAI_HAS_MCLKDIV_REGISTER && FSL_FEATURE_SAI_HAS_MCLKDIV_REGISTER) || \
     (defined FSL_FEATURE_PCC_HAS_SAI_DIVIDER && FSL_FEATURE_PCC_HAS_SAI_DIVIDER)

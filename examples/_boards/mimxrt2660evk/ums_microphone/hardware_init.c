@@ -85,6 +85,9 @@ static volatile uint32_t SyncSignal_Index = 0U;
 #define DEMO_SAI_CLK_FREQ CLOCK_GetRootClockFreq(kCLOCK_Root_AUDIO_sai0_mclk0)
 #define DEMO_CODEC_INSTANCE (0U)
 
+/* SAI instance driving the on-board WM8962 codec. */
+#define DEMO_SAI                AUDIO__SAI_0
+
 /* DMA. Audio uses eDMA instance 2. Tx on channel 0, Rx on channel 1.
  * The BT HCI UART runs on eDMA instance 0, so there is no channel collision. */
 #define EXAMPLE_DMA_INSTANCE        (2U)
@@ -272,6 +275,17 @@ static const clock_cguana_avpll_config_t s_audioPll44kConfig = {
     .sscgEn       = false,
     .sscg         = NULL,
 };
+
+void BOARD_MASTER_CLOCK_CONFIG(void)
+{
+    sai_master_clock_t mclkConfig = {0};
+
+    mclkConfig.mclkOutputEnable = true;
+    mclkConfig.mclkHz           = DEMO_SAI_CLK_FREQ;
+    mclkConfig.mclkSourceClkHz  = DEMO_SAI_CLK_FREQ;
+
+    SAI_SetMasterClockConfig(DEMO_SAI, &mclkConfig);
+}
 
 void BOARD_EnableSaiMclkOutput(bool enable)
 {
