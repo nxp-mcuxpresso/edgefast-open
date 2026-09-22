@@ -22,7 +22,6 @@
 #define BUTTON_TASK_STACK_SIZE (1500U)
 
 #if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
-#include "wifi_bt_module_config.h"
 #include "wifi_config.h"
 #else
 #error The transceiver module is unsupported

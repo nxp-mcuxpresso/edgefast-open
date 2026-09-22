@@ -8,6 +8,8 @@
 #ifndef _WIFI_CONFIG_H__
 #define _WIFI_CONFIG_H__
 
+#include "wifi_bt_module_config.h"
+
 #define CONFIG_MAX_AP_ENTRIES 10
 #define CONFIG_UAP_AMPDU_TX   1
 #define CONFIG_UAP_AMPDU_RX   1

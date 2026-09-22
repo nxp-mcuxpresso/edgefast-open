@@ -12,7 +12,6 @@
     defined(WIFI_IW416_BOARD_AW_AM510MA) || defined(WIFI_IW416_BOARD_AW_AM510_USD) ||       \
     defined(WIFI_IW416_BOARD_AW_AM457_USD) || defined(WIFI_88W8987_BOARD_AW_CM358MA) ||     \
     defined(WIFI_88W8987_BOARD_AW_CM358_MA)
-#include "wifi_bt_module_config.h"
 #include "wifi_config.h"
 #else
 #error The transceiver module is unsupported

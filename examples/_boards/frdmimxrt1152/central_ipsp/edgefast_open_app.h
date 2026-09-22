@@ -12,7 +12,6 @@
 #define PCM_MODE_CONFIG_TX_CLK_SYNC 1
 
 #if defined(WIFI_IW612_BOARD_MURATA_2EL_M2)
-#include "wifi_bt_module_config.h"
 #include "wifi_config.h"
 #else
 #error The transceiver module is unsupported

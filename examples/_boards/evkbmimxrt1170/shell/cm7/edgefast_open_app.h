@@ -14,7 +14,6 @@
      defined(BT_THIRD_PARTY_TRANSCEIVER) || defined(WIFI_IW612_BOARD_MURATA_2EL_M2) ||       \
      defined(BT_NW61X_BOARD_NXP_RD_USD) || defined(WIFI_IW610_BOARD_MURATA_2LL_M2) ||        \
      defined(WIFI_AW611_BOARD_UBX_JODY_W5_M2))
-#include "wifi_bt_module_config.h"
 #include "wifi_config.h"
 #else
 #error The transceiver module is unsupported
