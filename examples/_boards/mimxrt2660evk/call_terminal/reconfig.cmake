@@ -66,8 +66,8 @@ mcux_add_macro(
       -DSDK_I2C_BASED_COMPONENT_USED=1\
       -DBOARD_USE_PCAL6524=1\
       -DSDIO_ENABLED=1\
-      -DHAL_AUDIO_DMA_INIT_ENABLE=0\
       -DTF_PSA_CRYPTO_USER_CONFIG_FILE=\\\"tf_psa_crypto_user_config.h\\\""
+
 )
 
 mcux_add_macro(

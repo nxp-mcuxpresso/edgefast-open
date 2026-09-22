@@ -66,7 +66,6 @@ mcux_add_macro(
       -DBOARD_USE_PCAL6524=1\
       -DSDIO_ENABLED=1\
       -DUSB_HOST_CONFIG_BUFFER_PROPERTY_CACHEABLE=1\
-      -DHAL_AUDIO_DMA_INIT_ENABLE=0\
       -DTF_PSA_CRYPTO_USER_CONFIG_FILE=\\\"tf_psa_crypto_user_config.h\\\""
 )
 
