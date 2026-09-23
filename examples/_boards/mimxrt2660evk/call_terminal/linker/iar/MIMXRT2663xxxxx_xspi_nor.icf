@@ -180,48 +180,61 @@ define block APP_QACCESS_CODE {
   /* section ro object hello_world.o */
 };
 
-/* XSPI / mflash driver code + constants executed from ITCM, so that erase and
- * program operations never fetch from the XSPI NOR they are modifying.
+/* Code executed from SRAM0+SRAM1 instead of XIP: the XSPI / mflash driver so
+ * that erase and program operations never fetch from the XSPI NOR they are
+ * modifying, and the LC3 codec / LE Audio sync path for latency.
+ *
+ * Placed in DATAEXT_region (SRAM0+SRAM1, 512K), not QACODE_region (ITCM,
+ * 256K): the ITCM cannot hold the LC3 tables, and evkbmimxrt1170 puts the
+ * same objects in OCRAM rather than in its ITCM section.
  *
  * Select by `section <name> object <file>`, never by a bare `object <file>`:
  * a bare object selector also matches the initializer-bytes section ILINK
  * generates for this block (it is attributed to the same object), which pins
- * the ROM copy in ITCM instead of Flash. The image then only works via
- * debugger download and boots from garbage after a power reset.
+ * the ROM copy in RAM instead of Flash, and it collides with the
+ * `section NonCacheable` / `section NonCacheable_init` selectors of the
+ * NCACHE_VAR* blocks (Lc037 ambiguous section match).
  *
- * .data / .bss of fsl_xspi / mflash_drv are deliberately NOT listed: they
- * fall through to RW_DATA / ZI in DTCM, matching the GCC layout (.app_qacode
- * takes only .text* and .rodata*).
- *
- * liblc3 (LC3 codec) and the LE Audio sync path are included too, matching
- * evkbmimxrt1170's layout for this example. */
+ * .data / .bss are deliberately NOT listed: they fall through to RW_DATA / ZI
+ * in DTCM, matching the GCC layout. */
 define block RAM_DRIVER {
   section .text   object fsl_xspi.o,
-  section .text   object mflash_drv.o,
   section .rodata object fsl_xspi.o,
+  section .text   object mflash_drv.o,
   section .rodata object mflash_drv.o,
-  object srCvtFrm.o,
-  object attdet.o,
-  object bits.o,
-  object bwdet.o,
-  object energy.o,
-  object lc3.o,
-  object ltpf.o,
-  object mdct.o,
-  object plc.o,
-  object sns.o,
-  object spec.o,
-  /* NOTE: lc3 tables.o (large const lookup tables) is intentionally NOT placed
-   * in ITCM. call_terminal's bidirectional voice path pulls more code into
-   * QACODE than the media examples, overflowing the 256 KB ITCM (Lp011). The
-   * LC3 tables are read-only constants (cached from flash), so keeping them in
-   * flash costs no real-time performance while freeing the needed ITCM space. */
-  object tns.o,
-  object fsl_edma.o,
-  object fsl_sai.o,
-  object fsl_sai_edma.o,
-  object hardware_init.o,
-  object main.o
+  section .text   object srCvtFrm.o,
+  section .rodata object srCvtFrm.o,
+  section .text   object attdet.o,
+  section .rodata object attdet.o,
+  section .text   object bits.o,
+  section .rodata object bits.o,
+  section .text   object bwdet.o,
+  section .rodata object bwdet.o,
+  section .text   object energy.o,
+  section .rodata object energy.o,
+  section .text   object lc3.o,
+  section .rodata object lc3.o,
+  section .text   object ltpf.o,
+  section .rodata object ltpf.o,
+  section .text   object mdct.o,
+  section .rodata object mdct.o,
+  section .text   object plc.o,
+  section .rodata object plc.o,
+  section .text   object sns.o,
+  section .rodata object sns.o,
+  section .text   object spec.o,
+  section .rodata object spec.o,
+  section .text   object tables.o,
+  section .rodata object tables.o,
+  section .text   object tns.o,
+  section .rodata object tns.o,
+  /* Code only: .rodata stays in Flash (hardware_init.c carries the ~128 KB
+   * ELE firmware container), matching evkbmimxrt1170/cm7.ld. */
+  section .text   object fsl_edma.o,
+  section .text   object fsl_sai.o,
+  section .text   object fsl_sai_edma.o,
+  section .text   object hardware_init.o,
+  section .text   object main.o
 };
 
 
@@ -327,32 +340,45 @@ initialize by copy with packing = none {
   section NonCacheable_init,
   section DataQuickAccess,
   section CodeQuickAccess,
-  /* XSPI / mflash driver code copied to and executed from RAM.
+  /* Code copied to and executed from SRAM0+SRAM1.
    * Section-qualified on purpose -- see the RAM_DRIVER block comment. */
   section .text   object fsl_xspi.o,
-  section .text   object mflash_drv.o,
   section .rodata object fsl_xspi.o,
+  section .text   object mflash_drv.o,
   section .rodata object mflash_drv.o,
-  /* liblc3 codec + LE Audio sync path, also copied to and executed from RAM
-   * (see RAM_DRIVER) */
-  object srCvtFrm.o,
-  object attdet.o,
-  object bits.o,
-  object bwdet.o,
-  object energy.o,
-  object lc3.o,
-  object ltpf.o,
-  object mdct.o,
-  object plc.o,
-  object sns.o,
-  object spec.o,
-  /* tables.o kept in flash (see RAM_DRIVER note): no RAM copy needed. */
-  object tns.o,
-  object fsl_edma.o,
-  object fsl_sai.o,
-  object fsl_sai_edma.o,
-  object hardware_init.o,
-  object main.o
+  section .text   object srCvtFrm.o,
+  section .rodata object srCvtFrm.o,
+  section .text   object attdet.o,
+  section .rodata object attdet.o,
+  section .text   object bits.o,
+  section .rodata object bits.o,
+  section .text   object bwdet.o,
+  section .rodata object bwdet.o,
+  section .text   object energy.o,
+  section .rodata object energy.o,
+  section .text   object lc3.o,
+  section .rodata object lc3.o,
+  section .text   object ltpf.o,
+  section .rodata object ltpf.o,
+  section .text   object mdct.o,
+  section .rodata object mdct.o,
+  section .text   object plc.o,
+  section .rodata object plc.o,
+  section .text   object sns.o,
+  section .rodata object sns.o,
+  section .text   object spec.o,
+  section .rodata object spec.o,
+  section .text   object tables.o,
+  section .rodata object tables.o,
+  section .text   object tns.o,
+  section .rodata object tns.o,
+  /* Code only: .rodata stays in Flash (hardware_init.c carries the ~128 KB
+   * ELE firmware container), matching evkbmimxrt1170/cm7.ld. */
+  section .text   object fsl_edma.o,
+  section .text   object fsl_sai.o,
+  section .text   object fsl_sai_edma.o,
+  section .text   object hardware_init.o,
+  section .text   object main.o
 
   /* , section ro object hello_world.o */
 };
@@ -390,8 +416,6 @@ place in QACODE_region    { block RW_CODE };
 place in QACODE_region    { block QACCESS_CODE };
 place in QACODE_region    { block APP_QACCESS_CODE };
 
-place in QACODE_region    { block RAM_DRIVER };
-
 place in DATA_region      { block QACCESS_DATA };
 place in DATA_region      { block RW_DATA };
 place in DATA_region      { block ._net_buf_pool };
@@ -403,6 +427,7 @@ place in DATA_region      { block CACHE_LINE_DATA_RW, block CACHE_LINE_DATA_ZI }
 place in CSTACK_region    { block CSTACK };
 place in NCACHE_region    { block NCACHE_VAR_INIT };
 place in NCACHE_region    { block NCACHE_VAR };
+place in DATAEXT_region   { block RAM_DRIVER };
 place in DATAEXT_region   { block NOINIT };
 
 

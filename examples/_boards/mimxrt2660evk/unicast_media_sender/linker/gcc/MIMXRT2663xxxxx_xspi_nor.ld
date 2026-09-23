@@ -127,7 +127,7 @@ MEMORY
   m_ncache         (RW) : ORIGIN = m_ncache_start,                     LENGTH = m_ncache_size
   m_heap           (RW) : ORIGIN = m_heap_start,                       LENGTH = m_heap_size
   m_stack          (RW) : ORIGIN = m_stack_start,                      LENGTH = m_stack_size
-  m_dataext        (RW) : ORIGIN = m_dataext_start,                    LENGTH = m_dataext_size
+  m_dataext        (RWX): ORIGIN = m_dataext_start,                    LENGTH = m_dataext_size
 }
 
 REGION_ALIAS("m_code",   m_text)
@@ -161,13 +161,47 @@ SECTIONS
   /* --------------- Main code (.text + ARM unwind tables) ---------------- */
   .text : ALIGN(4)
   {
+    /* Objects that execute from SRAM are excluded from XIP here and placed
+     * explicitly in .app_qacode below. Without these EXCLUDE_FILE entries
+     * .text would claim their sections first (GNU ld: first match wins)
+     * and .app_qacode would link as an empty section. */
     *(EXCLUDE_FILE(
-        */mflash_drv.c.obj
         */fsl_xspi.c.obj
+        */mflash_drv.c.obj
+        */attdet.c.obj
+        */bits.c.obj
+        */bwdet.c.obj
+        */energy.c.obj
+        */lc3.c.obj
+        */ltpf.c.obj
+        */mdct.c.obj
+        */plc.c.obj
+        */sns.c.obj
+        */spec.c.obj
+        */tables.c.obj
+        */tns.c.obj
+        */hardware_init.c.obj
+        */main.c.obj
     ) .text*)
+    /* .rodata of the audio-driver and application objects deliberately stays
+     * in Flash -- only their code is worth moving to SRAM, and
+     * hardware_init.c carries the ~128 KB ELE firmware container as .rodata.
+     * Same split as evkbmimxrt1170/cm7.ld. */
     *(EXCLUDE_FILE(
-        */mflash_drv.c.obj
         */fsl_xspi.c.obj
+        */mflash_drv.c.obj
+        */attdet.c.obj
+        */bits.c.obj
+        */bwdet.c.obj
+        */energy.c.obj
+        */lc3.c.obj
+        */ltpf.c.obj
+        */mdct.c.obj
+        */plc.c.obj
+        */sns.c.obj
+        */spec.c.obj
+        */tables.c.obj
+        */tns.c.obj
     ) .rodata*)
     *(.glue_7) *(.glue_7t) *(.eh_frame)
     KEEP(*(.init))
@@ -336,15 +370,17 @@ SECTIONS
   } > m_qacode AT > m_text
   __QACODE_ROM = LOADADDR(.qacode);
 
+  /* ----- Application code executed from SRAM (VMA=SRAM0/1, LMA=Flash) ---- */
+  /* Target is m_dataext (SRAM0+SRAM1, 512K), not ITCM: the 256K ITCM cannot
+   * hold the LC3 tables, and evkbmimxrt1170 puts the same objects in OCRAM
+   * (m_data2) rather than in its .ram_function/ITCM section. MPU region 5
+   * maps 0x22000000 as cacheable RW+exec (XN=0), so code may run here;
+   * DTCM is XN=1 and must not be used for this. */
   .app_qacode : ALIGN(4)
   {
     __app_qacode_start__ = .;
     *fsl_xspi.c.obj(.text .text* .rodata .rodata*)
     *mflash_drv.c.obj(.text .text* .rodata .rodata*)
-    /* liblc3 (LC3 codec) executes from RAM, matching evkbmimxrt1170's layout
-     * for this example. Audio driver objects (fsl_edma, fsl_sai, fsl_sai_edma,
-     * srCvtFrm) are NOT included here -- the sender does not use the audio
-     * output path. */
     *attdet.c.obj(.text .text* .rodata .rodata*)
     *bits.c.obj(.text .text* .rodata .rodata*)
     *bwdet.c.obj(.text .text* .rodata .rodata*)
@@ -357,11 +393,12 @@ SECTIONS
     *spec.c.obj(.text .text* .rodata .rodata*)
     *tables.c.obj(.text .text* .rodata .rodata*)
     *tns.c.obj(.text .text* .rodata .rodata*)
-    *hardware_init.c.obj(.text .text* .rodata .rodata*)
-    *main.c.obj(.text .text* .rodata .rodata*)
+    /* Code only -- see the .rodata EXCLUDE_FILE note in .text above. */
+    *hardware_init.c.obj(.text .text*)
+    *main.c.obj(.text .text*)
     . = ALIGN(4);
     __app_qacode_end__ = .;
-  } > m_qacode AT > m_text
+  } > m_dataext AT > m_text
   __APP_QACODE_ROM = LOADADDR(.app_qacode);
 
   /* -------- QuickAccess: fast-access data (VMA=DTCM, LMA=Flash) --------- */
@@ -503,6 +540,8 @@ SECTIONS
   text_data_end = __image_end;
   text_end      = ORIGIN(m_text) + LENGTH(m_text);
   ASSERT(text_data_end <= text_end, "region m_text overflowed with text and data")
+  ASSERT(__dataext_bss_end__ <= ORIGIN(m_dataext) + LENGTH(m_dataext),
+         "region m_dataext overflowed with SRAM-resident code and data")
 
   ASSERT(_size_cstack_ > 0,
          "__stack_size__ must be > 0")
