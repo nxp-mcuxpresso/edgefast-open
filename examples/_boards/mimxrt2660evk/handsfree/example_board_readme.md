@@ -42,6 +42,7 @@ Codec:
   - Remove R346
   - Disconnect J100, J101
   - Connect J26, J27
+  - Connect J60 2-3
 
 Note:
 To ensure that the LITTLEFS flash region has been cleaned,

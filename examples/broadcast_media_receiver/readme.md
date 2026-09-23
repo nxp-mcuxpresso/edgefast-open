@@ -71,6 +71,7 @@ Other cmds could be used:
 1. "sync_info" used to get iso_interval/sync_delay/pd/ts, and this cmd should be used after the audio start playing.
 2. "sync_test_mode" used to set the test mode, and this cmd should be used before init.
 3. "set_broadcast_code" used to set broadcast code, and this cmd could be used before init or later.
+4. "set_name" used to set the real broadcast source name which to scan and sync.
 
 Note:
 1. "exit" command is a shell internal command, only used to exit shell module and could not used to exit demo.

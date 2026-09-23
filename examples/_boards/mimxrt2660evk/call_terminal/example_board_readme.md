@@ -22,6 +22,7 @@ Codec:
 ------
 - HW Rework:
   - Remove R346
+  - Connect J60 2-3
 
 QTPM Configuration (LE Audio sync signal):
 -------------------------------------------

@@ -24,6 +24,11 @@ Bluetooth UART:
 - HW Rework:
   - Remove: R553, R554
 
+Codec:
+------
+- HW Rework:
+  - Connect J60 2-3
+
 SyncSignal Configuration (LE Audio sync signal):
 -------------------------------------------------
 - HW Rework (Rev A):

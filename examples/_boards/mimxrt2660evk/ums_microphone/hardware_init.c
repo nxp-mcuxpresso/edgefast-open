@@ -401,8 +401,11 @@ void BOARD_Init_TRNG(void)
         PRINTF("ELE_GetFwStatus failed (%d)\r\n", (int)result);
         return;
     }
-    PRINTF("ELE FW status 0x%08x (%s)\r\n", (unsigned int)fwstatus,
-           (fwstatus == 0u) ? "no ELE FW in place" : "authenticated and operational");
+    if (fwstatus == 0u)
+    {
+        PRINTF("No ELE FW in place, FW status 0x%08x\r\n", (unsigned int)fwstatus);
+        return;
+    }
 
     /* Kick the ELE RNG service; on a cold boot this triggers the TRNG
      * start-up sequence inside the enclave. Treated as fatal, like in the
@@ -440,8 +443,6 @@ void BOARD_Init_TRNG(void)
                (unsigned int)kELE_TRNG_ready);
         return;
     }
-
-    PRINTF("ELE TRNG ready, state 0x%08x\r\n", (unsigned int)trng_state);
 }
 
 /* Staging buffer for the random bytes produced by the ELE.
