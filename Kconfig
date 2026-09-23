@@ -32,7 +32,8 @@ menuconfig MCUX_COMPONENT_middleware.edgefast_open
 				MCUX_HW_DEVICE_MCXN947    || \
 				MCUX_HW_DEVICE_MCXN947T   || \
 				MCUX_HW_DEVICE_RW612      || \
-                MCUX_HW_DEVICE_MIMXRT2663
+				MCUX_HW_DEVICE_MIMXRT2663 || \
+				MCUX_HW_DEVICE_RW610
 	select ATOMIC_OPERATIONS_BUILTIN
 	select MCUX_COMPONENT_component.psa_crypto_driver.dcp if \
 				MCUX_HW_DEVICE_MIMXRT1052 || \
@@ -54,7 +55,8 @@ menuconfig MCUX_COMPONENT_middleware.edgefast_open
 				MCUX_HW_DEVICE_MCXN547  || \
 				MCUX_HW_DEVICE_MCXN947  || \
 				MCUX_HW_DEVICE_MCXN947T || \
-				MCUX_HW_DEVICE_RW612
+				MCUX_HW_DEVICE_RW612    || \
+				MCUX_HW_DEVICE_RW610
 
 if MCUX_COMPONENT_middleware.edgefast_open
 

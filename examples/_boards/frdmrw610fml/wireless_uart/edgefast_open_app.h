@@ -1,0 +1,20 @@
+/*
+ *  Copyright 2026 NXP.
+ *
+ *  SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include "edgefast_open_config.h"
+
+#ifndef BOARD_USER_BUTTON_GPIO
+#define BOARD_USER_BUTTON_GPIO BOARD_SW2_GPIO_PORT
+#endif
+#ifndef BOARD_USER_BUTTON_GPIO_PIN
+#define BOARD_USER_BUTTON_GPIO_PIN (BOARD_SW2_GPIO_PIN)
+#endif
+#define BOARD_USER_BUTTON_IRQ  GPIO_INTA_IRQn
+#define BOARD_USER_BUTTON_NAME "SW2"
+
+#include "monolithic_config.h"
+
+#define OSA_USED 1

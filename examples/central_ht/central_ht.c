@@ -380,7 +380,7 @@ static void bt_ready(int err)
     bt_conn_auth_cb_register(&auth_cb_display);
 #endif
 
-#if defined(APP_LOWPOWER_ENABLED) && (APP_LOWPOWER_ENABLED > 0) && (!defined(RW612_SERIES))
+#if defined(APP_LOWPOWER_ENABLED) && (APP_LOWPOWER_ENABLED > 0) && (!defined(RW612_SERIES)) && (!defined(RW610_SERIES))
     /* Initialize and configure the lowpower feature of controller. */
     PLATFORM_ControllerLowPowerInit();
 #endif /* APP_LOWPOWER_ENABLED */
