@@ -32,6 +32,7 @@
 #if (defined(BUTTON_COUNT) && (BUTTON_COUNT > 0U))
 #include "fsl_component_button.h"
 #endif
+#include "fsl_component_timer_manager.h"
 /*${header:end}*/
 
 /*${variable:start}*/
@@ -237,6 +238,22 @@ int mbedtls_platform_get_entropy(psa_driver_get_entropy_flags_t flags, size_t *e
     return 0;
 }
 
+/* LPIT0 (HSP__LPIT_0) backs the timer_manager used by the button component.
+ * Root clock is set up by BOARD_InitBootClocks(); LPIT_Init() inside
+ * HAL_TimerInit() ungates kCLOCK_MAIN_hsp_lpit0. */
+void BOARD_Init_Timer(void)
+{
+    timer_config_t timerConfig;
+    timer_status_t status;
+
+    (void)memset(&timerConfig, 0, sizeof(timer_config_t));
+    timerConfig.instance    = 0U; /* HSP__LPIT_0 */
+    timerConfig.srcClock_Hz = CLOCK_GetRootClockFreq(kCLOCK_Root_MAIN_lpit0_fclk);
+    status                  = TM_Init(&timerConfig);
+
+    (void)status;
+}
+
 #if (defined(CONFIG_BT_SMP) && (CONFIG_BT_SMP > 0))
 void bt_psa_crypto_init(void)
 {
@@ -274,6 +291,8 @@ void BOARD_InitHardware(void)
     BOARD_Init_TRNG();
     BOARD_InitBUTTONsPins();
     CLOCK_EnableClock(kCLOCK_MAIN_hsp_rgpio0);
+
+    BOARD_Init_Timer();
 
 #if (defined(HAL_UART_DMA_ENABLE) && (HAL_UART_DMA_ENABLE > 0U))
     edma_config_t config;
