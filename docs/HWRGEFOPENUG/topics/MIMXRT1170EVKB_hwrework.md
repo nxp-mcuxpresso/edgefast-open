@@ -1,4 +1,4 @@
-# Hardware rework 
+# Hardware rework
 
 -   **HCI UART rework**
     1.  Remove resistors R183 and R1816.
@@ -18,6 +18,11 @@
 
         ![](../images/MIMXRT1170-EVKB-PCM_Back.png "MIMXRT1170-EVKB PCM Back")
 
+-   **Debug console UART missing pull-up rework (REV C1 / REV B / REV A)**
+
+    **Note:** This rework is required for PTS (Profile Tuning Suite) testing. Without this rework, a missing pull-up resistor causes an extra `0x00` byte to appear at the start of the debug console UART data during startup.
+
+    1.  Solder a 4.7 k&Omega;-10 k&Omega; pull-up resistor between J115 and JP6.
+
 
 **Parent topic:**[Hardware Rework Guide for MIMXRT1170-EVKB and Murata M.2 Module](../topics/RT1170EVKB_Murata_M2.md)
-
