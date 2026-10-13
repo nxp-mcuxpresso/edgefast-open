@@ -6,8 +6,6 @@ Hardware requirements
 
 Board settings
 =====================
-Disconnect R134.
-Connect R115 with 0ohm resistance.
 
 Prepare BLE controller
 =====================
